@@ -1,0 +1,12 @@
+2018.12.05
+ftbase.q:.roll.ft增加保存.hdb.P
+
+2018.03.29
+fectp.q:
+fefix.q:增加对能源交易中心XINE的支持
+
+2017.07.26
+ftbase.q:.timer.ftsim增加`typ字段,清除`type字段拼写错误
+2017.03.05
+extfectp.cpp:initctpt增加第三个入参指示是否续传消息,0为不续传,1为续传
+fectp.q:ctptconn中相应进行修改,默认传入0i,以防日盘开始时重传夜盘成交回报导致的成交量异常,同时取消在.upd.Trade中加的过滤补丁

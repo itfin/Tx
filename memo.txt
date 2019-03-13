@@ -1,0 +1,35 @@
+namespace
+.ex   交易所信息
+.db   本地数据
+.ft   策略feed
+.fq   行情feed
+.fe   交易feed
+.fc   管理feed
+.fu   用户feed
+.fa   分析feed
+.fp   转发feed
+.upd  事件回调
+.zpc  kdb连接关闭通知
+.enum 全局常数
+.conf 配置参数
+.ctrl 状态变量
+.temp 临时变量
+.math 数学计算
+.base 引导模块
+.init 启动回调
+.exit 退出回调
+.roll 日期滚动回调
+.timer 定时器回调
+.tcppc TCP连接关闭通知
+.module 模块版本
+id编码
+一般为3位数,末位为节点id,前两位00-29为ft,30-59为fe,60-89为fq,90-91为fu,92-93为fa,98为fp,99为fc
+策略回调
+`timer`quote`exerpt`match`dayroll`sysinit`sysexit
+订阅
+`为全订,`symbol$()为不订,其它为显式订阅
+变量命名
+标量:小写开头小写结束
+数组:小写开头大写结束
+字典:大写开头小写结束
+表  :大写开头大写结束
