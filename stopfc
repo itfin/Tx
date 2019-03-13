@@ -1,0 +1,2 @@
+#!/bin/sh
+cd /kdb && taskset -c 0,1 /q/l64/q Tx/core/base.q -code 'system "x .z.exit";@[`::5000;(exit;0);0N!];exit[0];'
