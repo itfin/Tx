@@ -1,5 +1,5 @@
-\l Tx/conf/git/cfha.q
-\l Tx/conf/git/cffcbase.q
+\l Tx/conf/qtx/cfha.q
+\l Tx/conf/qtx/cffcbase.q
 \d .conf
 me:`fc;
 id:`990;

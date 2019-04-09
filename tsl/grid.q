@@ -11,20 +11,6 @@ ond_grid:{[x;y]if[(.db.O[k;`tif] in .enum`NULL`DAY)&(not null k:.db.Ts[x;`OIDUP]
 
 ont_roll:{[x;y]t:`time$y;r:.db.Ts[x];u:r`xsym;v:r`RollTo;if[(not any t within/: .db.Ts[x;`RollRange])|(any 0>=.db.QX[;`cumqty] each u,v)|(any 0>=.db.QX[;`price] each u,v)|(0<exec count i from .db.O where ts=x,not end);:()];if[0=pq:sum 0f^.db.P[(x;.db.Ts[x;`acc];u);`lqty`sqty];:()];ux:.db.QX[u;$[0>pq;`ask;`bid]];vx:.db.QX[v;$[0>pq;`bid;`ask]];if[(0>ux)|(0>vx)|$[0>pq;<;>][(vx-ux);.db.Ts[x;`RollThre]];:()];k0:($[pq<0;limit_buy;limit_sell])[x;u;1f;ux;`roll];k1:($[pq<0;limit_sell;limit_buy])[x;v;1f;vx;`roll];}; /换月处理:时间触发器
 
-onq_roll:{[x;y];}; /换月处理:行情触发器
-ono_roll:{[x;y];}; /换月处理:委托触发器
-ond_roll:{[x;y];}; /换月处理:日期触发器
-
-.tszq.onqmap:`ROLL`GRID!(`onq_roll;`onq_grid);
-.tszq.onomap:`ROLL`GRID!(`ono_roll;`ono_grid);
-.tszq.ontmap:`ROLL`GRID!(`ont_roll;`ont_grid);
-.tszq.ondmap:`ROLL`GRID!(`ond_roll;`ond_grid);
-
-onq_zq:{[x;y](.tszq.onqmap .db.Ts[x;`mode])[x;y];}; /[tid;symlist]行情触发器入口
-ono_zq:{[x;y](.tszq.onomap .db.Ts[x;`mode])[x;y];}; /[tid;oid]委托触发器入口
-ont_zq:{[x;y](.tszq.ontmap .db.Ts[x;`mode])[x;y];}; /[tid;time]时间触发器入口
-ond_zq:{[x;y](.tszq.ondmap .db.Ts[x;`mode])[x;y];}; /[tid;date]日期切换触发器入口
-
 \
-noeexec[`20170201001;`ft0`zq;`XAUUSD.METAL;.enum`SELL;.enum`OPEN;66f;1232.436;"init"];
-noeexec[`20170313002;`ft`zq2;`ZC701.XZCE;.enum`SELL;.enum`OPEN;1f;582.2;"init"];
+noeexec[`20170201001;`ft`qtx;`XAUUSD.METAL;.enum`SELL;.enum`OPEN;66f;1232.436;"init"];
+noeexec[`20170313002;`ft`qtx;`ZC701.XZCE;.enum`SELL;.enum`OPEN;1f;582.2;"init"];

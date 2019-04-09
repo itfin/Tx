@@ -1,4 +1,4 @@
-\l Tx/conf/git/cfbase.q
+\l Tx/conf/qtx/cfbase.q
 
 \d .conf
 ha.node:`ha;

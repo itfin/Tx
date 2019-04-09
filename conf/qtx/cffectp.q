@@ -1,5 +1,5 @@
-\l Tx/conf/git/cfha.q
-\l Tx/conf/git/cfctp.q
+\l Tx/conf/qtx/cfha.q
+\l Tx/conf/qtx/cfctp.q
 
 \d .conf
 me:`fectp;

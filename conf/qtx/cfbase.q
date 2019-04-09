@@ -3,9 +3,9 @@
 
 \d .conf
 dbbase:`:/kdb/txdb;
-app:`git;
-appuser:`gituser;
-apppass:`gitpass;
+app:`qtx;
+appuser:`qtxuser;
+apppass:`qtxpass;
 appconn:":",(string appuser),":",(string apppass);
 
 ha.nodelist:enlist `ha;

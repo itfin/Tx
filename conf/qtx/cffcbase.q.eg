@@ -54,24 +54,24 @@ ft.ip:ha.ha.ip;
 ft.cpu:0;
 ft.port:ha.portbase.ft+ha.ha.portoffset;
 ft.qcl:" -t 250";
-ft.args:"Tx/core/base.q -conf git/cfft -code 'txload each (\"core/ftbase\";\"tsl/grid\");cfload \"git/ts/cftsgit\";'";
+ft.args:"Tx/core/base.q -conf git/cfft -code 'txload each (\"core/ftbase\";\"tsl/grid\");cfload \"qtx/ts/cftsqtx\";'";
 
 fqctp.ip:ha.ha.ip;
 fqctp.cpu:0;
 fqctp.port:ha.portbase.fq+ha.ha.portoffset;
 fqctp.qcl:" -t 250";
-fqctp.args:"Tx/core/base.q -conf git/cffqctp -code 'txload \"feed/ctp/fqctp\"'";
+fqctp.args:"Tx/core/base.q -conf qtx/cffqctp -code 'txload \"feed/ctp/fqctp\"'";
 
 fectp.ip:ha.ha.ip;
 fectp.cpu:0;
 fectp.port:ha.portbase.fe+ha.ha.portoffset;
 fectp.qcl:" -t 250";
-fectp.args:"Tx/core/base.q -conf git/cffectp -code 'txload \"feed/ctp/fectp\"'";
+fectp.args:"Tx/core/base.q -conf qtx/cffectp -code 'txload \"feed/ctp/fectp\"'";
 
 ftsim.ip:ha.ha.ip;
 ftsim.cpu:0;
 ftsim.port:ft.port+ha.portstep;
 ftsim.qcl:" -t 250";
-ftsim.args:"Tx/core/base.q -conf git/cfftsim -code 'txload each (\"core/ftbase\";\"tsl/grid\");cfload \"git/ts/cftsgit\";'";
+ftsim.args:"Tx/core/base.q -conf git/cfftsim -code 'txload each (\"core/ftbase\";\"tsl/grid\");cfload \"qtx/ts/cftsqtx\";'";
 
 \d .

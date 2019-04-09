@@ -1,5 +1,5 @@
 \l Tx/conf/cfftbase.q
-\l Tx/conf/git/cfha.q
+\l Tx/conf/qtx/cfha.q
 
 \d .conf
 me:`ft;
