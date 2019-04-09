@@ -17,7 +17,7 @@ sub.tp.quotereq:`;
 sub.tp.sysmsg:me,`ALL;
 sub.tp.syslog:`;
 
-acc.sim.sym:`;
+acc.ctp.sym:`;
 filldelay:1b;
 
 maxcxlcnt:10;

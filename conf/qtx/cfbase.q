@@ -29,7 +29,7 @@ ha.ha.portoffset:0;
 
 
 ha.ha.tick:`tp`rdb`hdb;
-ha.ha.ft:`ft;
+ha.ha.ft:`ft`ftsim;
 ha.ha.fe:`fectp;
 ha.ha.fq:`fqctp;
 ha.ha.fu:`symbol$();

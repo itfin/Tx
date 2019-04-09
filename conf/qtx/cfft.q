@@ -27,11 +27,7 @@ sub.tp.tsparam:me,ha.backupft;
 sub.tp.sysmsg:me,`ALL;
 sub.tp.syslog:`;
 
-acc.sim.sym:`fesim;
-acc.ctp.sym:`fesim;
-acc.ctp1.sym:`fectp1;
-acc.ctp2.sym:`fectp2;
-
+acc.ctp.sym:`fectp;
 
 maxcxlcnt:10;
 t0list:`symbol$();
