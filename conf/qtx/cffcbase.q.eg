@@ -54,7 +54,7 @@ ft.ip:ha.ha.ip;
 ft.cpu:0;
 ft.port:ha.portbase.ft+ha.ha.portoffset;
 ft.qcl:" -t 250";
-ft.args:"Tx/core/base.q -conf git/cfft -code 'txload each (\"core/ftbase\";\"tsl/grid\");cfload \"qtx/ts/cftsqtx\";'";
+ft.args:"Tx/core/base.q -conf qtx/cfft -code 'txload each (\"core/ftbase\";\"tsl/grid\");cfload \"qtx/ts/cftsqtx\";'";
 
 fqctp.ip:ha.ha.ip;
 fqctp.cpu:0;

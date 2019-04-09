@@ -1,4 +1,4 @@
-.module.tszq:2017.05.26;
+.module.tsgrid:2017.05.26;
 
 //网格交易策略.策略参数[TRDTIME:,ANCHORSYM:,LONGSYM:,SHORTSYM:,GRIDSIZE,POSINF,POSSUP,RATIO,SHORTOFFSET,LONGOFFSET,PRICESCALE,SPREADMAX,SHORTSTOPRANGE,LONGSTOPRANGE],状态变量[ANCHORPX,ANCHORUP,ANCHORDON,OIDUP,OIDDN]
 onq_grid:{[x;y];}; /[tid;symlist]
@@ -9,7 +9,6 @@ ono_grid:{[x;y]r:.db.O[y];st:r`status;lb:r`ref;if[not (lb in `up`dn)&y in .db.Ts
 
 ond_grid:{[x;y]if[(.db.O[k;`tif] in .enum`NULL`DAY)&(not null k:.db.Ts[x;`OIDUP]);.db.Ts[x;`OIDUP]:`];if[(.db.O[k;`tif] in .enum`NULL`DAY)&(not null k:.db.Ts[x;`OIDDN]);.db.Ts[x;`OIDDN]:`];};
 
-ont_roll:{[x;y]t:`time$y;r:.db.Ts[x];u:r`xsym;v:r`RollTo;if[(not any t within/: .db.Ts[x;`RollRange])|(any 0>=.db.QX[;`cumqty] each u,v)|(any 0>=.db.QX[;`price] each u,v)|(0<exec count i from .db.O where ts=x,not end);:()];if[0=pq:sum 0f^.db.P[(x;.db.Ts[x;`acc];u);`lqty`sqty];:()];ux:.db.QX[u;$[0>pq;`ask;`bid]];vx:.db.QX[v;$[0>pq;`bid;`ask]];if[(0>ux)|(0>vx)|$[0>pq;<;>][(vx-ux);.db.Ts[x;`RollThre]];:()];k0:($[pq<0;limit_buy;limit_sell])[x;u;1f;ux;`roll];k1:($[pq<0;limit_sell;limit_buy])[x;v;1f;vx;`roll];}; /换月处理:时间触发器
 
 \
 noeexec[`20170201001;`ft`qtx;`XAUUSD.METAL;.enum`SELL;.enum`OPEN;66f;1232.436;"init"];
