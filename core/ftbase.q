@@ -1,4 +1,4 @@
-.module.ftbase:2018.12.05;
+.module.ftbase:2019.04.19;
 
 .init.ft:{[x] {[x].[{(x)[y;z]};(.db.Ts[x;`event;`sysinit];x;());()];} each tsl[];};
 .exit.ft:{[x] {[x].[{(x)[y;z]};(.db.Ts[x;`event;`sysexit];x;());()];} each tsl[];};
@@ -7,7 +7,7 @@
 
 istrading:{[t;s]if[not (z:fs2e s) in tkey .conf.ex;:0b];any t within/:.conf.ex[z;`session]+\: -00:01 00:01};
 
-.timer.ftsim:{[x]if[`ftsim<>.conf.feedtype ;:()];t:`time$t0:x;{[t0;t;k]x:.db.O[k];s:x`sym;if[not istrading[t;s];:()];p:0f;n:0;$[.enum[`PENDING_CANCEL]=x`cstatus;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt!(.enum`NEW;k;.enum[`CANCELED];0f;0f;`;`;.enum[`CANCELED];`;`;0;"";"")];[r:.db.QX[s];if[0>=r`price;r[`price]:avg r`bid`ask];if[(0>=r`cumqty)&(not fs2e[s] in `FOREX`METAL)&(not s like "SP*");:()];if[$[.conf.filldelay;t0>x`ntime;1b]&(((.enum[`BUY]=x`side)&(x`price)>=$[0<r`ask;r`ask;0w])|((.enum[`SELL]=x`side)&(x`price)<=r`bid)|(x[`typ]=.enum`MARKET));[px:$[.enum[`BUY]=x`side;(r`price)|r`ask;(r`price)&r`bid];qty:x`qty;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt!(.enum`NEW;k;.enum[`FILLED];qty;px;`;`;x`cstatus;`;`;0;"";"")]]]]];}[t0;t] each exec id from .db.O where not end;}; /(r`price)| (r`price)&
+.timer.ftsim:{[x]if[`ftsim<>.conf.feedtype ;:()];t:`time$t0:x;{[t0;t;k]x:.db.O[k];s:x`sym;if[not istrading[t;s];:()];p:0f;n:0;$[.enum[`PENDING_CANCEL]=x`cstatus;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt!(.enum`NEW;k;.enum[`CANCELED];x`cumqty;x`avgpx;`;`;.enum[`CANCELED];`;`;0;"";"")];[r:.db.QX[s];if[0>=r`price;r[`price]:avg r`bid`ask];if[(0>=r`cumqty)&(not fs2e[s] in `FOREX`METAL)&(not s like "SP*");:()];if[$[.conf.filldelay;t0>x`ntime;1b]&(((.enum[`BUY]=x`side)&(x`price)>=$[0<r`ask;r`ask;0w])|((.enum[`SELL]=x`side)&(x`price)<=r`bid)|(x[`typ]=.enum`MARKET));[px:$[.enum[`BUY]=x`side;(r`price)|r`ask;(r`price)&r`bid];lqty:(x`qty)-x`cumqty;fqty:lqty&r $[.enum[`BUY]=x`side;`asize;`bsize];cq:fqty+x`cumqty;ap:0f^(prd[x`cumqty`avgpx]+fqty*px)%cq;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt!(.enum`NEW;k;.enum $[cq=x`qty;`FILLED;`PARTIALLY_FILLED];cq;ap;`;`;x`cstatus;`;`;0;"";"")]]]]];}[t0;t] each exec id from .db.O where not end;}; /(r`price)| (r`price)&
 
 .roll.ft:{[x]{[x;y].[{(x)[y;z]};(.db.Ts[x;`event;`dayroll];x;y);()];}[;x] each tsl[];.[.conf.histdb;(.conf.me;`M);,;.db.M];delete from `.db.M;gtc:.enum`GOOD_TILL_CANCEL;.[.conf.histdb;(.conf.me;`O);,;select from .db.O where end|tif<>gtc];delete from `.db.O where end|tif<>gtc;delete from `.db.QT;{update `u#id from x;} each `.db.O`.db.M`.db.QT;delete from `.db.P where 0>=abs[0f^lqty]+abs[0f^sqty];update flqty:0f,fsqty:0f,lqty0:0f,sqty0:0f,flqty0:0f,fsqty0:0f from `.db.P;.[.conf.histdb;(.conf.me;`P);,;update today:.z.D from 0!.db.P];update pc:(0.5*(0f^bid)+0f^(ask))^price,price:0n,bid:0n,ask:0n,cumqty:0f from `.db.QX;};
 
@@ -70,7 +70,9 @@ roundqty:{[x;y]qm:getqtymin[x];qm*floor (y+1e-2)%qm}; //[(代码;方向);数量]对委托
 
 roundpxhk:{[x;y]z:.conf.hkticks;z $[x=.enum`BUY;binr;bin][z;y+$[x=.enum`BUY;-1e-10;1e-10]]}; /[BS;px]
 
-limit_orderx:{[h;sd;accno;x;y;q;p;m]p:roundpx[y;sd] `float$p;acc:$[null accno;.db.Ts[x;`acc];@[;accno] .db.Ts[x;`accx]];oq:q-cq:q&abs availpos[sd;x,acc,y];ctq:cq&abs availt0pos[sd;x,acc,y];k0:k1:k2:`;t:$[null accno;x;(x;accno)];if[0<cq;$[(0<ctq)&(1b~.conf.useclosetoday)&(fs2e[y] in .conf.closetodayexlist);[k0:newordex[sd;.enum`CLOSETODAY;t;y;ctq;p;m;h];if[0<clq:cq-ctq;k1:newordex[sd;$[1b~.conf.usecloseyestoday;"Y";.enum`CLOSE];t;y;clq;p;m;h]]];k1:newordex[sd;.enum`CLOSE;t;y;cq;p;m;h]]];if[0<oq;k2:newordex[sd;.enum`OPEN;t;y;oq;p;m;h]];(k0,k1,k2) except `}; /[sided;accno;ts;sym;qty;price;tag]
+isvalidnum:{[x]not (`float$x) in 0n -0w 0w};
+
+limit_orderx:{[h;sd;accno;x;y;q;p;m]if[not isvalidnum[p]&isvalidnum[q];:`symbol$()];p:roundpx[y;sd] `float$p;acc:$[null accno;.db.Ts[x;`acc];@[;accno] .db.Ts[x;`accx]];oq:q-cq:q&abs availpos[sd;x,acc,y];ctq:cq&abs availt0pos[sd;x,acc,y];k0:k1:k2:`;t:$[null accno;x;(x;accno)];if[0<cq;$[(0<ctq)&(1b~.conf.useclosetoday)&(fs2e[y] in .conf.closetodayexlist);[k0:newordex[sd;.enum`CLOSETODAY;t;y;ctq;p;m;h];if[0<clq:cq-ctq;k1:newordex[sd;$[1b~.conf.usecloseyestoday;"Y";.enum`CLOSE];t;y;clq;p;m;h]]];k1:newordex[sd;.enum`CLOSE;t;y;cq;p;m;h]]];if[0<oq;k2:newordex[sd;.enum`OPEN;t;y;oq;p;m;h]];(k0,k1,k2) except `}; /[sided;accno;ts;sym;qty;price;tag]
 
 limit_order:limit_orderx[.enum`nulldict];
 xlimit_buyx:limit_orderx[;.enum`BUY];xlimit_sellx:limit_orderx[;.enum`SELL];xlimit_buy:xlimit_buyx[;0N];xlimit_sell:xlimit_sellx[;0N];
@@ -109,7 +111,7 @@ settleord:{[k;q;a]r:.db.O k;f:getfee[r[`sym`side`posefct],(q;a)];.db.O[k;`cumamt
 
 .upd.RDUpdate:{[x].db.QX:.db.QX uj get `$x`msg;};
 
-noeexec:{[sno;fta;s;sd;pe;q;p;m]k:newid[];ft:fta[0];ts:fta[1];$[2<count fta;acc:.db.Ts[ts;`accx][fta[2]];acc:.db.Ts[ts;`acc]];pub[`exenoe;enlist `sym`typ`oid`ft`ts`acc`acc1`ref`osym`side`posefct`status`cumqty`avgpx`ordid`msg`rptopt!(ft;.enum`NEW;k;ft;ts;acc;`;`;s;sd;pe;.enum`FILLED;q;p;sno;m;"")];k}; /提交一笔NOE上报记录
+noeexec:{[sno;fta;s;sd;pe;q;p;m]if[not isvalidnum[p]&isvalidnum[q];:`symbol$()];k:newid[];ft:fta[0];ts:fta[1];$[2<count fta;acc:.db.Ts[ts;`accx][fta[2]];acc:.db.Ts[ts;`acc]];pub[`exenoe;enlist `sym`typ`oid`ft`ts`acc`acc1`ref`osym`side`posefct`status`cumqty`avgpx`ordid`msg`rptopt!(ft;.enum`NEW;k;ft;ts;acc;`;`;s;sd;pe;.enum`FILLED;q;p;sno;m;"")];k}; /提交一笔NOE上报记录
 
 .upd.quoteack:{[x]s:x`status;cs:x`cstatus;if[null k:x`qid;:()];kb:.db.QT[k;`bid];ka:.db.QT[k;`aid];$[s=.enum`NEW;[.db.QT[k;`status`feqid`quoteid`rtime]:(s;x`feqid;x`quoteid;now[])];s=.enum`REJECTED;[.db.QT[k;`status`rtime`reason`msg]:(s;now[];x`reason;x`msg);.db.O[kb;`end`status`rtime`reason`msg]:(1b;s;now[];x`reason;x`msg);frzqty[kb;neg .db.O[kb;`qty]];.db.O[ka;`end`status`rtime`reason`msg]:(1b;s;now[];x`reason;x`msg);frzqty[ka;neg .db.O[ka;`qty]]];s=.enum`PENDING_CANCEL;[.db.QT[k;`rtime`cfeqid`cquoteid]:(now[];x`cfeqid;x`cquoteid)];s=.enum`CANCELED;[.db.QT[k;`status`rtime`cstatus]:(s;now[];s)];[]];if[cs=.enum`REJECTED;.db.QT[k;`cstatus`rtime`reason`msg]:(s;now[];x`reason;x`msg)];}'; /报价状态回报 .db.O[kb;`status`rtime]:(s;now[]);.db.O[ka;`status`rtime]:(s;now[])
 

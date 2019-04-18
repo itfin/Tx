@@ -48,6 +48,9 @@ pingok:@[ping;;()];
 doshutdown:{[]if[null .ctrl.shutdowntime;.ctrl.shutdowntime:.z.P];stopnode .conf.ha.node;system "poweroff";};
 
 checkpower:{[x;y].ctrl.powerchkbegin:.z.P;z:pingok .conf.powerchkip;.ctrl[`powerchkend`powerchkres]:(.z.P;z);$[count z;if[1b~.ctrl[`poweroff];.ctrl[`poweroff`poweroffbegin]:(0b;0Np)];$[0b~.ctrl[`poweroff];.ctrl[`poweroff`poweroffbegin]:(1b;.z.P);if[.z.P>.ctrl.poweroffbegin+.conf.powertmout;doshutdown[]]]];1b};
-rmoldapifiles:{[x;y]{[x]y:"D"$-10#string x;if[y<.z.D-10;system "rm -f ",1_string sv[`;.conf.tickdb,x]]} each (key .conf.tickdb) except `api;};
+
+rmoldapifiles:{[x;y]{[x]y:"D"$-10#string x;if[y<.z.D-10;system "rm -f ",1_string sv[`;.conf.tickdb,x]]} each (key .conf.tickdb) except `api;1b};
+
+comparedb:{[x;y]if[not (~/) .ctrl.H[`ft`ft1] @\: `.db.P;alert["system error!";"pos diff!"];:0b];1b};
 
 \

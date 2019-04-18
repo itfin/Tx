@@ -12,7 +12,7 @@ jrun:{[x;y]y:"/j602/bin/",$[y;"jconsole";"jwd"];x:(" " sv  {"\"",x, "\""} each x
 gplot:{[x;y;z]w:840 640;if[1<count z;w:z[1];z:z[0]];(`$":",y,".cmd") 0: $[z;("set terminal png transparent nocrop enhanced font arial 8 size ","," sv string w;"set output '",y,".png'");$[isWIN[];();(enlist "set terminal qt")]],("set autoscale";"set grid"),x,enlist enlist "q";system $[isWIN[];"start \\bin\\gnuplot ";"gnuplot "],$[z;"";$[isWIN[];"-persist ";"-p "]],y,".cmd";$[z;y,".png";()]}; /[命令序列;临时文件名;是否] 执行gnuplot绘图
 
 pd:{[x;y;e;f]z:rn[];if[not 0=type e;e:enlist e];xt:$[0=type x;$[0=type x 0;type x[0;0];type x 0];type x];
-        $[xt in 13 14 17 18 19h;e,:(enlist "set xdata time"),("set timefmt ";"set format x "),\:"'",$[14h=xt;"%Y.%m.%d";13h=xt;"%Y.%m";17h=xt;"%H:%M";18h=xt;"%H:%M:%S"],"'";];
+        $[xt in 13 14 17 18 19h;e,:(enlist "set xdata time"),("set timefmt ";"set format x "),\:"'",$[14h=xt;"%Y.%m.%d";13h=xt;"%Y.%m";17h=xt;"%H:%M";18h=xt;"%H:%M:%S";""],"'";()];
 	/写入数据文件
 	(`$":",z,".dat") 0: $[0=type x;
 			    	     $[0=type x 0;
@@ -52,6 +52,8 @@ qcon:{[x]value ".z.pi:{[x]x:-1_x;$[(2#x)~2#\"\\\\\";[x:2_x;$[count x;1 .Q.s @[va
 sendalert:{[x]if[(not ()~key `:/q/sh/sendalert)&(.z.o in `l32`l64);@[system;"/q/sh/sendalert '",x,"'&";()]];};
 sendmsg:{[x]if[(not ()~key `:/q/sh/sendmsg)&(.z.o in `l32`l64);@[system;"/q/sh/sendmsg '",x,"'&";()]];};
 md5s:{2_-3!-15!x};
+
+emailx:{[s;xu;xp;f;t;u;m] system "/usr/bin/sendemail -q -l /tmp/sendemail.log",(" -s ",s),(" -xu ",xu),(" -xp ",xp),(" -f ",f),(" -t ",t),(" -u ",u),(" -m ",m);};
 
 inline:{[x;y;z;c]u:md5s raze z;v:(string x),"_",(string y),"_",u;w:` sv `:/q/l64,`$v,".so";if[()~key w;s:` sv `:/tmp,`$v,".c";s 0: (enlist "#include\"kcomm.h\""),$[0<count hdrs:c`h;"#include ",/: hdrs;""],(enlist "K",(string y),"(",(string x),"){"),$[0=type z;z;enlist z],enlist enlist "}";system "/usr/bin/gcc -m64 -fPIC -shared -DJ64 -DKXVER=3 -I/q/c -lpthread ",$[0<count libs:c`l;" " sv "-l",/: string libs;""]," ",(1_string s)," -o ",(1_string w);];(`$v) 2: (x;y)}; /[fun;argc;fundef;`h`l!(headers;libs)]
 

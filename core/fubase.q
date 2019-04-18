@@ -3,7 +3,8 @@
 txload "core/ftbase";
 
 .zpc.fu:{[x]if[null k:exec first id from .db.U where h=x;:()];.db.U[k;`online`h`logouttime]:(0b;-1;.z.P);};
-.z.pw:{[x;y].temp.x:x;.temp.y:y;a:`$"." sv string "i"$0x0 vs .z.a;if[(null .db.U[x;`name])|.db.U[x;`passwd]<>`$y;:0b];if[0<h:.db.U[x;`h];hclose[h]];.db.U[x;`online`h`logintime`loginip]:(1b;.z.w;.z.P;a);1b}; /[usr;pwd]
+
+.z.pw:{[x;y].temp.x:x;.temp.y:y;a:`$"." sv string "i"$0x0 vs .z.a;if[(null .db.U[x;`name])|.db.U[x;`passwd]<>`$y;:0b];if[(.z.w<>h)&(0<h:.db.U[x;`h]);hclose[h]];.db.U[x;`online`h`logintime`loginip]:(1b;.z.w;.z.P;a);1b}; /[usr;pwd]
 
 .z.ps:.z.pg:{[x]if[null u:.z.u;:value x];r:.db.U[u;`role];if[not r in ``admin;f:x[0];if[-11h<>type f;'errtype];if[not f in .db.R[r;`func];'noright];.db.U[u;`calltime`callfunc]:(.z.P;f)];value x};
 
