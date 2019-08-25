@@ -1,4 +1,4 @@
-.module.base:2019.04.18;
+.module.base:2019.08.19;
 
 txload:{[x]@[system;"l Tx/",x,".q";`txload];};
 cfload:{[x]txload "conf/",x;};
@@ -8,9 +8,10 @@ txload "lib/math";
 txload "lib/userlib";
 
 \l tick/u.q
-.u.init[];
+.u.init[]; 
 
 txload "core/api";
+txload "core/p2p";
 txload "core/enum";
 txload "core/dotz";
 txload "core/habase";
@@ -18,6 +19,8 @@ txload "core/habase";
 \d .ctrl
 conn:.enum.nulldict;
 sub:.enum.nulldict;
+StateMap:(`symbol$())!`symbol$();
+StateEnter:(`symbol$())!`timestamp$();
 \d .
 
 .temp:.enum.nulldict;
@@ -31,7 +34,7 @@ QX:([`u#sym:`symbol$()] ex:`symbol$(); esym:`symbol$(); name:`symbol$(); ticker:
 
 LOG:([]sym:`symbol$();typ:`symbol$();msg:0#enlist "";logtime:`timestamp$());
 
-O1:O:([`u#id:`symbol$()] ft:`symbol$(); ts:`symbol$(); acc:`symbol$(); fe:`symbol$(); acc1:`symbol$(); ref:`symbol$(); sym:`symbol$(); side:`char$(); posefct:`char$(); tif:`char$(); typ:`char$(); qty:`float$(); price:`float$();end:`boolean$(); status:`char$(); cumqty:`float$(); avgpx:`float$(); lastqty:`float$(); lastpx:`float$(); feoid:`symbol$(); ordid:`symbol$(); cstatus:`char$(); cn:`int$(); ntime:`timestamp$(); ctime:`timestamp$(); msg:(); cumamt:`float$(); cumfee:`float$(); qtime:`timestamp$(); jtime:`timestamp$(); ftime:`timestamp$(); rtime:`timestamp$(); reason:`int$(); ordopt:(); rptopt:(); cid:`symbol$(); cfeoid:`symbol$(); cordid:`symbol$(); qn:`int$(); special:`symbol$(); origid:`symbol$(); ex:`symbol$(); esym:`symbol$(); x0:()); /Order
+O:([`u#id:`symbol$()] ft:`symbol$(); ts:`symbol$(); acc:`symbol$(); fe:`symbol$(); acc1:`symbol$(); ref:`symbol$(); sym:`symbol$(); side:`char$(); posefct:`char$(); tif:`char$(); typ:`char$(); qty:`float$(); price:`float$(); end:`boolean$(); status:`char$(); cumqty:`float$(); avgpx:`float$(); lastqty:`float$(); lastpx:`float$(); feoid:`symbol$(); ordid:`symbol$(); cstatus:`char$(); cn:`int$(); ntime:`timestamp$(); ctime:`timestamp$(); msg:(); cumamt:`float$(); cumfee:`float$(); qtime:`timestamp$(); jtime:`timestamp$(); ftime:`timestamp$(); rtime:`timestamp$(); reason:`int$(); ordopt:(); rptopt:(); cid:`symbol$(); cfeoid:`symbol$(); cordid:`symbol$(); qn:`int$(); special:`symbol$(); origid:`symbol$(); ex:`symbol$(); esym:`symbol$(); tsexec:`symbol$(); upid:`symbol$(); slot:`long$(); previd:`symbol$(); pending:`boolean$();style:`symbol$(); expiretime:`timestamp$(); t0:`timestamp$(); t1:`timestamp$(); s0:`symbol$(); s1:`symbol$(); s2:`symbol$(); s3:`symbol$(); j0:`long$(); j1:`long$(); j2:`long$();  j3:`long$(); f0:`float$(); f1:`float$(); f2:`float$(); f3:`float$(); x0:(); x1:(); x2:(); x3:()); /Order
 
 M:([`u#id:`symbol$()] sym:`symbol$(); price:`float$(); qty:`float$(); mtime:`timestamp$(); maker:`symbol$(); taker:`symbol$()); /Match
 
@@ -57,7 +60,7 @@ savehist:{[x]set[` sv .conf[`histdb],x;.temp[x]];};
 
 //chkconn:{[]if[not `conn in key `.conf;:()];{[x]b:$[not x in key .ctrl.conn;1b;0>=.ctrl.conn[x;`h];1b;0b];if[b;h:@[hopen;.conf.conn[x]`addr;-1];if[0<h;.ctrl.conn[x]:`h`conntime!(h;.z.P)]];} each tkey .conf.conn;};
 
-chkconn:{[]if[not `conn in key `.conf;:()];{[x]b:$[not x in key .ctrl.conn;1b;0>=.ctrl.conn[x;`h];1b;0b];if[b;h:@[hopen;({$[-7h=type x;`$"::",string x;x]} .conf.conn[x]`addr;(30+rand 50)^jfill .conf.conn[x]`tmout);-1];if[0<h;.ctrl.conn[x]:`h`conntime!(h;.z.P)]];} each tkey .conf.conn;};
+chkconn:{[]if[not `conn in key `.conf;:()];{[x]b:$[not x in key .ctrl.conn;1b;0>=.ctrl.conn[x;`h];1b;0b];if[b;h:@[hopen;(`${$[-7h=type x;"::",string x;string x],.conf.appconn} .conf.conn[x]`addr;(30+rand 50)^jfill .conf.conn[x]`tmout);-1];if[0<h;.ctrl.conn[x]:`h`conntime!(h;.z.P)]];} each tkey .conf.conn;};
 
 discconn:{[];if[not `conn in key `.ctrl;:()];{[x]if[0<h:.ctrl.conn[x]`h;hclose[h]];} each tkey .ctrl.conn;};
 
@@ -78,16 +81,22 @@ lerr:wlog[`error];lwarn:wlog[`warn];linfo:wlog[`info];ldebug:wlog[`debug];
 
 upd:{[t;x]$[t in tables[];[if[1b~.conf[`dumpapi];insert[t;update dsttime:.z.P from x]];.upd[t;x]];lerr[`unknown_msgtyp;t]];};
 
+.disp.base:{[x](`me`id#.conf),`boottime`inittime#.ctrl};
+
+display:{(,/) `_.disp[;]};
+
 .timer.task:{[x]{[x;now]y:.db.TASK[x;`firetime];d:`date$y;t:`time$y;w:d-`week$y;w0:.db.TASK[x;`weekmin];w1:.db.TASK[x;`weekmax];d0:.db.TASK[x;`datemin];d1:.db.TASK[x;`datemax];t0:.db.TASK[x;`timemin];t1:.db.TASK[x;`timemax];ff:.db.TASK[x;`firefreq];z:.db.TASK[x;`firetime]+ff;if[z<now;z+:ff*ceiling (now-z)%ff];if[(w>=w0)&((w<=w1)|(null w1))&(d>=d0)&((d<=d1)|(null d1))&(t>=t0)&((t<=t1)|(null t1));r:.[{$[0>type x;value;::]x} .db.TASK[x;`handler];(x;now);()];.db.TASK[x;`lastfire]:(.z.P;r)];$[(null z)|(not null d1)&(d1<`date$z);.db.TASK[x;`expire]:1b;.db.TASK[x;`firetime]:z];}[;x] each exec id from .db.TASK where not expire,not null handler,firetime<=x;};
 
 .zpc.base:{[x]{if[x=.ctrl.conn[y;`h];.ctrl.conn[y;`h`disctime]:(-1;.z.P);if[y in key `.ctrl.sub;.ctrl.sub[y;`sub]:0b]]}[x] each tkey .ctrl.conn;};
 
-.upd.BeginOfDay:{[x].ctrl[`rollstart]:.z.P;.roll[;"D"$x`msg];.Q.gc[];.ctrl[`rollend]:.z.P;};
+.upd.BeginOfDay:{[x].ctrl[`rollstart]:.z.P;{@[.roll[x];y;()]}[;"D"$x`msg] each (key .roll) except `;.Q.gc[];.ctrl[`rollend]:.z.P;};
 
 newseq:{[]:.db.seq+:1};newidl:{[]`$string newseq[]};newid:{[]` sv .conf.id,`$string newseq[]};
 fs2se:{[x]`$"." vs string x};se2fs:{[x]`$"." sv string x};fs2e:{last fs2se x};fs2s:{first fs2se x};
-now:{.z.P};ntd:{.z.D};
+now:{.z.P};ntd:{.z.D};vtd:{.db.sysdate};
 clearapi:{[]{delete from x;@[x;`sym;`g#];} each tables[]};
 cleartemp:{[]{[x]if[0<=type y:.temp[x];.temp[x]:0#y]} each key `.temp;};
+
+setstate:{[x;y]if[(null y)|(y~y0:.ctrl.StateMap[x]);:()];t0:.ctrl.StateEnter[x];t:now[];$[y~`OK;if[not null y0;lwarn[`ExitAlarm;(x;y0;t0;t;t-t0)]];lwarn[`EnterAlarm;(x;y;t)]];.ctrl.StateMap[x]:y;.ctrl.StateEnter[x]:t;}; /[ID;State]
 
 if[not `boot in key `.ctrl;.base.boot[]];

@@ -2,16 +2,30 @@
 
 .module.fcbase:2017.01.25;
 
-.ctrl.Cmd:()!();
-.ctrl.H:()!();
-.ctrl.poweroff:0b;
-.ctrl.poweroffbegin:0Np;
-.ctrl.shutdowntime:0Np;
+\d .temp
+NS:([]stime:`timestamp$();id:`symbol$();cpu:`float$();mem:`float$();swap:`float$();disk:`float$();cores:());
+MS:([]stime:`timestamp$();id:`symbol$();delay:`float$();mem:`float$());
+\d .
 
-//.init.fc:{[]conntx[];};
+\d .ctrl
+Cmd:()!();
+H:()!();
+poweroff:0b;
+poweroffbegin:0Np;
+shutdowntime:0Np;
+sysstart:sysstop:0Np;
+NOD:([id:`symbol$()]backup:`symbol$();ip:`symbol$();portoffset:`long$();cpufreq:`float$();cpucores:`long$();mem:`float$();swap:`float$();diskdev:`symbol$();disk:`float$();uptime:`timestamp$();cpuuse:`float$();memuse:`float$();swapuse:`float$();diskuse:`float$();coreuse:());
+MOD:([id:`symbol$()]mtyp:`symbol$();node:`symbol$();ip:`symbol$();port:`long$();cores:();h:`long$();pid:`long$();starttime:`timestamp$();stoptime:`timestamp$();hbsent:`timestamp$();hbpeer:`timestamp$();hbrecv:`timestamp$();mem:`float$());
+\d .
 
-starttx:{[]startmod each .conf.modules;};
-stoptx:{[]stopmod each reverse .conf.modules;};
+.init.fc:{[]initnod[];initmod[];conntx[];}; /
+
+initnod:{[]{.ctrl.NOD[x;`ip`portoffset`backup]:.conf.ha[x;`ip`portoffset`backup];s:nodecmd[x;"lscpu"];.ctrl.NOD[x;`cpufreq`cpucores]:(1e-3*"F"$last vs[2#" "]  s[15];"J"$last vs[2#" "]  s[4]);s:nodecmd[x;"free"];.ctrl.NOD[x;`mem`swap]:(1%1024 xexp 2)*{"F"$@[;1] vs[" ";x] except enlist ""} each s[1 2];s:nodecmd[x;"df -l -t ext4 --output=source,size"];r:(!/)"SF"$flip {vs[" ";x] except enlist ""} each 1_s;.ctrl.NOD[x;`diskdev`disk]:(first where r=max r;(1%1024 xexp 3)*max r);s:nodecmd[x;"uptime -s"];.ctrl.NOD[x;`uptime]:"P"$first s;} each .conf.ha.nodelist;};
+
+initmod:{[]{.ctrl.MOD[x;`mtyp`node`cores`ip`port]:($[x in .conf.module_tick;$[x like "tp*";`tp;x like "rdb*";`rdb;`hdb];$[x in .conf.module_ft;`ft;x in .conf.module_ft;`ft;x in .conf.module_fq;`fq;x in .conf.module_fe;`fe;x in .conf.module_fu;`fu;x in .conf.module_fa;`fa;`fp]];exec first id from .ctrl.NOD where ip=.conf[x;`ip];{$[0>type x;enlist x;x]} .conf[x;`cpu]),.conf[x;`ip`port]} each .conf.modules;};
+
+starttx:{[].db.txstart:.z.P;startmod each .conf.modules;};
+stoptx:{[]stopmod each reverse .conf.modules;.db.txstop:.z.P;};
 conntx:{[]connmod each .conf.modules;};
 
 starttick:{[]startmod each .conf.module_tick;};
@@ -29,18 +43,32 @@ stoptws:{[]stopmod each reverse .conf.module_tws;};
 startgw:{[x;y]startmod each .conf.module_gw;};
 stopgw:{[x;y]stopmod each .conf.module_gw;};
 
-connmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];p:(y:.conf[x])`port;.ctrl.H[x]:@[hopen;$[(a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip];`$"::",":" sv string p,$[x like "fu*";.conf.me,.conf.fcpass;.conf.appuser,.conf.apppass];`$":",":" sv string a,p,$[x like "fu*";.conf.me,.conf.fcpass;.conf.appuser,.conf.apppass]];-1]};
+startdaily:{[x;y] {if[1b~.conf[x;`daily];startmod x]} each .conf.modules;1b};
+stopdaily:{[x;y] {if[1b~.conf[x;`daily];stopmod x]} each reverse .conf.modules;system "rm -rf /tmp/CTP*";1b};
 
-stopmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"stopping ",string[x],"...";if[(0=count .ctrl.H[x])|-1~.ctrl.H[x];connmod[x]];if[0<h:.ctrl.H[x];@[h;"exit 0";()];.ctrl.H[x]:-1];0N!"done.\n";};
+startnightly:{[x;y] {if[1b~.conf[x;`nightly];startmod x]} each .conf.modules;1b};
+stopnightly:{[x;y] {if[1b~.conf[x;`nightly];stopmod x]} each reverse .conf.modules;system "rm -rf /tmp/CTP*";1b};
 
-startmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"starting ",string[x],"...";system modstartcmd x;system "sleep 0.25";connmod[x];0N!$[0<.ctrl.H[x];"Done.";"Failed."];};
+connmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];p:(y:.conf[x])`port;.ctrl.MOD[x;`h]:.ctrl.H[x]:h:@[hopen;$[(a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip];`$"::",":" sv string p,$[x like "fu*";.conf.me,.conf.fcpass;.conf.appuser,.conf.apppass];`$":",":" sv string a,p,$[x like "fu*";.conf.me,.conf.fcpass;.conf.appuser,.conf.apppass]];-1];if[h>0;.ctrl.MOD[x;`pid]:h `.z.i;];};
 
-modstartcmd:{[x]p:(y:.conf[x])`port;z:string x;r:not (a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip];:.ctrl.Cmd[x]:$[r;"ssh root@",(string a)," '";""],"sh -c cd ",.conf.wd," && taskset -c ",("," sv string raze y`cpu)," nohup ",.conf.qbin," ",($[r;ssr[;"'";"'\"'\"'"];::] cfill y[`args]),.conf.qcl,(cfill y[`qcl])," -p ",(string p)," </dev/null >/tmp/",z,".",(string .conf.app)," 2>&1&",$[r;"'&";""]};
+stopmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"stopping ",string[x],"...";if[(0=count .ctrl.H[x])|-1~.ctrl.H[x];connmod[x]];if[0<h:.ctrl.H[x];@[h;"exit 0";()];.ctrl.H[x]:-1;.ctrl.MOD[x;`h`stoptime]:(-1;.z.P)];0N!"done.\n";};
+
+startmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"starting ",string[x],"...";system modstartcmd x;system "sleep 0.25";connmod[x];if[0<h:.ctrl.H[x];.ctrl.MOD[x;`starttime]:.z.P];0N!$[0<h;"Done.";"Failed."];};
+
+modstartcmd:{[x]p:(y:.conf[x])`port;z:string x;r:not (a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip];:.ctrl.Cmd[x]:$[r;"ssh root@",(string a)," '";""],"sh -c cd ",.conf.wd," && ",cfill[y`env]," taskset -c ",("," sv string raze y`cpu)," nohup ",.conf.qbin," ",($[r;ssr[;"'";"'\"'\"'"];::] cfill y[`args]),.conf.qcl,(cfill y[`qcl])," -p ",(string p)," </dev/null >/tmp/",z,".",(string .conf.app)," 2>&1&",$[r;"'&";""]};
+
+nodecmd:{[x;y].temp.cmd:cmd:$[x~.conf.ha.node;y;"ssh root@",(string .conf.ha[x;`ip])," 'sh -c \"",y,"\"'"];system cmd}; /[½Úµãid;shell ÃüÁî]
+
+.zpc.fcbase:{[x]m:exec first id from .ctrl.MOD where h=x;if[not null m;.ctrl.MOD[m;`h`stoptime]:(-1;.z.P);.ctrl.H[m]:-1];};
 
 stopnode:{[x]if[x in .conf.ha.nodelist;stopmod each .conf.ha[x;`modules]];};
 startnode:{[x]if[x in .conf.ha.nodelist;startmod each .conf.ha[x;`modules]];};
 
 gcall:{[x;y]if[0=count H:{x where 0<x} .ctrl.H;:()];neg[H]@\:(`.Q.gc;());1b};
+
+hball:{[x;y]{.ctrl.MOD[x;`hbsent]:.z.P;neg[.ctrl.MOD[x;`h]] ({neg[.z.w] ({[x;y;z]w:.z.P;.ctrl.MOD[x;`hbpeer`hbrecv`mem]:(y;w;z);.temp.MS,:enlist (w;x;1e-9*w-.ctrl.MOD[x;`hbsent];z);};x;.z.P;1e-6*.Q.w[]`heap)};x)} each exec id from .ctrl.MOD where 0<h;1b}; /heartbeat
+
+nhall:{[x;y]{s:nodecmd[x;"mpstat -P ALL"];cu:1-1e-2*"F"$last flip {vs[" ";x] except enlist ""}each 3_s;s:nodecmd[x;"df -l -t ext4 --output=source,size,avail|grep ",string .ctrl.NOD[x;`diskdev]];du:1-last ratios "F"$-2#(vs[" "] s[0]) except enlist "";s:nodecmd[x;"free"];mu:{last ratios "F"$2#(1_vs[" "] x) except enlist ""}each 1_s;.temp.NS,:enlist (.z.P;x),.ctrl.NOD[x;`cpuuse`memuse`swapuse`diskuse`coreuse]:(cu[0];mu[0];mu[1];du;1_cu);} each exec id from .ctrl.NOD;1b}; /nodehealth
 
 ping:{[x]y:string x;z:system "ping -c 1 ",y;raze z};
 pingok:@[ping;;()];

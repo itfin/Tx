@@ -1,5 +1,6 @@
 #include "kcomm.h"
 #include <queue>
+#include "DataCollect.h"
 #include "ThostFtdcTraderApi.h"
 
 #define PIPE_CAPACITY 65536
@@ -95,6 +96,11 @@ public:
     mpub(knk(2,ks("FrontDisconnectT"),knk(1,ki(nReason))));
   } 
 
+  virtual void OnRspAuthenticate(CThostFtdcRspAuthenticateField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+    RETURNONERR;
+    CTPPUB("AuthenticateT",knk(5,kp(p->BrokerID),kp(p->UserID),kp(p->UserProductInfo),kp(p->AppID),kc(p->AppType)));
+  };
+  
   virtual void OnRspUserLogin(CThostFtdcRspUserLoginField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
     O("OnRspUserLogin:%d\n",p); 
     RETURNONERR;
@@ -462,6 +468,7 @@ extern "C"{
 
     sprintf(buf,"/tmp/CTPT_%s",y->s);
     pTradeApi = CThostFtdcTraderApi::CreateFtdcTraderApi(buf);
+    O(pTradeApi->GetApiVersion());
     pTradeSpi = new CTradeHandler(pTradeApi);
     pTradeApi->RegisterSpi((CThostFtdcTraderSpi*)pTradeSpi);
 
@@ -495,9 +502,28 @@ extern "C"{
     R ki(run);
   } 
 
+  K2(ctpsysinfo){
+    char buf[SYMSIZE];
+    I r=0,n=0;
+    r=CTP_GetSystemInfo(buf,n);
+    R r?kp(""):kpn((S)buf,n);
+  }
+
+  K2(userAuthT){
+    if(!run) R ki(-1);
+    CThostFtdcReqAuthenticateField req;
+    strcpy(req.BrokerID,kK(y)[0]->s); 
+    strcpy(req.UserID,kK(y)[1]->s); 
+    strcpy(req.UserProductInfo,kK(y)[2]->s); 
+    strcpy(req.AuthCode,kK(y)[3]->s); 
+    strcpy(req.AppID,kK(y)[4]->s); 
+    R ki(pTradeApi->ReqAuthenticate(&req,xi)); 
+  }
+    
   K2(userLoginT){
     if(!run) R ki(-1);
 
+      
     CThostFtdcReqUserLoginField req; 
     strcpy(req.BrokerID,kK(y)[0]->s); 
     strcpy(req.UserID,kK(y)[1]->s); 

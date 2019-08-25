@@ -70,16 +70,17 @@ get_securityswitch:{[x]d:getrefxml[`securityswitch];t:raze @[{[x]y:` sv (`$x[0;1
 
 get_cashauctionparams:{[x]d:getrefxml[`cashauctionparams];1!`sym xcols update sym: sv[`] each (,\:)[sym;`XSHE],qtylot:qtyminl  from flip `sym`qtymaxl`qtymaxs`qtyminl`qtymins`pxunit!"SFFFFF"$'flip d[0;1;;1;0 2 3 4 5 6;1]}; /现货集中竞价交易业务参考信息 
 
-get_securities:{[x]d:getrefxml[`securities];1!`sym xcols update sym: sv[`] each (,\:)[sym;`XSHE] from flip `sym`name`isin`underlying`opendate`sectype`currency`tradetype`pc`totalshares`outstanding`facevalue!"SSSSDSSSFFFF"$'flip d[0;1;;1;0 3 4 5 7 8 9 11 12 14 15 16;1]}
+get_securities:{[x]d:getrefxml[`securities];1!`sym`ex xcols update sym: sv[`] each (,\:)[sym;`XSHE],ex:`XSHE from flip `sym`name`isin`underlying`opendate`sectype`currency`tradetype`pc`totalshares`outstanding`facevalue!"SSSSDSSSFFFF"$'flip d[0;1;;1;0 3 4 5 7 8 9 11 12 14 15 16;1]}
 
-get_hkexreff04:{[x]d:(" SSS SSSSSFF FDFFS";"|") 0: getreftxt[`hkexreff04];1!`sym xcols update sym: sv[`] each (,\:)[sym;`XHKE] from flip `sym`isin`name`ticker`underlying`secclass`sectype`currency`scale`facevalue`accuvalue`opendate`qtylot`pc`remark!d};
+get_hkexreff04:{[x]d:(" SSS SSSSSFF FDFFS";"|") 0: getreftxt[`hkexreff04];1!`sym`ex xcols update sym: sv[`] each (,\:)[sym;`XHKE],ex:`XHKE from flip `sym`isin`name`ticker`underlying`secclass`sectype`currency`scale`facevalue`accuvalue`opendate`qtylot`pc`remark!d};
 
-getrd:{[](get_securityswitch[] lj get_cashauctionparams[] lj get_securities[]) lj get_hkexreff04[]};
+getrd:{[](get_securityswitch[] lj get_cashauctionparams[] lj get_securities[]) lj @[get_hkexreff04;();()]};
 
 qxsnap:{[]1!select sym,ex,esym,name,ticker,assetclass,product,multiplier,currency,strikepx,putcall,sectype,pxunit,qtylot,qtymax,qtymaxm,qtymaxl,qtymaxs,margintype,rmarginl,rmargins,rmarginoq,rmarginmq,rfeetaxoa,rfeetaxoq,rfeetaxca,rfeetaxcq,rfeetaxcat,rfeetaxcqt,rfeetaxom,rfeetaxcm,rfeetaxctm,settledate,opendate,createdate,lifephase,sec_key,underlying,isin,ex1,cficode,notice,remark from .db.QX where not null name};
 
 batchpub:{[]if[.db.fqopendate<d0:.db.sysdate;.db.fqopendate:d0;.temp.L:.temp.Last:.temp.LastRef:();d:@[getrd;::;()];if[count d;.db.QX:.db.QX uj d;(path:` sv .conf.tempdb,.conf.me,`RD) set qxsnap[];pubm[`ALL;`RDUpdate;`xshe;string path]]];n:count d:(select sym,bid,ask,bsize,asize,price,high,low,vwap,cumqty,openint,settlepx,mode,extime,bidQ,askQ,bsizeQ,asizeQ from .db.QX where not null sym,0<nticks) except .temp.Last;if[n;.temp.Last:$[0=count .temp.Last;d;0!(1!.temp.Last),1!d];pub[`quote;update bidQ:?[0=count each bidQ;n#enlist `float$();bidQ],askQ:?[0=count each askQ;n#enlist `float$();askQ],bsizeQ:?[0=count each bsizeQ;n#enlist `float$();bsizeQ],asizeQ:?[0=count each asizeQ;n#enlist `float$();asizeQ],quoopt:n#enlist "" from d]];d2:(select sym,pc,open,0w^sup,0f^inf from .db.QX where not null sym,0<nticks) except .temp.LastRef;if[n:count d2;.temp.LastRef:$[0=count .temp.LastRef;d2;0!(1!.temp.LastRef),1!d2];pub[`quoteref;update refopt:n#enlist"" from d2]];update nticks:0 from `.db.QX;};
 
+.disp.fqxshe:{.ctrl.tcpconn};
 \
 d:flip `sym`isin`name`name1`name2`underlying`block`stype`currency`scale`facevalue`facecurr`interest`listdate`qtylot`pc`remark!(" ",(9#"S"),"FF","SFDFFS";"|") 0: read0 `:hkexreff04_20170621.txt
 

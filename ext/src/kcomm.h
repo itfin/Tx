@@ -50,6 +50,13 @@ extern int errno;
 #define xz xK[2]
 #define xw xK[3]
 
+#if defined(_DEBUG)
+#define DBG O
+#else
+#define DBG(fmt,...) 
+#endif
+
+
 int kstrncpy(char*buf,K x,int n){
   int size=MIN(n-1,xn);
   memcpy(buf,kG(x),size);

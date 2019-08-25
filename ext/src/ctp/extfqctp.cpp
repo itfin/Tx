@@ -54,7 +54,6 @@ ZK onmq(I i){
   }
   UNLOCK;    
   k(0,"onctp",L,(K)0);
-
   R ki(0);
 }
 
@@ -188,6 +187,7 @@ extern "C"{
     sd1(p[0],onmq);
     sprintf(buf,"/tmp/CTPQ_%s",y->s);
     pQuoteApi = CThostFtdcMdApi::CreateFtdcMdApi(buf,false);
+    O(pQuoteApi->GetApiVersion());
     pQuoteSpi = new CQuoteHandler(pQuoteApi);
     pQuoteApi->RegisterSpi((CThostFtdcMdSpi*)pQuoteSpi);
 

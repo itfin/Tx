@@ -1,3 +1,10 @@
+2019.08.21
+algolib.q:placeahead函数修正了原来没有对委托数量取整的bug,在限价母单向后分摊未发委托时出错
+
+2019.08.19
+base.q:O表增加tsexec字段以支持原策略使用算法交易策略代理执行算法母单
+ftbase.q:.upd.exerpt和newmatch函数增加对tsexec字段的支持以便在代理执行模式下触发代理策略的订单事件而非原始策略的订单事件,newordex函数增加对tsexec字段的设置支持和对acc1字段的覆盖支持
+
 2018.12.05
 ftbase.q:.roll.ft增加保存.hdb.P
 

@@ -2,7 +2,7 @@
 
 /对于行情类消息sym为证券代码,对于日志消息sym为日志级别,对于其他类消息sym为接收方id(`ALL为全系统广播)
 
-quote:([]time:`timespan$(); sym:`symbol$(); bid:`float$(); ask:`float$(); bsize:`float$(); asize:`float$(); price:`float$(); high:`float$(); low:`float$(); vwap:`float$(); cumqty:`float$(); openint:`float$(); settlepx:`float$(); mode:`symbol$(); extime:`timestamp$(); bidQ:(); askQ:(); bsizeQ:(); asizeQ:(); quoopt:(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$()); /行情快照
+quote:([]time:`timespan$();sym:`symbol$(); bid:`float$(); ask:`float$(); bsize:`float$(); asize:`float$(); price:`float$(); high:`float$(); low:`float$(); vwap:`float$(); cumqty:`float$(); openint:`float$(); settlepx:`float$(); mode:`symbol$(); extime:`timestamp$(); bidQ:(); askQ:(); bsizeQ:(); asizeQ:(); quoopt:(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$()); /行情快照
 
 quoteref:([]time:`timespan$(); sym:`symbol$(); pc:`float$(); open:`float$(); sup:`float$(); inf:`float$(); refopt:(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$()); /参考数据更新
 

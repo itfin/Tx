@@ -129,6 +129,7 @@ combineAll:{[k]raze combine[;k] each (reverse 1+til count k)}; /[k4]Greg.Watson@
 subs:(('[;]) over (raze;((-1_(-1_)\)');(-1_(1_)\)));
 subs1:{raze mover[::;;x] each 1+til count x};
 
+swin:{[f;n;s] f each{1_x,y}\[n#0#s;s] }; /Flying
 mover:{[f;n;x]f each x filter['[(0<=);min]'] (til count x)-\:reverse til n};
 flatten:,//; 
 reshape:{{y cut x}/[y;(reverse 1_x) except 0]}; /[shape;array]J's dyad verb $

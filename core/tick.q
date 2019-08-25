@@ -32,6 +32,7 @@ if[not system"p";system"p 5010"]
 \d .u
 ph:-1;setph:{[]ph::.z.w;};end:{(neg (union/[w[;;0]]) except ph)@\:(`.u.end;x)};
 ld:{if[not type key L::`$(-10_string L),string x;.[L;();:;()]];i::j::-11!(-2;L);if[0<=type i;-2 (string L)," is a corrupt log. Truncate to length ",(string last i)," and restart";exit 1];hopen L};
+
 tick:{init[];if[not min(`time`sym~2#key flip value@)each t;'`timesym];@[;`sym;`g#]each t;d::.z.D;if[l::count y;L::`$":",y,"/",x,10#".";if[count fl:key `$":",y;if[d<dm:max "D"$(-10#) each string fl where fl like x,"[0-9]*";d::dm]];l::ld d]};
 
 beginofday:{if[d>=x;:()];end d;d::x;if[l;hclose l;l::0(`.u.ld;d)]};            

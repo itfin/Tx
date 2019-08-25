@@ -21,13 +21,14 @@ namespace
 .roll 日期滚动回调
 .timer 定时器回调
 .tcppc TCP连接关闭通知
+.disp 界面信息输出字典
 .module 模块版本
 id编码
-一般为3位数,末位为节点id,前两位00-29为ft,30-59为fe,60-89为fq,90-91为fu,92-93为fa,98为fp,99为fc
+一般为3位数,末位为节点id,前两位00-19为ft[20],20-29为ftsim[10],30-49为fe[20],60-79为fq[20],90-91为fu,92-93为fa,98为fp,99为fc
 策略回调
 `timer`quote`exerpt`match`dayroll`sysinit`sysexit
 订阅
-`为全订,`symbol$()为不订,其它为显式订阅
+`为不订,`symbol$()为全订,其它为显式订阅
 变量命名
 标量:小写开头小写结束
 数组:小写开头大写结束
