@@ -7,7 +7,9 @@ ctp.broker:`;
 ctp.user:`;
 ctp.pass:`;
 
-ctp.cltver:`TxVer1.0;
+ctp.prdinfo:`Tx;
+ctp.cltver:`client_Tx_1.0.0;
+ctp.authocde:`...;
 ctp.debug:0b;
 
 ctp.openrange:(00:00 03:00;08:50 16:40;20:40 24:00);

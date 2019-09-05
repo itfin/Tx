@@ -26,6 +26,7 @@ ha.portstep:10;
 
 ha.ha.ip:`0.0.0.0;
 ha.ha.portoffset:0;
+ha.ha.backup:`ha1;
 
 
 ha.ha.tick:`tp`rdb`hdb;
@@ -36,6 +37,7 @@ ha.ha.fu:`symbol$();
 
 ha.ha1.ip:`127.0.0.1;
 ha.ha1.portoffset:100;
+ha.ha1.backup:`ha;
 
 ha.ha1.tick:`tp1`rdb1`hdb1;
 ha.ha1.ft:enlist `ft1;
@@ -43,6 +45,7 @@ ha.ha1.fe:`fectp1;
 ha.ha1.fq:`fqctp1;
 ha.ha1.fu:`symbol$();
 
+skipdb:0b;
 dumpapi:0b;
 loglevel:`warn;
 dayendtime:20:00;

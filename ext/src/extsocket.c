@@ -1,4 +1,5 @@
 #include"kcomm.h"
+#include <netdb.h>
 
 int closesock(int s){
   int r=0;
@@ -28,6 +29,24 @@ K1(udpsend){
    n=sendto(s,kC(xz), xz->n, 0, (struct sockaddr*)&si_other, slen);
    closesock(s);
    R ki(n);
+}
+
+K2(udpsendto){
+   int n=0;
+   struct sockaddr_in si_other;
+   int slen=sizeof(si_other);
+   
+   n=sendto(xi,kC(y), y->n, 0, (struct sockaddr*)&si_other, slen);
+   R ki(n);
+}
+
+K1(udprecvfrom){
+   int n=0;
+   struct sockaddr_in sin;
+   int slen;
+   char buf[BUFLEN];
+   n==recvfrom(xi, buf, sizeof(buf),MSG_DONTWAIT,(struct sockaddr *)&sin, &slen);
+   R (n>0)?kpn(buf,n):kp("");
 }
 
 K1(sockopt){
@@ -187,9 +206,12 @@ K1(tcprecv){
   }
 }
 
-I opensock(S ip,I port,I mode,I blen){
+I opensock(S ip,I port,I mode,I blen,S lip){
   int n=0,e=0,flag=1,keepidle=60,keepintvl=30,keepcnt=3;
   struct sockaddr_in si_other;
+  struct in_addr ia, la;
+  struct hostent *group;
+  struct ip_mreq mreq;
   int s, flags, slen=sizeof(si_other),r;
   int sockmode=mode; /*0:UDP,1:TCP client async,2:TCP server async,3:TCP client sync,4:TCP server sync*/
 #if defined(WIN32)||defined(WIN64)
@@ -200,6 +222,16 @@ I opensock(S ip,I port,I mode,I blen){
   if(sockmode){
     setsockopt(s,IPPROTO_TCP,TCP_NODELAY,(char*)&flag,sizeof(flag));
     setsockopt(s,SOL_SOCKET,SO_KEEPALIVE,(char*)&flag,sizeof(flag));
+  }else if((NULL!=lip)&&0<strlen(lip)){ /*UDP multicast*/
+    bzero(&mreq, sizeof(struct ip_mreq));
+    if ((group = gethostbyname(ip)) == (struct hostent *) 0) R -ERRNO;
+    bcopy((void *) group->h_addr, (void *) &ia, group->h_length);
+    bcopy(&ia, &mreq.imr_multiaddr.s_addr, sizeof(struct in_addr));
+    mreq.imr_interface.s_addr = inet_addr(lip);
+    if(setsockopt(s,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(struct ip_mreq))==-1) R -ERRNO;
+    bzero(&la, sizeof(la));
+    la.s_addr = inet_addr(lip);
+    if(setsockopt(s, IPPROTO_IP, IP_MULTICAST_IF, &la, sizeof(la)) < 0) R -ERRNO;
   }
 
   if(0<blen){ /*Linux 2.6 have autotuning,but big buffer helps for non-blocking IO.*/
@@ -247,9 +279,10 @@ I opensock(S ip,I port,I mode,I blen){
 K1(sockopen){
   int s=0,t=0,n=16777216;
   t=xz->i;
+  S lip=NULL;
   if(!((-KS)==xx->t)&&((-KI)==xy->t)&&((-KI)==xz->t))R ki(-1234);
-  if(4==x->n){n=xw->i;};
-  s=opensock(xx->s,xy->i,xz->i,n);
+  if(4==x->n)if((-KS)==xw->t){lip=xw->s;}else if((-KI)==xw->t){n=xw->i;}else{} 
+  s=opensock(xx->s,xy->i,xz->i,n,lip);
   if(0<s){
     if(2==t){
       sd1(-s,listencallback);

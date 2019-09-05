@@ -154,7 +154,7 @@ rejectcxloa:rejectcxlrploa[;;;;;0b];rejectrploa:rejectcxlrploa[;;;;;1b];
 lastsubordpx:{[x]exec last price from .db.O where id in key[.temp.hO],upid=x,0<qty-0f^cumqty,cstatus=.enum[`NULL]}; /[upid]最新子单委托价格
 lastsubordtime:{[x]`time$exec last ntime from .db.O where id in key[.temp.hO],upid=x}; /[upid]最新子单委托时间
 
-newalgord:{[x;y;z;t;p;a;u;v]e:`;pe:$[2<count x;x[2];.enum`NULL];if[1<count x;e:x[1];x:x[0]];to:`;if[1<count a;to:a[0];a:a[1]];.upd[`NewOrderAlgo][`src`id`ts`acc1`handlinst`execinst`sym`side`typ`qty`amt`price`algo`para`cltalt`cltsub`cltid2`cltacc`ex`sym`stoppx`posefct!(.conf.me;newid[];to;a;.enum`AUTOMATED_EXECUTION_ORDER_PUBLIC_BROKER_INTERVENTION_OK;e;x;y;t;z;0n;p;u;enlist v;`;`;`;`;fs2e x;fs2s x;$[t=.enum`STOP;p;0n];pe)];}; /[sym|(sym;execinst)|(sym;execinst;posefct);side;qty;ordtype;price;tsorig|(tsorig;acc);algo;para]
+newalgord:{[x;y;z;t;p;a;u;v]e:`;pe:$[2<count x;x[2];.enum`NULL];if[1<count x;e:x[1];x:x[0]];to:`;if[1<count a;to:a[0];a:a[1]];.upd[`NewOrderAlgo][`src`id`ts`acc1`handlinst`execinst`sym`side`typ`qty`amt`price`algo`para`cltalt`cltsub`cltid2`cltacc`ex`sym`stoppx`posefct!(.conf.me;newid[];to;a;.enum`AUTOMATED_EXECUTION_ORDER_PUBLIC_BROKER_INTERVENTION_OK;e;x;y;t;z;0n;p;u;enlist v;`;`;`;`;fs2e x;fs2s x;$[t=.enum`STOP;p;0n];pe)];}; /[sym|(sym;execinst)|(sym;execinst;posefct);side;qty;ordtype;price;acc|(tsorig;acc);algo;parahash]
 
 newalgolst:{[x;y;z;t;p;a;u;v].upd[`NewOrderAlgoList][`id`totalsize`algo`para`list!(newid[];-1+count x;u;enlist v;{[s;x;y;z;t;p;a]e:`;pe:$[2<count x;x[2];.enum`NULL];if[1<count x;e:x[1];x:x[0]];to:`;if[1<count a;to:a[0];a:a[1]];`src`id`ts`acc1`handlinst`execinst`sym`side`typ`qty`amt`price`cltalt`cltsub`cltid2`cltacc`ex`sym`slot`algo`para`stoppx`posefct!(.conf.me;newid[];to;a;.enum`AUTOMATED_EXECUTION_ORDER_PUBLIC_BROKER_INTERVENTION_OK;e;x;y;t;z;0n;p;`;`;`;`;fs2e x;fs2s x;s;`;();$[t=.enum`STOP;p;0n];pe)}'[til count x;x;y;z;t;p;a])];}; /[sym|(sym;execinst);side;qty;ordtype;price;acc;algo;para]
 
@@ -190,6 +190,8 @@ oadetaild:{[isrt;x;y]y:`long$y;toa:$[isrt;.db.O1;.hdb.O1];to:$[isrt;.db.O;.hdb.O
 .db.Ax:.enum.nulldict;
 
 .db.O1:(0#.db.O) uj ([`u#id:`symbol$()]pendingwait:`symbol$(); suspend:`boolean$(); usrpause:`char$(); rn:`int$(); jn:`int$(); amt:`float$(); sentqty:`float$(); style:`symbol$(); clt:`symbol$(); algo:`symbol$(); cltid:`symbol$(); cltcid:`symbol$(); handlinst:`char$(); execinst:`symbol$(); cltalt:`symbol$(); cltsub:`symbol$(); cltid2:`symbol$(); cltacc:`symbol$(); stoppx:`float$(); extype:`symbol$(); para:();  plan:(); snap:()); /AlgoOrder
+
+.db.TASK[`loadhvpdb;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+08:30;1D;0;4;`loadhvpdb);
 
 /
 //volume profile update

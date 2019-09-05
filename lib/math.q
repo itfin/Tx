@@ -130,6 +130,7 @@ subs:(('[;]) over (raze;((-1_(-1_)\)');(-1_(1_)\)));
 subs1:{raze mover[::;;x] each 1+til count x};
 
 swin:{[f;n;s] f each{1_x,y}\[n#0#s;s] }; /Flying
+swin0:{[f;n;s] f each (n-1)_{1_x,y}\[n#0#s;s]}; /Flying
 mover:{[f;n;x]f each x filter['[(0<=);min]'] (til count x)-\:reverse til n};
 flatten:,//; 
 reshape:{{y cut x}/[y;(reverse 1_x) except 0]}; /[shape;array]J's dyad verb $

@@ -78,7 +78,7 @@ normgrid=function(x){
 tslistreq=function(x){wscall('tsl[]',tslistres,{node:x});}
 
 tslistres=function(x,y){
-    var data=map("{text:x,children:[{text:'委托查询',attributes:{func:'ordreqfun('+'\"`'+x+'\"'+',0)'}},{text:'成交查询',attributes:{func:'matreqfun('+'\"`'+x+'\"'+',0)'}},{text:'持仓查询',attributes:{func:'posreqfun('+'\"`'+x+'\"'+',0)'}},{text:'历史委托',attributes:{func:'ordhisreqfun('+'\"`'+x+'\"'+',0)'}},{text:'历史成交',attributes:{func:'mathisreqfun('+'\"`'+x+'\"'+',0)'}},{text:'策略参数',attributes:{func:'tsparareq('+'\"`'+x+'\"'+',0)'}},{text:'数据加载',attributes:{func:'csvloadreq('+'\"`'+x+'\"'+',0)'}},{text:'数据查询',attributes:{func:'csvviewreq('+'\"`'+x+'\"'+',0)'}},{text:'对冲误差',attributes:{func:'otchedgereq('+'\"`'+x+'\"'+',0)'}},{text:'JUMP计算',attributes:{func:'otcjumpreq('+'\"`'+x+'\"'+',0)'}}]}",y);
+    var data=map("{text:x,children:[{text:'委托查询',attributes:{func:'ordreqfun('+'\"`'+x+'\"'+',0)'}},{text:'成交查询',attributes:{func:'matreqfun('+'\"`'+x+'\"'+',0)'}},{text:'持仓查询',attributes:{func:'posreqfun('+'\"`'+x+'\"'+',0)'}},{text:'历史委托',attributes:{func:'ordhisreqfun('+'\"`'+x+'\"'+',0)'}},{text:'历史成交',attributes:{func:'mathisreqfun('+'\"`'+x+'\"'+',0)'}},{text:'策略参数',attributes:{func:'tsparareq('+'\"`'+x+'\"'+',0)'}},{text:'数据加载',attributes:{func:'csvloadreq('+'\"`'+x+'\"'+',0)'}},{text:'数据查询',attributes:{func:'csvviewreq('+'\"`'+x+'\"'+',0)'}},{text:'对冲误差',attributes:{func:'otchedgereq('+'\"`'+x+'\"'+',0)'}},{text:'JUMP计算',attributes:{func:'otcjumpreq('+'\"`'+x+'\"'+',0)'}},{text:'股指基差',attributes:{func:'otctermstrureq('+'\"`'+x+'\"'+',0)'}}]}",y);
     var z=map('"`"+x',y);
     ordqry=ordreqfun.curry(z);matqry=matreqfun.curry(z);posqry=posreqfun.curry(z);ordhisqry=ordhisreqfun.curry(z);mathisqry=mathisreqfun.curry(z);
     data.unshift({text:'全部策略',children:[{text:'委托查询',attributes:{func:'ordqry(x)'}},{text:'成交查询',attributes:{func:'matqry(x)'}},{text:'持仓查询',attributes:{func:'posqry(x)'}},{text:'历史委托',attributes:{func:'ordhisqry(x)'}},{text:'历史成交',attributes:{func:'mathisqry(x)'}}]});
@@ -163,7 +163,7 @@ ordreqfun=function(x,y){wscall(['{[x]select ts,acc,ref,id,side,posefct,sym,qty,p
 
 ordres=function(x,y){
     $('#'+x.target).html('<div id=ordlst style="align:center;width:'+dw+'px;height:'+dh+'px">');
-    $('#ordlst').datagrid({fit:false,singleSelect:true,remoteSort:false,pagination:false,rowStyler:function(index,row){if((row.status=='0')||(row.status=='A')){return 'background-color:#6293BB;color:#fff;font-weight:bold;';}else if((row.status=='1')){return 'background-color:green;color:#fff;font-weight:bold;';}},columns:[[{field:'ts',title:'策略ID',width:160,sortable:true},{field:'acc',title:'交易帐号',width:60,sortable:true},{field:'ref',title:'下单备注',width:100,sortable:true},{field:'id',title:'委托ID',width:80,sortable:true},{field:'side',title:'买卖',width:30,sortable:true},{field:'posefct',title:'开平',width:30,sortable:true},{field:'sym',title:'代码',width:180,sortable:true},{field:'qty',title:'数量',width:60,sortable:true},{field:'price',title:'价格',width:60,sortable:true},{field:'status',title:'状态',width:40,sortable:true},{field:'cumqty',title:'成交数量',width:60,sortable:true},{field:'avgpx',title:'成交均价',width:60,sortable:true,formatter:function(x){return x.toFixed(3);}},{field:'ntime',title:'创建时间',width:80,sortable:true},{field:'ftime',title:'成交时间',width:80,sortable:true},{field:'ctime',title:'撤单时间',width:80,sortable:true},{field:'cstatus',title:'撤单状态',width:40,sortable:true},{field:'rtime',title:'回报时间',width:80,sortable:true},{field:'feoid',title:'申报ID',width:80,sortable:true},{field:'ordid',title:'确认ID',width:110,sortable:true},{field:'msg',title:'备注',width:500,sortable:true,formatter:function(x){return togbk(x);}}]]});
+    $('#ordlst').datagrid({fit:false,singleSelect:true,remoteSort:false,pagination:false,rowStyler:function(index,row){if((row.status=='0')||(row.status=='A')){return 'background-color:#6293BB;color:#fff;font-weight:bold;';}else if((row.status=='1')){return 'background-color:green;color:#fff;font-weight:bold;';}},columns:[[{field:'ts',title:'策略ID',width:160,sortable:true},{field:'acc',title:'交易帐号',width:60,sortable:true},{field:'ref',title:'下单备注',width:150,sortable:true},{field:'id',title:'委托ID',width:80,sortable:true},{field:'side',title:'买卖',width:30,sortable:true},{field:'posefct',title:'开平',width:30,sortable:true},{field:'sym',title:'代码',width:180,sortable:true},{field:'qty',title:'数量',width:60,sortable:true},{field:'price',title:'价格',width:60,sortable:true},{field:'status',title:'状态',width:40,sortable:true},{field:'cumqty',title:'成交数量',width:60,sortable:true},{field:'avgpx',title:'成交均价',width:60,sortable:true,formatter:function(x){return x.toFixed(3);}},{field:'ntime',title:'创建时间',width:80,sortable:true},{field:'ftime',title:'成交时间',width:80,sortable:true},{field:'ctime',title:'撤单时间',width:80,sortable:true},{field:'cstatus',title:'撤单状态',width:40,sortable:true},{field:'rtime',title:'回报时间',width:80,sortable:true},{field:'feoid',title:'申报ID',width:80,sortable:true},{field:'ordid',title:'确认ID',width:110,sortable:true},{field:'msg',title:'备注',width:500,sortable:true,formatter:function(x){return togbk(x);}}]]});
     $('#ordlst').datagrid('loadData',{total:y.length,rows:y});
     $('#ordlst').datagrid('scrollTo',y.length-1);
     if((ALERTBASECNT>0)&&(0==y.length)){ALERTBASECNT=0;};
@@ -273,6 +273,32 @@ otchedgeres=function(x,y){
 //JUMP估计
 otcjumpreq=function(x,y){$.messager.prompt('输入', '请输入目标点位:', function(r){if(r){wscall(['{[x;p]y:.db.Ts[x;`UDL];z:otc_hedgemap[x];q:sum 0f^.db.P[(x;.db.Ts[x;`acc];y);`lqty`sqty];floor abs q-z[p]}',x,parseFloat(r)],otcjumpres,{'target':'plot'});}});}
 otcjumpres=function(x,y){$.messager.alert('JUMP','jump='+y+'.','info');};
+
+//股指期货基差期限结构
+otctermstrureq=function(x,y){wscall(['{[x]y:{[x;y]z:asc key x;(z;1e2*(((x z)-y)%z%360)%y*1.2)}[exec (settledate-.z.D)!?[price>0;price;pc] from .db.QX where settledate>.z.D,product=.db.QX[.db.Ts[x;`UDL];`product];{$[x[0]>0;x[0];x[1]]} .db.QX[`000300.XSHG;`price`pc]];`ts`x0`x1`y0`y1!(flip y;y[0;0];last y[0];min y[1];max y[1])}',x],otctermstrures,{'target':'plot'});}
+
+otctermstrures=function(x,y){
+//    $('#'+x.target).html('<div id=flotarea style="width:600px;height:300px">');
+//    $.plot("#flotarea",[{data:y.ts,points:{show:true,fill:true,fillColor:'red',radius:3},lines:{show:true,lineWidth:1}}]);
+
+    $('#'+x.target).html('<div id=jsxbox style="width:800px;height:300px">');
+    var X0=-10,X1=260,Y1=y.y1+2,Y0=Math.min(0,y.y0)-1;
+    var brd = JXG.JSXGraph.initBoard('jsxbox',{showCopyright:false,showNavigation:false,axis:{ticks:{ticksDistance:0.1}},boundingbox:[X0,Y1,X1,Y0],originX:0,originY:0});  //
+    brd.suspendUpdate();
+
+    var p=y.ts.map(function(x){return brd.create('point',x,{style:6,frozen:true});});
+
+//  var g = brd.create('functiongraph', [JXG.Math.Numerics.lagrangePolynomial(p),X0,X1], {strokeWidth:3});
+//    var g = brd.create('curve', JXG.Math.Numerics.Neville(p), {strokecolor:'blue', strokeOpacity:0.6, strokeWidth:3}); 
+//    var g = brd.create('spline', p, {strokecolor:'blue', strokeOpacity:0.6, strokeWidth:3}); 
+//  var g = brd.create('curve', JXG.Math.Numerics.bspline(p,3), {strokecolor:'blue', strokeOpacity:0.6, strokeWidth:3}); 
+    var g = brd.create('curve', JXG.Math.Numerics.CatmullRomSpline(p), {strokecolor:'blue', strokeOpacity:0.6, strokeWidth:3}); 
+
+    [90,180].map(function(x){return brd.create('glider',[x,0,g], {style:6,strokeColor:'black',fillColor:'black'});});
+
+    brd.unsuspendUpdate();
+};
+
 
 //NOE查询
 noereq=function(x){wscall('0!.db.NOE',noeres,{target:'grid'});}
@@ -433,7 +459,7 @@ futsymres=function(x,y){
     maxgrid();    
     $('#'+x.target).html('<div id=kline style="width:'+(pw-50)+'px;height:'+($('#'+x.target).panel('options').height-50)+'px;">');
     var chart1=echarts.init($('#kline')[0]);
-    var option1={title:{text:x.sym},legend:{},tooltip:{axisPointer:{type:'cross'}},xAxis:{data:y.date},yAxis:{scale:true},dataZoom:[{show:true,xAxisIndex:[0],type:'slider',top:'90%',start:0,end:100},{type:'inside'}],series:[{type:'k',data:y.data,markPoint:{symbolSize:15,data:y.trade.map(function(x){return {coord:[x[0],x[1]],name:(x[2]=='1')?'buy':'sell',symbol:(x[2]=='2')?'triangle':'emptyTriangle',symbolRotate:(x[2]=='2')?0:180,symbolOffset:[0,(x[2]=='2')?'50%':'-50%'],itemStyle:{normal:{color:(x[2]=='1')?'blue':'green'}}}}),tooltip:{formatter:function(param){return param.name+'<br>'+param.data.coord[0]+'<br>'+param.data.coord[1];}}}}]};    
+    var option1={title:{text:x.sym},legend:{},tooltip:{axisPointer:{type:'cross'}},xAxis:{data:y.date},yAxis:{scale:true},dataZoom:[{show:true,xAxisIndex:[0],type:'slider',top:'90%',start:0,end:100},{type:'inside'}],series:[{type:'k',data:y.data,markPoint:{symbolSize:15,data:y.trade.map(function(x){return {coord:[x[0],x[1]],name:(x[2]=='1')?'buy':'sell',symbol:(x[2]=='2')?'emptytriangle':'triangle',symbolRotate:(x[2]=='2')?180:0,symbolOffset:[0,(x[2]=='2')?'50%':'-50%'],itemStyle:{normal:{color:(x[2]=='1')?'blue':'green'}}}}),tooltip:{formatter:function(param){return param.name+'<br>'+param.data.coord[0]+'<br>'+param.data.coord[1];}}}}]};    
     chart1.setOption(option1);    
 }
 
@@ -610,6 +636,24 @@ runtest=function(){
 }
 runtestres=function(x,y){if(y.r<0){alert(y.errmsg);}else{alert('运行结束.');testmgr();};}
 
+futsymres1=function(x,y){
+    maxgrid();    
+    $('#'+x.target).html('<div id=jsxbox style="width:'+(pw-50)+'px;height:'+($('#'+x.target).panel('options').height-50)+'px;">');
+    var n=y.N;
+    var X0=-10,X1=10+4*n,Y1=y.H,Y0=y.L;
+    var brd = JXG.JSXGraph.initBoard('jsxbox',{showCopyright:false,showNavigation:false,axis:{ticks:{ticksDistance:0.1}},boundingbox:[X0,Y1,X1,Y0],originX:0,originY:0});  //
+    brd.suspendUpdate();
+    for(i=0;i<n;i++){
+	x0=4*i;x1=x0+3;y0=y.data[i][0];y1=y.data[i][1];
+	brd.create('polygon',[[x0,y0],[x1,y0],[x1,y1],[x0,y1]],{hasInnerPoints: true});
+    }
+    brd.unsuspendUpdate();
+    
+    //var chart1=echarts.init($('#kline')[0]);
+    //var option1={title:{text:x.sym},legend:{},tooltip:{axisPointer:{type:'cross'}},xAxis:{data:y.date},yAxis:{scale:true},dataZoom:[{show:true,xAxisIndex:[0],type:'slider',top:'90%',start:0,end:100},{type:'inside'}],series:[{type:'k',data:y.data,markPoint:{symbolSize:15,data:y.trade.map(function(x){return {coord:[x[0],x[1]],name:(x[2]=='1')?'buy':'sell',symbol:(x[2]=='2')?'emptytriangle':'triangle',symbolRotate:(x[2]=='2')?180:0,symbolOffset:[0,(x[2]=='2')?'50%':'-50%'],itemStyle:{normal:{color:(x[2]=='1')?'blue':'green'}}}}),tooltip:{formatter:function(param){return param.name+'<br>'+param.data.coord[0]+'<br>'+param.data.coord[1];}}}}]};    
+    //chart1.setOption(option1);    
+}
+
 chgshow=function(){
     var s=$('#testgrid').datagrid('getSelected');if(s==undefined){alert("请先选择一个回测.");return;}if(s.endtime=='')return;
     var t=$('input[name=show]:checked').val();
@@ -618,7 +662,19 @@ chgshow=function(){
     else if(t=='tradelist'){wscall(['{[x]update string enter,string leave,string hold from `ti xasc .db.B[x;`res;`GT]}','`'+s.id],showtradelist,{'target':'plot'});}
     else if(t=='orderlist'){wscall(['{[x]select sym,side,posefct,qty,price,status,ref,cumqty,avgpx,cumamt,cumfee,string ntime,string ftime,string ctime from .db.B[x;`res;`O]}','`'+s.id],showorderlist,{'target':'plot'});}
     else if(t=='cp'){wscall(['{[x].db.B[x;`cp]}','`'+s.id],showcp,{'target':'plot'});}
-    else if(t=='kline'){wscall(['{[bid]r:.db.B[bid];x:r`xsym;D:r`d0`d1;f:r`freq;typ:r`btyp;.temp.t:t:$[`M=typ;delete bart from update bard:`$(-13_) each string bard+bart from minbars[x;D;f];daybars[x;D;f]];tr:select d:`date$ftime,t:`time$ftime,avgpx,side from r[`res;`O] where sym=x,cumqty>0;.temp.tr:tr:delete t from $[`M=typ;update d:`$(-13_) each string d+xbar[f] `minute$t from tr;update d:`$string xbar[f] d from tr];`date`data`trade!(exec string bard from t;flip value flip select open,close,low,high from t;flip value flip tr)}','`'+s.id],futsymres,{target:'grid'})}
+    else if(t=='kline'){wscall(['{[bid]r:.db.B[bid];x:r`xsym;D:r`d0`d1;f:r`freq;typ:r`btyp;.temp.t:t:$[`M=typ;delete bart from update bard:`$(-13_) each string bard+bart from minbars[x;D;f];daybars[x;D;f]];tr:select d:`date$ftime,t:`time$ftime,avgpx,side from r[`res;`O] where sym=x,cumqty>0;.temp.tr:tr:delete t from $[`M=typ;update d:`$(-13_) each string d+xbar[f] `minute$t from tr;update d:`$string xbar[f] d from tr];`N`H`L`date`data`trade!(count[t];1.03*exec max high from t;0.97*exec min low from t;exec string bard from t;flip value flip select i,open,close,low,high from t;flip value flip tr)}','`'+s.id],futsymres1,{target:'grid'})}
+    else{}
+}
+
+chgshow0=function(){
+    var s=$('#testgrid').datagrid('getSelected');if(s==undefined){alert("请先选择一个回测.");return;}if(s.endtime=='')return;
+    var t=$('input[name=show]:checked').val();
+    if(t=='asset'){wscall(['{[x]exec x:`$(-13_) each string {x,y}[first enter;leave],y:.db.B[x;`cash]+{0,x} sums netpnl from .db.B[x;`res;`GT]}','`'+s.id],showasset,{'target':'plot'});}
+    else if(t=='trade'){wscall(['{[x]exec x:ti,y:netpnl from `ti xasc .db.B[x;`res][`GT]}','`'+s.id],showtrade,{target:'plot'});}
+    else if(t=='tradelist'){wscall(['{[x]update string enter,string leave,string hold from `ti xasc .db.B[x;`res;`GT]}','`'+s.id],showtradelist,{'target':'plot'});}
+    else if(t=='orderlist'){wscall(['{[x]select sym,side,posefct,qty,price,status,ref,cumqty,avgpx,cumamt,cumfee,string ntime,string ftime,string ctime from .db.B[x;`res;`O]}','`'+s.id],showorderlist,{'target':'plot'});}
+    else if(t=='cp'){wscall(['{[x].db.B[x;`cp]}','`'+s.id],showcp,{'target':'plot'});}
+    else if(t=='kline'){wscall(['{[bid]r:.db.B[bid];x:r`xsym;D:r`d0`d1;f:r`freq;typ:r`btyp;.temp.t:t:$[`M=typ;delete bart from update bard:`$(-13_) each string bard+bart from minbars[x;D;f];daybars[x;D;f]];tr:select d:`date$ftime,t:`time$ftime,avgpx,side from r[`res;`O] where sym=x,cumqty>0;.temp.tr:tr:delete t from $[`M=typ;update d:`$(-13_) each string d+xbar[f] `minute$t from tr;update d:`$string xbar[f] d from tr];`date`data`trade!(exec string bard from t;flip value flip select i,open,close,low,high from t;flip value flip tr)}','`'+s.id],futsymres1,{target:'grid'})}
     else{}
 }
 
@@ -692,7 +748,7 @@ qryoalist=function(x){
 
 oalist=function(x,y){
     $('#'+x.target).html('<div id=oagrid>');
-    $('#oagrid').datagrid({fit:true,rowStyler:function(x,y){t=y.cstag;return (t>0)?('background:'+(((t==1)||(t==3))?'red':'green')):'';},singleSelect:true,remoteSort:false,pagination:false,idField:'id',columns:[[{field:'id',title:'母单ID',width:100,sortable:true},{field:'hsid',title:'恒生序号',width:60,sortable:true},{field:'sym',title:'证券代码',width:100,sortable:true},{field:'algo',title:'算法',width:60,sortable:true},{field:'status',title:'状态',width:60,sortable:true,formatter:function(x){return (x==0)?'新建':((x==1)?'部分成交':((x==2)?'全部成交':((x==4)?'撤单完成':((x==6)?'撤单已报':((x==8)?'拒绝':((x==3)?'当日完成':((x=='C')?'过期':x)))))));}},{field:'cstag',title:'挂起',width:50,sortable:true,formatter:function(x){return (x==3)?'暂停待撤':((x==2)?'待撤':((x==1)?'暂停':'无'));}},{field:'side',title:'方向',width:40,sortable:true,formatter:function(x){return (x==1)?'买入':'卖出';}},{field:'qty',title:'委托数量',width:80,sortable:true},{field:'price',title:'母单限价',width:60,sortable:true},{field:'sentqty',title:'发单数量',width:80,sortable:true},{field:'cumqty',title:'完成数量',width:80,sortable:true},{field:'avgpx',title:'成交均价',width:60,sortable:true,formatter:function(x){return x.toFixed(3);}},{field:'leavesqty',title:'剩余数量',width:80,sortable:true},{field:'createtime',title:'创建时间',width:160,sortable:true},{field:'pct',title:'完成比例',width:60,sortable:true,formatter:function(x){return (100*x).toFixed(2)+'%';}},{field:'vwap',title:'市场均价',width:60,sortable:true,formatter:function(x){return x.toFixed(3);}},{field:'mktqty',title:'市场成交',width:60,sortable:true,formatter:function(x){return x.toFixed(0);}},{field:'bias',title:'执行差损',width:60,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'mno',title:'成交笔数',width:80,sortable:true},{field:'canceltime',title:'撤单时间',width:60,sortable:true},{field:'filltime',title:'最后成交',width:60,sortable:true}]],onClickRow:function(x,y){z=$('input[name=gtype]:checked').val();((z==4)?qryoapara:((z==3)?qrysublst:((z==2)?qrysubrej:((z==1)?qrydetail:qryexec))))(y.id,$('input[name=gfreq]:checked').val());}});
+    $('#oagrid').datagrid({fit:true,rowStyler:function(x,y){t=y.cstag;return (t>0)?('background:'+(((t==1)||(t==3))?'red':'green')):'';},singleSelect:true,remoteSort:false,pagination:false,idField:'id',columns:[[{field:'id',title:'母单ID',width:100,sortable:true},{field:'hsid',title:'恒生序号',width:60,sortable:true},{field:'sym',title:'证券代码',width:100,sortable:true},{field:'algo',title:'算法',width:60,sortable:true},{field:'status',title:'状态',width:60,sortable:true,formatter:function(x){return (x==0)?'新建':((x==1)?'部分成交':((x==2)?'全部成交':((x==4)?'撤单完成':((x==6)?'撤单已报':((x==8)?'拒绝':((x==3)?'当日完成':((x=='C')?'过期':x)))))));}},{field:'cstag',title:'挂起',width:50,sortable:true,formatter:function(x){return (x==3)?'暂停待撤':((x==2)?'待撤':((x==1)?'暂停':'无'));}},{field:'side',title:'方向',width:40,sortable:true,formatter:function(x){return (x==1)?'买入':'卖出';}},{field:'qty',title:'委托数量',width:80,sortable:true},{field:'price',title:'母单限价',width:60,sortable:true},{field:'sentqty',title:'发单数量',width:80,sortable:true},{field:'cumqty',title:'完成数量',width:80,sortable:true},{field:'avgpx',title:'成交均价',width:60,sortable:true,formatter:function(x){return x.toFixed(3);}},{field:'leavesqty',title:'剩余数量',width:80,sortable:true},{field:'createtime',title:'创建时间',width:160,sortable:true},{field:'pct',title:'完成比例',width:60,sortable:true,formatter:function(x){return (100*x).toFixed(2)+'%';}},{field:'vwap',title:'市场均价',width:60,sortable:true,formatter:function(x){return x.toFixed(3);}},{field:'mktqty',title:'市场成交',width:60,sortable:true,formatter:function(x){return x.toFixed(0);}},{field:'bias',title:'执行差损',width:60,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'mno',title:'成交笔数',width:80,sortable:true},{field:'ctime',title:'撤单时间',width:60,sortable:true},{field:'ftime',title:'最后成交',width:60,sortable:true}]],onClickRow:function(x,y){z=$('input[name=gtype]:checked').val();((z==4)?qryoapara:((z==3)?qrysublst:((z==2)?qrysubrej:((z==1)?qrydetail:qryexec))))(y.id,$('input[name=gfreq]:checked').val());}});
     $('#oagrid').datagrid('loadData',{total:y.length,rows:y});
     $('#updtime').val(now());
 };

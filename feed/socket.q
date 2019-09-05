@@ -1,6 +1,6 @@
-.module.socket:2017.01.25;
+.module.socket:2019.09.04;
 
-`udpsend`sockopen`sockclose`sockopt`sockcheck`tcpsend`tcprecv`getsockbuf`setsockbuf`errmsg {x set `extsocket 2:(x;y);}' (5#1),2,4#1;
+`udpsend`sockopen`sockclose`sockopt`sockcheck`tcpsend`udpsendto`tcprecv`udprecvfrom`getsockbuf`setsockbuf`errmsg {x set `extsocket 2:(x;y);}' (5#1),2 2,5#1;
 
 udplisten:{[x]sockopen[x,enlist 0i]};tcpconnasync:{[x]sockopen[x,enlist 1i]};tcplistenasync:{[x]sockopen[x,enlist 2i]};tcpconn:{[x]sockopen[x,enlist 3i]};tcplisten:{[x]sockopen[x,enlist 4i]};
 
