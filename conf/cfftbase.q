@@ -10,6 +10,7 @@ keepbar:0b;
 checkrisk:0b;
 rcusewhitelst:0b;
 simnoe:0b;
+autoloadhdb:1b;
 \d .
 
 

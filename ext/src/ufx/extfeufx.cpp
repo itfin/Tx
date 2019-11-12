@@ -1,6 +1,7 @@
 #include "kcomm.h"
 #include "t2sdk_interface.h"
 #include "HsFutuSystemInfo.h"
+#include "DataCollect.h"
 
 #if defined(J64)
 #define NewConnectionEx NewConnection
@@ -660,4 +661,12 @@ extern "C"{
 
     R kp((S)lpConnection->GetSelfMac());    
   }
+
+  K2(ctpsysinfo){
+    char buf[SYMSIZE];
+    I r=0,n=0;
+    r=CTP_GetSystemInfo(buf,n);
+    R r?kp(""):kpn((S)buf,n);
+  }
+
 }

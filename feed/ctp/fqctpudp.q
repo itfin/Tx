@@ -6,10 +6,12 @@ txload "feed/socket";
 .enum.ctpexmap:`CFFEX`SHFE`DCE`CZCE`INE!`CCFX`XSGE`XDCE`XZCE`XINE;
 
 .ctrl.ctp.sock:0i;
-.temp.L:();
+.temp.QL:();
 .temp.QUEUE:0#delete time,src,srctime,srcseq,dsttime from quote;
 .temp.QREF:1!0#delete time,refopt,src,srctime,srcseq,dsttime from quoteref;
+
 .enum.qcols:cols .temp.QUEUE;
+
 .init.fqctpudp:{[x].ctrl.ctp.sockmap:mirror .ctrl.ctp.sock:(key .conf.udp.addrmap)!sockopen each value .conf.udp.addrmap;};
 .exit.fqctpudp:{[x]sockclose each value .ctrl.ctp.sock;};
 .timer.fqctp:{[x]batchpub[];};
@@ -18,7 +20,7 @@ enqueue:{[x].temp.QUEUE,:x};
 batchpub:{[]if[(not 1b~.conf.batchpub)|(0=count .temp.QUEUE);:()];pub[`quote;.temp.QUEUE];.temp.QUEUE:0#.temp.QUEUE;};
 fix0w:{[x]?[1e300<abs[x];0n;x]};
 
-sockcbrecv:{[s;ip;port;r;buf].temp.L,:enlist (s;ip;port;r;.z.P;buf);.temp.buf:buf;t:.ctrl.ctp.sockmap[s];.temp.d:d:$[t in `XSGE_L1`XSGE_L2;decode_xsge_new;t in `XINE_L1`XINE_L2;decode_xine_new;decode_old] buf;$[1b~.conf.batchpub;enqueue[enlist d[0]];pub[`quote;enlist .enum.qcols!d[0]]];if[not d[1;1+til 4]~.temp.QREF[d[1;0];`pc`open`sup`inf];pub[`quoteref;enlist `sym`oc`open`sup`inf`refopt!d[1],enlist ""];.temp.QREF,:enlist d[1]];};
+sockcbrecv:{[s;ip;port;r;buf]if[1b~.conf.udp[`debug];.temp.QL,:enlist (s;ip;port;r;.z.P;buf)];.temp.buf:buf;t:.ctrl.ctp.sockmap[s];.temp.d:d:$[t in `XSGE_L1`XSGE_L2;decode_xsge_new;t in `XINE_L1`XINE_L2;decode_xine_new;decode_old] buf;if[count[l]& not d[0;0] in l:.conf.ctpsymlist;:()];$[1b~.conf.batchpub;enqueue[enlist d[0]];pub[`quote;enlist .enum.qcols!d[0]]];if[not d[1;1+til 4]~.temp.QREF[d[1;0];`pc`open`sup`inf];pub[`quoteref;enlist `sym`oc`open`sup`inf`refopt!d[1],enlist ""];.temp.QREF,:enlist d[1]];};
 
 decode_new:{[e;x]d:first each ("*s* hiscfc iffi ",(14#"f"),30#"fi ";9 31 8 2 2 4 31 1 8 1 3 4 8 8 4 4,(14#8),30#8 4 4) 1: x;s:sv[`]d[1],e;(s,(fix0w `float$d[27 37 28 38 11 15 16]),((%/) d[13 12]),(fix0w `float$d[12 14 19]),$[d[4]=5;`5;`1],(`timestamp$("D"$8#d[0])+d[3]+"T"$d[2]),$[d[4]=5;fix0w each `float$d 27 37 28 38 +\:2*til 5;4#enlist `float$()],enlist "";s,fix0w `float$d[23 17 20 21])}; /`TradingDay0`InstrumentID1`UpdateTime2`UpdateMillsec3`MarketDataDepth4`UnderlyingInstrumentID5`ProductClass6`StrikePrice7`OptionType8`VolumeMultiple9`PriceTick10`LastPrice11`Volume12`Turnover13`OpenInterest14`HighestPrice15`LowestPrice16`OpenPrice17`ClosePrice18`SettlementPrice19`UpperLimitPrice20`LowerLimitPrice21`PreSettlementPrice22`PreClosePrice23`PreOpenInterest24`PreDelta25`CurrDelta26`BidPrice127`BidVolume128`BidPrice229`BidVolume230`BidPrice331`BidVolume332`BidPrice433`BidVolume434`BidPrice535`BidVolume536`AskPrice137`AskVolume138`AskPrice239`AskVolume240`AskPrice341`AskVolume342`AskPrice443`AskVolume444`AskPrice545`AskVolume546!d
 

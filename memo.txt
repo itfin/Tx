@@ -26,7 +26,7 @@ namespace
 id编码
 一般为3位数,末位为节点id,前两位00-19为ft[20],20-29为ftsim[10],30-49为fe[20],60-79为fq[20],90-91为fu,92-93为fa,98为fp,99为fc
 策略回调
-`timer`quote`exerpt`match`dayroll`sysinit`sysexit
+`timer`quote`exerpt`match`dayroll`sysinit`sysexit`alarm
 订阅
 `为不订,`symbol$()为全订,其它为显式订阅
 变量命名

@@ -1,4 +1,4 @@
-.module.base:2019.08.19;
+.module.base:2019.10.16;
 
 txload:{[x]@[system;"l Tx/",x,".q";`txload];};
 cfload:{[x]txload "conf/",x;};
@@ -42,6 +42,7 @@ P:([ts:`symbol$(); acc:`symbol$(); sym:`symbol$()] lqty:`float$();  sqty:`float$
 
 QT:([id:`u#`symbol$()] qrid:`symbol$(); bid:`symbol$(); aid:`symbol$(); ft:`symbol$(); ts:`symbol$(); acc:`symbol$(); fe:`symbol$(); acc1:`symbol$(); ref:`symbol$();sym:`symbol$(); bprice:`float$(); aprice:`float$(); bqty:`float$(); aqty:`float$(); bposefct:`char$(); aposefct:`char$(); status:`char$(); bcumqty:`float$(); acumqty:`float$(); bavgpx:`float$(); aavgpx:`float$(); feqid:`symbol$(); quoteid:`symbol$(); cid:`symbol$(); cstatus:`char$(); cfeqid:`symbol$(); cquoteid:`symbol$(); ntime:`timestamp$(); ctime:`timestamp$(); rtime:`timestamp$(); reason:`int$(); msg:(); rptopt:(); cn:`int$(); linkid:`symbol$()); /Quote
 
+
 \d .
 
 .init.base:{[x].ctrl.init:1b;loaddb[];.ctrl[`status`inittime]:(`Inited;.z.P);};
@@ -73,6 +74,8 @@ nextworkday:{[x]y:weekday[x];z:x+$[y=4;3;y=5;2;1];$[z in .conf.holiday;.z.s[z];z
 
 beginofday:{[x]h:.ctrl.conn[.conf.pubto;`h];if[-6h<>type h;:()];if[x<=h[`.u.d];:()];neg[h] (`.u.beginofday;x);pubm[`ALL;`BeginOfDay;.conf.me;string x];};
 
+alarm:{[x;y]pubm[`ALL;`Alarm;x;string y];}; /[ref;msg]
+
 wlog:{[x;y;z]if[(`int$`.enum.loglevels$x)>`int$`.enum.loglevels$.conf.loglevel;:()];z:$[10h=type z;z;-3!z];.db.LOG,:(x;y;z;.z.P);pub[`syslog;enlist `sym`typ`msg!(x;y;z)];};
 lerr:wlog[`error];lwarn:wlog[`warn];linfo:wlog[`info];ldebug:wlog[`debug];
 
@@ -97,6 +100,6 @@ now:{.z.P};ntd:{.z.D};vtd:{.db.sysdate};
 clearapi:{[]{delete from x;@[x;`sym;`g#];} each tables[]};
 cleartemp:{[]{[x]if[0<=type y:.temp[x];.temp[x]:0#y]} each key `.temp;};
 
-setstate:{[x;y]if[(null y)|(y~y0:.ctrl.StateMap[x]);:()];t0:.ctrl.StateEnter[x];t:now[];$[y~`OK;if[not null y0;lwarn[`ExitAlarm;(x;y0;t0;t;t-t0)]];lwarn[`EnterAlarm;(x;y;t)]];.ctrl.StateMap[x]:y;.ctrl.StateEnter[x]:t;}; /[ID;State]
+setstate:{[x;y]if[(null y)|(y~y0:.ctrl.StateMap[x]);:()];t0:.ctrl.StateEnter[x];t:now[];$[y~`OK;if[not null y0;lwarn[`ExitAlarm;(x;y0;t0;t;t-t0)];alarm[`Leave;x]];[lwarn[`EnterAlarm;(x;y;t)];alarm[`Enter;x]]];.ctrl.StateMap[x]:y;.ctrl.StateEnter[x]:t;}; /[ID;State]
 
 if[not `boot in key `.ctrl;.base.boot[]];

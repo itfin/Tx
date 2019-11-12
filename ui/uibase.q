@@ -31,9 +31,9 @@ txhome:txuimain[0];
 
 sendws:{[x;y]neg[x] -8!y;};
 
-.z.ws:{[x]h:.z.w;who:`$"ws_",string h;if[not h~.ctrl.wsconn[who;`h];.ctrl.wsconn[who]:.enum`nulldict;.ctrl.wsconn[who;`h`selfseq`peerseq]:(h;0N;0N)];y:-9!x;.temp.ws:(h;x;y);if[y[0]~`uim;z:y[2];if[10h=type z;y[2]:value z];if[(0h=type z)&(2=count z)&(count[first z]=count[last z]);y[2]:z[0]!z[1]];y[2]:(`who`seq!(who;0N)),y[2]];if[not (::)~r:value y;sendws[h;r]];}; /show (h;y);
+.z.wo:{[x].temp.zwo,:enlist (.z.P;x);};
 
-.z.wc:.z.pc;
+.z.ws:{[x].temp.zws,:enlist (.z.P;x);h:.z.w;who:`$"ws_",string h;if[not h~.ctrl.wsconn[who;`h];.ctrl.wsconn[who]:.enum`nulldict;.ctrl.wsconn[who;`h`selfseq`peerseq]:(h;0N;0N)];y:-9!x;.temp.ws:(h;x;y);if[y[0]~`uim;z:y[2];if[10h=type z;y[2]:value z];if[(0h=type z)&(2=count z)&(count[first z]=count[last z]);y[2]:z[0]!z[1]];y[2]:(`who`seq!(who;0N)),y[2]];if[not (::)~r:value y;sendws[h;r]];}; /show (h;y);
 
 .uim.WebReg:{[x]h:.z.w;y:x`who;.ctrl.wsconn[y;`h`proto`name`role`status`conntime`ipaddr`x0`selfseq`peerseq]:(h;`ws;x`name;x`role;`Registered;.z.P;`$"." sv string "i"$0x0 vs .z.a;{$[0h=type x;x;0h<type x;(x;::);null x;();(x;::)]}x`x0;0j^.ctrl.wsconn[y;`selfseq];(x`seq)^.ctrl.wsconn[y;`peerseq]);smws[y;`RegAck;(enlist `status)!enlist `RegOK];};
 
@@ -43,4 +43,9 @@ uim:{[x;y]t0:.z.P;z:y`who;w:y`seq;r:.[{[x;y].uim[x;y]};(x;y);`trap];($[`trap~r;l
 
 smws:{[x;y;z].temp.smws:(x;y;z);if[not x in key .ctrl.wsconn;lwarn[`SmWsNoPeer;x];:()];h:.ctrl.wsconn[x;`h];if[0>h;if[not 1b~.ctrl.wsconn[x;`errmode];.ctrl.wsconn[x;`errmode]:1b;lwarn[`SmWsNoLink;(x;h)]];:()];t0:.z.P;u:0N;if[0<h;.ctrl.wsconn[x;`selftime];now[]];z:(`who`seq!(.conf.me,u)),`who`seq _ z;sendws[h;(`uim;y;z)];0}; /[target;mess;body] 
 
+.z.wc:{[x].temp.zwc,:enlist (.z.P;x);{if[x=.ctrl.wsconn[y;`h];.ctrl.wsconn[y;`h`disctime]:(-1;.z.P)]}[x] each tkey .ctrl.wsconn;};
+
+pubws:{[r;y]{[x;r;y]z:.ctrl.wsconn[x];if[(`Registered=z`status)&(r=z`role)&(0<h:z`h);sendws[h;y]];}[;r;y] each tkey .ctrl.wsconn;}; /[role;mess]
+
+mplot:{pubws[`Monitor;(`Plot;x)];};mgrid:{pubws[`Monitor;(`Grid;x)];};
 

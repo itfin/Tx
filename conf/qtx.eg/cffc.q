@@ -7,7 +7,7 @@ id:`990;
 ui.title:"TxÖ÷¿ØÌ¨(Qtx)";
 ui.lib:"fcui.js";
 
-\d.
+\d .
 
 \d .db
 TASK[`STOPCTP;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+08:25;1D;0;6;`stopctp);

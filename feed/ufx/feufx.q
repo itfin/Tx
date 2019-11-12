@@ -4,10 +4,11 @@
 
 txload "core/febase";
 
-`initt2`freet2`connt2`connt2sub`t2call`topiclist`hsdc_encrypt`hsdc_getsysteminfo`hsdc_getdetailerror`hsdc_version`t2addr`t2mac {x set $[1b~.conf.ufx.futestmode;`extfeufxtest;`extfeufx] 2: (x;y)}' 1 1 2 3 3 1 2 1 1 1 1 1; 
+`initt2`freet2`connt2`connt2sub`t2call`topiclist`hsdc_encrypt`hsdc_getsysteminfo`hsdc_getdetailerror`hsdc_version`t2addr`t2mac`ctpsysinfo {x set $[1b~.conf.ufx.futestmode;`extfeufxtest;`extfeufx] 2: (x;y)}' 1 1 2 3 3 1 2 1 1 1 1 1 2; 
+
 
 .enum.hsexmap:`1`2`3`4`7`9`k`35`o!`XSHG`XSHE`XSGE`XZCE`CCFX`XDCE`XINE`XHKG`XHKE;.enum.ex2hs:mirror .enum.hsexmap;
-.enum.hssidemap:"12"!.enum`BUY`SELL;.enum.side2hs:mirror .enum.hssidemap;
+.enum.hssidemap:"1256"!.enum`BUY`SELL`SELL_SHORT`SELL_SHORT_EXEMPT;.enum.side2hs:mirror .enum.hssidemap;
 .enum.hsposefctmap:"124"!.enum`OPEN`CLOSE`CLOSETODAY;.enum.posefct2hs:mirror .enum.hsposefctmap;
 .enum.hsstatusmap:"123456789abcdABCDEF"!.enum`PENDING_NEW`PENDING_NEW`PENDING_NEW`NEW`REJECTED`PARTIALLY_FILLED`FILLED`CANCELED`CANCELED`PENDING_CANCEL`PENDING_NEW`REJECTED`CANCELED`PENDING_CANCEL`PENDING_CANCEL`PENDING_CANCEL`PENDING_CANCEL`PENDING_CANCEL`CANCELED;
 
@@ -53,6 +54,8 @@ qryposstk:qryposex[0;`;`];qryposfut:qryposex[1;`;`];qryposopt:qryposex[2;`;`];
 
 qrycomb:{[x]hsfunc[30003i;`src`oid`req!(`;`;(enlist `user_token)!enlist .ctrl.ufx.token)];};
 
+qryetfbase:{[x]hsfunc[35020i;`src`oid`req!(`;`;`user_token`market_no`etf_code!(.ctrl.ufx.token;.enum.ex2hs fs2e x;fs2s x))];};
+
 .upd.QueryPos:{[x]y:x`ref;z:`$x`msg;.temp.P:();.temp.nQPack:0;qryposex[;y;z;-9!x`vbin] each 0 1;};
 
 /fe msg
@@ -60,7 +63,12 @@ errcode:{[r]z:r[0;0;`ErrorCode];$[10h=type z;"I"$z;z]}; /ºãÉúÒµÎñÏûÏ¢µÄ´íÎóÂë×Ö¶
 errmsg:{[r]r[0;0;`ErrorMsg]};
 
 .upd.Hello:{[x]hsfunc[10000;`src`req!(`;(enlist `user_token)!enlist .ctrl.ufx.token)];};
-.upd.Login:{[x]hsfunc[10001;`src`req!(`;(`operator_no`password`mac_address`op_station`ip_address`authorization_id`app_id`authorize_code`port_id!(.conf.ufx.user;.conf.ufx.pass;.conf.ufx.macaddr;.conf.ufx.disksn;.conf.ufx.ipaddr;.conf.ufx.licno;.conf.ufx.appid;.conf.ufx.authcode;"I"$last vs[":"] t2addr[]);`counter_id`terminal_no`data_scale`service_errcode!`2,(`$hsdc_getsysteminfo[]),`0))];}; /
+
+.upd.Login_hsuft:{[x]hsfunc[10001;`src`req!(`;(`operator_no`password`mac_address`op_station`ip_address`authorization_id`app_id`authorize_code`port_id!(.conf.ufx.user;.conf.ufx.pass;.conf.ufx.macaddr;.conf.ufx.disksn;.conf.ufx.ipaddr;.conf.ufx.licno;.conf.ufx.appid;.conf.ufx.authcode;"I"$last vs[":"] t2addr[]);`counter_id`terminal_no`data_scale`service_errcode!`1,(`$hsdc_getsysteminfo[]),`0))];}; /
+
+.upd.Login:{[x]hsfunc[10001;`src`req!(`;(`operator_no`password`mac_address`op_station`ip_address`authorization_id`app_id`authorize_code`port_id!(.conf.ufx.user;.conf.ufx.pass;.conf.ufx.macaddr;.conf.ufx.disksn;.conf.ufx.ipaddr;.conf.ufx.licno;.conf.ufx.appid;.conf.ufx.authcode;"I"$last vs[":"] t2addr[]);`counter_id`terminal_no`data_scale`service_errcode!`1,(`$.Q.btoa ctpsysinfo[`;`]),``0))];}; /
+
+.upd.Logout:{[x]hsfunc[10002;`src`req!(`;(enlist `user_token)!enlist .ctrl.ufx.token)];};
 
 .upd.OnConnect:{.ctrl.tcpconn[$[x;`sub;`t2];`status`conntime]:(`Connected;.z.P);};
 .upd.OnSafeConnect:{};
@@ -89,7 +97,7 @@ hsfunc:{[x;y].temp.X:(x;y);fid:`$string x;req:y`req;$[`SYNC~.conf.ufx.mode;[k:ne
 
 .upd[`32008]:.upd[`32004]:.upd[`32003]:.upd[`32009]:.upd[`32001]:{[x].temp.x5:x;k:x`oid;r:x`res;z:errcode[r];if[(not z in 0 0N)|(1>=count[r])|null .db.O[k;`sym];:()];h:r[1;0];if[.db.O[k;`ordid]<>`$string h`entrust_no;:()];s:.enum.hsstatusmap first h`entrust_state;cq:h`deal_amount;ca:h`deal_balance;ap:h`deal_price;xq:h`withdraw_amount;xm:h`withdraw_cause;q:.db.O[k;`qty];if[(0<xq)&(q=cq+xq)&s<>.enum`CANCELED;s:.enum`CANCELED];st:s;cs:$[s in .enum`PENDING_CANCEL`CANCELED;s;.enum`NULL];if[s=.enum`PENDING_CANCEL;st:$[0=cq;.enum`NEW;cq<q;.enum`PARTIALLY_FILLED;.enum`FILLED]];.db.O[k;`status`cstatus`cumqty`cumamt`avgpx`msg]:(st;cs;cq;ca;ap;xm);execrpt[k];}; /ordqry
 
-.upd[`30010]:{.temp.x6:x;d:1!`sym xcols update sym:esym {sv[`]x,y}' ex,product:{[x]y:string x;`$first[ss[y;"[0-9]"]]#y} each esym from select ex:.enum.hsexmap `$market_no,esym:`$stock_code,name:`$stock_name,secclass:`$future_kind_name,multiplier:multiple,settledate:"D"$string last_trade_date,time1:"T"$string last_trade_time,date1:"D"$string settlement_date,pxunit:price_interval from x[`res;1];.db.QX:.db.QX uj d;(path:` sv .conf.tempdb,.conf.me,`RD) set d;pubm[`ALL;`RDUpdate;`ufx;string path];}; /futqry
+.upd[`30010]:{.temp.x6:x;d:1!`sym xcols update sym:esym {sv[`]x,y}' ex,product:{[x]y:string x;`$first[ss[y;"[0-9]"]]#y} each esym from select ex:.enum.hsexmap `$market_no,esym:`$stock_code,name:`$stock_name,secclass:`$future_kind_name,multiplier:multiple,settledate:"D"$string last_trade_date,time1:"T"$string last_trade_time,date1:"D"$string settlement_date,pxunit:price_interval from x[`res;1];.db.QX:.db.QX uj d;(path:` sv .conf.tempdb,.conf.me,`RD) set d;pubm[`ALL;`RDUpdate;`ctp;string path];}; /futqry
 
 .upd[`30012]:{.temp.x7:x;d:1!`sym xcols update sym:esym {sv[`]x,y}' ex from select ex:.enum.hsexmap `$market_no,esym:`$stock_code,name:`$stock_name,secclass:`$target_type,multiplier:multiple,date1:"D"$string last_trade_date,settledate:"D"$string exercise_date,isin:`$optcontract_id,putcall:`$option_type,strikepx:exercise_price,optexec:(`1`2`3!`E`A`B) `$apply_style,tradetype:`$contract_version,tradephase:`$compact_status from x[`res;1];.db.QX:.db.QX uj d;}; /optqry
 
@@ -97,6 +105,10 @@ hsfunc:{[x;y].temp.X:(x;y);fid:`$string x;req:y`req;$[`SYNC~.conf.ufx.mode;[k:ne
 .upd[`31003]:{[x].temp.x12:x;if[1<count[.temp.x12[`res]];.temp.P,:(1!select from (select sym:(`$stock_code) {sv[`]x,y}'.enum.hsexmap `$market_no,lqty:current_amount,sqty:0f from .temp.x12[`res;1] where `1=`$position_flag) where lqty>0) uj (1!select from (select sym:(`$stock_code) {sv[`]x,y}'.enum.hsexmap `$market_no,lqty:0f,sqty:neg current_amount from .temp.x12[`res;1] where `2=`$position_flag) where sqty<0)];.temp.nQPack+:1;if[(not null x`src)&(.temp.nQPack>=2);pubmx[x`src;`PosUpdate;.conf.me;string x`oid;-8!.temp.P]];};
 .upd[`31004]:{[x].temp.x13:x;};
 .upd[`30003]:{[x].temp.x14:x;};
+
+.upd[`35014]:{[x].temp.x15:x;};
+.upd[`35020]:{[x].temp.x16:x;};
+
 
 \
 connHS[`;`];

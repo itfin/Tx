@@ -1,6 +1,6 @@
-//tslib.q:标准化的策略组件函数
+//tslib.q:标准化的策略组件函数或辅助函数
 
-.module.tslib:2019.06.19;
+.module.tslib:2019.09.23;
 
 //libpeg:自动撤补单功能,要求策略存在参数.db.Ts[x;`Cp;TRDTIME`tmout`tmout1`tmout2`urge]:(交易时段列表;委托超时撤单时间间隔;补单时间间隔1(超过则至少urge=1);补单时间间隔2(超过则至少urge=2);紧急程度{0W;打对手涨跌停价;[3,n]:打对手盘口+[1,n-2]跳,2:打对手盘口,1:本方盘口+1跳;0:挂本方盘口})
 //在策略的ont事件中调用oexpire_libpeg,ono事件中调用opeg_libpeg,策略下单后对oid调用pegord_libpeg
@@ -17,4 +17,15 @@ opeg_libpeg:{[x;y]r:.db.O[y];if[(.enum[`CANCELED]=r[`status])&(`PEG=r[`special])
 //在策略的event中bar事件触发器设置为onb_libbar,另外设置barx时间触发器为策略逻辑
 onb_libbar:{[x;b].temp.b:b;r:.db.Ts[x];y:r`xsym;sess:trdsess[y];t:b`bart;if[not any t within/:sess;:()];bf:b`freq;sf:`long$`second$r[`Cp;`barfreq];bx:r[`event;`barx];if[sf<=bf;:(bx)[x;b]];n:sf div bf;bt:xbar[sf] t;if[n1:count r`BBUF;if[count[r`BBUF]&bt>xbar[sf] (last r`BBUF)`bart;(bx)[x;synbar_libbar[x]]]];.db.Ts[x;`BBUF],:enlist b;if[n<=n1+1;(bx)[x;synbar_libbar[x]]];}; /[tid;bar]
 
-synbar_libbar:{[x]b:exec last time,first sym,freq:`second$.db.Ts[x;`Cp;`barfreq],first bard,first bart,first open,max high,min low,last close,sum vol,sum amt,last src,last srctime,last srcseq,last dsttime from .db.Ts[x;`BBUF];.db.Ts[x;`BBUF]:0#.db.Ts[x;`BBUF];b}; /[tid] 
+synbar_libbar:{[x]b:exec last time,first sym,freq:`second$.db.Ts[x;`Cp;`barfreq],first bard,first bart,first open,max high,min low,last close,sum vol,sum amt,last src,last srctime,last srcseq,last dsttime from .db.Ts[x;`BBUF];.db.Ts[x;`BBUF]:0#.db.Ts[x;`BBUF];b}; /[tid]
+
+//libext:外接委托指令日终清除在kdb内的持仓(因不准确)
+onr_libext:{[x;y]delete from `.db.P where ts=x;}; /[tid;z.D]
+
+//tsstat:从委托表将开平仓组合为交易并进行盈亏统计
+
+pdstat:{[x].temp.t0:(.ctrl.conn.hdb.h "select cumamt:last cumqty*price,last price,last openint by sym from quote where date=last date,cumqty>0,src=`fqctp") lj 1!.ctrl.conn.hdb.h "{select sym,15 xbar dend+00:10,nend:15 xbar 00:10+nend0^nend1 from (select sym,dend:time from x where sess=09:00) lj (1!select sym,nend0:time from x where sess=21:00) lj  (1!select sym,nend1:time from x where sess=00:00)} select from (select last `minute$time by sym,sess:(`s#{x!x}`s#00:00 04:00 09:00 16:00 21:00 24:00) `minute$time from quote where date=last date,src=`fqctp,cumqty>(prev;cumqty) fby sym,bid>0,ask>0) where sess in 00:00 09:00 21:00";.temp.t1:(select last multiplier,last product,last ex,last pxunit,last rmarginl,last rfeetaxoa,last rfeetaxoq,last name by sym from .db.QX where not null product,1<=multiplier) lj (select sp:last product by `${[x]y:3_x;(floor(count[y]-1)%2)#y} each string product from .db.QX where not null product,sym like "SP *"),select sp:last product by `${[x]y:4_x;(floor(count[y]-1)%2)#y} each string product from .db.QX where not null product,sym like "SPD *";.temp.t2:.temp.t0 uj .temp.t1;t:0!.db.PD:update feeunit:2*fee%pxunit*multiplier,sess:getsess\'[ex;dend;nend] from update sumpct:sums amtpct,rmarginl*1e2,margin:rmarginl*size,fee:rfeetaxoq+rfeetaxoa*size,feebp:1e4*(rfeetaxoa+rfeetaxoq%size) from update amtpct:1e2*cumamt%sum cumamt,seq:i+1,size:price*multiplier,bpunit:1e4*pxunit%price from desc (select sum cumamt*multiplier*1e-8,last ex,last sp,last multiplier,last pxunit by product from .temp.t2) lj select last sym,last price,last rmarginl,last rfeetaxoa,last rfeetaxoq,last name,last dend,last nend by product from .temp.t2 where openint=(max;openint) fby product;};
+
+tsstat:{[x;y]d0:y[0];d1:y[1];td:vtd[];.temp.date:(.ctrl.conn.hdb.h `date),vtd[];.temp.t:update ti0:sums {(not x)&-1_1b,x} 0=sums q0,ti1:sums {(not x)&-1_1b,x} 0=sums q1 by sym from update q0:?[not eot;pmqty;?[(0=mod[gi;2])&(0=spmqty);0f;pmqty-spmqty]],q1:?[not eot;0f;?[(0=mod[gi;2])&(0=spmqty);pmqty;spmqty]] from update gi:({$[y=0;0;x+1]}\)[0;eot] by sym from update eot:(spmqty=0)|(-1=signum[spmqty]*signum[spmqty^prev spmqty]) by sym from update spmqty:sums pmqty by sym from update pmqty:?[.enum[`BUY]=side;1;-1]*cumqty from select from .db.O where ts=x,cumqty>0;.temp.GT:`enter xasc select sym,ti,n,cumqty,enter,leave,ep,lp,netpnl:pnl+fee,pnl,fee,cash,hold:{[x;y;z](sesstotal[x]*(-/).temp.date?`date$y,z)+(-/)trdtime[x;y,z]}'[sym;lqt;eqt],delta:lp-ep,yield:1e2*pnl%cash,ref,j1 from select from (select n:count i,sf:sum pmqty,max cumqty,enter:first ntime,leave:last ntime,eqt:first qtime,lqt:last qtime,ep:(neg first amt)%(first cumqty)*(getmultiple first sym),lp:(last amt)%(last cumqty)*(getmultiple first sym),pnl:sum amt,fee:sum fee,cash:max amt,last ref,first j1 by sym,ti from update cumqty*r,amt*r,fee*r from (select sym,r:abs[q0]%cumqty,pmqty:q0,cumqty,price,ntime,qtime,amt:cumamt,fee:cumfee,ref,j1,ti:ti0 from .temp.t where q0<>0),select sym,r:abs[q1]%cumqty,pmqty:q1,cumqty,price,ntime,qtime,amt:cumamt,fee:cumfee,ref,j1,ti:neg ti1 from .temp.t where q1<>0) where n>1,0=sf;.temp.GTS:select n:count i,pnl:sum pnl,maxwin:max pnl,maxloss:min pnl,avgwin:avg (0f|pnl) except 0f,avgloass:avg (0f&pnl) except 0f,medwin:med (0f|pnl) except 0f,medloass:med (0f&pnl) except 0f,win:sum 0<pnl,loss:sum 0>pnl by sym from .temp.GT;}; /[ts;(d0,d1)]
+
+

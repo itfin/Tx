@@ -7,7 +7,7 @@ feclosedate:feopendate:0Np;
 idfe2ft:{[x]exec first id from .db.O where feoid=x};
 qidfe2ft:{[x]exec first id from .db.QT where feqid=x};
 
-.upd.exerpt:.ha.exerpt';
+.upd.exerpt:.fe.exerpt:.ha.exerpt';
 
 .roll.fe:{[x]gtc:.enum`GOOD_TILL_CANCEL;.[.conf.histdb;(.conf.me;`O);,;select from .db.O where end|tif<>gtc];delete from `.db.O where end|tif<>gtc;update `u#id from `.db.O;};
 
