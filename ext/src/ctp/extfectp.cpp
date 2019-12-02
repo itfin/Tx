@@ -572,10 +572,11 @@ extern "C"{
     req.VolumeCondition=kK(y)[9]->g;
     strcpy(req.CombOffsetFlag,kK(y)[10]->s);
     strcpy(req.CombHedgeFlag,kK(y)[11]->s);
+    strcpy(req.ExchangeID,kK(y)[12]->s);
 
-    if(12<y->n){
-      req.ContingentCondition=kK(y)[12]->g;
-      req.StopPrice=kK(y)[13]->f;
+    if(13<y->n){
+      req.ContingentCondition=kK(y)[13]->g;
+      req.StopPrice=kK(y)[14]->f;
     }else{
       req.ContingentCondition=THOST_FTDC_CC_Immediately;
       req.StopPrice=0;
@@ -619,6 +620,7 @@ extern "C"{
     strcpy(req.InvestorID,kK(y)[1]->s);strcpy(req.UserID,kK(y)[1]->s);
     strcpy(req.InstrumentID,kK(y)[2]->s);
     strcpy(req.ForQuoteRef,kK(y)[3]->s);
+    strcpy(req.ExchangeID,kK(y)[4]->s);
 
     R ki(pTradeApi->ReqForQuoteInsert(&req,xi));
   }
@@ -645,6 +647,7 @@ extern "C"{
     req.BidOffsetFlag=kK(y)[9]->g;
     req.AskHedgeFlag=kK(y)[10]->g;
     req.BidHedgeFlag=kK(y)[11]->g;
+    strcpy(req.ExchangeID,kK(y)[12]->s);
 
     req.RequestID=xi;    
     R ki(pTradeApi->ReqQuoteInsert(&req,xi));
@@ -687,6 +690,8 @@ extern "C"{
     req.Volume=kK(y)[5]->i;
     req.CombDirection=kK(y)[6]->g;
     req.HedgeFlag=kK(y)[7]->g;
+
+    strcpy(req.ExchangeID,kK(y)[8]->s);
 
     R ki(pTradeApi->ReqCombActionInsert(&req,xi));
 

@@ -1,3 +1,7 @@
+2019.12.02
+extfectp.cpp
+fectp.q:根据CTP最新强制要求，在挂单和撤单时把原来填空的ExchangeID改为送CTP的交易所代码值
+
 2019.08.21
 algolib.q:placeahead函数修正了原来没有对委托数量取整的bug,在限价母单向后分摊未发委托时出错
 

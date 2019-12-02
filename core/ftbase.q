@@ -112,7 +112,7 @@ roundpxhk:{[x;y]z:.conf.hkticks;z $[x=.enum`BUY;binr;bin][z;y+$[x=.enum`BUY;-1e-
 
 isvalidnum:{[x]not (`float$x) in 0n -0w 0w};
 
-limit_orderx:{[h;sd;accno;x;y;q;p;m]if[not isvalidnum[p]&isvalidnum[q];:`symbol$()];p:roundpx[y;sd] `float$p;acc:$[null accno;.db.Ts[x;`acc];@[;accno] .db.Ts[x;`accx]];oq:q-cq:q&abs availpos[sd;x,acc,y];ctq:cq&abs availt0pos[sd;x,acc,y];k0:k1:k2:`;t:$[null accno;x;(x;accno)];if[0<cq;$[(0<ctq)&(1b~.conf.useclosetoday)&(fs2e[y] in .conf.closetodayexlist);[k0:newordex[sd;.enum`CLOSETODAY;t;y;ctq;p;m;h];if[0<clq:cq-ctq;k1:newordex[sd;$[1b~.conf.usecloseyestoday;"Y";.enum`CLOSE];t;y;clq;p;m;h]]];k1:newordex[sd;.enum`CLOSE;t;y;cq;p;m;h]]];if[0<oq;k2:newordex[sd;.enum`OPEN;t;y;oq;p;m;h]];(k0,k1,k2) except `}; /[sided;accno;ts;sym;qty;price;tag]
+limit_orderx:{[h;sd;accno;x;y;q;p;m]if[not isvalidnum[p]&isvalidnum[q];:`symbol$()];p:roundpx[y;sd] `float$p;acc:$[null accno;.db.Ts[x;`acc];@[;accno] .db.Ts[x;`accx]];oq:q-cq:q&abs availpos[sd;x,acc,y];ctq:cq&abs availt0pos[sd;x,acc,y];k0:k1:k2:`;pecy:$[(1b~.conf.usecloseyestoday)&(fs2e[y] in .conf.closetodayexlist);"Y";.enum`CLOSE];t:$[null accno;x;(x;accno)];if[0<cq;$[(0<ctq)&(1b~.conf.useclosetoday)&(fs2e[y] in .conf.closetodayexlist);[k0:newordex[sd;.enum`CLOSETODAY;t;y;ctq;p;m;h];if[0<clq:cq-ctq;k1:newordex[sd;pecy;t;y;clq;p;m;h]]];k1:newordex[sd;pecy;t;y;cq;p;m;h]]];if[0<oq;k2:newordex[sd;.enum`OPEN;t;y;oq;p;m;h]];(k0,k1,k2) except `}; /[sided;accno;ts;sym;qty;price;tag]
 
 limit_order:limit_orderx[.enum`nulldict];
 xlimit_buyx:limit_orderx[;.enum`BUY];xlimit_sellx:limit_orderx[;.enum`SELL];xlimit_buy:xlimit_buyx[;0N];xlimit_sell:xlimit_sellx[;0N];
@@ -233,3 +233,12 @@ daybars:{[typ;x;D;f]sess:.db.PD[.db.QX[x;`product];`sess];select bart:00:00:00,f
 minbars:{[typ;x;D;f]sess:.db.PD[.db.QX[x;`product];`sess];delete seq from update a:deltas a by bard from `bard`seq xasc .ctrl.conn.hdb.h[({[x;D;f;sess]0!select seq:first i,open:first price,high:max price,low:min price,close:last price,a:last cumqty*vwap by bard:date,bart:xbar[f] `minute$time from quote where date within D,sym=x,(0<low)&(low<=price)&(price<=high),any (`time$time) within/:sess};x;D;f;sess)],$[not .db.sysdate within D;();`bard xcols update bard:.db.sysdate from .ctrl.conn.rdb.h[({[x;f;sess]0!select seq:first i,open:first price,high:max price,low:min price,close:last price,a:last cumqty*vwap by bart:xbar[f] `minute$time from quote where sym=x,(0<low)&(low<=price)&(price<=high),any (`time$time) within/:sess};x;f;sess)]]};
 
 histrds:{[x;D](select d:trddate ftime,t:`time$ftime,avgpx,side from .hdb.O where sym=x,cumqty>0,(trddate ftime) within D),$[not .db.sysdate within D;();select d:trddate ftime,t:`time$ftime,avgpx,side from .db.O where sym=x,cumqty>0]};
+
+
+loadetf:{[x;y]{.[`.db;enlist x;:;get ` sv .conf[`tempdb],x];} each `ETF`ETFPF;update `.db.QX$sym from `.db.ETFPF;1b};
+
+getiopvex:{[x;y].db.QX[y;`settlepx]^$[.db.ETF[y;`trday]<>.z.D;0n;(.db.ETF[y;`cueu]+exec sum (qty*{[x;y;z;u;v]p:$[x>0;v[;x-1];x<0;u[;abs[x]-1];y];?[p>0;p;?[y>0;y;z]]}[x;sym.price;sym.pc;sym.bidQ;sym.askQ])+?[qty>0;0f;camt] from .db.ETFPF where etfsym=y)%.db.ETF[y;`cu]]}; /上海基金份额参考净值＝[∑(替代标志为0/1/3成分证券最新替代金额)+∑(替代标志为2/4/5/6的成分证券对应资金)+预估现金]/最小申购赎回单位对应的ETF份数(0-沪市不可被替代;1-沪市可以被替代;2-沪市必须被替代;3-深市退补现金替代;4-深市必须现金替代;5-非沪深市场成分证券退补现金替代;6-非沪深市场成份证券必须现金替代)
+getiopv:getiopvex[0];
+
+\
+.db.TASK[`LOADETF;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:10;1D;0;4;`loadetf);
