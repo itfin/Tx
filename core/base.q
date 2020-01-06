@@ -67,7 +67,7 @@ discconn:{[];if[not `conn in key `.ctrl;:()];{[x]if[0<h:.ctrl.conn[x]`h;hclose[h
 
 chksub:{[]if[not `sub in key `.conf;:()];{[x]if[not x in key `.ctrl.conn;:()];if[0>=h:.ctrl.conn[x;`h];:()];b:$[not x in key .ctrl.sub;1b;not .ctrl.sub[x;`sub]];if[b;{x (".u.sub";z;.conf.sub[y;z])}[h;x] each tkey .conf.sub[x];.ctrl.sub[x]:`sub`subtime!(1b;.z.P)]} each tkey .conf.sub;};
 
-pub:{[t;x]h:.ctrl.conn[.conf.pubto;`h];$[-6h<>type h;();0>=h;();[neg[h] (".u.upd";t;value flip update src:.conf.me,srctime:.z.P,srcseq:.db.seq,dsttime:0Np from x);.db.seq+:1]];};
+pub:{[t;x]if[null d:.conf[`pubto];:()];h:.ctrl.conn[d;`h];$[-6h<>type h;();0>=h;();[neg[h] (".u.upd";t;value flip update src:.conf.me,srctime:.z.P,srcseq:.db.seq,dsttime:0Np from x);.db.seq+:1]];};
 pubmx:{[x;y;z;w;d]pub[`sysmsg;enlist `sym`typ`ref`msg`vbin!(x;y;z;w;d)];};pubm:pubmx[;;;;`byte$()]; /(sym;typ;ref;msg)
 
 nextworkday:{[x]y:weekday[x];z:x+$[y=4;3;y=5;2;1];$[z in .conf.holiday;.z.s[z];z]};
@@ -76,7 +76,7 @@ beginofday:{[x]h:.ctrl.conn[.conf.pubto;`h];if[-6h<>type h;:()];if[x<=h[`.u.d];:
 
 alarm:{[x;y]pubm[`ALL;`Alarm;x;string y];}; /[ref;msg]
 
-wlog:{[x;y;z]if[(`int$`.enum.loglevels$x)>`int$`.enum.loglevels$.conf.loglevel;:()];z:$[10h=type z;z;-3!z];.db.LOG,:(x;y;z;.z.P);pub[`syslog;enlist `sym`typ`msg!(x;y;z)];};
+wlog:{[x;y;z]if[(`int$`.enum.loglevels$x)>`int$`.enum.loglevels$.conf.loglevel;:()];z:$[10h=type z;z;-3!z];.db.LOG,:(x;y;z;now[]);pub[`syslog;enlist `sym`typ`msg!(x;y;z)];};
 lerr:wlog[`error];lwarn:wlog[`warn];linfo:wlog[`info];ldebug:wlog[`debug];
 
 .upd.sysmsg:{[x]sysmsg,:x;{.upd[x`typ][x]} each x;};
@@ -88,7 +88,7 @@ upd:{[t;x]$[t in tables[];[if[1b~.conf[`dumpapi];insert[t;update dsttime:.z.P fr
 
 display:{(,/) `_.disp[;]};
 
-.timer.task:{[x]{[x;now]y:.db.TASK[x;`firetime];d:`date$y;t:`time$y;w:d-`week$y;w0:.db.TASK[x;`weekmin];w1:.db.TASK[x;`weekmax];d0:.db.TASK[x;`datemin];d1:.db.TASK[x;`datemax];t0:.db.TASK[x;`timemin];t1:.db.TASK[x;`timemax];ff:.db.TASK[x;`firefreq];z:.db.TASK[x;`firetime]+ff;if[z<now;z+:ff*ceiling (now-z)%ff];if[(w>=w0)&((w<=w1)|(null w1))&(d>=d0)&((d<=d1)|(null d1))&(t>=t0)&((t<=t1)|(null t1));r:.[{$[0>type x;value;::]x} .db.TASK[x;`handler];(x;now);()];.db.TASK[x;`lastfire]:(.z.P;r)];$[(null z)|(not null d1)&(d1<`date$z);.db.TASK[x;`expire]:1b;.db.TASK[x;`firetime]:z];}[;x] each exec id from .db.TASK where not expire,not null handler,firetime<=x;};
+.timer.task:{[x]{[x;now]y:.db.TASK[x;`firetime];d:`date$y;t:`time$y;w:d-`week$y;w0:.db.TASK[x;`weekmin];w1:.db.TASK[x;`weekmax];d0:.db.TASK[x;`datemin];d1:.db.TASK[x;`datemax];t0:.db.TASK[x;`timemin];t1:.db.TASK[x;`timemax];ff:.db.TASK[x;`firefreq];z:.db.TASK[x;`firetime]+ff;if[z<now;z+:ff*ceiling (now-z)%ff];if[(w>=w0)&((w<=w1)|(null w1))&(d>=d0)&((d<=d1)|(null d1))&(t>=t0)&((t<=t1)|(null t1));r:.[{$[0>type x;value;::]x} .db.TASK[x;`handler];(x;now);()];.db.TASK[x;`lastfire]:(.z.P;r);if[not 1b~r;lwarn[`taskrun;(x;now;r)]]];$[(null z)|(not null d1)&(d1<`date$z);.db.TASK[x;`expire]:1b;.db.TASK[x;`firetime]:z];}[;x] each exec id from .db.TASK where not expire,not null handler,firetime<=x;};
 
 .zpc.base:{[x]{if[x=.ctrl.conn[y;`h];.ctrl.conn[y;`h`disctime]:(-1;.z.P);if[y in key `.ctrl.sub;.ctrl.sub[y;`sub]:0b]]}[x] each tkey .ctrl.conn;};
 

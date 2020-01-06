@@ -68,6 +68,30 @@ fectp.port:ha.portbase.fe+ha.ha.portoffset;
 fectp.qcl:" -t 250";
 fectp.args:"Tx/core/base.q -conf qtx/cffectp -code 'txload \"feed/ctp/fectp\"'";
 
+fqxtp.ip:ha.ha.ip;
+fqxtp.cpu:0;
+fqxtp.port:ha.portbase.fq+ha.ha.portoffset;
+fqxtp.qcl:" -t 250";
+fqxtp.args:"Tx/core/base.q -conf qtx/cffqxtp -code 'txload \"feed/xtp/fqxtp\"'";
+
+fextp.ip:ha.ha.ip;
+fextp.cpu:0;
+fextp.port:ha.portbase.fe+ha.ha.portoffset;
+fextp.qcl:" -t 250";
+fextp.args:"Tx/core/base.q -conf qtx/cffextp -code 'txload \"feed/xtp/fextp\"'";
+
+fqjg.ip:ha.ha.ip;
+fqjg.cpu:0;
+fqjg.port:fqxtp.port+ha.portstep;
+fqjg.qcl:" -t 250";
+fqjg.args:"Tx/core/base.q -conf qtx/cffqjg -code 'txload \"feed/jg/fqjg\"'";
+
+fejg.ip:ha.ha.ip;
+fejg.cpu:0;
+fejg.port:fextp.port+ha.portstep;
+fejg.qcl:" -t 250";
+fejg.args:"Tx/core/base.q -conf qtx/cffejg -code 'txload \"feed/jg/fejg\"'";
+
 ftsim.ip:ha.ha.ip;
 ftsim.cpu:0;
 ftsim.port:ft.port+ha.portstep;

@@ -1,0 +1,2 @@
+clang -m64 -DJ64 -DKXVER=3 -fPIC -shared -lm -lpthread -I. -I ../ -L../../dll/l64 -lJGLog -lJGCMNetCommunication -lJGDFDAPI extfqjg.cpp -o ../../dll/l64/extfqjg.so -Wno-write-strings -Wno-write-strings
+clang -m64 -DJ64 -DKXVER=3 -fPIC -shared -lm -lpthread -I. -I ../ -L../../dll/l64 -lJGCMNetCommunicationT -lTradeApi_linux extfejg.cpp -o ../../dll/l64/extfejg.so -Wno-write-strings -Wno-write-strings

@@ -1,6 +1,6 @@
 \d .conf
 maxcxlcnt:10;
-t0list:`518880.XSHG`159934.XSHE;
+t0list:`511010.XSHG`518800.XSHG`518880.XSHG`159934.XSHE`159937.XSHE`159985.XSHE;
 t1list:`symbol$();
 useclosetoday:1b;
 closetodayexlist:enlist `XSGE;

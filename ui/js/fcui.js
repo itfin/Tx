@@ -13,11 +13,13 @@ mkmenu=function(x){
 	    {text:'行情状态',attributes:{func:'quotereq(x)'}},
 	    {text:'交易状态',attributes:{func:'tradereq(x)'}}, 
 	    {text:'系统消息',attributes:{func:'sysmsgreq(x)'}}, 
-	    {text:'本地告警',attributes:{func:'logreq(x)'}}, 
+	    {text:'系统告警',attributes:{func:'logreq(x)'}}, 
 	]}, 
 	{text:'各ft模块',attributes:{func:'ftlistreq(x)'}}, 
     ],onClick:function(x){eval(x.attributes.func);}});
 };
+
+var ALERTLIST=[];
 
 go=function(x){$('#ctrl').html('');$('#plot').html('');$('#grid').html('<iframe style="width:100%;height:100%;frameborder:0;border:0;;" src="'+x.attributes.url+'">');};
 
@@ -51,10 +53,10 @@ dashboardres=function(x,y){
 
 
 //本地告警
-logreq=function(){wscall(['{[x]select string `time$logtime,sym,typ,msg from .db.LOG where sym in `error`warn}','`'],logres,{target:'grid'});}
+logreq=function(){wscall(['{[x].ctrl.MOD[`rdb;`h] ({[x]desc select [neg[x]] seq:i,string `time$time,src,sym,typ,msg from syslog where sym in `error`warn};200)}','`'],logres,{target:'grid'});}
 logres=function(x,y){
     $('#'+x.target).html('<div id=loglst>');
-    $('#loglst').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'logtime',title:'时间',width:80,sortable:true},{field:'sym',title:'级别',width:80,sortable:true},{field:'typ',title:'类别',width:80,sortable:true},{field:'msg',title:'信息',width:480,sortable:true}]]});
+    $('#loglst').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'time',title:'时间',width:80,sortable:true},{field:'seq',title:'序号',width:80,sortable:true},{field:'src',title:'来源',width:80,sortable:true},{field:'sym',title:'级别',width:80,sortable:true},{field:'typ',title:'类别',width:280,sortable:true},{field:'msg',title:'信息',width:880,sortable:true,formatter:function(x){return togbk(x);}}]]});
     $('#loglst').datagrid('loadData',{total:y.length,rows:y});
 };
 
@@ -72,7 +74,7 @@ moduleres=function(x,y){
     $('#main').layout('panel','south').panel('resize',{height:'400px'});$('#main').layout('resize');
     
     $('#'+x.target).html('<div id=modlst>');
-    $('#modlst').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'',title:'操作',width:80,sortable:true,formatter:function(x,r){return '<a href="javascript:void(0)" onclick="ctrlmod('+((r.h>0)?0:1)+',\'`'+r.id+'\')">'+((r.h>0)?'停止':'启动')+'</a>';}},{field:'id',title:'模块ID',width:80,sortable:true},{field:'mtyp',title:'类型',width:40,sortable:true},{field:'node',title:'节点',width:40,sortable:true},{field:'ip',title:'IP',width:100,sortable:true},{field:'port',title:'端口',width:40,sortable:true},{field:'cores',title:'绑定核',width:40,sortable:true},{field:'h',title:'句柄',width:40,sortable:true},{field:'pid',title:'进程号',width:40,sortable:true},{field:'starttime',title:'启动时间',width:180,sortable:true},{field:'stoptime',title:'停止时间',width:180,sortable:true},{field:'hbsent',title:'心跳发送',width:180,sortable:true},{field:'hbpeer',title:'心跳接收',width:180,sortable:true},{field:'hbrecv',title:'心跳确认',width:180,sortable:true},{field:'delay',title:'心跳耗时(s)',width:80,sortable:true,formatter:function(x){return x.toFixed(4);}},{field:'mem',title:'内存占用(M)',width:80,sortable:true,formatter:function(x){return x.toFixed(1);}}]],rowStyler:function(index,r){if (r.h<0) return 'background-color:#6293BB;color:#fff;';else if(r.delay>1) return 'background-color:green;color:#fff;';},onClickRow:function(index,r){if((r.h<0)||(r.mtyp=='tp')||(r.mtyp=='rdb')||(r.mtyp=='hdb')) return;dispreq(r.id);}});  
+    $('#modlst').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'',title:'操作',width:80,sortable:true,formatter:function(x,r){return '<a href="javascript:void(0)" onclick="ctrlmod('+((r.h>0)?0:1)+',\'`'+r.id+'\')">'+((r.h>0)?'停止':'启动')+'</a>';}},{field:'id',title:'模块ID',width:80,sortable:true},{field:'mtyp',title:'类型',width:40,sortable:true},{field:'node',title:'节点',width:40,sortable:true},{field:'ip',title:'IP',width:100,sortable:true},{field:'port',title:'端口',width:40,sortable:true},{field:'cores',title:'绑定核',width:40,sortable:true},{field:'h',title:'句柄',width:40,sortable:true},{field:'pid',title:'进程号',width:40,sortable:true},{field:'starttime',title:'启动时间',width:180,sortable:true},{field:'stoptime',title:'停止时间',width:180,sortable:true},{field:'hbsent',title:'心跳发送',width:180,sortable:true},{field:'hbpeer',title:'心跳接收',width:180,sortable:true},{field:'hbrecv',title:'心跳确认',width:180,sortable:true},{field:'delay',title:'心跳耗时(s)',width:80,sortable:true,formatter:function(x){return x.toFixed(4);}},{field:'mem',title:'内存占用(M)',width:80,sortable:true,formatter:function(x){return x.toFixed(1);}}]],rowStyler:function(index,r){if (r.h<0)return 'background-color:#6293BB;color:#fff;';else if(r.delay>1) return 'background-color:green;color:#fff;';},onClickRow:function(index,r){if((r.h<0)||(r.mtyp=='tp')||(r.mtyp=='rdb')||(r.mtyp=='hdb')) return;dispreq(r.id);}});  
     $('#modlst').datagrid('loadData',{total:y.length,rows:y});
 };
 

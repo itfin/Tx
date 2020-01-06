@@ -43,19 +43,19 @@ stoptws:{[]stopmod each reverse .conf.module_tws;};
 startgw:{[x;y]startmod each .conf.module_gw;};
 stopgw:{[x;y]stopmod each .conf.module_gw;};
 
-startdaily:{[x;y] {if[1b~.conf[x;`daily];startmod x]} each .conf.modules;1b};
-stopdaily:{[x;y] {if[1b~.conf[x;`daily];stopmod x]} each reverse .conf.modules;system "rm -rf /tmp/CTP*";1b};
+startdaily:{[x;y] {if[(1b~.conf[x;`daily])&not .z.D in .conf.holiday;startmod x]} each .conf.modules;1b};
+stopdaily:{[x;y] {if[(1b~.conf[x;`daily])&not .z.D in .conf.holiday;stopmod x]} each reverse .conf.modules;system "rm -rf /tmp/CTP*";1b};
 
-startnightly:{[x;y] {if[1b~.conf[x;`nightly];startmod x]} each .conf.modules;1b};
-stopnightly:{[x;y] {if[1b~.conf[x;`nightly];stopmod x]} each reverse .conf.modules;system "rm -rf /tmp/CTP*";1b};
+startnightly:{[x;y] {if[(1b~.conf[x;`nightly])&not .z.D in .conf.holiday;startmod x]} each .conf.modules;1b};
+stopnightly:{[x;y] {if[(1b~.conf[x;`nightly])&not .z.D in .conf.holiday;stopmod x]} each reverse .conf.modules;system "rm -rf /tmp/CTP*";1b};
 
-connmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];p:(y:.conf[x])`port;.ctrl.MOD[x;`h]:.ctrl.H[x]:h:@[hopen;$[(a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip];`$"::",":" sv string p,$[x like "fu*";.conf.me,.conf.fcpass;.conf.appuser,.conf.apppass];`$":",":" sv string a,p,$[x like "fu*";.conf.me,.conf.fcpass;.conf.appuser,.conf.apppass]];-1];if[h>0;.ctrl.MOD[x;`pid]:h `.z.i;];};
+connmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];p:(y:.conf[x])`port;.ctrl.MOD[x;`h]:.ctrl.H[x]:h:@[hopen;$[(a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip];`$"::",":" sv string p,$[x like "fu*";.conf.me,.conf.fcpass;x like "*sim*";`simuser`simpass;.conf.appuser,.conf.apppass];`$":",":" sv string a,p,$[x like "fu*";.conf.me,.conf.fcpass;x like "*sim*";`simuser`simpass;.conf.appuser,.conf.apppass]];-1];if[h>0;.ctrl.MOD[x;`pid]:h `.z.i;];};
 
 stopmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"stopping ",string[x],"...";if[(0=count .ctrl.H[x])|-1~.ctrl.H[x];connmod[x]];if[0<h:.ctrl.H[x];@[h;"exit 0";()];.ctrl.H[x]:-1;.ctrl.MOD[x;`h`stoptime]:(-1;.z.P)];0N!"done.\n";};
 
 startmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"starting ",string[x],"...";system modstartcmd x;system "sleep 0.25";connmod[x];if[0<h:.ctrl.H[x];.ctrl.MOD[x;`starttime]:.z.P];0N!$[0<h;"Done.";"Failed."];};
 
-modstartcmd:{[x]p:(y:.conf[x])`port;z:string x;r:not (a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip];:.ctrl.Cmd[x]:$[r;"ssh root@",(string a)," '";""],"sh -c cd ",.conf.wd," && ",cfill[y`env]," taskset -c ",("," sv string raze y`cpu)," nohup ",.conf.qbin," ",($[r;ssr[;"'";"'\"'\"'"];::] cfill y[`args]),.conf.qcl,(cfill y[`qcl])," -p ",(string p)," </dev/null >/tmp/",z,".",(string .conf.app)," 2>&1&",$[r;"'&";""]};
+modstartcmd:{[x]p:(y:.conf[x])`port;z:string x;r:not (a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip];:.ctrl.Cmd[x]:$[r;"ssh root@",(string a)," '";""],"sh -c cd ",.conf.wd," && ",cfill[y`env],$[`bsd~.conf[`ostype];" cpuset -l ";" taskset -c "],("," sv string raze y`cpu)," nohup ",.conf.qbin," ",($[r;ssr[;"'";"'\"'\"'"];::] cfill y[`args]),.conf.qcl,(cfill y[`qcl])," -p ",(string p)," </dev/null >>/tmp/",z,".",(string .conf.app)," 2>&1&",$[r;"'&";""]};
 
 nodecmd:{[x;y].temp.cmd:cmd:$[x~.conf.ha.node;y;"ssh root@",(string .conf.ha[x;`ip])," 'sh -c \"",y,"\"'"];system cmd}; /[½Úµãid;shell ÃüÁî]
 
@@ -81,4 +81,17 @@ rmoldapifiles:{[x;y]{[x]y:"D"$-10#string x;if[y<.z.D-10;system "rm -f ",1_string
 
 comparedb:{[x;y]if[not (~/) .ctrl.H[`ft`ft1] @\: `.db.P;alert["system error!";"pos diff!"];:0b];1b};
 
+chkmodstatus:{[x]if[not .z.T within 08:58 15:00;:()];{[x]lerr[`modoffline;enlist x]} each exec id from .ctrl.MOD where 0>=h;}; /check modules online status
+
+chkfestatus:{[x]if[not .z.T within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`feufx;`h];:()];if[not 1b~h (`.ctrl.ufx;`login);lerr[`ufxloginfail;()]];}; /check ufx login
+
+chkfqstatus:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`rdb;`h];:()];r:h ({[x]exec `time$last time by src from quote};());{[r;t;x]if[r[x]<t-00:00:02;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each enlist `fqctp;if[t<09:30;:()];{[r;t;x]if[r[x]<t-00:00:10;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each `fqxshe`fqxshg`fqxshgopt;}; /check fqsrc quote timestamp
+
+chkordstatus:{[x]t:.z.T;if[not t within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`ft;`h];:()];{lwarn[`ordrejerr;x]} each h ({[x]exec {[x;y;z;w] sv["|"] string[x,y,z],enlist w}'[ft;ts;id;msg] from .db.O where status=.enum.REJECTED,ntime>=x};t-00:01:00);{lwarn[`ordcxlerr;x]} each h ({[x;y]flip exec (ft;ts;id) from .db.O where not end,not null ctime,ctime<x,ctime>=y};t-00:00:02;t-00:01:00);{lwarn[`ordcxlerr;x]} each h ({[x;y]flip exec (ft;ts;id) from .db.O where not end,null ctime,null ordid,ntime<x,ntime>=y};t-00:00:02;t-00:01:00);}; /check ord cxl/new error
+
+chketfstatus:{[x]if[not .z.T within 09:12 15:00;:()];if[0>=h:.ctrl.MOD[`fqxshe;`h];:()];el:h `.conf.etflist;if[0>=h:.ctrl.MOD[`ftdc4;`h];:()];r:h ({[x]exec last trday by sym from .db.ETF};());{[r;d;x]if[r[x]<>d;lwarn[`etfpcfdate;(x;d;r`x)]]}[r;.z.D] each el;}; /check etf pcf trday
+
+hc10:{[x;y];chkmodstatus[];chkfestatus[];chkfqstatus[];chkordstatus[];chketfstatus[];1b}; /10s health check
+
 \
+.db.TASK[;`]
