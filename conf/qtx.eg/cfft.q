@@ -5,6 +5,10 @@
 me:`ft;
 id:`0;
 feedtype:`ft;
+
+ui.title:"Tx²ßÂÔÒýÇæ(qtx)";
+ui.lib:"ftui.js";
+
 ha.backupft:`ft1;
 ha.backupfe:`fectp1`fetws1;
 
@@ -25,9 +29,12 @@ sub.tp.cxlrej:me;
 sub.tp.tsparam:me,ha.backupft;
 
 sub.tp.sysmsg:me,`ALL;
-sub.tp.syslog:`;
 
 acc.ctp.sym:`fectp;
+
+acc.xtp.sym:`fextp;
+
+acc.jg.sym:`fejg;
 
 maxcxlcnt:10;
 t0list:`symbol$();

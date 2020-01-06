@@ -2,26 +2,23 @@
 \l Tx/conf/qtx/cfha.q
 
 \d .conf
-me:`ftsim;
-id:`290;
-feedtype:`ftsim;
+me:`ftbt;
+id:`280;
+feedtype:`ftbacktest;
 
-ui.title:"Tx策略引擎(SIM-qtx)";
+ui.title:"Tx策略引擎(BT-qtx)";
 ui.lib:"ftui.js";
 
 conn.rdb.addr:5011; /`:unix://5011;
 conn.hdb.addr:5012; /`:unix://5012;
 
-sub.tp.quote:`;
-sub.tp.quoteref:`;
-sub.tp.quotereq:`;
-
 pubto:`;
 
-sub.tp.sysmsg:me,`ALL;
+sub.tp.sysmsg:`symbol$();
 
+acc.sim.sym:`;
 acc.ctp.sym:`;
-filldelay:1b;
+acc.tws.sym:`;
 
 maxcxlcnt:10;
 t0list:`symbol$();
@@ -30,4 +27,5 @@ useclosetoday:1b;
 closetodayexlist:`XSGE`XDCE`XZCE;
 usecloseyestoday:0b;
 
+loglevel:`debug;
 \d .
