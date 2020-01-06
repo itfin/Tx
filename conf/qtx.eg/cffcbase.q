@@ -98,4 +98,10 @@ ftsim.port:ft.port+ha.portstep;
 ftsim.qcl:" -t 250";
 ftsim.args:"Tx/core/base.q -conf qtx/cfftsim -code 'txload each (\"core/ftbase\";\"tsl/grid\");cfload \"qtx/ts/cftsqtx\";'";
 
+ftbt.ip:ha.ha.ip;
+ftbt.cpu:3;
+ftbt.port:ftsim.port+ha.portstep;
+ftbt.qcl:" -t 250";
+ftbt.args:"Tx/core/base.q -conf qtx/cfftbt -code 'txload each (\"feed/backtest/ftbacktest\";\"ui/uibase\";\"tsl/grid\");cfload \"qtx/ts/cftszqsim\";'";
+
 \d .
