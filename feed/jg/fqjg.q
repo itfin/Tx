@@ -29,7 +29,7 @@ jgqdisc:{[x;y]if[any .z.T within/: .conf.jg.openrange;:()];if[1i~.ctrl.jg[`runQ]
 
 dosubscribe:{[]};
 
-.timer.fqjg:{[x]if[any .z.T within/:.conf.jg.openrange;dosubscribe[]];batchpub[];};
+.timer.fqjg:{[x]if[any .z.T within/:.conf.jg.openrange;jgqconn[`;`];dosubscribe[]];batchpub[];};
 
 windcode2sym:{[x]y:vs[`]x;y[1]:.enum.exjgQ y[1];sv[`]y};
 
