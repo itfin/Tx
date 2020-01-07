@@ -55,7 +55,7 @@ stopmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"stopping ",
 
 startmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"starting ",string[x],"...";system modstartcmd x;system "sleep 0.25";connmod[x];if[0<h:.ctrl.H[x];.ctrl.MOD[x;`starttime]:.z.P];0N!$[0<h;"Done.";"Failed."];};
 
-modstartcmd:{[x]p:(y:.conf[x])`port;z:string x;r:not (a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip];:.ctrl.Cmd[x]:$[r;"ssh root@",(string a)," '";""],"sh -c cd ",.conf.wd," && ",cfill[y`env],$[`bsd~.conf[`ostype];" cpuset -l ";" taskset -c "],("," sv string raze y`cpu)," nohup ",.conf.qbin," ",($[r;ssr[;"'";"'\"'\"'"];::] cfill y[`args]),.conf.qcl,(cfill y[`qcl])," -p ",(string p)," </dev/null >>/tmp/",z,".",(string .conf.app)," 2>&1&",$[r;"'&";""]};
+modstartcmd:{[x]p:(y:.conf[x])`port;z:string x;r:not (a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip];:.ctrl.Cmd[x]:$[r;"ssh root@",(string a)," '";""],"sh -c cd ",.conf.wd," && ",cfill[y`env],$[`bsd~.conf[`ostype];" cpuset -l ";" taskset -c "],("," sv string raze y`cpu)," nohup ",.conf.qbin," ",($[r;ssr[;"'";"'\"'\"'"];::] cfill y[`args]),.conf.qcl,(cfill y[`qcl])," -p ",$[1b~.conf[`bindlocal];"127.0.0.1:";""],(string p)," </dev/null >>/tmp/",z,".",(string .conf.app)," 2>&1&",$[r;"'&";""]};
 
 nodecmd:{[x;y].temp.cmd:cmd:$[x~.conf.ha.node;y;"ssh root@",(string .conf.ha[x;`ip])," 'sh -c \"",y,"\"'"];system cmd}; /[½Úµãid;shell ÃüÁî]
 

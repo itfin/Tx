@@ -1,0 +1,2 @@
+#!/bin/sh
+cd /kdb && taskset -c 0,1 nohup  /q/l32/q Tx/core/base.q -conf qtx/cffc -code 'txload each ("core/fcbase";"ui/uibase")' -g 1 -P 15 -c 65 2000 -t 250 -p 127.0.0.1:5000 < /dev/null > /tmp/fc.qtx 2>&1&
