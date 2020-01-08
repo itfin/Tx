@@ -134,7 +134,7 @@ public:
 	///< 投资者资金查询
   virtual void OnRspQryFund(CJGtdcRspQryFund* p, CJGtdcRspInfoField* h, int n) {
     if(NULL!=h)RETURNONERR("RspQryFund");if((NULL==p)||(NULL==h))R;    
-    int m=h->nFieldItem;Do(m,JGPUB("QryFund",knk(13,kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),kc(p->MoneyType),kc(p->MainFlag),kf(p->EnableBalance),kf(p->FetchBalance),kf(p->FrozenBalance),kf(p->StockBalance),kf(p->FundBalance),kf(p->AssetBalance),kf(p->InCome),kf(p->EnableBalanceHK)));p++);
+    int m=h->nFieldItem;DO(m,JGPUB("QryFund",knk(13,kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),kc(p->MoneyType),kc(p->MainFlag),kf(p->EnableBalance),kf(p->FetchBalance),kf(p->FrozenBalance),kf(p->StockBalance),kf(p->FundBalance),kf(p->AssetBalance),kf(p->InCome),kf(p->EnableBalanceHK)));p++);
   };
 	///< 投资者最大委托数查询应答
   virtual void OnRspQryMax(CJGtdcRspQryMax* p, CJGtdcRspInfoField* h, int n) {
