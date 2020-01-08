@@ -621,7 +621,7 @@ newversionres=function(x,y){
 //回测管理
 testmgr=function(x){
     normgrid();
-    $('#ctrl').html('<input type=button value="新建" onclick="newtest()"><input type=button value="删除" onclick="cxltest()"><input type=radio id=show name=show value="asset" onclick="chgshow()" checked>资产走势<input type=radio id=show name=show value="trade" onclick="chgshow()">交易分布<input type=radio id=show name=show value="tradelist" onclick="chgshow()">交易明细<input type=radio id=show name=show value="orderlist" onclick="chgshow()">委托明细<input type=radio id=show name=show value="cp" onclick="chgshow()">控制参数明细<input type=radio id=show name=show value="para" onclick="chgshow()">交易参数明细<input type=radio id=show name=show value="kline" onclick="chgshow()">K线显示<input type=button value="运行" onclick="runtest()">');$('#grid').html('');$('#plot').html('');
+    $('#ctrl').html('<input type=button value="新建" onclick="newtest()"><input type=button value="删除" onclick="cxltest()"><input type=radio id=show name=show value="asset" onclick="chgshow()" checked>资产走势<input type=radio id=show name=show value="gts" onclick="chgshow()">按品种汇总<input type=radio id=show name=show value="trade" onclick="chgshow()">交易分布<input type=radio id=show name=show value="tradelist" onclick="chgshow()">交易明细<input type=radio id=show name=show value="orderlist" onclick="chgshow()">委托明细<input type=radio id=show name=show value="cp" onclick="chgshow()">控制参数明细<input type=radio id=show name=show value="para" onclick="chgshow()">交易参数明细<input type=radio id=show name=show value="kline" onclick="chgshow()">K线显示<input type=button value="运行" onclick="runtest()">');$('#grid').html('');$('#plot').html('');
     wscall('select id,gid,sid,sver,cp,cash,xsym:?[btyp=`T;`$(-3!) each {$[1<count[x];x;first x]} each syms;xsym],string d0,string d1,btyp,freq,string `datetime$addtime,string `datetime$begintime,string `datetime$endtime,pnl,yield,mdd,nday from .db.B',testlist,{'target':'grid'});
 };
 
@@ -671,7 +671,7 @@ copyalgoparareq=function(){wscall(['{.db.S[(x;"J"$y);`para]}','`'+$('#cbsid').co
 copyalgoparares=function(x,y){editor2.setValue(y);}
 
 createst=function(){
-    wscall(['{btadd[x[0];x[1];"J"$x[2];(x[3];x[10]);"F"$x[4];x[5];"D"$x[6 7];"SJ"$\'x[8 9]]}',['`'+$('#gid').val(),'`'+$('#cbsid').combobox('getValue'),$('#cbsver').combobox('getValue'),' '+editor.getValue(),$('#cash').val(),''+editor1.getValue(),$('input[name=btd0]').val(),$('input[name=btd1]').val(),$('#cbtype').combobox('getValue'),$('#cbfreq').combobox('getValue'),' '+editor2.getValue()]],createtestres,{'target':'plot'});
+    wscall(['{btadd[x[0];x[1];"J"$x[2];(x[3];x[10]);"F"$x[4];x[5];"D"$x[6 7];"SJ"$\'x[8 9]]}',['`'+$('#gid').val(),'`'+$('#cbsid').combobox('getValue'),$('#cbsver').combobox('getValue'),''+editor.getValue(),$('#cash').val(),''+editor1.getValue(),$('input[name=btd0]').val(),$('input[name=btd1]').val(),$('#cbtype').combobox('getValue'),$('#cbfreq').combobox('getValue'),''+editor2.getValue()]],createtestres,{'target':'plot'});
 }
 
 createtestres=function(x,y){
@@ -723,8 +723,9 @@ chgshow=function(){
     var t=$('input[name=show]:checked').val();
     if(t=='asset'){wscall(['{[x]exec x:`$(-13_) each string {x,y}[first enter;leave],y:.db.B[x;`cash]+{0,x} sums netpnl from .db.B[x;`res;`GT]}','`'+s.id],showasset,{'target':'plot'});}
     else if(t=='trade'){wscall(['{[x]exec x:ti,y:netpnl from `ti xasc .db.B[x;`res][`GT]}','`'+s.id],showtrade,{target:'plot'});}
+    else if(t=='gts'){wscall(['{[x]0!.db.B[x;`res][`GTS]}','`'+s.id],showgts,{target:'plot'});}
     else if(t=='tradelist'){wscall(['{[x]update string enter,string leave,string hold from `ti xasc .db.B[x;`res;`GT]}','`'+s.id],showtradelist,{'target':'plot'});}
-    else if(t=='orderlist'){wscall(['{[x]select sym,side,posefct,qty,price,status,ref,s0,s1,cumqty,avgpx,cumamt,cumfee,string ntime,string ftime,string ctime from .db.B[x;`res;`O]}','`'+s.id],showorderlist,{'target':'plot'});}
+    else if(t=='orderlist'){wscall(['{[x]ordlist::select sym,side,posefct,qty,price,status,ref,s0,s1,cumqty,avgpx,cumamt,cumfee,string ntime,string ftime,string ctime from .db.B[x;`res;`O];save `:/q/html/tmp/ordlist.csv;ordlist}','`'+s.id],showorderlist,{'target':'plot'});}
     else if(t=='cp'){wscall(['{[x].db.B[x;`cp]}','`'+s.id],showcp,{'target':'plot'});}
     else if(t=='para'){wscall(['{[x].db.B[x;`para]}','`'+s.id],showpara,{'target':'plot'});}
     else if(t=='kline'){wscall(['{[bid]r:.db.B[bid];x:r`xsym;D:r`d0`d1;f:r`freq;typ:r`btyp;.temp.t:t:$[`M=typ;delete bart from update bard:`$(-13_) each string bard+bart from minbars[x;D;f];daybars[x;D;f]];tr:select d:`date$ftime,t:`time$ftime,avgpx,side from r[`res;`O] where sym=x,cumqty>0;.temp.tr:tr:delete t from $[`M=typ;update d:`$(-13_) each string d+xbar[f] `minute$t from tr;update d:`$string xbar[f] d from tr];`N`H`L`date`data`trade!(count[t];1.03*exec max high from t;0.97*exec min low from t;exec string bard from t;flip value flip select i,open,close,low,high from t;flip value flip tr)}','`'+s.id],futsymres1,{target:'grid'})}
@@ -753,6 +754,12 @@ showpara=function(x,y){
     editor = CodeMirror.fromTextArea(document.getElementById("para"),{lineNumbers:true,textWrapping:true,matchBrackets:true,mode:"text/x-q"});
 }
 
+showgts=function(x,y){
+    $('#'+x.target).html('<div id=gtsgrid>');
+    $('#gtsgrid').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,idField:'ti',columns:[[{field:'sym',title:'标的',width:100,sortable:true},{field:'n',title:'交易轮数',width:60,sortable:true},{field:'pnl',title:'总损益',width:100,sortable:true},{field:'maxwin',title:'单轮最大收益',width:100,sortable:true},{field:'maxloss',title:'单轮最大损失',width:100,sortable:true},{field:'win',title:'盈利轮数',width:80,sortable:true},{field:'loss',title:'亏损轮数',width:80,sortable:true}]]});
+    $('#gtsgrid').datagrid('loadData',{total:y.length,rows:y});
+}
+
 showtradelist=function(x,y){
     $('#'+x.target).html('<div id=tradegrid>');
     $('#tradegrid').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,idField:'ti',columns:[[{field:'ti',title:'交易序号',width:40,sortable:true},{field:'sym',title:'标的',width:100,sortable:true},{field:'n',title:'交易笔数',width:60,sortable:true},{field:'qty',title:'数量',width:60,sortable:true},{field:'enter',title:'建仓时间',width:150,sortable:true},{field:'leave',title:'平仓时间',width:150,sortable:true},{field:'ep',title:'进场价格',width:80,sortable:true},{field:'lp',title:'离场价格',width:80,sortable:true},{field:'pnl',title:'损益',width:80,sortable:true},{field:'delta',title:'价格差',width:80,sortable:true},{field:'yield',title:'收益率',width:80,sortable:true},{field:'cash',title:'成交金额',width:80,sortable:true},{field:'hold',title:'持仓秒数',width:80,sortable:true}]]});
@@ -760,7 +767,7 @@ showtradelist=function(x,y){
 }
 
 showorderlist=function(x,y){
-    $('#'+x.target).html('<div id=ordergrid>');
+    $('#'+x.target).html('<a href="/tmp/ordlist.csv"><h1>下载csv</h1></a><br><div id=ordergrid>');
     $('#ordergrid').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,idField:'ti',columns:[[{field:'sym',title:'标的',width:100,sortable:true},{field:'side',title:'买卖方向',width:40,sortable:true},{field:'posefct',title:'开平标志',width:40,sortable:true},{field:'qty',title:'数量',width:60,sortable:true},{field:'price',title:'委托价格',width:60,sortable:true},{field:'status',title:'委托状态',width:40,sortable:true},{field:'ref',title:'委托备注',width:140,sortable:true},{field:'s0',title:'备注1',width:100,sortable:true},{field:'s1',title:'备注2',width:100,sortable:true},{field:'cumqty',title:'成交数量',width:60,sortable:true},{field:'avgpx',title:'成交均价',width:80,sortable:true},{field:'cumamt',title:'成交金额',width:80,sortable:true},{field:'cumfee',title:'交易税费',width:80,sortable:true},{field:'ntime',title:'创建时间',width:150,sortable:true},{field:'ftime',title:'成交时间',width:150,sortable:true},{field:'ctime',title:'撤单时间',width:150,sortable:true}]]});
     $('#ordergrid').datagrid('loadData',{total:y.length,rows:y});
 }

@@ -41,7 +41,7 @@ jgtdisc:{[x;y]if[any .z.T within/: .conf.jg.openrange;:()];if[1i~.ctrl.jg[`runT]
 
 .timer.ftjg:{[x]if[not any .z.T within/:.conf.jg.openrange;:()];jgtconn[`;`];if[1b~.ctrl.jg[`ConnectT];jglogin[]];};
 
-jglogin:{[]if[(1b~.ctrl.jg`LoginT)|(1b~.ctrl.jg`PassErr);:()];.ctrl.jg[`PassErr]:1b;.ctrl.jg[`LoginResT`LoginReqT]:jgcall[`userLoginT;(.enum`JG_TDC_LOGINTYPE_FundAccount;.enum`JG_TDC_EXCHANGETYPE_SZA;`),.conf.jg`trduser`trdpass`cltmac`cltip`cltmd5`credit];};
+jglogin:{[]if[(1b~.ctrl.jg`LoginT)|(1b~.ctrl.jg`PassErr);:()];.ctrl.jg[`PassErr]:1b;.ctrl.jg[`LoginResT`LoginReqT]:jgcall[`userLoginT;(.enum`JG_TDC_LOGINTYPE_FundAccount;.enum`JG_TDC_EXCHANGETYPE_SZA),.conf.jg`branch`trduser`trdpass`cltmac`cltip`cltmd5`credit];};
 
 .upd.JGTInit:{[x].ctrl.jg[`APIVersion]:x[0];};
 
