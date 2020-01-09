@@ -24,6 +24,8 @@ txload "feed/jg/jgbase";
 jgtrdtyp:.enum[(`BUY`OPEN;`BUY`CLOSE;`SELL`CLOSE;`SELL`OPEN)]!.enum`JG_TDC_TRADETYPE_Buy`JG_TDC_TRADETYPE_Buy`JG_TDC_TRADETYPE_Sell`JG_TDC_TRADETYPE_Sell;
 JGOrderKey:`BranchNo`ClientID`FundAccount`ExchangeType`StockAccount`SeatNo`StockCode`StockName`PositionStr`EntrustNo`MoneyType`EntrustStatus`TradeType`PriceType`EntrustDate`EntrustTime`OrderVolume`OrderPrice`BusinessVolume`BusinessPrice`CancelVolume`BusinessBalance`ServiceType;
 JGTradeKey:`BranchNo`ClientID`FundAccount`ExchangeType`StockAccount`SeatNo`StockCode`StockName`PositionStr`EntrustNo`MoneyType`BusinessStatus`TradeType`PriceType`BusinessDate`BusinessTime`OrderVolume`OrderPrice`BusinessVolume`BusinessPrice`CancelVolume`BusinessBalance;
+JGFundKey:`BranchNo`ClientID`FundAccount`MoneyType`MainFlag`EnableBalance`FetchBalance`FrozenBalance`StockBalance`FundBalance`AssetBalance`InCome`EnableBalanceHK;
+JGHoldKey:`BranchNo`ClientID`FundAccount`StockAccount`StockCode`StockName`ExchangeType`MoneyType`YdAmount`StockAmount`EnableAmount`PurchaseAmount`PossessAmount`FrozenAmount`YStoreAmount`CostPrice`KeepCostPrice`BuyCost`StockBalance`FloatIncome`ProIncome;
 jgstatus:.enum[`JG_TDC_ENTRUSTSTATUS_NotReport`JG_TDC_ENTRUSTSTATUS_Reporting`JG_TDC_ENTRUSTSTATUS_Reported`JG_TDC_ENTRUSTSTATUS_Canceling`JG_TDC_ENTRUSTSTATUS_PartFilledCanceling`JG_TDC_ENTRUSTSTATUS_PartFilledCanceled`JG_TDC_ENTRUSTSTATUS_Canceled`JG_TDC_ENTRUSTSTATUS_PartFilled`JG_TDC_ENTRUSTSTATUS_AllFilled`JG_TDC_ENTRUSTSTATUS_Invalid`JG_TDC_ENTRUSTSTATUS_Queueing`JG_TDC_ENTRUSTSTATUS_Rejected]!.enum[`PENDING_NEW`PENDING_NEW`NEW`PENDING_CANCEL`PENDING_CANCEL`CANCELED`CANCELED`PARTIALLY_FILLED`FILLED`REJECTED`PENDING_NEW`REJECTED];
 jgbstatus:.enum[`JG_TDC_BUSINESSSTATUS_Filled`JG_TDC_BUSINESSSTATUS_Canceled`JG_TDC_BUSINESSSTATUS_Invalid]:.enum[`FILLED`CANCELED`REJECTED];
 \d .
@@ -71,3 +73,11 @@ jglogin:{[]if[(1b~.ctrl.jg`LoginT)|(1b~.ctrl.jg`PassErr);:()];.ctrl.jg[`PassErr]
 .upd.Trade:{[x].temp.L13,:enlist y:.enum.JGTradeKey!x;if[null k:exec first id from .db[.ctrl.O] where ordid=`$y`EntrustNo;:()];r:.db[.ctrl.O;k];st:.enum[`jgbstatus] y`BusinessStatus;lp:1e-4*y`BusinessPrice;lq:`float$y`BusinessVolume;cq:lq+q0:0f^r`cumqty;ap:((lp*lq)+q0*p0:0f^r`avgpx)%cq;.db[.ctrl.O;k;`cumqty`avgpx`lastqty`lastpx]:cq,ap,lq,lp;if[not r[`status]=.enum`CANCELED;.db[.ctrl.O;k;`status]:.enum $[cq=r`qty;`FILLED;`PARTIALLY_FILLED]];execrpt[k];};
 
 .upd.QryOrder:{[x].temp.L14,:enlist y:.enum.JGOrderKey!x;if[null k:exec first id from .db[.ctrl.O] where ordid=`$y`EntrustNo;:()];r:.db[.ctrl.O;k];st:.enum[`jgstatus] y`EntrustStatus;if[st in .enum`PENDING_CANCEL`CANCELED;.db[.ctrl.O;k;`cstatus]:st];.db[.ctrl.O;k;`status]:st;if[r[`cumqty]<y`BusinessVolume;.db[.ctrl.O;k;`cumqty`avgpx]:(`float$y`BusinessVolume;1e-4*y`BusinessPrice)];execrpt[k];};
+
+.upd.QryFund:{[x].temp.L15,:enlist y:.enum.JGFundKey!x;};
+
+.upd.QryHold:{[x].temp.L16,:enlist y:.enum.JGHoldKey!x;};
+
+qryfund:{[].temp.L15:();jgcall[`qryFund;(.conf.jg.trduser;.enum`JG_TDC_QUERYMODE_All;.enum``JG_TDC_MONEYTYPE_RMB)];};
+
+qrypos:{[].temp.L16:();jgcall[`qryHold;(.conf.jg.trduser;.enum`JG_TDC_QUERYMODE_All;`;.enum`JG_TDC_EXCHANGETYPE_SZA;.enum`JG_TDC_QUERYDIRECTION_Sequence;0;`)];};

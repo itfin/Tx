@@ -18,7 +18,7 @@ JGMDHK:`h`szWindCode`szCode`nDate`nTime`nStatus`unPreClosePx`unNominalPrice`unOp
 mirror .enum.exjgQ:`SH`SZ`CFF`SHF`CZC`DCE`SHO`SZO`HKEX!`XSHG`XSHE`CCFX`XSGE`XZCE`XDCE`XSHG`XSHE`XHKG;
 
 \d .temp
-QREF:QUEUE:L16:L15:L14:L13:L12:L11:L:C:();TKSub:BKSub:MDSub:()!();
+QSNAP:QREF:QUEUE:L16:L15:L14:L13:L12:L11:L:C:();TKSub:BKSub:MDSub:()!();
 \d .
 
 jgqconn:{[x;y]if[not any .z.T within/: .conf.jg.openrange;:()];if[1i~.ctrl.jg[`runQ];:()];.ctrl.jg[`conntimeQ`connid]:(.z.P;`int$newseq[]);.ctrl.jg[`runQ]:r:initjgq[.conf.jg[`contmout`hbint`pushmode`mkts`subs`flags`timeoffset],.ctrl.jg`connid;.conf.jg[`ip`port`user`pass]];1b;};
@@ -26,6 +26,7 @@ jgqdisc:{[x;y]if[any .z.T within/: .conf.jg.openrange;:()];if[1i~.ctrl.jg[`runQ]
 
 .init.fqjg:{[x]jgqconn[`;.z.P];};
 .exit.fqjg:{[x].ctrl.jg[`runQ]:freejgq[];};
+.roll.fqjg:{[x];};
 
 dosubscribe:{[]};
 
@@ -41,7 +42,7 @@ batchpub:{[]if[(not 1b~.conf.batchpub)|(0=count .temp.QUEUE);:()];pub[`quote;.te
 .upd.CodeQ:{[x].ctrl.jg[`CodeTime`CodeInfo`MktCode]:(.z.P;`$x[0];x[2]!x[3],'x[4]);};
 .upd.HeartbeatQ:{[x]};
 
-mdclean:{[d;d0]d:d:update virtualtime:0Np,isnormalsession:time within 08:00 16:00 from delete from d where (0>cumqty);if[count d;if[.conf.jg.debug;.temp.L12,:d];d1:select sym,pc,open,sup,inf from d;if[n:count d2:d1 except .temp.QREF;pub[`quoteref;update refopt:n#enlist"" from d2];.temp.QREF,:d2];d:delete open,pc,sup,inf from d;n:count d;d2:select sym,bid,ask,bsize,asize,price,high,low,vwap,cumqty,openint,settlepx,mode,extime:d0+time,bidQ,askQ,bsizeQ,asizeQ,quoopt:n#enlist "" from d;$[1b~.conf.batchpub;enqueue[d2];pub[`quote;d2]]];};
+mdclean:{[d;d0]d:d:update virtualtime:0Np,isnormalsession:time within 08:00 16:00 from delete from d where (0>cumqty);if[count d;if[.conf.jg.debug;.temp.L12,:d];d1:select sym,pc,open,sup,inf from d;if[n:count d2:d1 except .temp.QREF;pub[`quoteref;update refopt:n#enlist"" from d2];.temp.QREF,:d2];d:delete open,pc,sup,inf from d;n:count[d];d2:select sym,bid,ask,bsize,asize,price,high,low,vwap,cumqty,openint,settlepx,mode,extime:d0+time,bidQ,askQ,bsizeQ,asizeQ,quoopt:n#enlist "" from d;$[1b~.conf.batchpub;enqueue[d2];pub[`quote;d2]]];} /if[0=n:count d1:(select sym,bid,ask,bsize,asize,price,high,low,vwap,cumqty,openint,settlepx,mode,bidQ,askQ,bsizeQ,asizeQ from d) except 0!.temp.QSNAP;:()];.temp.QSNAP,:1!d1;;
 
 mdchkdate:{[d0]if[not `fqopendate in key .db;.db.fqopendate:0Nd];if[.db.fqopendate<d0;pubm[`ALL;`MarketOpen;.conf.me;string d0];.db.fqopendate:d0];};
 

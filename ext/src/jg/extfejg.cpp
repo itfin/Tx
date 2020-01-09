@@ -384,9 +384,9 @@ extern "C"{
     req.QueryMode=kK(y)[1]->i;
     strcpy(req.StockCode,kK(y)[2]->s);
     req.ExchangeType=kK(y)[3]->i;    
-    req.QueryDirection=kK(y)[5]->i;    
-    req.QueryAmount=kK(y)[6]->i;    
-    strcpy(req.PositionStr,kK(y)[7]->s);
+    req.QueryDirection=kK(y)[4]->i;    
+    req.QueryAmount=kK(y)[5]->i;    
+    strcpy(req.PositionStr,kK(y)[6]->s);
 
     R ki(pTradeApi->ReqQryHold(&req,xi)); 
  }
