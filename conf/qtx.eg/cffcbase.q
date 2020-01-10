@@ -94,7 +94,7 @@ fejg.args:"Tx/core/base.q -conf qtx/cffejg -code 'txload \"feed/jg/fejg\"'";
 
 ftsim.ip:ha.ha.ip;
 ftsim.cpu:0;
-ftsim.port:ft.port+ha.portstep;
+ftsim.port:ha.portbase.ftsim+ha.ha.portoffset;
 ftsim.qcl:" -t 250";
 ftsim.args:"Tx/core/base.q -conf qtx/cfftsim -code 'txload each (\"core/ftbase\";\"tsl/grid\");cfload \"qtx/ts/cftsqtx\";'";
 

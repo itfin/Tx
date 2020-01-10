@@ -18,6 +18,7 @@ ha.portbase.tp:5010;
 ha.portbase.ft:7010;
 ha.portbase.fq:6010;
 ha.portbase.fe:9010;
+ha.portbase.ftsim:8010;
 ha.portbase.fu:10010;
 ha.portbase.fa:11010;
 ha.portbase.fp:12010;
