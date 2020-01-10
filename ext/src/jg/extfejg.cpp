@@ -87,67 +87,66 @@ public:
 	///< 订阅推送数据应答
 
   virtual void OnRspSubscription(CJGtdcRspUserSubData* p, CJGtdcRspInfoField* h, int n) {
-    RETURNONERR("Subscription");
-    JGPUB("SubscriptionT",knk(2,ki(n),ki(p->SubDataType)))  
-    
-  };
+    if(NULL!=h)RETURNONERR("Subscription");if((NULL==p)||(NULL==h))R;
+    int m=h->nFieldItem;DO(m,JGPUB("SubscriptionT",knk(4,ki(n),ki(m),ki(i),ki(p->SubDataType)));p++);  
+  }
 	///< 用户登录应答
   virtual void OnRspUserLogin(CJGtdcRspUserLogin* p,CJGtdcRspInfoField* h,int n){
-    if(NULL!=h)RETURNONERR("RspUserLogin");if(NULL==p)R;
-    JGPUB("LoginT",knk(4,ki(n),kp(p->ClientID),kp(p->FundAccount),ki(p->SupportSubType)))  
+    if(NULL!=h)RETURNONERR("RspUserLogin");if((NULL==p)||(NULL==h))R;
+    int m=h->nFieldItem;DO(m,JGPUB("LoginT",knk(6,ki(n),ki(m),ki(i),kp(p->ClientID),kp(p->FundAccount),ki(p->SupportSubType)));p++);  
   };
 	///< 用户登出应答
   virtual void OnRspUserLogout(CJGtdcRspUserLogout* p,CJGtdcRspInfoField* h,int n) {
-    if(NULL!=h)RETURNONERR("RspUserLogout");if(NULL==p)R;
-    JGPUB("LogoutT",knk(3,ki(n),kp(p->ClientID),kp(p->FundAccount)))  
+    if(NULL!=h)RETURNONERR("RspUserLogout");if((NULL==p)||(NULL==h))R;
+    int m=h->nFieldItem;DO(m,JGPUB("LogoutT",knk(5,ki(n),ki(m),ki(i),kp(p->ClientID),kp(p->FundAccount)));p++);  
   };
 	///< 报单录入应答
   virtual void OnRspOrderInsert(CJGtdcRspOrderInsert* p, CJGtdcRspInfoField* h, int n) {
     if(NULL!=h)RETURNONERR("RspOrderInsert");if((NULL==p)||(NULL==h))R;
-    int m=h->nFieldItem;DO(m,JGPUB("OrderInsert",knk(11,ki(p->ResultType),kp(p->ErrorInfo),kp(p->EntrustNo),kp(p->BatchNo),kp(p->StockAccount),kp(p->StockCode),ki(p->ExchangeType),ki(p->TradeType),ki(p->PriceType),kj(p->OrderVolume),kj(p->OrderPrice)));p++);
+    int m=h->nFieldItem;DO(m,JGPUB("OrderInsert",knk(14,ki(n),ki(m),ki(i),ki(p->ResultType),kp(p->ErrorInfo),kp(p->EntrustNo),kp(p->BatchNo),kp(p->StockAccount),kp(p->StockCode),ki(p->ExchangeType),ki(p->TradeType),ki(p->PriceType),kj(p->OrderVolume),kj(p->OrderPrice)));p++);
   };
 	///< 报单撤销应答
   virtual void OnRspOrderCancel(CJGtdcRspOrderCancel* p, CJGtdcRspInfoField* h, int n) {
     if(NULL!=h)RETURNONERR("RspOrderCancel");if((NULL==p)||(NULL==h))R;
-    int m=h->nFieldItem;DO(m,JGPUB("OrderCancel",knk(5,ki(p->ResultType),kp(p->ErrorInfo),kp(p->EntrustNo),kp(p->NewEntrustNo),kp(p->BatchNo)));p++);
+    int m=h->nFieldItem;DO(m,JGPUB("OrderCancel",knk(8,ki(n),ki(m),ki(i),ki(p->ResultType),kp(p->ErrorInfo),kp(p->EntrustNo),kp(p->NewEntrustNo),kp(p->BatchNo)));p++);
   };
 	///< 投资者可撤单查询应答
   virtual void OnRspQryCancel(CJGtdcRspQryCancel* p, CJGtdcRspInfoField* h, int n) {
     if(NULL!=h)RETURNONERR("RspQryCancel");if((NULL==p)||(NULL==h))R;    
-    int m=h->nFieldItem;DO(m,JGPUB("QryCancel",knk(23,kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),ki(p->ExchangeType),kp(p->StockAccount),kp(p->SeatNo),kp(p->StockCode),kp(p->StockName),kp(p->PositionStr),kp(p->EntrustNo),kc(p->MoneyType),kc(p->EntrustStatus),ki(p->TradeType),ki(p->PriceType),ki(p->EntrustDate),ki(p->EntrustTime),kj(p->OrderVolume),kj(p->OrderPrice),kj(p->BusinessVolume),kj(p->BusinessPrice),kj(p->CancelVolume),kf(p->BusinessBalance),ki(p->ServiceType)));p++);
+    int m=h->nFieldItem;DO(m,JGPUB("QryCancel",knk(26,ki(n),ki(m),ki(i),kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),ki(p->ExchangeType),kp(p->StockAccount),kp(p->SeatNo),kp(p->StockCode),kp(p->StockName),kp(p->PositionStr),kp(p->EntrustNo),kc(p->MoneyType),kc(p->EntrustStatus),ki(p->TradeType),ki(p->PriceType),ki(p->EntrustDate),ki(p->EntrustTime),kj(p->OrderVolume),kj(p->OrderPrice),kj(p->BusinessVolume),kj(p->BusinessPrice),kj(p->CancelVolume),kf(p->BusinessBalance),ki(p->ServiceType)));p++);
   };
 	///< 投资者委托查询应答
   virtual void OnRspQryOrder(CJGtdcRspQryOrder* p, CJGtdcRspInfoField* h, int n) {
     if(NULL!=h)RETURNONERR("RspQryOrder");if((NULL==p)||(NULL==h))R;    
-    int m=h->nFieldItem;DO(m,JGPUB("QryOrder",knk(23,kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),ki(p->ExchangeType),kp(p->StockAccount),kp(p->SeatNo),kp(p->StockCode),kp(p->StockName),kp(p->PositionStr),kp(p->EntrustNo),kc(p->MoneyType),kc(p->EntrustStatus),ki(p->TradeType),ki(p->PriceType),ki(p->EntrustDate),ki(p->EntrustTime),kj(p->OrderVolume),kj(p->OrderPrice),kj(p->BusinessVolume),kj(p->BusinessPrice),kj(p->CancelVolume),kf(p->BusinessBalance),ki(p->ServiceType)));p++);
+    int m=h->nFieldItem;DO(m,JGPUB("QryOrder",knk(26,ki(n),ki(m),ki(i),kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),ki(p->ExchangeType),kp(p->StockAccount),kp(p->SeatNo),kp(p->StockCode),kp(p->StockName),kp(p->PositionStr),kp(p->EntrustNo),kc(p->MoneyType),kc(p->EntrustStatus),ki(p->TradeType),ki(p->PriceType),ki(p->EntrustDate),ki(p->EntrustTime),kj(p->OrderVolume),kj(p->OrderPrice),kj(p->BusinessVolume),kj(p->BusinessPrice),kj(p->CancelVolume),kf(p->BusinessBalance),ki(p->ServiceType)));p++);
   };
 	///< 投资者成交单查询应答
   virtual void OnRspQryTrade(CJGtdcRspQryTrade* p, CJGtdcRspInfoField* h, int n) {
     if(NULL!=h)RETURNONERR("RspQryTrade");if((NULL==p)||(NULL==h))R;    
-    int m=h->nFieldItem;DO(m,JGPUB("QryTrade",knk(22,kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),ki(p->ExchangeType),kp(p->StockAccount),kp(p->SeatNo),kp(p->StockCode),kp(p->StockName),kp(p->PositionStr),kp(p->EntrustNo),kc(p->MoneyType),kc(p->BusinessStatus),ki(p->TradeType),ki(p->PriceType),ki(p->BusinessDate),ki(p->BusinessTime),kj(p->OrderVolume),kj(p->OrderPrice),kj(p->BusinessVolume),kj(p->BusinessPrice),kj(p->CancelVolume),kf(p->BusinessBalance)));p++);
+    int m=h->nFieldItem;DO(m,JGPUB("QryTrade",knk(25,ki(n),ki(m),ki(i),kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),ki(p->ExchangeType),kp(p->StockAccount),kp(p->SeatNo),kp(p->StockCode),kp(p->StockName),kp(p->PositionStr),kp(p->EntrustNo),kc(p->MoneyType),kc(p->BusinessStatus),ki(p->TradeType),ki(p->PriceType),ki(p->BusinessDate),ki(p->BusinessTime),kj(p->OrderVolume),kj(p->OrderPrice),kj(p->BusinessVolume),kj(p->BusinessPrice),kj(p->CancelVolume),kf(p->BusinessBalance)));p++);
   };
 	///< 投资者持仓查询
   virtual void OnRspQryHold(CJGtdcRspQryHold* p, CJGtdcRspInfoField* h, int n){
     if(NULL!=h)RETURNONERR("RspQryHold");if((NULL==p)||(NULL==h))R;    
-    int m=h->nFieldItem;DO(m,JGPUB("QryHold",knk(21,kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),kp(p->StockAccount),kp(p->StockCode),kp(p->StockName),ki(p->ExchangeType),kc(p->MoneyType),kj(p->YdAmount),kj(p->StockAmount),kj(p->EnableAmount),kj(p->PurchaseAmount),kj(p->PossessAmount),kj(p->FrozenAmount),kj(p->YStoreAmount),kj(p->CostPrice),kj(p->KeepCostPrice),kf(p->BuyCost),kf(p->StockBalance),kf(p->FloatIncome),kf(p->ProIncome)));p++);
+    int m=h->nFieldItem;DO(m,JGPUB("QryHold",knk(24,ki(n),ki(m),ki(i),kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),kp(p->StockAccount),kp(p->StockCode),kp(p->StockName),ki(p->ExchangeType),kc(p->MoneyType),kj(p->YdAmount),kj(p->StockAmount),kj(p->EnableAmount),kj(p->PurchaseAmount),kj(p->PossessAmount),kj(p->FrozenAmount),kj(p->YStoreAmount),kj(p->CostPrice),kj(p->KeepCostPrice),kf(p->BuyCost),kf(p->StockBalance),kf(p->FloatIncome),kf(p->ProIncome)));p++);
   };
 	///< 投资者资金查询
   virtual void OnRspQryFund(CJGtdcRspQryFund* p, CJGtdcRspInfoField* h, int n) {
     if(NULL!=h)RETURNONERR("RspQryFund");if((NULL==p)||(NULL==h))R;    
-    int m=h->nFieldItem;DO(m,JGPUB("QryFund",knk(13,kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),kc(p->MoneyType),kc(p->MainFlag),kf(p->EnableBalance),kf(p->FetchBalance),kf(p->FrozenBalance),kf(p->StockBalance),kf(p->FundBalance),kf(p->AssetBalance),kf(p->InCome),kf(p->EnableBalanceHK)));p++);
+    int m=h->nFieldItem;DO(m,JGPUB("QryFund",knk(16,ki(n),ki(m),ki(i),kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),kc(p->MoneyType),kc(p->MainFlag),kf(p->EnableBalance),kf(p->FetchBalance),kf(p->FrozenBalance),kf(p->StockBalance),kf(p->FundBalance),kf(p->AssetBalance),kf(p->InCome),kf(p->EnableBalanceHK)));p++);
   };
 	///< 投资者最大委托数查询应答
   virtual void OnRspQryMax(CJGtdcRspQryMax* p, CJGtdcRspInfoField* h, int n) {
     if(NULL!=h)RETURNONERR("RspQryMax");if((NULL==p)||(NULL==h))R;    
-    int m=h->nFieldItem;DO(m,JGPUB("QryMax",knk(8,kp(p->StockAccount),ki(p->ExchangeType),kp(p->StockCode),ki(p->TradeType),ki(p->PriceType),kj(p->OrderPrice),kp(p->BatchNo),kj(p->MaxAmount)));p++);
+    int m=h->nFieldItem;DO(m,JGPUB("QryMax",knk(11,ki(n),ki(m),ki(i),kp(p->StockAccount),ki(p->ExchangeType),kp(p->StockCode),ki(p->TradeType),ki(p->PriceType),kj(p->OrderPrice),kp(p->BatchNo),kj(p->MaxAmount)));p++);
   };
 	///< 投资者报单通知
-  virtual void OnRtnOrder(CJGtdcRspQryOrder *p,int n) {
-    DO(n,JGPUB("Order",knk(23,kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),ki(p->ExchangeType),kp(p->StockAccount),kp(p->SeatNo),kp(p->StockCode),kp(p->StockName),kp(p->PositionStr),kp(p->EntrustNo),kc(p->MoneyType),kc(p->EntrustStatus),ki(p->TradeType),ki(p->PriceType),ki(p->EntrustDate),ki(p->EntrustTime),kj(p->OrderVolume),kj(p->OrderPrice),kj(p->BusinessVolume),kj(p->BusinessPrice),kj(p->CancelVolume),kf(p->BusinessBalance),ki(p->ServiceType)));p++);
+  virtual void OnRtnOrder(CJGtdcRspQryOrder *p,int m) {
+    DO(m,JGPUB("Order",knk(25,ki(m),ki(i),kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),ki(p->ExchangeType),kp(p->StockAccount),kp(p->SeatNo),kp(p->StockCode),kp(p->StockName),kp(p->PositionStr),kp(p->EntrustNo),kc(p->MoneyType),kc(p->EntrustStatus),ki(p->TradeType),ki(p->PriceType),ki(p->EntrustDate),ki(p->EntrustTime),kj(p->OrderVolume),kj(p->OrderPrice),kj(p->BusinessVolume),kj(p->BusinessPrice),kj(p->CancelVolume),kf(p->BusinessBalance),ki(p->ServiceType)));p++);
   };
 	///< 投资者成交通知
-  virtual void OnRtnTrade(CJGtdcRspQryTrade *p,int n) {
-    DO(n,JGPUB("Trade",knk(22,kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),ki(p->ExchangeType),kp(p->StockAccount),kp(p->SeatNo),kp(p->StockCode),kp(p->StockName),kp(p->PositionStr),kp(p->EntrustNo),kc(p->MoneyType),kc(p->BusinessStatus),ki(p->TradeType),ki(p->PriceType),ki(p->BusinessDate),ki(p->BusinessTime),kj(p->OrderVolume),kj(p->OrderPrice),kj(p->BusinessVolume),kj(p->BusinessPrice),kj(p->CancelVolume),kf(p->BusinessBalance)));p++);
+  virtual void OnRtnTrade(CJGtdcRspQryTrade *p,int m) {
+    DO(m,JGPUB("Trade",knk(24,ki(m),ki(i),kp(p->BranchNo),kp(p->ClientID),kp(p->FundAccount),ki(p->ExchangeType),kp(p->StockAccount),kp(p->SeatNo),kp(p->StockCode),kp(p->StockName),kp(p->PositionStr),kp(p->EntrustNo),kc(p->MoneyType),kc(p->BusinessStatus),ki(p->TradeType),ki(p->PriceType),ki(p->BusinessDate),ki(p->BusinessTime),kj(p->OrderVolume),kj(p->OrderPrice),kj(p->BusinessVolume),kj(p->BusinessPrice),kj(p->CancelVolume),kf(p->BusinessBalance)));p++);
   };
 
 

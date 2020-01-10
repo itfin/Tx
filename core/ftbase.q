@@ -39,7 +39,7 @@ cxlord:{[x]cxlordex[x;.db.O[x;`ts];`];};
 
 qryord:{[x]r:.db.O[x];if[(0b~.db`ftactive)|(null r`sym);:()];if[not null r`fe;pub[`ordqry;enlist `sym`oid`feoid`ordopt!(r`fe;x;r`feoid;r`ordopt)]];};
 qryfund:{[x]pubm[.conf.acc[x;`sym];`QueryFund;.conf.me;""];}; /[acc]
-qrypos:{[x]pubmx[.conf.acc[x;`sym];`QueryPos;.conf.me;string x;-8!last vs[`].conf.acc[x;`acc1]];}; /[acc] 返回结果在.upd.PosUpdate处理
+qrypos:{[x]pubmx[.conf.acc[x;`sym];`QueryPos;.conf.me;string x;-8!last vs[`] sfill .conf.acc[x;`acc1]];}; /[acc] 返回结果在.upd.PosUpdate处理
 
 fe2acc:{[x] first where x=(`_ .conf.acc)[;`sym]}; /[fe]
 assetclass:{[x]e:fs2e x;s:fs2s x;$[e=`XSHE;$[8=count string s;`Option;s like "[03]0*";`AShare;s like "20*";`BshareSZ;s like "1[568]*";`Fund;s like "[02]3*";`Warrant;s like "1[12]*";`BondSZ;s like "13*";`RepoSZ;`AShare];e=`XSHG;$[8=count string s;`Option;s like "60[013]*";`AShare;s like "900*";`BshareSS;s like "5[01]*";`Fund;s like "80*";`Warrant;s like "1*";`BondSS;s like "20[124]*";`RepoSS;`AShare];e=`XHKG;`HShare;`Future^.db.QX[x;`assetclass]]}; /[sym]资产类别`Ashare`Fund`Warrant`BshareSZ`BshareSS`BondSZ`BondSS`RepoSZ`RepoSS`Future
