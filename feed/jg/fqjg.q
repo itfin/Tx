@@ -33,6 +33,7 @@ dosubscribe:{[]};
 .timer.fqjg:{[x]if[any .z.T within/:.conf.jg.openrange;jgqconn[`;`];dosubscribe[]];batchpub[];};
 
 windcode2sym:{[x]y:vs[`]x;y[1]:.enum.exjgQ y[1];sv[`]y};
+hksymmap:$[null .conf.jg[`hksymtype];windcode2sym;{[x]y:vs[`]x;y[1]:.enum.exjgQ y[1];y[0]:`$string "I"$string y[0];sv[`]y}];
 
 enqueue:{[x].temp.QUEUE,:x};
 batchpub:{[]if[(not 1b~.conf.batchpub)|(0=count .temp.QUEUE);:()];pub[`quote;.temp.QUEUE];.temp.QUEUE:()};
@@ -54,7 +55,7 @@ mdchkdate:{[d0]if[not `fqopendate in key .db;.db.fqopendate:0Nd];if[.db.fqopenda
 
 .upd.MDepthOpt:{[x].temp.X4:x;y:.enum.JGMDOpt!x;if[.conf.jg.debug;.temp.L14,:enlist y];d0:"D"$string y`nTradingDay;mdchkdate[d0];d:select sym:windcode2sym each `$szWindCode,time:"T"$pad0[9] each string nTime,price:1e-4*nTradePrice,cumqty:`float$iTradeVolume,vwap:dTotalValueTraded%iTradeVolume,high:1e-4*nHighPrice,low:1e-4*nLowPrice,bid:1e-4*first each pb,ask:1e-4*first each pa,bsize:`float$first each qb,asize:`float$first each qa,bidQ:1e-4*(5#) each pb,askQ:1e-4*(5#) each pa,bsizeQ:`float$(5#) each qb,asizeQ:`float$(5#) each qa,openint:`float$iNumTrades,settlepx:1e-4*nSettlePrice,open:1e-4*nOpenPrice,pc:1e-4*nPreSettlePrice,sup:1e-4*nHighLimitedPrice,inf:1e-4*nLowLimitedPrice,mode:`,recvtime:.z.P,exlocaltime:.z.P from enlist y;mdclean[d;d0];};
 
-.upd.MDepthHK:{[x].temp.X5:x;y:.enum.JGMDHK!x;if[.conf.jg.debug;.temp.L15,:enlist y];d0:"D"$string y`nDate;mdchkdate[d0];d:select sym:windcode2sym each `$szWindCode,time:"T"$pad0[9] each string nTime,price:1e-4*unTradePrice,cumqty:`float$llTotalVolume,vwap:dTotalAmount%llTotalVolume,high:1e-4*unHighPrice,low:1e-4*unLowPrice,bid:1e-4*first each pb,ask:1e-4*first each pa,bsize:`float$first each qb,asize:`float$first each qa,bidQ:1e-4*(5#) each pb,askQ:1e-4*(5#) each pa,bsizeQ:`float$(5#) each qb,asizeQ:`float$(5#) each qa,openint:`float$unSpread,settlepx:1e-4*unNominalPrice,open:1e-4*unOpenPrice,pc:1e-4*unPreClosePx,sup:0w,inf:0f,mode:`,recvtime:.z.P,exlocaltime:.z.P from enlist y;mdclean[d;d0];};
+.upd.MDepthHK:{[x].temp.X5:x;y:.enum.JGMDHK!x;if[.conf.jg.debug;.temp.L15,:enlist y];d0:"D"$string y`nDate;mdchkdate[d0];d:select sym:hksymmap each `$szWindCode,time:"T"$pad0[9] each string nTime,price:1e-4*unTradePrice,cumqty:`float$llTotalVolume,vwap:dTotalAmount%llTotalVolume,high:1e-4*unHighPrice,low:1e-4*unLowPrice,bid:1e-4*first each pb,ask:1e-4*first each pa,bsize:`float$first each qb,asize:`float$first each qa,bidQ:1e-4*(5#) each pb,askQ:1e-4*(5#) each pa,bsizeQ:`float$(5#) each qb,asizeQ:`float$(5#) each qa,openint:`float$unSpread,settlepx:1e-4*unNominalPrice,open:1e-4*unOpenPrice,pc:1e-4*unPreClosePx,sup:0w,inf:0f,mode:`,recvtime:.z.P,exlocaltime:.z.P from enlist y;mdclean[d;d0];};
 
 
 
