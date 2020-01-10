@@ -9,9 +9,6 @@ txload "feed/socket";
 crc:{`char$0x0 vs `int$mod[;256] sum x};
 packcrc:{[x]x,crc[x]};
 
-padx:{[f;n;x]n#x,(0|n-count[x])#f};
-pad:padx[" "];padf:padx[0n];
-
 tobe:{[x]`char$raze 0x0 vs/: x}; /int to big endian
 
 logonmsg:packcrc[tobe[1 92i],pad[20;string .conf.selfid],pad[20;string .conf.peerid],tobe[`int$.conf.hbint],pad[16;string .conf.passwd],pad[32;string .conf.verid]];hbmsg:packcrc[tobe[3 0i]];
