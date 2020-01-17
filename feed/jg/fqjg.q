@@ -21,7 +21,7 @@ mirror .enum.exjgQ:`SH`SZ`CFF`SHF`CZC`DCE`SHO`SZO`HKEX!`XSHG`XSHE`CCFX`XSGE`XZCE
 QSNAP:QREF:QUEUE:L16:L15:L14:L13:L12:L11:L:C:();TKSub:BKSub:MDSub:()!();
 \d .
 
-jgqconn:{[x;y]if[not any .z.T within/: .conf.jg.openrange;:()];if[1i~.ctrl.jg[`runQ];:()];.ctrl.jg[`conntimeQ`connid]:(.z.P;`nt$newseq[]);.ctrl.jg[`runQ]:r:initjgq[.conf.jg[`contmout`hbint`pushmode`mkts`subs`flags`timeoffset],.ctrl.jg`connid;.conf.jg[`ip`port`user`pass]];1b;};
+jgqconn:{[x;y]if[not any .z.T within/: .conf.jg.openrange;:()];if[1i~.ctrl.jg[`runQ];:()];.ctrl.jg[`conntimeQ`connid]:(.z.P;`int$newseq[]);.ctrl.jg[`runQ]:r:initjgq[.conf.jg[`contmout`hbint`pushmode`mkts`subs`flags`timeoffset],.ctrl.jg`connid;.conf.jg[`ip`port`user`pass]];1b;};
 jgqdisc:{[x;y]if[any .z.T within/: .conf.jg.openrange;:()];if[1i~.ctrl.jg[`runQ];:()];.ctrl.jg[`runQ]:freejgq[];if[((.z.D>d0)|(.z.T>.conf.jg.mktclosetime)&(.z.D=d0))&(.db.fqclosedate<d0:.db.fqopendate);pubm[`ALL;`MarketClose;.conf.me;string d0];.db.fqclosedate:d0];1b;};
 
 .init.fqjg:{[x]jgqconn[`;.z.P];};
