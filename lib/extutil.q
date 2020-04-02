@@ -2,6 +2,7 @@
 tmpdir:{"/tmp/"};
 isWIN:{0b};
 xmlparse:`expat 2:(`xmlparse;1);
+.ext.termtype:`qt; /`wxt
 
 zs:{`d`P`L`G`D!(system"d"),v[1 2 3],enlist last v:value x};
 k).q.dshow:{1@'`/:'("|"/:)@/:/:+:'(,').,:''((,:'w$k),'(((-1+#:'t),'w:|/#:'k:$:!:x)#'"");t:{$[(::)~x;"";.Q.S[(."\\c")-2 1;0j]x]}'x);}
@@ -9,7 +10,7 @@ z7:{[x;y;z;w]x:string x;system "7z a \"",w,z,x,".7z\" \"",y,x,"\"";}; /[date;src
 //z7syn:{fs:(-3_)each string key `$":",z7dir[];wd:fs where fs like "w*";qd:fs except wd;nd:date where date>max "D"$qd;z7[;hdbdir[];"";z7dir[]] each nd;};
 rn:{[]n:string first 1?`8;tmpdir[],n};                                  /生成随机文件名(带路径，不带后缀)
 jrun:{[x;y]y:"/j602/bin/",$[y;"jconsole";"jwd"];x:(" " sv  {"\"",x, "\""} each x);value $[isWIN[];"\\start ",y," -js ",x;"\\",y," -js ",(ssr[x;"`";"\\`"])," &"];};jr:jrun[;0b];jcr:jrun[;1b]; /[j语句数组;是否console方式]运行j小程序
-gplot:{[x;y;z]w:840 640;if[1<count z;w:z[1];z:z[0]];(`$":",y,".cmd") 0: $[z;("set terminal png transparent nocrop enhanced font arial 8 size ","," sv string w;"set output '",y,".png'");$[isWIN[];();(enlist "set terminal wxt")]],("set autoscale";"set grid"),x,enlist enlist "q";system $[isWIN[];"start \\bin\\gnuplot ";"gnuplot "],$[z;"";$[isWIN[];"-persist ";"-p "]],y,".cmd";$[z;y,".png";()]}; /[命令序列;临时文件名;是否] 执行gnuplot绘图
+gplot:{[x;y;z]w:840 640;if[1<count z;w:z[1];z:z[0]];(`$":",y,".cmd") 0: $[z;("set terminal png transparent nocrop enhanced font arial 8 size ","," sv string w;"set output '",y,".png'");$[isWIN[];();(enlist "set terminal ",string .ext.termtype)]],("set autoscale";"set grid"),x,enlist enlist "q";system $[isWIN[];"start \\bin\\gnuplot ";"gnuplot "],$[z;"";$[isWIN[];"-persist ";"-p "]],y,".cmd";$[z;y,".png";()]}; /[命令序列;临时文件名;是否] 执行gnuplot绘图
 
 pd:{[x;y;e;f]z:rn[];if[not 0=type e;e:enlist e];xt:$[0=type x;$[0=type x 0;type x[0;0];type x 0];type x];
         $[xt in 13 14 17 18 19h;e,:(enlist "set xdata time"),("set timefmt ";"set format x "),\:"'",$[14h=xt;"%Y.%m.%d";13h=xt;"%Y.%m";17h=xt;"%H:%M";18h=xt;"%H:%M:%S";""],"'";()];

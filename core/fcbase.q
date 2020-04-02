@@ -87,11 +87,13 @@ chkfestatus:{[x]if[not .z.T within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`feufx;`h]
 
 chkfqstatus:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`rdb;`h];:()];r:h ({[x]exec `time$last time by src from quote};());{[r;t;x]if[r[x]<t-00:00:02;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each enlist `fqctp;if[t<09:30;:()];{[r;t;x]if[r[x]<t-00:00:10;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each `fqxshe`fqxshg`fqxshgopt;}; /check fqsrc quote timestamp
 
+chktpzw:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`tp;`h];:()];if[10000<n:h ({sum sum each .z.W};());lwarn[`tpzwfull;(t;n)]];};
+
 chkordstatus:{[x]t:.z.T;if[not t within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`ft;`h];:()];{lwarn[`ordrejerr;x]} each h ({[x]exec {[x;y;z;w] sv["|"] string[x,y,z],enlist w}'[ft;ts;id;msg] from .db.O where status=.enum.REJECTED,ntime>=x};t-00:01:00);{lwarn[`ordcxlerr;x]} each h ({[x;y]flip exec (ft;ts;id) from .db.O where not end,not null ctime,ctime<x,ctime>=y};t-00:00:02;t-00:01:00);{lwarn[`ordcxlerr;x]} each h ({[x;y]flip exec (ft;ts;id) from .db.O where not end,null ctime,null ordid,ntime<x,ntime>=y};t-00:00:02;t-00:01:00);}; /check ord cxl/new error
 
 chketfstatus:{[x]if[not .z.T within 09:12 15:00;:()];if[0>=h:.ctrl.MOD[`fqxshe;`h];:()];el:h `.conf.etflist;if[0>=h:.ctrl.MOD[`ftdc4;`h];:()];r:h ({[x]exec last trday by sym from .db.ETF};());{[r;d;x]if[r[x]<>d;lwarn[`etfpcfdate;(x;d;r`x)]]}[r;.z.D] each el;}; /check etf pcf trday
 
-hc10:{[x;y];chkmodstatus[];chkfestatus[];chkfqstatus[];chkordstatus[];chketfstatus[];1b}; /10s health check
+hc10:{[x;y]chkmodstatus[];chkfestatus[];chkfqstatus[];chkordstatus[];chketfstatus[];chktpzw[];1b}; /10s health check
 
 \
 .db.TASK[;`]

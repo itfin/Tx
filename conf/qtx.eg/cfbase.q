@@ -32,8 +32,8 @@ ha.ha.backup:`ha1;
 
 ha.ha.tick:`tp`rdb`hdb;
 ha.ha.ft:`ft`ftsim`ftbt;
-ha.ha.fe:`fectp`fextp`fejg;
-ha.ha.fq:`fqctp`fqxtp`fqjg;
+ha.ha.fe:`fectp; /`fextp`fejg
+ha.ha.fq:`fqctp; /`fqxtp`fqjg
 ha.ha.fu:`symbol$();
 
 ha.ha1.ip:`127.0.0.1;
