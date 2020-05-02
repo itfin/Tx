@@ -23,7 +23,7 @@ readhkhq:{[t]x:`char$read1 .conf.hkhqtxt;p0:ss[x;"MD401"];p1:ss[x;"MD404"];p2:ss
 
 readsshq:{[x]d:readsshq_txt[];ssmeta:d[0];sshq:d[1];$[x;select sym,name,pc,open from sshq;[sshq:delete from (delete name,pc,open from sshq) where not (cumqty>0)|(price>0)|(bid>0)|(ask>0);L:flip value flip sshq;sshq:flip (cols sshq)!(flip L except .temp.LASTSS);.temp.LASTSS:L;{[x;y]$[x;select from y;delete from y]}[ssmeta[`date]=.z.D] `sym`time xcols update time:ssmeta[`time] from sshq]]}; /上海行情
 
-getrd:{[]t:readsshq[1],readhkhq[1];(uj/) (1!t;1!@[readssxx;.z.D;t])};
+getrd:{[]t:readsshq[1],@[readhkhq;1;()];(uj/) (1!t;1!@[readssxx;.z.D;t])};
 
 gethq:{[]delete from (readsshq[0],@[readhkhq;0;()]) where sym in .conf.blacklist}; 
 

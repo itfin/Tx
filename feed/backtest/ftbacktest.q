@@ -7,7 +7,7 @@ txload "core/ftbase";
 .roll.ft:{[x]{[x;y].[{(x)[y;z]};(.db.Ts[x;`event;`dayroll];x;y);()];}[;x] each tsl[];.hdb.M,:.db.M;delete from `.db.M;gtc:.enum`GOOD_TILL_CANCEL;.hdb.O,:select from .db.O where end|tif<>gtc;delete from `.db.O where end|tif<>gtc;delete from `.db.QT;{update `u#id from x;} each `.db.O`.db.M`.db.QT;delete from `.db.P where 0>=abs[0f^lqty]+abs[0f^sqty];update flqty:0f,fsqty:0f,lqty0:0f,sqty0:0f,flqty0:0f,fsqty0:0f from `.db.P;.hdb.P,:update today:.z.D from 0!.db.P;n:count[.db.QX];update pc:(0.5*(0f^bid)+0f^(ask))^price,price:0n,inf:0f,sup:0w,bid:0n,ask:0n,bsize:0n,asize:0n,cumqty:0f,bidQ:n#enlist `float$(),askQ:n#enlist `float$(),bsizeQ:n#enlist `float$(),asizeQ:n#enlist `float$() from `.db.QX;};
 
 .ctrl[`btdate`bttime]:(0Nd;0Nt);
-now:{.ctrl`bttime};ntd:{.ctrl`btdate};
+now:{sum .ctrl`btdate`bttime};ntd:{.ctrl`btdate};
 trddate:{`date$x};
 
 autofill:{if[`ftbacktest<>.conf.feedtype;:()];{[k]x:.db.O[k];cq:x`qty;ap:x`price;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt!(.enum`NEW;k;.enum`FILLED;cq;ap;`;`;.enum`NULL;`;`;0;"";"")];} each exec id from .db.O where not end;};
