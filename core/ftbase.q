@@ -102,8 +102,10 @@ getbuypx:getordpx[;.enum[`BUY];];getsellpx:getordpx[;.enum[`SELL];];
 ishidden:{[x;y;z]h:.db.QX[x];$[y~.enum`BUY;z<h`bid;z>h`ask]}; /[sym;side;px] 判断价格是否低于买一价格(买入方向)或高于卖一价格(卖出方向)
 pxcmp:{$[x=.enum`BUY;1;-1]*signum y-z}; /[side;p0;p1]p0劣于/等于/优于p1返回1/0/-1
 
-roundqty_kcb:{[x;y]$[y<200f;0f;`float$floor y+1e-2]}; //[(代码;方向);数量]对科创板委托数量按委托单位进行向下取整,200股起,1股递增
+uproundqty_kcb:{[x;y]$[y<200f;200f;`float$ceiling y-1e-2]}; //[(代码;方向);数量]对科创板委托数量按委托单位进行向上取整,200股起,1股递增
+uproundqty:{[x;y]if[x[0] like "688*.XSHG";:uproundqty_kcb[x;y]];qm:getqtymin[x];qm*ceiling (y-1e-2)%qm}; //[(代码;方向);数量]对委托数量按委托单位进行向上取整
 
+roundqty_kcb:{[x;y]$[y<200f;0f;`float$floor y+1e-2]}; //[(代码;方向);数量]对科创板委托数量按委托单位进行向下取整,200股起,1股递增
 roundqty:{[x;y]if[x[0] like "688*.XSHG";:roundqty_kcb[x;y]];qm:getqtymin[x];qm*floor (y+1e-2)%qm}; //[(代码;方向);数量]对委托数量按委托单位进行向下取整
 
 roundv1:{[x;y]n:count y;i:0;do[n-1;q:roundqty[x] y[i];y[i+1]+:y[i]-q;y[i]:q;i+:1];y};        //[(代码;方向);数量数组]对数量数组进行向下取整加尾处理
