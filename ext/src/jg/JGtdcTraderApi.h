@@ -66,6 +66,8 @@ public:
 	virtual void OnRspQryFund(CJGtdcRspQryFund* pRspQryFund, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
 	///< 投资者最大委托数查询应答
 	virtual void OnRspQryMax(CJGtdcRspQryMax* pRspQryMax, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+	///< 投资者交割单查询
+	virtual void OnRspQryDelivery(CJGtdcRspQryDelivery* pRspQryDelivery, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
 	///< 投资者报单通知
 	virtual void OnRtnOrder(CJGtdcRspQryOrder *pOrder,int nItems) { };
 	///< 投资者成交通知
@@ -77,6 +79,8 @@ public:
 	virtual void OnRspQryAssets(CJGtdcRspQryAssets* pRspQryAssets, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
 	///< 投资者融券可卖数量查询
 	virtual void OnRspQryMaxLoan(CJGtdcRspQryMaxLoan* pRspQryMaxLoan, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+	///< 投资者可融券私有卖出数量查询
+	virtual void OnRspQryReserveCreditStock(CJGtdcRspQryReserveCreditStock *pRspQryReserve, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
 	///< 投资者直接还券
 	virtual void OnRspStockBack(CJGtdcRspStockBack* pRspStockBack, CJGtdcRspInfoField* pRspInfo, int nRequestID){};
 	///< 投资者直接还款
@@ -91,6 +95,23 @@ public:
 	virtual void OnRspQryObject(CJGtdcRspQryObject *pRspQryObject, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
 	///< 投资者信用账户与普通账户对应关系查询应答
 	virtual void OnRspQryAccMatch(CJGtdcRspQryAccMatch *pRspQryAccMatch, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+
+	////////////////////////港股通专用功能函数//////////////////////////////////////////////////////////////
+	///< 投资者港股通可撤单查询
+	virtual void OnRspQryHKCancel(CJGtdcRspQryCancel* pRspQryCancel, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+	///< 投资者港股通委托查询
+	virtual void OnRspQryHKOrder(CJGtdcRspQryOrder* pRspQryOrder, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+	///< 投资者港股通成交单查询
+	virtual void OnRspQryHKTrade(CJGtdcRspQryTrade* pRspQryTrade, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+	///< 投资者港股通持仓查询
+	virtual void OnRspQryHKHold(CJGtdcRspQryHold* pRspQryHold, CJGtdcRspInfoField* pRspInfo, int nRequestID){ };
+	///< 投资者港股通资金查询
+	virtual void OnRspQryHKFund(CJGtdcRspQryFund* pRspQryFund, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+	///< 投资者港股通汇率查询
+	virtual void OnRspQryHKExRate(CJGtdcRspQryHKExRate* pRspQryHKExRate, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+	///< 投资者港股通额度查询
+	virtual void OnRspQryHKLimit(CJGtdcRspQryHKLimit* pRspQryHKLimit, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
 };
 
 
@@ -145,12 +166,16 @@ public:
 	virtual int ReqQryFund(CJGtdcReqQryFund* pReqFund, int nRequestID) = 0;
 	///< 投资者最大委托数查询
 	virtual int ReqQryMax(CJGtdcReqQryMax* pReqMax,int nRequestID) = 0 ;
+	///< 投资者交割单查询
+	virtual int ReqQryDelivery(CJGtdcReqQryDelivery* pReqQryDelivery, int nRequestID) = 0;
 	
 	////////////////////////融资融券专用功能函数///////////////////////////////////////////////////////////
 	///< 投资者信用资产查询
 	virtual int ReqQryAssets(CJGtdcReqQryAssets *pQryAssets, int nRequestID) = 0;
 	///< 投资者可融券卖出数量查询
 	virtual int ReqQryMaxLoan(CJGtdcReqQryMaxLoan *pQryMaxLoan, int nRequestID) = 0;
+	///< 投资者可融券私有卖出数量查询
+	virtual int ReqQryReserveCreditStock(CJGtdcReqQryReserveCreditStock *pQryReserve, int nRequestID) = 0;
 	///< 投资者直接还券
 	virtual int ReqStockBack(CJGtdcReqStockBack *pReqStockBack, int nRequestID) = 0;
 	///< 投资者直接还款
@@ -165,6 +190,23 @@ public:
 	virtual int ReqQryObject(CJGtdcReqQryObject *pReqQryObject, int nRequestID) = 0;
 	///< 投资者信用账户与普通账户对应关系查询
 	virtual int ReqQryAccMatch(CJGtdcReqQryAccMatch *pReqQryAccMatch, int nRequestID) = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	////////////////////////港股通专用功能函数//////////////////////////////////////////////////////////////
+	///< 投资者港股通可撤单查询
+	virtual int ReqQryHKCancel(CJGtdcReqQryCancel* pQryCancel, int nRequestID) = 0;
+	///< 投资者港股通委托查询
+	virtual int ReqQryHKOrder(CJGtdcReqQryOrder* pQryOrder, int nRequestID) = 0;
+	///< 投资者港股通成交单查询
+	virtual int ReqQryHKTrade(CJGtdcReqQryTrade* pQryTrade, int nRequestID) = 0;
+	///< 投资者港股通持仓查询
+	virtual int ReqQryHKHold(CJGtdcReqQryHold* pQryHold, int nRequestID) = 0;
+	///< 投资者港股通资金查询
+	virtual int ReqQryHKFund(CJGtdcReqQryFund* pReqFund, int nRequestID) = 0;
+	///< 投资者港股通汇率查询
+	virtual int ReqQryHKExRate(CJGtdcReqQryHKExRate* pReqQryHKExRate, int nRequestID) = 0;
+	///< 投资者港股通额度查询
+	virtual int ReqQryHKLimit(CJGtdcReqQryHKLimit* pReqQryHKLimit, int nRequestID) = 0;
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 };
 

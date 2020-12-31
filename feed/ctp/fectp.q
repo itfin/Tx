@@ -60,7 +60,7 @@ IL:L15:L14:L13:L12:L11:L10:L9:L8:L7:L6:L5:L4:L3:L2:L1:L0:L:C:();
 DelayedCancel:(`symbol$())!`float$();
 \d .
 
-ctptlogin:{[]if[(1b~.ctrl.ctp`LoginT)|(1b~.ctrl.ctp`PassErr);:()];.ctrl.ctp.Userinfo:ctpcall[`ctpsysinfo;.conf.ctp`broker`user];if[0=count .ctrl.ctp.Userinfo;lwarn[`sysinfo;"信息采集失败,请开放相关权限!"]];ctpcall[`userAuthT;.conf.ctp`broker`user`prdinfo`authocde`cltver];ctpcall[`userLoginT;.conf.ctp`broker`user`pass`prdinfo];};
+ctptlogin:{[]if[(1b~.ctrl.ctp`LoginT)|(1b~.ctrl.ctp`PassErr);:()];.ctrl.ctp.Userinfo:ctpcall[`ctpsysinfo;.conf.ctp`broker`user];if[0=count .ctrl.ctp.Userinfo;lwarn[`sysinfo;"信息采集失败,请开放相关权限!"]];ctpcall[`userAuthT;.conf.ctp`broker`user`prdinfo`authocde`cltver];};
 
 confirmsettlement:{[]ctpcall[`settlementInfoConfirm;.conf.ctp`broker`user];};
 
@@ -73,7 +73,7 @@ resetqx:{[]delete from `.db.QX where assetclass=`Future;};
 
 .upd.FrontDisconnectT:{[x].ctrl.ctp[`ConnectT`LoginT`DiscReasonT`DisctimeT]:(0b;0b;x[0];.z.P);};
 
-.upd.AuthenticateT:{[x]y:x[2];if[0=count y;:()];.ctrl.ctp[`AppID`AppType]:y[3 4];};
+.upd.AuthenticateT:{[x]y:x[2];if[0=count y;:()];.ctrl.ctp[`AppID`AppType]:y[3 4];ctpcall[`userLoginT;.conf.ctp`broker`user`pass`prdinfo];};
 
 .upd.UserLoginT:{[x]y:x[2];if[0=count y;:()];.ctrl.ctp[`LoginT`LoginTimeT`FrontID`SessionID`MaxOrderRef]:(1b;.z.P),y;$[1b~.ctrl.ctp[`Confirm];ctpcall[`qrySettlementInfoConfirm;.conf.ctp`broker`user];confirmsettlement[]];};
 
@@ -124,6 +124,7 @@ resetqx:{[]delete from `.db.QX where assetclass=`Future;};
 .upd.QryCombAction:{[x]x:x[2];if[0=count x;:()];.temp.L15,:enlist y:`BrokerID`InvestorID`InstrumentID`CombActionRef`UserID`Direction`Volume`CombDirection`HedgeFlag`ActionLocalID`ExchangeID`ParticipantID`ClientID`ExchangeInstID`TraderID`InstallID`ActionStatus`NotifySequence`TradingDay`SettlementID`SequenceNo`FrontID`SessionID`UserProductInfo`StatusMsg!x;}; /查询组合申请
 
 .upd.QueryOrder:{[k].temp.L4:();if[null .db[.ctrl.O;k;`sym];:()];r:ctpcall[`qryOrder;(.conf.ctp`broker`user),(`;`;.db[.ctrl.O;k;`ordid];`;`)];};
+.upd.ordqry:.fe.ordqry:{[x].upd.QueryOrder[x`oid];}';
 
 .upd.QueryFund:{[x].temp.FundDst:x`ref;.temp.L2:();r:ctpcall[`qryTradingAccount;.conf.ctp`broker`user];};
 
@@ -139,11 +140,11 @@ resetqx:{[]delete from `.db.QX where assetclass=`Future;};
 
 .upd.SettlementInfoConfirm:{[x].ctrl.ctp[`Confirm]:1b;.upd.QueryInstrument[];};
 
-updaterd:{[](path:` sv .conf.tempdb,.conf.me,`RD) set 1!select sym,ex,esym,name,assetclass,product,multiplier,pxunit,qtylot,qtymax,qtymaxm,qtymaxl,qtymaxs,rmarginl,rmargins,rfeetaxoa,rfeetaxoq,rfeetaxca,rfeetaxcq,rfeetaxcat,rfeetaxcqt,settledate,opendate,createdate,lifephase,status from .db.QX;pubm[`ALL;`RDUpdate;`ctp;string path];};
+updaterd:{[](path:` sv .conf.tempdb,.conf.me,`RD) set 1!select sym,ex,esym,name,assetclass,product,multiplier,pxunit,qtylot,qtymax,qtymaxm,qtymaxl,qtymaxs,rmarginl,rmargins,rfeetaxoa,rfeetaxoq,rfeetaxca,rfeetaxcq,rfeetaxcat,rfeetaxcqt,settledate,opendate,createdate,lifephase,status from .db.QX;if[not 1b~.conf.ctp[`skipupdrd];pubm[`ALL;`RDUpdate;`ctp;string path]];};
 
 .upd.QryInstrument:{[x]if[0=count x[2];:()];.temp.L1,:enlist y:`InstrumentID`ExchangeID`InstrumentName`ExchangeInstID`ProductID`ProductClass`DeliveryYear`DeliveryMonth`MaxMarketOrderVolume`MinMarketOrderVolume`MaxLimitOrderVolume`MinLimitOrderVolume`VolumeMultiple`PriceTick`CreateDate`OpenDate`ExpireDate`StartDelivDate`EndDelivDate`InstLifePhase`IsTrading`PositionType`PositionDateType`LongMarginRatio`ShortMarginRatio!x[2];fs:se2fs (s:`$y`InstrumentID),e:.enum.ctptexmap `$y`ExchangeID;if[null .db.QX[fs;`esym];.db.QX[fs;`ex`esym`name`assetclass`product`multiplier`pxunit`qtylot`qtymax`qtymaxm`settledate`opendate`createdate`lifephase`status]:(e;s;`$y`InstrumentName;.enum.ctpclassmap y`ProductClass;`$y`ProductID;`float$y`VolumeMultiple;y`PriceTick;`float$y`MinLimitOrderVolume;`float$y`MaxLimitOrderVolume;`float$y`MaxMarketOrderVolume;"D"$y`ExpireDate;"D"$y`OpenDate;"D"$y`CreateDate;.enum.ctpphasemap y`InstLifePhase;y`IsTrading)];if[x[1];updaterd[]];};
 
-.upd.QryInstrumentCommissionRate:{[x]if[0=count x[2];:()];.temp.L0,:enlist y:`InstrumentID`InvestorRange`BrokerID`InvestorID`OpenRatioByMoney`OpenRatioByVolume`CloseRatioByMoney`CloseRatioByVolume`CloseTodayRatioByMoney`CloseTodayRatioByVolume!x[2];update rfeetaxoa:y`OpenRatioByMoney,rfeetaxoq:y`OpenRatioByVolume,rfeetaxca:y`CloseRatioByMoney,rfeetaxcq:y`CloseRatioByVolume,rfeetaxcat:y`CloseTodayRatioByMoney,rfeetaxcqt:y`CloseTodayRatioByVolume from `.db.QX where (product=`$y`InstrumentID)|esym=`$y`InstrumentID;};
+.upd.QryInstrumentCommissionRate:{[x]if[0=count x[2];:()];.temp.L0,:enlist y:`InstrumentID`InvestorRange`BrokerID`InvestorID`OpenRatioByMoney`OpenRatioByVolume`CloseRatioByMoney`CloseRatioByVolume`CloseTodayRatioByMoney`CloseTodayRatioByVolume!x[2];update rfeetaxoa:y`OpenRatioByMoney,rfeetaxoq:y`OpenRatioByVolume,rfeetaxca:y`CloseRatioByMoney,rfeetaxcq:y`CloseRatioByVolume,rfeetaxcat:y`CloseTodayRatioByMoney,rfeetaxcqt:y`CloseTodayRatioByVolume from `.db.QX where (product=`$y`InstrumentID)|esym=`$y`InstrumentID;}; /
 
 .upd.QryInstrumentMarginRate:{[x]if[0=count x[2];:()];.temp.L10,:enlist y:`InstrumentID`InvestorRange`BrokerID`InvestorID`HedgeFlag`LongMarginRatioByMoney`LongMarginRatioByVolume`ShortMarginRatioByMoney`ShortMarginRatioByVolume`IsRelative!x[2];update rmarginl:y`LongMarginRatioByMoney,rmargins:y`ShortMarginRatioByMoney from `.db.QX where esym=`$y`InstrumentID;};
 
@@ -151,7 +152,7 @@ updaterd:{[](path:` sv .conf.tempdb,.conf.me,`RD) set 1!select sym,ex,esym,name,
 
 .upd.QryInvestorPosition:{[x]if[0=count x[2];:()];.temp.L3,:enlist y:`InstrumentID`BrokerID`InvestorID`PosiDirection`HedgeFlag`PositionDate`YdPosition`Position`LongFrozen`ShortFrozen`LongFrozenAmount`ShortFrozenAmount`OpenVolume`CloseVolume`OpenAmount`CloseAmount`PositionCost`PreMargin`UseMargin`FrozenMargin`FrozenCash`FrozenCommission`CashIn`Commission`CloseProfit`PositionProfit`PreSettlementPrice`SettlementPrice`TradingDay`SettlementID`OpenCost`ExchangeMargin`CombPosition`CombLongFrozen`CombShortFrozen`CloseProfitByDate`CloseProfitByTrade`TodayPosition`MarginRateByMoney`MarginRateByVolume!x[2];if[x[1];pubmx[.temp.PosDst;`PosUpdate;.conf.me;.temp.PosAcc;-8!.temp.L3]];};
 
-.upd.QryOrder:{[x]if[0=count x[2];:()];.temp.L4,:enlist y:`BrokerID`InvestorID`InstrumentID`OrderRef`UserID`OrderPriceType`Direction`CombOffsetFlag`CombHedgeFlag`LimitPrice`VolumeTotalOriginal`TimeCondition`GTDDate`VolumeCondition`MinVolume`ContingentCondition`StopPrice`ForceCloseReason`IsAutoSuspend`BusinessUnit`RequestID`OrderLocalID`ExchangeID`ParticipantID`ClientID`ExchangeInstID`TraderID`InstallID`OrderSubmitStatus`NotifySequence`TradingDay`SettlementID`OrderSysID`OrderSource`OrderStatus`OrderType`VolumeTraded`VolumeTotal`InsertDate`InsertTime`ActiveTime`SuspendTime`UpdateTime`CancelTime`ActiveTraderID`ClearingPartID`SequenceNo`FrontID`SessionID`UserProductInfo`StatusMsg`UserForceClose`ActiveUserID`BrokerOrderSeq`RelativeOrderSysID!x[2];if[x[1];.upd.Order each flip value flip L4];};
+.upd.QryOrder:{[x]if[0=count x[2];:()];.temp.L4,:enlist y:`BrokerID`InvestorID`InstrumentID`OrderRef`UserID`OrderPriceType`Direction`CombOffsetFlag`CombHedgeFlag`LimitPrice`VolumeTotalOriginal`TimeCondition`GTDDate`VolumeCondition`MinVolume`ContingentCondition`StopPrice`ForceCloseReason`IsAutoSuspend`BusinessUnit`RequestID`OrderLocalID`ExchangeID`ParticipantID`ClientID`ExchangeInstID`TraderID`InstallID`OrderSubmitStatus`NotifySequence`TradingDay`SettlementID`OrderSysID`OrderSource`OrderStatus`OrderType`VolumeTraded`VolumeTotal`InsertDate`InsertTime`ActiveTime`SuspendTime`UpdateTime`CancelTime`ActiveTraderID`ClearingPartID`SequenceNo`FrontID`SessionID`UserProductInfo`StatusMsg`UserForceClose`ActiveUserID`BrokerOrderSeq`RelativeOrderSysID!x[2];if[x[1];.upd.Order each flip value flip .temp.L4];};
 
 .upd.QryTrade:{[x]if[0=count x[2];:()];.temp.L5,:enlist `BrokerID`InvestorID`InstrumentID`OrderRef`UserID`ExchangeID`TradeID`Direction`OrderSysID`ParticipantID`ClientID`TradingRole`ExchangeInstID`OffsetFlag`HedgeFlag`Price`Volume`TradeDate`TradeTime`TradeType`PriceSource`TraderID`OrderLocalID`ClearingPartID`BusinessUnit`SequenceNo`TradingDay`SettlementID`BrokerOrderSeq`TradeSource!x[2];if[x[1];];};
 

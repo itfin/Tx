@@ -53,7 +53,7 @@ dashboardres=function(x,y){
 
 
 //本地告警
-logreq=function(){wscall(['{[x].ctrl.MOD[`rdb;`h] ({[x]desc select [neg[x]] seq:i,string `time$time,src,sym,typ,msg from syslog where sym in `error`warn};200)}','`'],logres,{target:'grid'});}
+logreq=function(){wscall(['{[x].ctrl.MOD[`rdb;`h] ({[x]desc select [neg[x]] seq:i,string `time$time,src,sym,typ,sublist[400] each msg from syslog where sym in `error`warn};200)}','`'],logres,{target:'grid'});}
 logres=function(x,y){
     $('#'+x.target).html('<div id=loglst>');
     $('#loglst').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'time',title:'时间',width:80,sortable:true},{field:'seq',title:'序号',width:80,sortable:true},{field:'src',title:'来源',width:80,sortable:true},{field:'sym',title:'级别',width:80,sortable:true},{field:'typ',title:'类别',width:280,sortable:true},{field:'msg',title:'信息',width:880,sortable:true,formatter:function(x){return togbk(x);}}]]});

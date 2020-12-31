@@ -3,9 +3,10 @@
 
 txload "tsl/tslib";
 
-time2bucket:{[x]?[x=00:00:00;0;?[x>03:58:00;0W;?[x>=03:56:00;237;1+`int$`minute$x]]]}; /0:开盘集合竞价,1..237:各连续竞价分钟,0W:收盘集合竞价
-time2bucketss:{[x]?[x=00:00:00;0;1+`int$`minute$x]}; /[time] 0:开盘集合竞价,1..240:各连续竞价分钟
-time2bucketsz:{[x]?[x=00:00:00;0;?[x>03:58:00;0W;?[x>=03:56:00;237;1+`int$`minute$x]]]}; /0:开盘集合竞价,1..237:各连续竞价分钟,0W:收盘集合竞价
+//time2bucket:{[x]?[x=00:00:00;0;?[x>03:58:00;0W;?[x>=03:56:00;237;1+`int$`minute$x]]]}; /0:开盘集合竞价,1..237:各连续竞价分钟,0W:收盘集合竞价
+//time2bucketss:{[x]?[x=00:00:00;0;1+`int$`minute$x]}; /[time] 0:开盘集合竞价,1..240:各连续竞价分钟
+
+time2bucketss:time2bucketsz:{[x]?[x=00:00:00;0;?[x>03:58:00;0W;?[x>=03:56:00;237;1+`int$`minute$x]]]}; /0:开盘集合竞价,1..237:各连续竞价分钟,0W:收盘集合竞价
  
 time2bucketex:{[x;y]$[x=`XSHE;time2bucketsz y;time2bucketss y]}; /[ex;time]根据市场和时刻计算所在桶
 
@@ -15,8 +16,8 @@ bucketstopcn:{[x]?[x=0;09:24:59.999;?[x=0W;14:59:59.999;00:00:59.999+?[x<=120;`t
 bucketstarthk:{[x]?[x=0;09:30:00.000;?[x<=150;`time$10:00+x-1;`time$14:30+x-151]]}; /[bucket]计算港股所在桶的起始时间
 bucketstophk:{[x]?[x=0;09:59:59.999;00:00:59.999+?[x<=150;`time$10:00+x-1;`time$14:30+x-151]]}; /[bucket]计算港股所在桶的结束时间
 
-bucketstartccfx:{[x]?[x=0;09:10:00.000;?[x<=135;`time$09:15+x-1;`time$13:00+x-136]]}; /[bucket]计算金融期货所在桶的起始时间
-bucketstopccfx:{[x]?[x=0;09:13:59.999;00:00:59.999+?[x<=135;`time$09:15+x-1;`time$13:00+x-136]]}; /[bucket]计算金融期货所在桶的结束时间
+bucketstartccfx:{[x]?[x=0;09:29:00.000;?[x<=120;`time$09:30+x-1;`time$13:00+x-121]]}; /[bucket]计算金融期货所在桶的起始时间
+bucketstopccfx:{[x]?[x=0;09:29:59.999;00:00:59.999+?[x<=120;`time$09:30+x-1;`time$13:00+x-121]]}; /[bucket]计算金融期货所在桶的结束时间
 
 bucketstartex:{[x;y]?[x=`XHKG;bucketstarthk y;?[x=`CCFX;bucketstartccfx y;bucketstartcn y]]}; /[ex;time]根据市场和桶号计算所在桶起始时间
 bucketstopex:{[x;y]?[x=`XHKG;bucketstophk y;?[x=`CCFX;bucketstopccfx y;bucketstopcn y]]}; /[ex;time]根据市场和桶号计算所在桶结束时间
@@ -25,10 +26,10 @@ forcestring:{$[-11h=type x;string x;x]};
 
 loadhvpdb:{[x;y]{.temp[x]:get sv[`;.conf.tempdb,x];} each `HCOV`HSSAM`HSVP`HSD;1b};
 
-algo_updhvpn:{[x;n]if[0>h:.ctrl.conn[`hdb;`h];:()];L:h({[x;n]d1:x&max date;d0:{first ((neg x)&count y)#y}[n] date where date<=d1;t:select date,sym,bucket:{[x]?[x=00:00:00;0;?[x>03:58:00;0W;?[x>=03:56:00;237;1+`int$`minute$x]]]} {(0|(x&15:00)-13:00)+0|(x&11:30)-09:30} `second$time,cumqty,amt:cumqty*vwap,price,bid,ask from quote where date within (d0,d1),0<cumqty&price;(ungroup delete from (select tr:(deltas cumqty)%(last cumqty),bucket,amt:deltas amt,yield:{0f,1_ x} deltas log price by date,sym from select last cumqty,last amt,last price by date,sym,bucket from t) where ({(15<=max deltas x except 0W)} each bucket)|(0.09<max each tr);select last amt,last price,spread:{avg x where (x>0f)&(x<0w)} (-1+ask%bid) by date,sym from t)};x;n);d:L[0];z:select sum yield by date,sym,bar:30 xbar 239&bucket from d;u:exec distinct flip (date;bar) from z;a:exec 0f^((flip (date;bar))!yield)u by sym from z;.temp.HCOV:`syms`covm!(key a;8*.math.cvm value a);.temp.HSSAM:0!select tr,amt by sym,bucket from d;.temp.HSVP:update `p#sym,bucketstart:bucketstartex[fs2e each sym;bucket],bucketstop:bucketstopex[fs2e each sym;bucket] from  `sym`bucket xkey ungroup select tr:tr%sum tr,bucket,amt,trls:trls%sum trls,sizels by sym from select sym,bucket,tr:sym ({avg x#z,x#1%$[`XSHE=fs2e y;239;`XSHG=fs2e y;239;239]}[n])' tr,amt:avg each amt,trls:0f,sizels:0f from .temp.HSSAM;.temp.HSD:update `u#sym from select avg amt,avg spread,yield:avg -1+1_ratios price,stddev:sqrt var -1+1_ratios price by sym from 0!L[1];{sv[`;.conf.tempdb,x] set .temp[x];} each `HCOV`HSSAM`HSVP`HSD;};
+algo_updhvpn:{[x;n]if[0>h:.ctrl.conn[`hdb;`h];:()];L:h({[x;n]d1:x&max date;d0:{first ((neg x)&count y)#y}[n] date where date<=d1;t:select date,sym,bucket:{[s;x]?[x=00:00:00;0;?[(x>03:58:00)&s like\: "*XSH*";0W;?[(x>=03:56:00)&s like\: "*XSH*";237;240&1+`int$`minute$x]]]}[sym;{(0|(x&15:00)-13:00)+0|(x&11:30)-09:30} `second$time],cumqty,amt:cumqty*vwap,price,bid,ask from quote where date within (d0,d1),0<cumqty&price;(ungroup delete from (select tr:(deltas cumqty)%(last cumqty),bucket,amt:deltas amt,yield:{0f,1_ x} deltas log price by date,sym from select last cumqty,last amt,last price by date,sym,bucket from t) where ({(15<=max deltas x except 0W)} each bucket)|(0.09<max each tr);select last amt,last price,spread:{avg x where (x>0f)&(x<0w)} (-1+ask%bid) by date,sym from t)};x;n);d:L[0];z:select sum yield by date,sym,bar:30 xbar 240&bucket from d;u:exec distinct flip (date;bar) from z;a:exec 0f^((flip (date;bar))!yield)u by sym from z;.temp.HCOV:`syms`covm!(key a;8*.math.cvm value a);.temp.HSSAM:0!select tr,amt by sym,bucket from d;.temp.HSVP:update `p#sym,bucketstart:bucketstartex[fs2e each sym;bucket],bucketstop:bucketstopex[fs2e each sym;bucket] from  `sym`bucket xkey ungroup select tr:tr%sum tr,bucket,amt,trls:trls%sum trls,sizels by sym from select sym,bucket,tr:sym ({avg x#z,x#1%$[`XSHE=fs2e y;240;`XSHG=fs2e y;240;240]}[n])' tr,amt:avg each amt,trls:0f,sizels:0f from .temp.HSSAM;.temp.HSD:update `u#sym from select avg amt,avg spread,yield:avg -1+1_ratios price,stddev:sqrt var -1+1_ratios price by sym from 0!L[1];{sv[`;.conf.tempdb,x] set .temp[x];} each `HCOV`HSSAM`HSVP`HSD;};
 
 onr_algo:{[x;y]gtc:.enum`GOOD_TILL_CANCEL;.[.conf.histdb;(.conf.me;`O1);,;select from .db.O1 where end|tif<>gtc];delete from `.db.O1 where end|tif<>gtc;linfo[`AlgoWrapDay;(x;y;now[])];setstate[;`OK] each `QS`EMS;if[1b~.conf[`updhvp];algo_updhvpn[y;20^jfill .conf[`lookbackdays]]];}; /[ts;vtd]日终处理
-onq_algo:{[x;y]if[not `OK~.ctrl.StateMap`EMS;:()];algoapply[x;now[]];}; /[tid;syms]
+onq_algo:{[x;y]if[not `OK~.ctrl.StateMap`EMS;:()];}; /[tid;syms] algoapply[x;now[]];
 
 oni_algo:{[x;y]setstate[;`OK] each `QS`EMS;.temp.hO1:(`u#`symbol$())!`boolean$();.temp.hO:(`u#`symbol$())!`symbol$();{.temp.hO1[x]:1b;} each exec id from .db.O1 where not (status in .enum`FILLED`DONE_FOR_DAY`CANCELED`REPLACED`REJECTED)|(cstatus in .enum`CANCELED`REPLACED);{.temp.hO[x]:.db.O[x;`upid];} each exec id from .db.O where not (status in .enum`FILLED`DONE_FOR_DAY`CANCELED`REPLACED`REJECTED)|(cstatus in .enum`CANCELED`REPLACED);loadhvpdb[`;`];linfo[`AlgoInit;(x;now[])];}; /系统启动处理
 one_algo:{[x;y]linfo[`AlgoExit;(x;now[])];}; /系统退出处理
@@ -110,7 +111,7 @@ checkems:{[]if[`ERROR~.ctrl.StateMap`EMS;:()];
 
 checkqs:{[x]t:`time$x;if[not max t within/: ((.db.Ts[.conf.algots]`ALARMQUOTELAG),0) +/: 0N 2#.conf.ex[`XSHG;`moo`mooend`openAM`closeAM`openPM`closePM];:()];tm:exec max time by fs2e each sym from .db.QX;ae:(t<.conf.ex[`XSHE;`moc])&(t-.conf.ex[`XSHE;`moo]|tm`XSHE)>.db.Ts[.conf.algots]`ALARMQUOTELAG;ag:(t-.conf.ex[`XSHG;`moo]|tm`XSHG)>.db.Ts[.conf.algots]`ALARMQUOTELAG;s:$[ae&ag;`QuoteStop;ae;`QuoteSZStop;ag;`QuoteSHStop;`OK];setstate[`QS;s];};
 
-chkordexp:{[x;y]{[x]pa:.db.O1[.db.O[x;`upid];`price];p:.db.O[x;`price];sd:.db.O[x;`side];pn:getordpx[.db.O[x;`sym];sd;`AGGRESSIVE];if[((pa=p)&(0<pa))|((sd=.enum`BUY)&(pn<=p))|((sd=.enum`SELL)&(pn>=p));:()];.db.O[x;`pending`s1`s2]:(1b;`peg;`AGGRESSIVE);cxlord x;} each exec id from .db.O where id in key[.temp.hO],tsexec=x,(status in .enum`PENDING_NEW`NEW`PARTIALLY_FILLED),((cstatus=.enum`NULL)&(not null expiretime)&(expiretime<y|rtime+.db.Ts[.conf.algots][`MINACKTOCXL]))|((cstatus in .enum`PENDING_CANCEL`REJECTED)&((ctime+`timespan$.db.Ts[.conf.algots]`CXLTMOUT)<y)&(cn<.db.Ts[.conf.algots]`CXLCOUNT));{[x;y]queryord x;.db.O[x;`qtime`qn]:(y;1i+0i^.db.O[x;`qn])}[;y] each exec id from .db.O where id in key[.temp.hO],tsexec=x,(((status=.enum[`PENDING_NEW])&((ntime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y))|((cstatus<>.enum[`NULL]&((ctime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y))))&((qtime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y)&(qn<.db.Ts[.conf.algots]`QRYCOUNT);}; /超时撤单处理,对限价母单且子单价格已为限价时不做撤单(20110428),对新订单未及时确认或撤单未及时拒绝且全部成交的可疑单发查询请求 
+chkordexp:{[x;y]{[x]pa:.db.O1[.db.O[x;`upid];`price];p:.db.O[x;`price];sd:.db.O[x;`side];pn:getordpx[.db.O[x;`sym];sd;`AGGRESSIVE];if[((pa=p)&(0<pa))|((sd=.enum`BUY)&(pn<=p))|((sd=.enum`SELL)&(pn>=p));:()];.db.O[x;`ctime`pending`s1`s2]:(now[];1b;`peg;`AGGRESSIVE);cxlord x;} each exec id from .db.O where id in key[.temp.hO],tsexec=x,(status in .enum`PENDING_NEW`NEW`PARTIALLY_FILLED),((cstatus=.enum`NULL)&(not null expiretime)&(expiretime<y|rtime+.db.Ts[.conf.algots][`MINACKTOCXL]))|((cstatus in .enum`PENDING_CANCEL`REJECTED)&((ctime+`timespan$.db.Ts[.conf.algots]`CXLTMOUT)<y)&(cn<.db.Ts[.conf.algots]`CXLCOUNT));{[x;y]queryord x;.db.O[x;`qtime`qn]:(y;1i+0i^.db.O[x;`qn])}[;y] each exec id from .db.O where id in key[.temp.hO],tsexec=x,(((status=.enum[`PENDING_NEW])&((ntime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y))|((cstatus<>.enum[`NULL]&((ctime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y))))&((qtime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y)&(qn<.db.Ts[.conf.algots]`QRYCOUNT);}; /超时撤单处理,对限价母单且子单价格已为限价时不做撤单(20110428),对新订单未及时确认或撤单未及时拒绝且全部成交的可疑单发查询请求 
 
 chkoaordexp:{[x;y]if[(`time$now[])>.db.Ts[.conf.algots]`EODTIME;{.db.O1[x;`end`status`msg]:(1b;.enum`DONE_FOR_DAY;"EODTimeReached");execrptoa[x];} each exec id from .db.O1 where status in .enum`NEW`PARTIALLY_FILLED];if[`BB~.db.Ts[.conf.algots]`OMSTYPE;:()];{.db.O1[x;`end`status`msg]:(1b;.enum`EXPIRED;"EndTimeReached");execrptoa[x];} each exec id from .db.O1 where status in .enum`NEW`PARTIALLY_FILLED,cstatus=.enum`NULL,cumqty=sentqty,{[x;y]if[0>=count y;:0b];z:"Z"$cfill y[0;`EndTime];(not null z)&(x>`time$z)}[`time$y] each para;}; /[]2012.03.26增加对Bloomberg OMS不回母单过期处理
 
@@ -147,6 +148,8 @@ pauseoa:{[k;x;y;z]if[.db.O1[k;`suspend]|.db.O1[k;`pending]|.db.O1[k;`end];:()];.
 
 cxloasys:{[k;t]if[.db.O1[k;`suspend]|.db.O1[k;`pending]|.db.O1[k;`end];:()];.upd[`CancelOrderAlgo][`clt`id`cid`msg!(.db.O1[k;`clt];.db.O1[k;`cltid];`;t)];};
 
+cxlalloa:{[]cxloasys[;`manualcxlall] each exec id from .db.O1 where not end,status<>"2";};
+
 rejectcxlrploa:{[src;id;cid;reason;msg;isrpl].upd[`CxlRejAlgo][`id`cid`cordid`reason`msg`isrpl!(id;cid;newid[];reason;forcestring msg;isrpl)];};
 
 rejectcxloa:rejectcxlrploa[;;;;;0b];rejectrploa:rejectcxlrploa[;;;;;1b];
@@ -154,7 +157,7 @@ rejectcxloa:rejectcxlrploa[;;;;;0b];rejectrploa:rejectcxlrploa[;;;;;1b];
 lastsubordpx:{[x]exec last price from .db.O where id in key[.temp.hO],upid=x,0<qty-0f^cumqty,cstatus=.enum[`NULL]}; /[upid]最新子单委托价格
 lastsubordtime:{[x]`time$exec last ntime from .db.O where id in key[.temp.hO],upid=x}; /[upid]最新子单委托时间
 
-newalgord:{[x;y;z;t;p;a;u;v]e:`;pe:$[2<count x;x[2];.enum`NULL];if[1<count x;e:x[1];x:x[0]];to:`;if[1<count a;to:a[0];a:a[1]];.upd[`NewOrderAlgo][`src`id`ts`acc1`handlinst`execinst`sym`side`typ`qty`amt`price`algo`para`cltalt`cltsub`cltid2`cltacc`ex`sym`stoppx`posefct!(.conf.me;newid[];to;a;.enum`AUTOMATED_EXECUTION_ORDER_PUBLIC_BROKER_INTERVENTION_OK;e;x;y;t;z;0n;p;u;enlist v;`;`;`;`;fs2e x;fs2s x;$[t=.enum`STOP;p;0n];pe)];}; /[sym|(sym;execinst)|(sym;execinst;posefct);side;qty;ordtype;price;acc|(tsorig;acc);algo;parahash]
+newalgord:{[x;y;z;t;p;a;u;v]e:`;pe:$[2<count x;x[2];.enum`NULL];if[1<count x;e:x[1];x:x[0]];to:`;if[1<count a;to:a[0];a:a[1]];if[(p=0f)&(t=.enum`LIMIT);t:.enum`MARKET];.upd[`NewOrderAlgo][`src`id`ts`acc1`handlinst`execinst`sym`side`typ`qty`amt`price`algo`para`cltalt`cltsub`cltid2`cltacc`ex`sym`stoppx`posefct!(.conf.me;newid[];to;a;.enum`AUTOMATED_EXECUTION_ORDER_PUBLIC_BROKER_INTERVENTION_OK;e;x;y;t;z;0n;p;u;enlist v;`;`;`;`;fs2e x;fs2s x;$[t=.enum`STOP;p;0n];pe)];}; /[sym|(sym;execinst)|(sym;execinst;posefct);side;qty;ordtype;price;acc1|(tsorig;acc1);algo;parahash]
 
 newalgolst:{[x;y;z;t;p;a;u;v].upd[`NewOrderAlgoList][`id`totalsize`algo`para`list!(newid[];-1+count x;u;enlist v;{[s;x;y;z;t;p;a]e:`;pe:$[2<count x;x[2];.enum`NULL];if[1<count x;e:x[1];x:x[0]];to:`;if[1<count a;to:a[0];a:a[1]];`src`id`ts`acc1`handlinst`execinst`sym`side`typ`qty`amt`price`cltalt`cltsub`cltid2`cltacc`ex`sym`slot`algo`para`stoppx`posefct!(.conf.me;newid[];to;a;.enum`AUTOMATED_EXECUTION_ORDER_PUBLIC_BROKER_INTERVENTION_OK;e;x;y;t;z;0n;p;`;`;`;`;fs2e x;fs2s x;s;`;();$[t=.enum`STOP;p;0n];pe)}'[til count x;x;y;z;t;p;a])];}; /[sym|(sym;execinst);side;qty;ordtype;price;acc;algo;para]
 
@@ -181,10 +184,10 @@ oaexecd:{[isrt;x;y]d:execstat[isrt;x];pm:last d[0;1];pr:first d[0;1];pa:last d[1
 oadetaild:{[isrt;x;y]y:`long$y;toa:$[isrt;.db.O1;.hdb.O1];to:$[isrt;.db.O;.hdb.O];d0:`date$toa[x;`ntime];z:toa[x;`sym];tq:$[isrt;.ctrl.conn.rdb.h ({[x]select `time$time,bid,ask,cumqty from quote where sym=x};z);.ctrl.conn.hdb.h ({[d;s]select `time$time,bid,ask,cumqty from quote where date=d,sym=s};d0;z)];(update date:d0+`time$date from 0!select last bid,last ask,sum qty by date:y xbar `second$vtimex[`XSHG] time from (select time,bid,ask,qty:deltas cumqty from tq) where  0<bid&ask),\: update date:d0+`time$date from select cumqty wavg avgpx,sum cumqty by y xbar `second$date from select date:vtimex[`XSHG] `time$ftime,avgpx,cumqty from to where upid=x,cumqty>0,avgpx>0}; 
 
 \
-.db.Ts.8508_algotrd:.enum.nulldict;
-.db.Ts.8508_algotrd[`active`acc`accx`stop`event]:(0b;`sim;`symbol$();0b;.enum.nulldict);
-.db.Ts.8508_algotrd.event[`timer`quote`exerpt`dayroll`sysinit`sysexit]:`ont_algo`onq_algo`ono_algo`onr_algo`oni_algo`one_algo;
-.db.Ts.8508_algotrd,:`CXLTMOUT`CXLCOUNT`DEFAULTTIMEOUT`NOETIMEOUT`MINACKTOCXL`DEFAULTSTYLE`SLICEFREQ`DICEFREQ`SAFESTYLE`SAFESLICEFREQ`SAFEDICEFREQ`CUTOFFSET`EODTIME`QRYTMOUT`QRYCOUNT`MAXPENDING`RESUMELEVEL`MAXREJECT`ALARMQUOTELAG`DICERANDN`DICERANDQ`DICERANDT`IMCOEF`OMSTYPE`GOAHEAD`MINAMT`FUSESYM`FUSERATIO`VwapModel!(00:02:00;3;00:00:05.000;00:01:00.000;00:00:03.000;`LEASTPASSIVE;1;6;`AGGRESSIVE;1;2;00:00:25.000;15:15:00.000;00:01:00.000;0N;0W;0N;0W;00:00:45.000;0f;0f;0f;0f;`;0;0f;`000300.XSHG;0f;`ma);
+.db.Ts.algo:.enum.nulldict;
+.db.Ts.algo[`active`acc`accx`stop`event]:(0b;`sim;`symbol$();0b;.enum.nulldict);
+.db.Ts.algo.event[`timer`quote`exerpt`dayroll`sysinit`sysexit]:`ont_algo`onq_algo`ono_algo`onr_algo`oni_algo`one_algo;
+.db.Ts.algo,:`CXLTMOUT`CXLCOUNT`DEFAULTTIMEOUT`NOETIMEOUT`MINACKTOCXL`DEFAULTSTYLE`SLICEFREQ`DICEFREQ`SAFESTYLE`SAFESLICEFREQ`SAFEDICEFREQ`CUTOFFSET`EODTIME`QRYTMOUT`QRYCOUNT`MAXPENDING`RESUMELEVEL`MAXREJECT`ALARMQUOTELAG`DICERANDN`DICERANDQ`DICERANDT`IMCOEF`OMSTYPE`GOAHEAD`MINAMT`FUSESYM`FUSERATIO`VwapModel!(00:02:00;3;00:00:05.000;00:01:00.000;00:00:03.000;`LEASTPASSIVE;1;6;`AGGRESSIVE;1;2;00:00:25.000;15:15:00.000;00:01:00.000;0N;0W;0N;0W;00:00:45.000;0f;0f;0f;0f;`;0;0f;`000300.XSHG;0f;`ma);
 
 
 .db.Ax:.enum.nulldict;

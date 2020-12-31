@@ -1,6 +1,6 @@
 .module.base:2019.10.16;
 
-txload:{[x]@[system;"l Tx/",x,".q";`txload];};
+txload:{[x]@[system;"l Tx/",x,".q";@[system;"l Tx/",x,".q_";`$"txload_",x]];};
 cfload:{[x]txload "conf/",x;};
 txload "lib/handy";
 txload "lib/extutil";
@@ -42,12 +42,13 @@ P:([ts:`symbol$(); acc:`symbol$(); sym:`symbol$()] lqty:`float$();  sqty:`float$
 
 QT:([id:`u#`symbol$()] qrid:`symbol$(); bid:`symbol$(); aid:`symbol$(); ft:`symbol$(); ts:`symbol$(); acc:`symbol$(); fe:`symbol$(); acc1:`symbol$(); ref:`symbol$();sym:`symbol$(); bprice:`float$(); aprice:`float$(); bqty:`float$(); aqty:`float$(); bposefct:`char$(); aposefct:`char$(); status:`char$(); bcumqty:`float$(); acumqty:`float$(); bavgpx:`float$(); aavgpx:`float$(); feqid:`symbol$(); quoteid:`symbol$(); cid:`symbol$(); cstatus:`char$(); cfeqid:`symbol$(); cquoteid:`symbol$(); ntime:`timestamp$(); ctime:`timestamp$(); rtime:`timestamp$(); reason:`int$(); msg:(); rptopt:(); cn:`int$(); linkid:`symbol$()); /Quote
 
+S:([mid:`symbol$();ref:`symbol$();state:`symbol$()]active:`boolean$();updtime:`timestamp$();entertime:`timestamp$();leavetime:`timestamp$()); /StateEvent
 
 \d .
 
 .init.base:{[x].ctrl.init:1b;loaddb[];.ctrl[`status`inittime]:(`Inited;.z.P);};
 .timer.base:{[x]if[not `init in key `.ctrl;.init[;x];];chkconn[];chksub[];};
-.roll.base:{[x]clearapi[];cleartemp[];.[.conf.histdb;(.conf.me;`LOG);,;.db.LOG];delete from `.db.LOG;.db.sysdate:x;savedb[];};
+.roll.base:{[x]clearapi[];cleartemp[];.[.conf.histdb;(.conf.me;`LOG);,;.db.LOG];delete from `.db.LOG;.db.sysdate:x;}; /savedb[];
 
 .base.boot:{[].ctrl[`boot`boottime]:(1b;.z.P);system "S ",string `int$.z.T;.base.cmdopt:first each .Q.opt .z.x;if[count cf:.base.cmdopt`conf;cfload cf];if[count cd:.base.cmdopt`code;@[value;cd;()]];};
 
@@ -74,13 +75,13 @@ nextworkday:{[x]y:weekday[x];z:x+$[y=4;3;y=5;2;1];$[z in .conf.holiday;.z.s[z];z
 
 beginofday:{[x]h:.ctrl.conn[.conf.pubto;`h];if[-6h<>type h;:()];if[x<=h[`.u.d];:()];neg[h] (`.u.beginofday;x);pubm[`ALL;`BeginOfDay;.conf.me;string x];};
 
-alarm:{[x;y]pubm[`ALL;`Alarm;x;string y];}; /[ref;msg]
+sysalarm:{[x;y]pubm[`ALL;`Alarm;x;string y];}; /[ref;msg]
 
 wlog:{[x;y;z]if[(`int$`.enum.loglevels$x)>`int$`.enum.loglevels$.conf.loglevel;:()];z:$[10h=type z;z;-3!z];.db.LOG,:(x;y;z;now[]);pub[`syslog;enlist `sym`typ`msg!(x;y;z)];};
 lerr:wlog[`error];lwarn:wlog[`warn];linfo:wlog[`info];ldebug:wlog[`debug];
 
-.upd.sysmsg:{[x]sysmsg,:x;{.upd[x`typ][x]} each x;};
-.upd.syslog:{[x]syslog,:x;};
+.upd.sysmsg:{[x]{.upd[x`typ][x]} each x;}; /sysmsg,:x;
+.upd.syslog:{[x]}; /syslog,:x;
 
 upd:{[t;x]$[t in tables[];[if[1b~.conf[`dumpapi];insert[t;update dsttime:.z.P from x]];.upd[t;x]];lerr[`unknown_msgtyp;t]];};
 
@@ -92,7 +93,7 @@ display:{(,/) `_.disp[;]};
 
 .zpc.base:{[x]{if[x=.ctrl.conn[y;`h];.ctrl.conn[y;`h`disctime]:(-1;.z.P);if[y in key `.ctrl.sub;.ctrl.sub[y;`sub]:0b]]}[x] each tkey .ctrl.conn;};
 
-.upd.BeginOfDay:{[x].ctrl[`rollstart]:.z.P;{@[.roll[x];y;()]}[;"D"$x`msg] each (key .roll) except `;.Q.gc[];.ctrl[`rollend]:.z.P;};
+.upd.BeginOfDay:{[x].ctrl[`rollstart]:.z.P;{@[.roll[x];y;()]}[;"D"$x`msg] each (key .roll) except `;.Q.gc[];.ctrl[`rollend]:.z.P;savedb[];};
 
 newseq:{[]:.db.seq+:1};newidl:{[]`$string newseq[]};newid:{[]` sv .conf.id,`$string newseq[]};
 fs2se:{[x]`$"." vs string x};se2fs:{[x]`$"." sv string x};fs2e:{last fs2se x};fs2s:{first fs2se x};
@@ -100,6 +101,8 @@ now:{.z.P};ntd:{.z.D};vtd:{.db.sysdate};
 clearapi:{[]{delete from x;@[x;`sym;`g#];} each tables[]};
 cleartemp:{[]{[x]if[0<=type y:.temp[x];.temp[x]:0#y]} each key `.temp;};
 
-setstate:{[x;y]if[(null y)|(y~y0:.ctrl.StateMap[x]);:()];t0:.ctrl.StateEnter[x];t:now[];$[y~`OK;if[not null y0;lwarn[`ExitAlarm;(x;y0;t0;t;t-t0)];alarm[`Leave;x]];[lwarn[`EnterAlarm;(x;y;t)];alarm[`Enter;x]]];.ctrl.StateMap[x]:y;.ctrl.StateEnter[x]:t;}; /[ID;State]
+setstate:{[x;y]if[(null y)|(y~y0:.ctrl.StateMap[x]);:()];t0:.ctrl.StateEnter[x];t:now[];$[y~`OK;if[not null y0;lwarn[`ExitAlarm;(x;y0;t0;t;t-t0)];sysalarm[`Leave;x]];[lwarn[`EnterAlarm;(x;y;t)];sysalarm[`Enter;x]]];.ctrl.StateMap[x]:y;.ctrl.StateEnter[x]:t;}; /[ID;State]
+
+updstate:{[x;y;z]m:.conf.me;t0:.db.S[m,x,y;`entertime];t:now[];z0:.db.S[m,x,y;`active];.db.S[m,x,y;`active`updtime]:(z;t);if[z0&not z;.db.S[m,x,y;`leavetime]:t;lwarn[`LeaveState;(m;x;y;t0;t;t-t0)];sysalarm[`LeaveState;m,x,y]];if[(not z0)&z;.db.S[m,x,y;`entertime]:t;lwarn[`EnterState;(m;x;y;t)];sysalarm[`EnterState;m,x,y]];}; /[ref;state;active]
 
 if[not `boot in key `.ctrl;.base.boot[]];

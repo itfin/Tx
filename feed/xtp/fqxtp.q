@@ -3,7 +3,7 @@
 txload "core/fqbase";
 txload "feed/xtp/xtpbase";
 
-`initxtpq`freextpq`xtpqrun`submkt`unsubmkt`qrymkt`submktbook`unsubmktbook`submkttick`unsubmkttick`submktopt`unsubmktopt`submktbookopt`unsubmktbookopt`submkttickopt`unsubmkttickopt`subsyms`unsubsyms`qrysyms`subsymsbook`unsubsymsbook`subsymstick`unsubsymstick {x set `extfqxtp 2:(x;y);}' 2 1 1,(13#1),7#2;
+`initxtpq`freextpq`xtpqrun`submkt`unsubmkt`qrymkt`submktbook`unsubmktbook`submkttick`unsubmkttick`submktopt`unsubmktopt`submktbookopt`unsubmktbookopt`submkttickopt`unsubmkttickopt`subsyms`unsubsyms`qrypxsyms`subsymsbook`unsubsymsbook`subsymstick`unsubsymstick {x set `extfqxtp 2:(x;y);}' 2 1 1,(13#1),7#2;
 \d .enum
 `XTP_TBT_ENTRUST`XTP_TBT_TRADE set' 1 2i; /XTP_TBT_TYPE:1(Öð±ÊÎ¯ÍÐ)2(Öð±Ê³É½»)
 

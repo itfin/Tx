@@ -159,6 +159,12 @@ public:
     if(NULL!=h)RETURNONERR("RspQryMaxLoan");if((NULL==p)||(NULL==h))R;    
     int m=h->nFieldItem;DO(m,JGPUB("QryMaxLoan",knk(7,ki(n),ki(m),ki(i),ki(p->ExchangeType),kp(p->StockCode),kp(p->StockName),kj(p->MaxLoanAmount)));p++);    
   };
+  ///< 投资者可融券私有卖出数量查询
+  virtual void OnRspQryReserveCreditStock(CJGtdcRspQryReserveCreditStock *p, CJGtdcRspInfoField* h, int n) {
+    if(NULL!=h)RETURNONERR("RspQryReserveCreditStock");if((NULL==p)||(NULL==h))R;    
+    int m=h->nFieldItem;DO(m,JGPUB("QryReserveCreditStock",knk(10,ki(n),ki(m),ki(i),ki(p->ExchangeType),kp(p->StockCode),kp(p->StockName),kj(p->ReserveAmount),kj(p->ReserveRemainAmount),ki(p->StartDate),ki(p->EndDate)));p++);    
+
+  };
   ///< 投资者直接还券
   virtual void OnRspStockBack(CJGtdcRspStockBack* pRspStockBack, CJGtdcRspInfoField* pRspInfo, int nRequestID){};
   ///< 投资者直接还款
@@ -177,8 +183,21 @@ public:
   ///< 投资者信用账户与普通账户对应关系查询应答
   virtual void OnRspQryAccMatch(CJGtdcRspQryAccMatch *pRspQryAccMatch, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
 
-
-
+  ////////////////////////港股通专用功能函数//////////////////////////////////////////////////////////////
+  ///< 投资者港股通可撤单查询
+  virtual void OnRspQryHKCancel(CJGtdcRspQryCancel* pRspQryCancel, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+  ///< 投资者港股通委托查询
+  virtual void OnRspQryHKOrder(CJGtdcRspQryOrder* pRspQryOrder, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+  ///< 投资者港股通成交单查询
+  virtual void OnRspQryHKTrade(CJGtdcRspQryTrade* pRspQryTrade, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+  ///< 投资者港股通持仓查询
+  virtual void OnRspQryHKHold(CJGtdcRspQryHold* pRspQryHold, CJGtdcRspInfoField* pRspInfo, int nRequestID){ };
+  ///< 投资者港股通资金查询
+  virtual void OnRspQryHKFund(CJGtdcRspQryFund* pRspQryFund, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+  ///< 投资者港股通汇率查询
+  virtual void OnRspQryHKExRate(CJGtdcRspQryHKExRate* pRspQryHKExRate, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
+  ///< 投资者港股通额度查询
+  virtual void OnRspQryHKLimit(CJGtdcRspQryHKLimit* pRspQryHKLimit, CJGtdcRspInfoField* pRspInfo, int nRequestID) { };
 
   ///Opt callback   
   virtual void OnRspError(const std::string& strError){JGPUB("JGError",knk(3,ki(0),kp("RspError"),kp((S)strError.c_str())))};
@@ -737,4 +756,19 @@ extern "C"{
 
     R ki(pTradeApi->ReqQryMaxLoan(&req,xi));
   }  
+
+  K2(qryReserveCreditStock){
+    if(!run) R ki(-1);
+
+    if(isopt) R ki(0);
+
+    CJGtdcReqQryReserveCreditStock req;
+    
+    strcpy(req.ClientID,kK(y)[0]->s);
+    req.ExchangeType=kK(y)[1]->i;    
+    strcpy(req.StockCode,kK(y)[2]->s);
+
+    R ki(pTradeApi->ReqQryReserveCreditStock(&req,xi));
+  }  
+
 }
