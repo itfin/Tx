@@ -113,8 +113,11 @@ Z V mpub(K x){
     C typ=' ';
     V *ptr=NULL;
     S str=NULL;
-    nRS=lpUnPacker->GetDatasetCount();
     L=knk(0);
+
+    if(NULL==lpUnPacker) R L;
+    
+    nRS=lpUnPacker->GetDatasetCount();
     for(i=0;i<nRS;++i){
       lpUnPacker->SetCurrentDatasetByIndex(i);
       n=lpUnPacker->GetColCount();

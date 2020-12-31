@@ -1,7 +1,7 @@
 .module.handy:2017.01.25;
 
 typefill:{[x;y]$[0<=type y;x;null y;x;y]};sfill:typefill[`];ifill:typefill[0Ni];ffill:typefill[0n];rfill:typefill[0ne];jfill:typefill[0Nj];tfill:typefill[0Nt];dfill:typefill[0Nd];pfill:typefill[0Np];chfill:typefill[" "];
-cfill:{[x]$[10h=abs type x;x;""]};
+cfill:{[x]$[10h=abs type x;x;""]};tostring:{[x]$[10h=abs type x;x;string x]};
 
 padx:{[f;n;x]an:abs[n];n#$[n>0;x,(0|n-count[x])#f;((0|an-count[x])#f),x]}; /[pad atom;total len(>0 pad on right;<0 pad on left);list to be padded]
 pad:padx[" "];pad0:padx["0"];padf:padx[0n];

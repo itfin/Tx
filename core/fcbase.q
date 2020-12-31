@@ -20,9 +20,13 @@ MOD:([id:`symbol$()]mtyp:`symbol$();node:`symbol$();ip:`symbol$();port:`long$();
 
 .init.fc:{[]initnod[];initmod[];conntx[];}; /
 
-initnod:{[]{.ctrl.NOD[x;`ip`portoffset`backup]:.conf.ha[x;`ip`portoffset`backup];s:nodecmd[x;"lscpu"];.ctrl.NOD[x;`cpufreq`cpucores]:(1e-3*"F"$last vs[2#" "]  s[15];"J"$last vs[2#" "]  s[4]);s:nodecmd[x;"free"];.ctrl.NOD[x;`mem`swap]:(1%1024 xexp 2)*{"F"$@[;1] vs[" ";x] except enlist ""} each s[1 2];s:nodecmd[x;"df -l -t ext4 --output=source,size"];r:(!/)"SF"$flip {vs[" ";x] except enlist ""} each 1_s;.ctrl.NOD[x;`diskdev`disk]:(first where r=max r;(1%1024 xexp 3)*max r);s:nodecmd[x;"uptime -s"];.ctrl.NOD[x;`uptime]:"P"$first s;} each .conf.ha.nodelist;};
+nod_init:{[x].ctrl.NOD[x;`ip`portoffset`backup]:.conf.ha[x;`ip`portoffset`backup];s:nodecmd[x;"lscpu"];.ctrl.NOD[x;`cpufreq`cpucores]:(1e-3*"F"$last vs[2#" "]  s[15];"J"$last vs[2#" "]  s[4]);s:nodecmd[x;"free"];.ctrl.NOD[x;`mem`swap]:(1%1024 xexp 2)*{"F"$@[;1] vs[" ";x] except enlist ""} each s[1 2];s:nodecmd[x;"df -l --output=source,size"];r:(!/)"SF"$flip {vs[" ";x] except enlist ""} each 1_s;.ctrl.NOD[x;`diskdev`disk]:(first where r=max r;(1%1024 xexp 3)*max r);s:nodecmd[x;"uptime -s"];.ctrl.NOD[x;`uptime]:"P"$first s;}; /-t ext4
 
-initmod:{[]{.ctrl.MOD[x;`mtyp`node`cores`ip`port]:($[x in .conf.module_tick;$[x like "tp*";`tp;x like "rdb*";`rdb;`hdb];$[x in .conf.module_ft;`ft;x in .conf.module_ft;`ft;x in .conf.module_fq;`fq;x in .conf.module_fe;`fe;x in .conf.module_fu;`fu;x in .conf.module_fa;`fa;`fp]];exec first id from .ctrl.NOD where ip=.conf[x;`ip];{$[0>type x;enlist x;x]} .conf[x;`cpu]),.conf[x;`ip`port]} each .conf.modules;};
+initnod:{[]@[nod_init;;()] each .conf.ha.nodelist;};
+
+mod_init:{[x] .ctrl.MOD[x;`mtyp`node`cores`ip`port]:($[x in .conf.module_tick;$[x like "tp*";`tp;x like "rdb*";`rdb;`hdb];$[x in .conf.module_ft;`ft;x in .conf.module_ft;`ft;x in .conf.module_fq;`fq;x in .conf.module_fe;`fe;x in .conf.module_fu;`fu;x in .conf.module_fa;`fa;`fp]];exec first id from .ctrl.NOD where ip=.conf[x;`ip];{$[0>type x;enlist x;x]} .conf[x;`cpu]),.conf[x;`ip`port]}; 
+
+initmod:{[]@[mod_init;;()] each .conf.modules;};
 
 starttx:{[].db.txstart:.z.P;startmod each .conf.modules;};
 stoptx:{[]stopmod each reverse .conf.modules;.db.txstop:.z.P;};
@@ -68,7 +72,7 @@ gcall:{[x;y]if[0=count H:{x where 0<x} .ctrl.H;:()];neg[H]@\:(`.Q.gc;());1b};
 
 hball:{[x;y]{.ctrl.MOD[x;`hbsent]:.z.P;neg[.ctrl.MOD[x;`h]] ({neg[.z.w] ({[x;y;z]w:.z.P;.ctrl.MOD[x;`hbpeer`hbrecv`mem]:(y;w;z);.temp.MS,:enlist (w;x;1e-9*w-.ctrl.MOD[x;`hbsent];z);};x;.z.P;1e-6*.Q.w[]`heap)};x)} each exec id from .ctrl.MOD where 0<h;1b}; /heartbeat
 
-nhall:{[x;y]{s:nodecmd[x;"mpstat -P ALL"];cu:1-1e-2*"F"$last flip {vs[" ";x] except enlist ""}each 3_s;s:nodecmd[x;"df -l -t ext4 --output=source,size,avail|grep ",string .ctrl.NOD[x;`diskdev]];du:1-last ratios "F"$-2#(vs[" "] s[0]) except enlist "";s:nodecmd[x;"free"];mu:{last ratios "F"$2#(1_vs[" "] x) except enlist ""}each 1_s;.temp.NS,:enlist (.z.P;x),.ctrl.NOD[x;`cpuuse`memuse`swapuse`diskuse`coreuse]:(cu[0];mu[0];mu[1];du;1_cu);} each exec id from .ctrl.NOD;1b}; /nodehealth
+nhall:{[x;y]{s:nodecmd[x;"mpstat -P ALL 1 1"];cu:1-1e-2*"F"$last flip {vs[" ";x] except enlist ""}each 3_s;s:nodecmd[x;"df -l -t ext4 --output=source,size,avail|grep ",string .ctrl.NOD[x;`diskdev]];du:1-last ratios "F"$-2#(vs[" "] s[0]) except enlist "";s:nodecmd[x;"free"];mu:{last ratios "F"$2#(1_vs[" "] x) except enlist ""}each 1_s;.temp.NS,:enlist (.z.P;x),.ctrl.NOD[x;`cpuuse`memuse`swapuse`diskuse`coreuse]:(cu[0];mu[0];mu[1];du;1_cu);} each exec id from .ctrl.NOD;1b}; /nodehealth
 
 ping:{[x]y:string x;z:system "ping -c 1 ",y;raze z};
 pingok:@[ping;;()];
@@ -87,13 +91,15 @@ chkfestatus:{[x]if[not .z.T within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`feufx;`h]
 
 chkfqstatus:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`rdb;`h];:()];r:h ({[x]exec `time$last time by src from quote};());{[r;t;x]if[r[x]<t-00:00:02;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each enlist `fqctp;if[t<09:30;:()];{[r;t;x]if[r[x]<t-00:00:10;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each `fqxshe`fqxshg`fqxshgopt;}; /check fqsrc quote timestamp
 
-chktpzw:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`tp;`h];:()];if[10000<n:h ({sum sum each .z.W};());lwarn[`tpzwfull;(t;n)]];};
+chktpzw:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`tp;`h];:()];if[.conf.maxzwlen<n:h ({sum sum each .z.W};());lwarn[`tpzwfull;(t;n)]];};
 
-chkordstatus:{[x]t:.z.T;if[not t within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`ft;`h];:()];{lwarn[`ordrejerr;x]} each h ({[x]exec {[x;y;z;w] sv["|"] string[x,y,z],enlist w}'[ft;ts;id;msg] from .db.O where status=.enum.REJECTED,ntime>=x};t-00:01:00);{lwarn[`ordcxlerr;x]} each h ({[x;y]flip exec (ft;ts;id) from .db.O where not end,not null ctime,ctime<x,ctime>=y};t-00:00:02;t-00:01:00);{lwarn[`ordcxlerr;x]} each h ({[x;y]flip exec (ft;ts;id) from .db.O where not end,null ctime,null ordid,ntime<x,ntime>=y};t-00:00:02;t-00:01:00);}; /check ord cxl/new error
+chkordstatus:{[x]t:.z.P;if[not (`time$t) within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`ft;`h];:()];{lwarn[`ordrejerr;x]} each h ({[x]exec {[x;y;z;w] sv["|"] string[x,y,z],enlist w}'[ft;ts;id;msg] from .db.O where status=.enum.REJECTED,ntime>=x};t-00:01:00);{lwarn[`ordcxlerr;x]} each h ({[x;y]flip exec (ft;ts;id) from .db.O where not end,not null ctime,ctime<x,ctime>=y};t-00:00:02;t-00:01:00);{lwarn[`ordcxlerr;x]} each h ({[x;y]flip exec (ft;ts;id) from .db.O where not end,null ctime,null ordid,ntime<x,ntime>=y};t-00:00:02;t-00:01:00);}; /check ord cxl/new error
 
-chketfstatus:{[x]if[not .z.T within 09:12 15:00;:()];if[0>=h:.ctrl.MOD[`fqxshe;`h];:()];el:h `.conf.etflist;if[0>=h:.ctrl.MOD[`ftdc4;`h];:()];r:h ({[x]exec last trday by sym from .db.ETF};());{[r;d;x]if[r[x]<>d;lwarn[`etfpcfdate;(x;d;r`x)]]}[r;.z.D] each el;}; /check etf pcf trday
+chketfstatus:{[x]:();if[not .z.T within 09:24 15:00;:()];if[0>=h:.ctrl.MOD[`fqxshe;`h];:()];el:h `.conf.etflist;if[0>=h:.ctrl.MOD[`ftdc4;`h];:()];r:h ({[x]exec last trday by sym from .db.ETF};());{[r;d;x]if[r[x]<>d;lwarn[`etfpcfdate;(x;d;r[x])]]}[r;.z.D] each el;}; /check etf pcf trday
 
-hc10:{[x;y]chkmodstatus[];chkfestatus[];chkfqstatus[];chkordstatus[];chketfstatus[];chktpzw[];1b}; /10s health check
+chkmaxcxl:{[x]if[not .z.T within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`feufx;`h];:()];if[(r0:.conf.maxcxlratio)<=r1:h ({exec (max ncxl)%(exec last maxncxl from .db.RL) from .db.RN where sym like string exec last sym from .db.RL};());lwarn[`maxcxl;(.z.P;r0;r1)]];};
+
+hc10:{[x;y]chkmodstatus[];chkfestatus[];chkfqstatus[];chkordstatus[];chketfstatus[];chktpzw[];chkmaxcxl[];1b}; /10s health check
 
 chk300idx:{[x;y]r:.ctrl.H[`ft] ({x!{-1+(%/).db.QX[x;`price`pc]} each x};`000300.XSHG`510330.XSHG`159919.XSHE);if[0.005<=max[r]-min[r];lwarn[`300idxpriceerror;r]];1b};
 

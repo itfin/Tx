@@ -65,7 +65,7 @@ xtptdisc:{[x;y]if[any .z.T within/: .conf.xtp.openrange;:()];if[1i~.ctrl.xtp[`ru
 
 .upd.DisconnectedT:{[x].ctrl.xtp[`ConnectT`LoginT`DiscReasonT`DisctimeT]:(0b;0b;x[0];.z.P);};
 
-.upd.LoginFailT:{[x].ctrl.xtp[`LoginT`LoginTimeT`LoginErrT`ErrCodeT`ErrMsgT]:(0b;.z.P),x;}; 
+.upd.LoginFailT:{[x].ctrl.xtp[`LoginT`LoginTimeT`LoginErrT`ErrCodeT`ErrMsgT]:(0b;.z.P;1b),x;}; 
 .upd.LoginT:{[x].ctrl.xtp[`LoginT`logintimeT`SessionID`ApiVersionT`TradingDayT`ServerRestart]:(1b;.z.P),x;};
 
 .upd.XTPErrorT:{[x].ctrl.xtp[`ErrTimeT`ErrCodeT`ErrMsgT`ErrFun]:.z.P,x;};
@@ -95,7 +95,7 @@ transout:transfund[.enum.`XTP_FUND_TRANSFER_OUT];transin:transfund[.enum.`XTP_FU
 
 .upd.QryPos:{[x]b:x[0];x:x[1];.temp.L16,:enlist y:(.enum[`XTPQryHead],`ticker`ticker_name`market`total_qty`sellable_qty`avg_price`unrealized_pnl`yesterday_position`purchase_redeemable_qty`position_direction`executable_option`lockable_position`executable_underlying`locked_position`usable_locked_position)!x;.db.P[``,sv[`] (`$y[`ticker]),.enum.exxtpT y`market;`lqty`lqty0]:`float$0|y[`total_qty]-0,y`yesterday_position;};
 
-.upd.QryAsset:{[x]b:x[0];x:x[1];.temp.L17,:enlist y:(.enum[`XTPQryHead],`total_asset`buying_power`security_asset`fund_buy_amount`fund_buy_fee`fund_sell_amount`fund_sell_fee`withholding_amount`account_type`frozen_margin`frozen_exec_cash`frozen_exec_fee`pay_later`preadva_pay`orig_banlance`banlance`deposit_withdraw`trade_netting`captial_asset`force_freeze_amount`preferred_amount`repay_stock_aval_banlance)!x;};
+.upd.QryAsset:{[x]b:x[0];x:x[1];.temp.L17,:enlist y:(.enum[`XTPQryHead],`total_asset`buying_power`security_asset`fund_buy_amount`fund_buy_fee`fund_sell_amount`fund_sell_fee`withholding_amount`account_type`frozen_margin`frozen_exec_cash`frozen_exec_fee`pay_later`preadva_pay`orig_banlance`banlance`deposit_withdraw`trade_netting`captial_asset`force_freeze_amount`preferred_amount`repay_stock_aval_banlance)!x;if[not null .temp[`FundDst];pubmx[.temp[`FundDst];`FundUpdate;.conf.me;"";-8!.temp.L17]];};
 
 .upd.QryFundTrans:{[x]b:x[0];x:x[1];.temp.L18,:enlist y:(.enum[`XTPQryHead],.enum`XTPTransKey)!x;};
 
@@ -108,6 +108,8 @@ transout:transfund[.enum.`XTP_FUND_TRANSFER_OUT];transin:transfund[.enum.`XTP_FU
 .upd.QryIOOQuota:{[x]b:x[0];x:x[1];.temp.L22,:enlist y:(.enum[`XTPQryHead],`market`quantity`tech_quantity)!x;};
 
 .upd.QryOption:{[x]b:x[0];x:x[1];.temp.L23,:enlist y:(.enum[`XTPQryHead],`ticker`security_id_source`symbol`contract_id`underlying_security_id`underlying_security_id_source`list_date`last_trade_date`ticker_type`day_trading`call_or_put`delivery_day`delivery_month`exercise_type`exercise_begin_date`exercise_end_date`exercise_price`qty_unit`contract_unit`contract_position`prev_close_price`prev_clearing_price`lmt_buy_max_qty`lmt_buy_min_qty`lmt_sell_max_qty`lmt_sell_min_qty`mkt_buy_max_qty`mkt_buy_min_qty`mkt_sell_max_qty`mkt_sell_min_qty`price_tick`upper_limit_price`lower_limit_price`sell_margin`margin_ratio_param1`margin_ratio_param2)!x;};
+
+.upd.QueryFund:{[x].temp.FundDst:x`ref;.temp.L17:();xtpcall[`queryAsset;()];};
 
 qryallorder:{[]xtpcall[`queryAllOrder;(`;0;0)];};
 qrytrade:{[x]xtpcall[`queryTrade;x];};

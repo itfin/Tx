@@ -48,6 +48,16 @@ struct CJGtdcMachineInfo
 	}
 };
 
+///< 用户网络连接信息
+struct CJGtdcNetInfo
+{
+	TJGtdcNetIpType      IPAddr;					///< 连接IP
+	TJGtdcNetPortType    Port;						///< 端口
+	TJGtdcNetDomain      Domain;                    ///< 是否为域名
+	TJGtdcNetBytes       RecvBytes;					///< 发送字节数
+	TJGtdcNetBytes       SendBytes;					///< 接收字节数
+	TJGtdcConnectStates  ConnectState;				///< 网络连接状态
+};
 
 ///< 用户登陆请求
 struct CJGtdcReqUserLogin
@@ -434,6 +444,126 @@ struct CJGtdcRspQryFund
 	CJGtdcRspQryFund()
 	{
 		memset(this, 0, sizeof(CJGtdcRspQryFund));
+	}
+};
+
+///< 投资者交割单查询
+struct CJGtdcReqQryDelivery
+{
+	TJGtdcClientIDType ClientID;                    ///< 客户号
+	TJGtdcQueryMode QueryMode;                      ///< 查询模式
+	TJGtdcExchangeType ExchangeType;                ///< 市场类型
+	TJGtdcStockAccountType StockAccount;            ///< 股东代码 
+	TJGtdcStockCodeType StockCode;                  ///< 证券代码
+	TJGtdcDate nStartDate;							///< 起始日期
+	TJGtdcDate nEndDate;							///< 结束日期
+	TJGtdcQueryDirection QueryDirection;            ///< 查询方向
+	TJGtdcQueryAmount QueryAmount;                  ///< 查询数量
+	TJGtdcPositionStrType PositionStr;              ///< 定位串
+
+	CJGtdcReqQryDelivery()
+	{
+		memset(this, 0, sizeof(CJGtdcReqQryDelivery));
+	}
+};
+
+///< 投资者交割单查询应答
+struct CJGtdcRspQryDelivery
+{
+	TJGtdcBranchNoType BranchNo;                    ///< 营业部号
+	TJGtdcClientIDType ClientID;                    ///< 客户号
+	TJGtdcFundAccountType FundAccount;              ///< 资金账号
+	TJGtdcExchangeType ExchangeType;                ///< 市场类型
+	TJGtdcStockAccountType StockAccount;            ///< 股东代码 
+	TJGtdcSeatNoType SeatNo;				        ///< 席位号
+	TJGtdcStockCodeType StockCode;                  ///< 证券代码
+	TJGtdcStockNameType StockName;                  ///< 证券名称
+	TJGtdcPositionStrType PositionStr;              ///< 定位串
+	TJGtdcEntrustNoType EntrustNo;					///< 合同号
+	TJGtdcReportNoType ReportNo;					///< 申报号
+	TJGtdcBusinessNoType BusinessNo;				///< 成交号
+	TJGtdcMoneyType MoneyType;                      ///< 币种
+	TJGtdcTradeType TradeType;                      ///< 交易类型
+	TJGtdcPriceType PriceType;                      ///< 价格类型
+	TJGtdcDigestType DigestType;					///< 业务类型
+	TJGtdcDigestName DigestName;					///< 业务名称
+	TJGtdcDate BusinessDate;						///< 成交日期
+	TJGtdcTime BusinessTime;						///< 成交时间
+	TJGtdcOrderVolume OrderVolume;                  ///< 委托数量
+	TJGtdcOrderPrice OrderPrice;                    ///< 委托价格
+	TJGtdcBuinessVolume  BusinessVolume;            ///< 成交数量
+	TJGtdcBusinessPrice BusinessPrice;              ///< 成交价格
+	TJGtdcBusinessBalance BusinessBalance;			///< 成交金额
+	TJGtdcBusinessCount BusinessCount;				///< 成交笔数
+	TJGtdcClearBalance ClearBalance;				///< 清算金额
+	TJGtdcFundBalance FundBalance;					///< 资金余额
+	TJGtdcStockAmount StockAmount;					///< 股份余额
+	TJGtdcFeeStamp FeeStamp;						///< 印花税
+	TJGtdcFeeCommission FeeCommission;				///< 佣金
+	TJGtdcFeeTransfer FeeTransfer;					///< 过户费
+	TJGtdcFeeOther FeeOther;						///< 其它费用
+
+	CJGtdcRspQryDelivery()
+	{
+		memset(this, 0, sizeof(CJGtdcRspQryDelivery));
+	}
+};
+
+///< 投资者港股汇率查询
+struct CJGtdcReqQryHKExRate
+{
+	TJGtdcClientIDType ClientID;                    ///< 客户号
+	TJGtdcExchangeType ExchangeType;                ///< 市场类型
+	TJGtdcMoneyType MoneyType;                      ///< 币种
+
+	CJGtdcReqQryHKExRate()
+	{
+		memset(this, 0, sizeof(CJGtdcReqQryHKExRate));
+	}
+};
+
+///< 投资者港股汇率查询应答
+struct CJGtdcRspQryHKExRate
+{
+	TJGtdcDPriceType BuyPrice;						///< 买入价格
+	TJGtdcDPriceType SellPrice;						///< 卖出价格
+	TJGtdcDPriceType MidProce;						///< 中间价格
+	TJGtdcDate      Date;							///< 适用日期
+	TJGtdcExchangeType ExchangeType;                ///< 市场类型
+	TJGtdcMoneyType MoneyType;                      ///< 币种
+
+	CJGtdcRspQryHKExRate()
+	{
+		memset(this, 0, sizeof(CJGtdcRspQryHKExRate));
+	}
+};
+
+///< 投资者港股额度查询
+struct CJGtdcReqQryHKLimit
+{
+	TJGtdcClientIDType ClientID;                    ///< 客户号
+	TJGtdcExchangeType ExchangeType;                ///< 市场类型
+	TJGtdcMoneyType MoneyType;                      ///< 币种
+
+	CJGtdcReqQryHKLimit()
+	{
+		memset(this, 0, sizeof(CJGtdcReqQryHKLimit));
+	}
+};
+
+///< 投资者港股额度查询应答
+struct CJGtdcRspQryHKLimit
+{
+	TJGtdcExchangeType ExchangeType;                ///< 市场类型
+	TJGtdcMoneyType MoneyType;                      ///< 币种
+	TJGtdcBalanceType InitBalance;					///< 初始额度
+	TJGtdcBalanceType RestBalance;					///< 剩余额度
+	TJGtdcEdType  EdType;							///< 额度状态
+	TJGtdcDate     Date;							///< 适用日期
+
+	CJGtdcRspQryHKLimit()
+	{
+		memset(this, 0, sizeof(CJGtdcRspQryHKLimit));
 	}
 };
 
@@ -857,6 +987,36 @@ struct CJGtdcRspQryMaxLoan
 	CJGtdcRspQryMaxLoan()
 	{
 		memset(this, 0, sizeof(CJGtdcRspQryMaxLoan));
+	}
+};
+
+///< 投资者可融券私有卖出数量查询
+struct CJGtdcReqQryReserveCreditStock
+{
+	TJGtdcClientIDType ClientID;                    ///< 客户号
+	TJGtdcExchangeType ExchangeType;			    ///< 市场类型
+	TJGtdcStockCodeType StockCode;		            ///< 证券代码
+
+	CJGtdcReqQryReserveCreditStock()
+	{
+		memset(this, 0, sizeof(CJGtdcReqQryReserveCreditStock));
+	}
+};
+
+///< 投资者可融券私有卖出数量查询应答
+struct CJGtdcRspQryReserveCreditStock
+{
+	TJGtdcExchangeType ExchangeType;			    ///< 市场类型
+	TJGtdcStockCodeType StockCode;		            ///< 证券代码
+	TJGtdcStockNameType StockName;			        ///< 证券名称
+	TJGtdcReserveAmount ReserveAmount;				///< 保底数量
+	TJGtdcReserveRemainAmount ReserveRemainAmount;	///< 保底剩余数量
+	TJGtdcDate StartDate;							///< 开始日期
+	TJGtdcDate EndDate;								///< 结束日期
+
+	CJGtdcRspQryReserveCreditStock()
+	{
+		memset(this, 0, sizeof(CJGtdcRspQryReserveCreditStock));
 	}
 };
 

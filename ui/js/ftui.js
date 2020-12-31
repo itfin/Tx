@@ -35,6 +35,8 @@ mkmenu=function(x,y){
 	    {text:'异常委托',attributes:{func:'errordreq(x)'}}, 
 	    {text:'行情信息',attributes:{func:'quotereq(x)'}},
 	    {text:'数据上传',attributes:{func:'go(x)',url:'http://'+host+':8020/q/perl/upload.pl'}},
+	    {text:'上传目录',attributes:{func:'go(x)',url:'http://'+host+':8020/upload/'}},
+	    {text:'下载目录',attributes:{func:'go(x)',url:'http://'+host+':8020/download/'}},
 	    {text:'NOE复核',attributes:{func:'noereq(x)'}},
 	    {text:'NOE强推日志',attributes:{func:'noefreq(x)'}},	    
 	    {text:'组合加载',attributes:{func:'pfloadreq(x)'}},
@@ -57,11 +59,12 @@ mkmenu=function(x,y){
 	{text:'行情分析',children:[ 
 	    {text:'行情浏览',attributes:{func:'mktbrowsereq(x)'}},	    
 	]},
-	{text:'期货研究',children:[ 
+	    (app=='usr')?{text:'期货研究',children:[ 
 	    {text:'成交金额按品种分布',attributes:{func:'futamtreq(x)'}},
 	    {text:'合约历史查询',attributes:{func:'futexreq(x)'}},
 	    {text:'基差历史查询',attributes:{func:'futbasisreq(x)'}},
-	]},
+	    {text:'期货标的池',attributes:{func:'ngxreq(x)'}},
+	    ]}:{text:'其它'},
     ],onClick:function(x){eval(x.attributes.func);}});
     autolayout();
     showconf();
@@ -403,7 +406,7 @@ txdetailreq=function(x,y){
 }
 
 rsplotreq=function(x,y){
-    wscall(['{[x]t:.db.Ts[x;`TBR];`seq`data`mark!(exec seq from t;flip value flip select open,close,low,high from t;flip value flip select i,px:?[level>0;high;low],level from t where level<>0)}',x],rsplotres,{'target':'plot'});
+    wscall(['{[x]t:.db.Ts[x;`TBR];`seq`data`mark!(exec seq from t;flip value flip select o,c,l,h from t;flip value flip select i,px:?[level>0;h;l],level from t where level<>0)}',x],rsplotres,{'target':'plot'});
 }
 
 rsplotres=function(x,y){
@@ -443,7 +446,7 @@ futamtres=function(x,y){
 };
 
 //K线查询
-klinereq=function(x){wscall(['{[x].temp.D:D:`date$-12 1+"M"${$[x[0]="0";"2";"1"],x} 3#(-3+y?".")_y:string x;.temp.t:t:0!.ctrl.conn.hdb.h ({[D;x]select o:first price,h:max price,l:min price,c:last price by d:date from quote where date within D,sym=x,date<>2019.06.07,not (date=2019.06.10)&(time within 00:00 08:55)|(time within 16:00 24:00),(0<low)&(low<=price)&(price<=high)};D;x);`date`data!(exec string d from t;flip value flip select o,c,l,h from t)}','`'+x],klineres,{sym:x,target:'grid'});}
+klinereq=function(x){wscall(['{[x].temp.D:D:`date$-12 1+"M"${$[x[0]="0";"2";"1"],x} 3#(-3+y?".")_y:string x;.temp.t:t:0!.ctrl.conn.hdb.h ({[D;x]select o:first price,h:max price,l:min price,c:last price by d:date from quote where date within D,sym=x,date<>2019.06.07,not (date=2019.06.10)&(time within 00:00 08:55)|(time within 16:00 24:00),(0<l)&(l<=price)&(price<=h)};D;x);`date`data!(exec string d from t;flip value flip select o,c,l,h from t)}','`'+x],klineres,{sym:x,target:'grid'});}
 klineres=function(x,y){
     $('#'+x.target).html('<div id=kline style="width:'+dw+'px;height:'+dh+'px;">'); //$('#'+x.target).panel('options').height
     var chart1=echarts.init($('#kline')[0]);
@@ -484,7 +487,7 @@ futexreq=function(x){wscall(['{[x]select id:ex,text:ex from asc select count i b
 futexlst=function(x,y){
     $('#'+x.target).html('交易所:<input id="cbex" style="width:80px"></input>品种:<input id="cbprd" style="width:70px"></input>合约:<input id="cbsym" style="width:120px">开始日期:<input type=text id=symd0 name=symd0 style="width:150px"></input>,结束日期:<input type=text id=symd1 name=symd1 style="width:150px">频率:<input id="cbfreq" style="width:80px"></input>周期:<input id="cbtype" style="width:80px"></input><input type=button id=futsymbut value="查询"></input>');
 
-    $('#futsymbut').click(function(y){wscall(['{[x;d0;d1;f;typ]x:`$x;D:"D"$(d0;d1);f:"J"$f;typ:`$typ;.temp.t:t:$[`M=typ;delete bart from update bard:`$(-13_) each string bard+bart from minbars[x;D;f];daybars[x;D;f]];tr:histrds[x;D];.temp.tr:tr:delete t from $[`M=typ;update d:`$(-13_) each string d+xbar[f] `minute$t from tr;update d:`$string xbar[f] d from tr];`date`data`trade!(exec string bard from t;flip value flip select open,close,low,high from t;flip value flip tr)}',$('#cbsym').combobox('getValue'),$('input[name=symd0]').val(),$('input[name=symd1]').val(),$('#cbfreq').combobox('getValue'),$('#cbtype').combobox('getValue')],futsymres,{target:'grid'});});
+    $('#futsymbut').click(function(y){wscall(['{[x;d0;d1;f;typ]x:`$x;D:"D"$(d0;d1);f:"J"$f;typ:`$typ;.temp.t:t:$[`M=typ;delete t from update d:`$(-13_) each string d+t from minbars[typ;x;D;f];daybars[typ;x;D;f]];tr:histrds[x;D];.temp.tr:tr:delete t from $[`M=typ;update d:`$(-13_) each string d+xbar[f] `minute$t from tr;update d:`$string xbar[f] d from tr];`date`data`trade!(exec string d from t;flip value flip select o,c,l,h from t;flip value flip tr)}',$('#cbsym').combobox('getValue'),$('input[name=symd0]').val(),$('input[name=symd1]').val(),$('#cbfreq').combobox('getValue'),$('#cbtype').combobox('getValue')],futsymres,{target:'grid'});});
 
     $('#symd0').datebox({required:true});
     $('#symd1').datebox({required:true,});
@@ -671,7 +674,7 @@ copyalgoparareq=function(){wscall(['{.db.S[(x;"J"$y);`para]}','`'+$('#cbsid').co
 copyalgoparares=function(x,y){editor2.setValue(y);}
 
 createst=function(){
-    wscall(['{btadd[x[0];x[1];"J"$x[2];(x[3];x[10]);"F"$x[4];x[5];"D"$x[6 7];"SJ"$\'x[8 9]]}',['`'+$('#gid').val(),'`'+$('#cbsid').combobox('getValue'),$('#cbsver').combobox('getValue'),''+editor.getValue(),$('#cash').val(),''+editor1.getValue(),$('input[name=btd0]').val(),$('input[name=btd1]').val(),$('#cbtype').combobox('getValue'),$('#cbfreq').combobox('getValue'),''+editor2.getValue()]],createtestres,{'target':'plot'});
+    wscall(['{btadd[x[0];x[1];"J"$x[2];(tostring x[3];tostring x[10]);"F"$x[4];tostring x[5];"D"$x[6 7];"SJ"$\'x[8 9]]}',['`'+$('#gid').val(),'`'+$('#cbsid').combobox('getValue'),$('#cbsver').combobox('getValue'),' '+editor.getValue(),$('#cash').val(),' '+editor1.getValue(),$('input[name=btd0]').val(),$('input[name=btd1]').val(),$('#cbtype').combobox('getValue'),$('#cbfreq').combobox('getValue'),' '+editor2.getValue()]],createtestres,{'target':'plot'});
 }
 
 createtestres=function(x,y){
@@ -728,10 +731,11 @@ chgshow=function(){
     else if(t=='orderlist'){wscall(['{[x]ordlist::select sym,side,posefct,qty,price,status,ref,s0,s1,cumqty,avgpx,cumamt,cumfee,string ntime,string ftime,string ctime from .db.B[x;`res;`O];save `:/q/html/tmp/ordlist.csv;ordlist}','`'+s.id],showorderlist,{'target':'plot'});}
     else if(t=='cp'){wscall(['{[x].db.B[x;`cp]}','`'+s.id],showcp,{'target':'plot'});}
     else if(t=='para'){wscall(['{[x].db.B[x;`para]}','`'+s.id],showpara,{'target':'plot'});}
-    else if(t=='kline'){wscall(['{[bid]r:.db.B[bid];x:r`xsym;D:r`d0`d1;f:r`freq;typ:r`btyp;.temp.t:t:$[`M=typ;delete bart from update bard:`$(-13_) each string bard+bart from minbars[x;D;f];daybars[x;D;f]];tr:select d:`date$ftime,t:`time$ftime,avgpx,side from r[`res;`O] where sym=x,cumqty>0;.temp.tr:tr:delete t from $[`M=typ;update d:`$(-13_) each string d+xbar[f] `minute$t from tr;update d:`$string xbar[f] d from tr];`N`H`L`date`data`trade!(count[t];1.03*exec max high from t;0.97*exec min low from t;exec string bard from t;flip value flip select i,open,close,low,high from t;flip value flip tr)}','`'+s.id],futsymres1,{target:'grid'})}
+    else if(t=='kline'){wscall(['{[bid]r:.db.B[bid];x:r`xsym;D:r`d0`d1;f:r`freq;typ:r`btyp;.temp.t:t:$[`M=typ;delete t from update d:`$(-13_) each string d+t from minbars[typ;x;D;f];daybars[typ;x;D;f]];tr:select d:`date$ftime,t:`time$ftime,avgpx,side from r[`res;`O] where sym=x,cumqty>0;.temp.tr:tr:delete t from $[`M=typ;update d:`$(-13_) each string d+xbar[f] `minute$t from tr;update d:`$string xbar[f] d from tr];`N`H`L`date`data`trade!(count[t];1.03*exec max h from t;0.97*exec min l from t;exec string d from t;flip value flip select o,c,l,h from t;flip value flip tr)}','`'+s.id],futsymres,{target:'grid'})}
     else{}
 }
 
+/*
 chgshow0=function(){
     var s=$('#testgrid').datagrid('getSelected');if(s==undefined){alert("请先选择一个回测.");return;}if(s.endtime=='')return;
     var t=$('input[name=show]:checked').val();
@@ -740,9 +744,10 @@ chgshow0=function(){
     else if(t=='tradelist'){wscall(['{[x]update string enter,string leave,string hold from `ti xasc .db.B[x;`res;`GT]}','`'+s.id],showtradelist,{'target':'plot'});}
     else if(t=='orderlist'){wscall(['{[x]select sym,side,posefct,qty,price,status,ref,cumqty,avgpx,cumamt,cumfee,string ntime,string ftime,string ctime from .db.B[x;`res;`O]}','`'+s.id],showorderlist,{'target':'plot'});}
     else if(t=='cp'){wscall(['{[x].db.B[x;`cp]}','`'+s.id],showcp,{'target':'plot'});}
-    else if(t=='kline'){wscall(['{[bid]r:.db.B[bid];x:r`xsym;D:r`d0`d1;f:r`freq;typ:r`btyp;.temp.t:t:$[`M=typ;delete bart from update bard:`$(-13_) each string bard+bart from minbars[x;D;f];daybars[x;D;f]];tr:select d:`date$ftime,t:`time$ftime,avgpx,side from r[`res;`O] where sym=x,cumqty>0;.temp.tr:tr:delete t from $[`M=typ;update d:`$(-13_) each string d+xbar[f] `minute$t from tr;update d:`$string xbar[f] d from tr];`date`data`trade!(exec string bard from t;flip value flip select i,open,close,low,high from t;flip value flip tr)}','`'+s.id],futsymres1,{target:'grid'})}
+    else if(t=='kline'){wscall(['{[bid]r:.db.B[bid];x:r`xsym;D:r`d0`d1;f:r`freq;typ:r`btyp;.temp.t:t:$[`M=typ;delete bart from update bard:`$(-13_) each string bard+bart from minbars[x;D;f];daybars[x;D;f]];tr:select d:`date$ftime,t:`time$ftime,avgpx,side from r[`res;`O] where sym=x,cumqty>0;.temp.tr:tr:delete t from $[`M=typ;update d:`$(-13_) each string d+xbar[f] `minute$t from tr;update d:`$string xbar[f] d from tr];`date`data`trade!(exec string bard from t;flip value flip select i,open,close,low,h from t;flip value flip tr)}','`'+s.id],futsymres1,{target:'grid'})}
     else{}
 }
+*/
 
 showcp=function(x,y){
     $('#'+x.target).html('<textarea id=cp rows=10 cols=100></textarea>');$('#cp').text(y);
@@ -1103,7 +1108,7 @@ execplot=function(x,y){
 
 mktbrowsereq=function(x,y){wscall('flip `id`text!2#enlist ($[`Bk in key .db;key .db[`Bk];`symbol$()],`pos`hk`fut)',mktbrowseres,{});}
 
-quoteviewreq=function(x){wscall(['{[x;d0;d1;f;typ]x:`$x;D:"D"$(d0;d1);f:"J"$f;typ:`$typ;ex:fs2e x;.temp.t:t:updlevel tb .temp.t0:update lb:-8 xprev 13 mavg close,lrd:-5 xprev 8 mavg close,lg: -3 xprev 5 mavg close from 0!$[`XHKG=ex;$[`M=typ;select open:first o,high:max h,low:min l,close:last c,a:sum q*w by bard:d,bart:xbar[f] t from .temp.BARM1 where sym=x,d within D;select bart:last `minute$t,open:first o,high:max h,low:min l,close:last c,a:sum q*w by bard:xbar[f] (?[`N=typ;`date$`month$;?[`W=typ;`week$;::]]) d from .temp.BARD1 where sym=x,d within D];hisbars[typ;x;D;f]];`sym`name`seq`data`mark`amt`lb`lr`lg!(x;.db.QX[x;`name];$[`M=typ;exec `$(16#) each string bard+bart from t;exec `$string bard from t];flip value flip select open,close,low,high from t;flip value flip select i,px:?[level>0;high;low],level from t where level<>0;exec a from t;exec lb from t;exec lrd from t;exec lg from t)}',x,$('input[name=symd0]').val(),$('input[name=symd1]').val(),$('#cbfreq').combobox('getValue'),$('#cbtype').combobox('getValue')],quoteviewres,{target:'grid',sym:x});} //delete lh,ll,rh,rl,lr,rr,top,bot from 
+quoteviewreq=function(x){wscall(['{[x;d0;d1;f;typ]x:`$x;D:"D"$(d0;d1);f:"J"$f;typ:`$typ;ex:fs2e x;.temp.t:t:updlevel tb .temp.t0:update lb:-8 xprev 13 mavg c,lrd:-5 xprev 8 mavg c,lg: -3 xprev 5 mavg c from 0!$[`XHKG=ex;$[`M=typ;select o:first o,h:max h,l:min l,c:last c,a:sum q*w by d,t:xbar[f] t from .temp.BARM1 where sym=x,d within D;select t:last `minute$t,o:first o,h:max h,l:min l,c:last c,a:sum q*w by d:xbar[f] (?[`N=typ;`date$`month$;?[`W=typ;`week$;::]]) d from .temp.BARD1 where sym=x,d within D];hisbars[typ;x;D;f]];`sym`name`seq`data`mark`amt`lb`lr`lg!(x;.db.QX[x;`name];$[`M=typ;exec `$(16#) each string d+t from t;exec `$string d from t];flip value flip select o,c,l,h from t;flip value flip select i,px:?[level>0;h;l],level from t where level<>0;exec a from t;exec lb from t;exec lrd from t;exec lg from t)}',x,$('input[name=symd0]').val(),$('input[name=symd1]').val(),$('#cbfreq').combobox('getValue'),$('#cbtype').combobox('getValue')],quoteviewres,{target:'grid',sym:x});} //delete lh,ll,rh,rl,lr,rr,top,bot from 
 
 symchgres=function(x,y){
     $("#cbsym").combobox('select',y);    
@@ -1219,6 +1224,65 @@ axshowreq1=function(x,y){$('#ctrl').html('');$('#plot').html('');window.open("ht
 axshowres=function(x,y){}
 
 
+//标的池分析
+ngxreq=function(){wscall(['{.temp.date:`s#(.ctrl.conn.hdb.h `date),.db.sysdate;.temp.dmap:`s#.temp.date!.temp.date;update string nend,size*1e-4 from delete mbar from 0!ngx[] lj 1!select sym,cumamt from .temp.PD}','`'],ngxres,{t1:'plot',t2:'grid'});}
+
+ngxres=function(x,y){
+    $('#main').layout('panel','south').panel('resize',{height:ph});$('#main').layout('resize');
+
+    $('#'+x.t1).html('频率:<input type=radio name=btyp value=D checked onclick="chgbtyp()">日线<input type=radio name=btyp value=M onclick="chgbtyp()">分钟线,</input>起始日期:<input type=text id=ngxd0 name=ngxd0 style="width:150px"></input>,<input type=button id=d0prev value="<=" onclick="decd0()"></input><input type=text id=dmstep value=1 style="width:50px"><input type=button id=d1next value="=>" onclick="incd1()"></input>,结束日期:<input type=text id=ngxd1 name=ngxd1 style="width:150px">去尾:<input type=text id="droptail" value=0 style="width:80px">,<input type=button id=dtprev value="<-" onclick="incdt()"></input><input type=text id=dtstep value=5 style="width:50px"><input type=button id=dtnext value="->" onclick="decdt()"></input>,截头:<input type=text id="drophead" value=0 style="width:80px">,<input type=button id=dhprev value="<-" onclick="incdh()"></input><input type=text id=dhstep value=5 style="width:50px"><input type=button id=dhnext value="->" onclick="decdh()"></input>,显示:<input type=radio name=ptyp value=K checked  onclick="ngxupd()">K线(分划:<input type=text id="cutpara" value="0.2 5" style="width:80px">)<input type=radio name=ptyp value=L onclick="ngxupd()">轮廓<input type=button id=ngbuy value="买入" onclick="ngbuy()"></input><input type=text id=ngpx value=0 style="width:80px"><input type=button id=ngsell value="卖出" onclick="ngsell()"></input><br><div id=ngxlst style="align:center;width:'+dw+'px;height:'+dh+'px">');$('#'+x.t2).html('<div id=ngxflot style="width:600px;height:300px">');
+    $('#ngxlst').datagrid({fit:false,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'sym',title:'期货合约',width:80,sortable:true},{field:'product',title:'品种',width:30,sortable:true},{field:'name',title:'名称',width:100,sortable:true,formatter:function(x){return togbk(x);}},{field:'nend',title:'夜盘结束',width:60,sortable:true},{field:'cumamt',title:'成交金额',width:60,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'size',title:'合约大小',width:60,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'feeunit',title:'手续费(%)',width:60,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'pos',title:'持仓',width:60,sortable:true},{field:'cost',title:'成本',width:60,sortable:true},{field:'price',title:'现价',width:60,sortable:true},{field:'pnl',title:'盈亏',width:60,sortable:true},{field:'lcpx',title:'多头止损',width:60,sortable:true},{field:'scpx',title:'空头止损',width:60,sortable:true},{field:'dtr',title:'日趋势',width:50,sortable:true},{field:'dS1',title:'日支撑1',width:80,sortable:true},{field:'dS0',title:'日支撑0',width:80,sortable:true},{field:'dR0',title:'日阻力0',width:80,sortable:true},{field:'dR1',title:'日阻力1',width:80,sortable:true},{field:'tr',title:'分趋势',width:50,sortable:true},{field:'s1',title:'分支撑1',width:80,sortable:true},{field:'s0',title:'分支撑0',width:80,sortable:true},{field:'r0',title:'分阻力0',width:80,sortable:true},{field:'r1',title:'分阻力1',width:80,sortable:true},{field:'ltr',title:'前分趋势',width:50,sortable:true},{field:'ls1',title:'前分支撑1',width:80,sortable:true},{field:'ls0',title:'前分支撑0',width:80,sortable:true},{field:'lr0',title:'前分阻力0',width:80,sortable:true},{field:'lr1',title:'前分阻力1',width:80,sortable:true}]],onClickRow:function(index,r){ngxsymreq(r.sym);}}); //,{field:'pc',title:'昨收',width:60,sortable:true},{field:'ph',title:'昨高',width:60,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'pl',title:'昨低',width:60,sortable:true},{field:'pq0',title:'昨集合成交',width:80,sortable:true},{field:'pq',title:'昨成交',width:60,sortable:true},{field:'h5',title:'5日高点',width:80,sortable:true},{field:'l5',title:'5日低点',width:60,sortable:true},{field:'qm',title:'5日均量',width:60,sortable:true},{field:'q0m',title:'集合竞价均量',width:60,sortable:true}
+    
+    $('#ngxlst').datagrid('loadData',{total:y.length,rows:y});
+    $("#ngxlst").datagrid("resize",{height:'300px'});
+
+    $('#ngxd0').datebox({required:true});
+    $('#ngxd1').datebox({required:true});
+    
+    chgbtyp();
+};
+
+
+chgbtyp=function(){
+    var t=$('input[name=btyp]:checked').val();
+    if(t=='D'){
+	$('#ngxd0').datebox('setValue','1/1/2020');
+	$('#ngxd1').datebox('setValue','today');
+    }else{
+	$('#ngxd0').datebox('setValue','today');
+	$('#ngxd1').datebox('setValue','today');
+    }
+    ngxupd();
+}
+
+
+incdt=function(){$('#droptail').val(parseInt($('#droptail').val())+parseInt($('#dtstep').val()));ngxupd();}
+decdt=function(){$('#droptail').val(Math.max(0,parseInt($('#droptail').val())-parseInt($('#dtstep').val())));ngxupd();}
+incdh=function(){$('#drophead').val(parseInt($('#drophead').val())+parseInt($('#dhstep').val()));ngxupd();}
+decdh=function(){$('#drophead').val(Math.max(0,parseInt($('#drophead').val())-parseInt($('#dhstep').val())));ngxupd();}
+
+decd0=function(){var n=parseInt($('#dmstep').val());var d0=$('input[name=ngxd0]').val();var d1=$('input[name=ngxd1]').val();dtreq(-n,d0,d1);}
+incd1=function(){var n=parseInt($('#dmstep').val());var d0=$('input[name=ngxd0]').val();var d1=$('input[name=ngxd1]').val();dtreq(n,d0,d1);}
+
+dtreq=function(n,d0,d1){wscall(['{[n;d0;d1]n:`long$n;d0:"D"$d0;d1:"D"$d1;d0:.temp.dmap d0;d1:.temp.dmap d1;d0:.temp.date n+.temp.date?d0;d1:.temp.date n+.temp.date?d1;`d0`d1!{x:string x;x[5 6],"/",x[8 9],"/",x til 4} each d0,d1}',n,d0,d1],dtres,{});}
+dtres=function(x,y){$('#ngxd0').datebox('setValue',y.d0);$('#ngxd1').datebox('setValue',y.d1);ngxupd();}
+
+
+ngorder=function(x,y){$("input[name=ufreq][value=0]").prop("checked","checked");var r=$('#ngxlst').datagrid('getSelected');if(r==undefined)return;s=r.sym;p=$('#ngpx').val();if(!confirm('确认'+((x>0)?'买入':'卖出')+s+'@'+p+'?')) return;wscall(['{[x;y]y:"F"$y;'+((x>0)?'nb':'ns')+'[x,y]}','`'+s,p],ngorderres,{})};
+ngbuy=ngorder.curry(1);ngsell=ngorder.curry(-1);
+
+ngorderres=function(x,y){$("input[name=ptyp][value=K]").prop("checked","checked");var r=$('#ngxlst').datagrid('getSelected');ngxupd();};
+
+ngxupd=function(){var r=$('#ngxlst').datagrid('getSelected');if(r==undefined){}else{ngxsymreq(r.sym);}}
+
+ngxsymreq=function(x){wscall(['{[x;y;d0;d1;z;w;cf]y:`$y;z:"J"$z;w:"J"$w;d0:"D"$d0;d1:"D"$d1;cf:"FJ"$\'vs[" "] cf;.temp.t:t:neg[w]_ z _0!hisbars[y;x;d0,d1;1];.temp.c:c:cutcover2[cf[0];cf[1]] t;.temp.tbr:tbr:delete lh,ll,rh,rl,lr,rr,top,bot from updlevel tb t;r:rst[tbr];.temp.tr:tr:histrds[x;d0,d1];`date`data`seq`tbr`mark`line`tr`trade`cline!(string $[y=`D;exec d from t;exec t from t];flip value flip select o,c,l,h from t;string $[y=`D;exec d from tbr;exec t from tbr];flip value flip select o,c,l,h from tbr;flip value flip select i,px:?[level>0;h;l],level from tbr where level<>0;r`lin;r`tr;flip value flip select seq,avgpx,side from ($[`D=y;update t:00:00 from tr;update `minute$t from tr]) lj 2!update seq:i from t;cline[c])}','`'+x,$('input[name=btyp]:checked').val(),$('input[name=ngxd0]').val(),$('input[name=ngxd1]').val(),$('#drophead').val(),$('#droptail').val(),$('#cutpara').val()],ngxsymres,{sym:x,target:'grid',ptyp:$('input[name=ptyp]:checked').val()});} //tr:histrds[y;d0,d1];.temp.tr:tr:delete t from $[`M=typ;update d:`$(-13_) each string d+xbar[1] `minute$t from tr;update d:`$string xbar[1] d from tr];
+
+ngxsymres=function(x,y){
+    $('#'+x.target).html('<div id=kline style="width:'+dw+'px;height:'+dh+'px;">'); //$('#'+x.target).panel('options').height
+    var chart1=echarts.init($('#kline')[0]);
+    var option1=(x.ptyp=='K')?{title:{text:x.sym+':'+y.tr},legend:{},tooltip:{trigger:'axis',axisPointer:{type: 'cross'}},xAxis:{data:y.date},yAxis:{scale:true},dataZoom:[{show:true,xAxisIndex:[0],type:'slider',top:'90%',start:0,end:100},{type:'inside'}],series:[{type:'k',data:y.data,markPoint:{symbolSize:15,data:y.trade.map(function(x){return {coord:[x[0],x[1]],name:(x[2]=='1')?'buy':'sell',symbol:(x[2]=='2')?'emptytriangle':'triangle',symbolRotate:(x[2]=='2')?180:0,symbolOffset:[0,(x[2]=='2')?'50%':'-50%'],itemStyle:{normal:{color:(x[2]=='1')?'blue':'green'}}}}),tooltip:{formatter:function(param){return param.name+'<br>'+param.data.coord[0]+'<br>'+param.data.coord[1];}}},markLine:{symbol:['none', 'none'],data:y.cline.map(function(x){return [{coord:[x[0],x[1]]},{coord:[x[2],x[3]]}]})}}]}:{title:{text:x.sym+':'+y.tr},legend:{},tooltip:{trigger:'axis',axisPointer:{type: 'cross'}},xAxis:{type:'category',data:y.seq},yAxis:{scale:true},dataZoom:[{show:true,xAxisIndex:[0],type:'slider',top:'90%',start:0,end:100},{type:'inside'}],series:[{type:'k',data:y.tbr,markPoint:{data:y.mark.map(function(x){return {coord:[x[0],x[1]],name:(x[2]<0)?'buy':'sell',symbol:(x[2]>0)?'emptytriangle':'triangle',symbolSize:10*Math.abs(x[2]),symbolRotate:(x[2]>0)?180:0,symbolOffset:[0,(x[2]>0)?'-50%':'50%'],itemStyle:{normal:{color:(x[2]<0)?'blue':'green'}}}}),tooltip:{formatter:function(param){return param.name+'<br>'+param.data.coord[0]+'<br>'+param.data.coord[1];}}},markLine:{symbol:['none', 'none'],data:y.line.map(function(x){return [{coord:[x[0],x[1]]},{coord:[x[2],x[3]]}]})}}]}; //,symbol:'triangle'
+    chart1.setOption(option1);
+}
 
 /*		
 var tszq='`zq',tsctp='`ctp',tsqtx='`qtx',tsacd='`oacd';

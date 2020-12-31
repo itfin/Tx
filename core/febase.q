@@ -11,6 +11,8 @@ qidfe2ft:{[x]exec first id from .db.QT where feqid=x};
 
 .roll.fe:{[x]gtc:.enum`GOOD_TILL_CANCEL;.[.conf.histdb;(.conf.me;`O);,;select from .db.O where end|tif<>gtc];delete from `.db.O where end|tif<>gtc;update `u#id from `.db.O;};
 
+rejordnew:{[ft;x;y;z]pub[`exerpt;enlist `sym`typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`corderid`reason`msg`rptopt!(ft;.enum`NEW;x;.enum`REJECTED;0f;0f;`;`;.enum`NULL;`;`;y;z;"")];}; /[ft;oid;reason;msg]
+
 rejectord:{[x;y;z]if[null .db.O[x;`ft];:()];.db.O[x;`rtime`status`reason`msg]:(.z.P;.enum`REJECTED;y;z);riskstatrej[x];pub[`exerpt;enlist `sym`typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`corderid`reason`msg`rptopt!(.db.O[x;`ft];.enum`NEW;x;.enum`REJECTED;0f;0f;`;`;.enum`NULL;`;`;y;z;"")];}; /[oid;reason;msg]
 
 rejectcxlrpl:{[src;oid;cid;reason;msg;isrpl]pub[`cxlrej;enlist `sym`oid`cid`cstatus`cordid`reason`msg`isrpl!(src;oid;cid;.enum`REJECTED;newid[];reason;msg;isrpl)];};rejectcxl:rejectcxlrpl[;;;;;0b];rejectrpl:rejectcxlrpl[;;;;;1b];
