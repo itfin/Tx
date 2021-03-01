@@ -379,7 +379,8 @@ extern "C"{
 #endif
 
     run++;
-    INITLOCK; 
+    INITLOCK;
+    setm(1);
     sd1(p[0],onmq);
     R ki(run);
   }

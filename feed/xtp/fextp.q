@@ -53,7 +53,7 @@ XTPTransKey:`serial_id`transfer_type`amount`oper_status`transfer_time;
 QREF:QUEUE:L23:L22:L21:L20:L19:L18:L17:L16:L15:L14:L13:L12:L11:L10:L:C:();MDSub:QTSub:()!();
 \d .
 
-xtpid2oid:{[x]exec first id from .db[.ctrl.O] where ordid=x};
+xtpid2oid:{[x]exec first id from .db[.ctrl.O] where ordid=x,.z.D=`date$ntime};
 
 xtptconn:{[x;y]if[not any .z.T within/: .conf.xtp.openrange;:()];if[1i~.ctrl.xtp[`runT];:()];.ctrl.xtp[`conntimeT]:.z.P;.ctrl.xtp[`runT]:r:initxtpt[(.conf.xtp.cltid;.conf.xtp.tmpath;`int$`fatal`error`warning`info`debug`trace?.conf.xtp.loglevel;.conf.xtp.cltver;.conf.xtp.authocde;.conf.xtp.hbint);(.conf.xtp.osvrip;.conf.xtp.osport;.conf.xtp.user;.conf.xtp.pass;.conf.xtp.usetcp)];1b;};
 xtptdisc:{[x;y]if[any .z.T within/: .conf.xtp.openrange;:()];if[1i~.ctrl.xtp[`runT];:()];.ctrl.xtp[`runT]:freextpt[];1b;};

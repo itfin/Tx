@@ -70,9 +70,9 @@ startnode:{[x]if[x in .conf.ha.nodelist;startmod each .conf.ha[x;`modules]];};
 
 gcall:{[x;y]if[0=count H:{x where 0<x} .ctrl.H;:()];neg[H]@\:(`.Q.gc;());1b};
 
-hball:{[x;y]{.ctrl.MOD[x;`hbsent]:.z.P;neg[.ctrl.MOD[x;`h]] ({neg[.z.w] ({[x;y;z]w:.z.P;.ctrl.MOD[x;`hbpeer`hbrecv`mem]:(y;w;z);.temp.MS,:enlist (w;x;1e-9*w-.ctrl.MOD[x;`hbsent];z);};x;.z.P;1e-6*.Q.w[]`heap)};x)} each exec id from .ctrl.MOD where 0<h;1b}; /heartbeat
+hball:{[x;y]{.ctrl.MOD[x;`hbsent]:.z.P;neg[.ctrl.MOD[x;`h]] ({[x]t:.z.P;neg[.z.w] ({[x;y;z]w:.z.P;.ctrl.MOD[x;`hbpeer`hbrecv`mem]:(y;w;z);d:1e-9*w-u:.ctrl.MOD[x;`hbsent];.temp.MS,:enlist (w;x;d;z);if[d>=.conf`maxdelay;lwarn[`delaytoolong;(x;d;u;y;w)]]};x;t;1e-6*.Q.w[]`heap)};x)} each exec id from .ctrl.MOD where 0<h;1b}; /mod heartbeat
 
-nhall:{[x;y]{s:nodecmd[x;"mpstat -P ALL 1 1"];cu:1-1e-2*"F"$last flip {vs[" ";x] except enlist ""}each 3_s;s:nodecmd[x;"df -l -t ext4 --output=source,size,avail|grep ",string .ctrl.NOD[x;`diskdev]];du:1-last ratios "F"$-2#(vs[" "] s[0]) except enlist "";s:nodecmd[x;"free"];mu:{last ratios "F"$2#(1_vs[" "] x) except enlist ""}each 1_s;.temp.NS,:enlist (.z.P;x),.ctrl.NOD[x;`cpuuse`memuse`swapuse`diskuse`coreuse]:(cu[0];mu[0];mu[1];du;1_cu);} each exec id from .ctrl.NOD;1b}; /nodehealth
+nhall:{[x;y]{s:nodecmd[x;"mpstat -P ALL 1 1"];cu:1-1e-2*"F"$last flip {x where 13=count each x} {vs[" ";x] except enlist ""}each 3_s;s:nodecmd[x;"df -l -t ext4 --output=source,size,avail|grep ",string .ctrl.NOD[x;`diskdev]];du:1-last ratios "F"$-2#(vs[" "] s[0]) except enlist "";s:nodecmd[x;"free"];mu:{last ratios "F"$2#(1_vs[" "] x) except enlist ""}each 1_s;.temp.NS,:enlist (.z.P;x),.ctrl.NOD[x;`cpuuse`memuse`swapuse`diskuse`coreuse]:(cu[0];mu[0];mu[1];du;1_cu);if[any all each .conf[`maxcoreuse]<= flip first value flip select [neg[.conf.corechklen]]  cores from .temp.NS where id=x;lwarn[`cputoohigh;(x;cu)]]} each exec id from .ctrl.NOD;1b}; /nodehealth
 
 ping:{[x]y:string x;z:system "ping -c 1 ",y;raze z};
 pingok:@[ping;;()];
@@ -93,7 +93,7 @@ chkfqstatus:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()
 
 chktpzw:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`tp;`h];:()];if[.conf.maxzwlen<n:h ({sum sum each .z.W};());lwarn[`tpzwfull;(t;n)]];};
 
-chkordstatus:{[x]t:.z.P;if[not (`time$t) within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`ft;`h];:()];{lwarn[`ordrejerr;x]} each h ({[x]exec {[x;y;z;w] sv["|"] string[x,y,z],enlist w}'[ft;ts;id;msg] from .db.O where status=.enum.REJECTED,ntime>=x};t-00:01:00);{lwarn[`ordcxlerr;x]} each h ({[x;y]flip exec (ft;ts;id) from .db.O where not end,not null ctime,ctime<x,ctime>=y};t-00:00:02;t-00:01:00);{lwarn[`ordcxlerr;x]} each h ({[x;y]flip exec (ft;ts;id) from .db.O where not end,null ctime,null ordid,ntime<x,ntime>=y};t-00:00:02;t-00:01:00);}; /check ord cxl/new error
+chkordstatus:{[x]t:.z.P;if[not (`time$t) within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`ft;`h];:()];{lwarn[`ordrejerr;x]} each h ({[x]exec {[x;y;z;w] sv["|"] string[x,y,z],enlist w}'[ft;ts;id;msg] from .db.O where status=.enum.REJECTED,ntime>=x};t-00:01:00);{lwarn[`ordcxlerr;x]} each h ({[x;y]flip exec (ft;ts;id) from .db.O where not end,not null ctime,ctime<x,ctime>=y};t-00:00:02;t-00:01:00);{lwarn[`ordnewerr;x]} each h ({[x;y]flip exec (ft;ts;id) from .db.O where not end,null ctime,null ordid,ntime<x,ntime>=y};t-00:00:02;t-00:01:00);}; /check ord cxl/new error
 
 chketfstatus:{[x]:();if[not .z.T within 09:24 15:00;:()];if[0>=h:.ctrl.MOD[`fqxshe;`h];:()];el:h `.conf.etflist;if[0>=h:.ctrl.MOD[`ftdc4;`h];:()];r:h ({[x]exec last trday by sym from .db.ETF};());{[r;d;x]if[r[x]<>d;lwarn[`etfpcfdate;(x;d;r[x])]]}[r;.z.D] each el;}; /check etf pcf trday
 
@@ -103,5 +103,8 @@ hc10:{[x;y]chkmodstatus[];chkfestatus[];chkfqstatus[];chkordstatus[];chketfstatu
 
 chk300idx:{[x;y]r:.ctrl.H[`ft] ({x!{-1+(%/).db.QX[x;`price`pc]} each x};`000300.XSHG`510330.XSHG`159919.XSHE);if[0.005<=max[r]-min[r];lwarn[`300idxpriceerror;r]];1b};
 
+chkonline:{[x;y]startmod each exec id from .ctrl.MOD where h<0,id in .conf.modules;1b};
+
 \
 .db.TASK[`CHK300;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:30:10;1D;0;4;`chk300idx);
+.db.TASK[`CHKONLINE;`firetime`firefreq`weekmin`weekmax`timemin`timemax`handler]:(`timestamp$.z.D+08:55:00;`timespan$00:01;0;4;`time$08:56;`time$16:54;`chkonline);
