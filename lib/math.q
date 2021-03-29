@@ -87,7 +87,7 @@ r2:{1e-2*floor 0.5+1e2*x};r3:{1e-3*floor 0.5+1e3*x};r4:{1e-4*floor 0.5+1e4*x};r5
 cnd:{t:reciprocal 1+.2316419*abs x;s:t*.31938153+t*-.356563782+t*1.781477937+t*-1.821255978+1.330274429*t;abs(neg x>0)+(1% sqrt 2*pi)*(exp -.5*x*x)*s}; //[x]c.d.f of N(0,1)
 scale:{[x;y]m:x 0;M:x 1;ym:min y;yM:max y;m+(M-m)*(y-ym)%(yM-ym)}; //[(min;max);x]将x伸缩变换至[min,max]区间
 qth:{[x;y;z]$[()~z;0n;min z where y=x xrank z]}; //[总级数;分位数;数据]取数据的某个分位
-qnth:{x:asc 0^x;1_value asc x min each group y xrank x};q200:qnth[;200];q100:qnth[;100];q5:qnth[;5];q10:qnth[;10]; //[数据;分级数]取数据各分位数组
+qnth:{x:asc 0^x;1_value asc x min each group y xrank x};q200:qnth[;200];q100:qnth[;100];q4:qnth[;4];q5:qnth[;5];q10:qnth[;10]; //[数据;分级数]取数据各分位数组
 predls:{[x]x:`float$x;n:count x;coef:x lsq (n#1f;`float$til n);coef mmu 1f,`float$n}; //最小二乘拟合后外推一步预测
 
 pldist:{[x;y]k:y 0;((x 1)-(y 1)+k*(x 0))%sqrt 1+k*k}; /点到直线距离x:(t,p),y:(k,b)->d

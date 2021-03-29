@@ -1,3 +1,4 @@
+
 //version:2019.01.10
 
 //sw,sh分别为屏幕的宽和高(显示器物理分辨率),首先要估计浏览器的可用尺寸再分配页面body的layout:[bw,bh]
@@ -458,7 +459,7 @@ klineres=function(x,y){
 futbasisreq=function(x){wscall(['{[x]select id:sp,text:product from .db.PD where not null sp}','`'],futbasisreq0,{target:'ctrl'});} //
 futbasisreq0=function(x,y){
     $('#ctrl').html('品种:<input id="cbproduct" style="width:50px">SP模式:<input type=text id=filter size=5 value="05-09"></input>SP代码:<input id="cbbasis" style="width:200px">价格类型:<input type=radio name=pxbp value=0 checked>绝对值<input type=radio name=pxbp value=1>%价格,开始日期:<input type=text id=d0 name=d0 style="width:150px"></input>,结束日期:<input type=text id=d1 name=d1 style="width:150px"><input type=button id=futbasisbut value="查询"></input>');
-    $("#cbproduct").combobox({required:true,valueField:'id',textField:'text',onSelect: function(x){wscall(['{[x;y;z].temp.PD:`$y;F:$[count z;"*",/:vs["-";z],\'("&*";enlist "*");2#enlist enlist "*"];`data`pct!(desc select id:sym,text:sym from .db.QX where product=`$x,not null srctime,(sym like F[0])&(sym like F[1]);select label:(-2#) each (-5_) each string sym,data:sqrt cumamt from .temp.T where product=.temp.PD)}',x.id,x.text,$('#filter').val()],basislstres,{target:'cbbasis',t2:'grid'});}});
+    $("#cbproduct").combobox({required:true,valueField:'id',textField:'text',onSelect: function(x){wscall(['{[x;y;z].temp.pd:`$y;F:$[count z;"*",/:vs["-";z],\'("&*";enlist "*");2#enlist enlist "*"];`data`pct!(desc select id:sym,text:sym from .db.QX where product=`$x,not null srctime,(sym like F[0])&(sym like F[1]);select label:(-2#) each (-5_) each string sym,data:sqrt cumamt from .temp.T where product=.temp.pd)}',x.id,x.text,$('#filter').val()],basislstres,{target:'cbbasis',t2:'grid'});}});
     $("#cbproduct").combobox("loadData", y);$("#cbproduct").combobox('select',y[0].id);
     
     $("#cbbasis").combobox({required:true,valueField:'id',textField:'text',onSelect: function(x){wscall(['{[x]`d0`d1!{sv["/"] string rotate[1] "I"$ vs["."] x} each string `date$-12 -1+"M"$"1",/:{3#(-3+x?y)_x}[x] each ".&"}',x.id],basisres,{target:'cbbasis',t2:'grid'});}});
