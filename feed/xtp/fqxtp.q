@@ -20,7 +20,7 @@ QREF:QUEUE:L16:L15:L14:L13:L12:L11:L:C:();TKSub:BKSub:MDSub:()!();
 \d .
 
 xtpqconn:{[x;y]if[not any .z.T within/: .conf.xtp.openrange;:()];if[1i~.ctrl.xtp[`runQ];:()];.ctrl.xtp[`conntimeQ]:.z.P;.ctrl.xtp[`runQ]:r:initxtpq[(.conf.xtp.cltid;.conf.xtp.tmpath;`int$`fatal`error`warning`info`debug`trace?.conf.xtp.loglevel;.conf.xtp.bufsize;.conf.xtp.hbint);(.conf.xtp.qsvrip;.conf.xtp.qsport;.conf.xtp.user;.conf.xtp.pass;.conf.xtp.usetcp)];1b;};
-xtpqdisc:{[x;y]if[any .z.T within/: .conf.xtp.openrange;:()];if[1i~.ctrl.xtp[`runQ];:()];.ctrl.xtp[`runQ]:freextpq[];if[((.z.D>d0)|(.z.T>.conf.xtp.mktclosetime)&(.z.D=d0))&(.db.fqclosedate<d0:.db.fqopendate);pubm[`ALL;`MarketClose;.conf.me;string d0];.db.fqclosedate:d0];1b;};
+xtpqdisc:{[x;y]if[any .z.T within/: .conf.xtp.openrange;:()];if[not 1i~.ctrl.xtp[`runQ];:()];.ctrl.xtp[`runQ]:freextpq[];if[((.z.D>d0)|(.z.T>.conf.xtp.mktclosetime)&(.z.D=d0))&(.db.fqclosedate<d0:.db.fqopendate);pubm[`ALL;`MarketClose;.conf.me;string d0];.db.fqclosedate:d0];1b;};
 
 .init.fqxtp:{[x]xtpqconn[`;.z.P];};
 .exit.fqxtp:{[x].ctrl.xtp[`runQ]:freextpq[];};
@@ -45,7 +45,7 @@ batchpub:{[]if[(not 1b~.conf.batchpub)|(0=count .temp.QUEUE);:()];pub[`quote;.te
 
 .upd.DepthMD:{[x].temp.X:x;t:x[0];x:1_x;y:((.enum $[t;`XTPMDOpt;`XTPMDStk])!x),$[t;`yield_to_maturity`iopv!0n 0n;()];if[.conf.xtp.debug;.temp.L11,:enlist y];t0:sum dt:"DT"$0 8 cut string y`data_time;if[not `fqopendate in key .db;.db.fqopendate:0Nd];if[.db.fqopendate<d0:dt[0];pubm[`ALL;`MarketOpen;.conf.me;string d0];.db.fqopendate:d0];d:update virtualtime:0Np,isnormalsession:time within 08:00 16:00 from select sym:{[x;y]`$x,'".",/:string y}[ticker;.enum.exxtpQ exchange_id],time:dt[1],price:last_price,cumqty:`float$qty,vwap:avg_price,high:high_price,low:low_price,bid:first each bp,ask:first each ap,bsize:first each bq,asize:first each aq,bidQ:(5#) each bp,askQ:(5#) each ap,bsizeQ:(5#) each bq,asizeQ:(5#) each aq,openint:settl_price,settlepx:iopv,open:open_price,pc:pre_close_price,sup:upper_limit_price,inf:lower_limit_price,mode:`$ticker_status,recvtime:.z.P,exlocaltime:.z.P from enlist y;d:delete from d where (0>cumqty);if[count d;if[.conf.xtp.debug;.temp.L12,:d];d1:select sym,pc,open,sup,inf from d;if[n:count d2:d1 except .temp.QREF;pub[`quoteref;update refopt:n#enlist"" from d2];.temp.QREF,:d2];d:delete open,pc,sup,inf from d;n:count d;d2:select sym,bid,ask,bsize,asize,price,high,low,vwap,cumqty,openint,settlepx,mode,extime:t0,bidQ,askQ,bsizeQ,asizeQ,quoopt:n#enlist "" from d;$[1b~.conf.batchpub;enqueue[d2];pub[`quote;d2]]];};
 
-.upd.Price:{[x]b:x[0];x:x[1]if[.conf.xtp.debug;.temp.L13,:enlist y:`exchange_id`ticker`last_price!x];};
+.upd.Price:{[x]b:x[0];x:x[1];if[.conf.xtp.debug;.temp.L13,:enlist y:`exchange_id`ticker`last_price!x];};
 .upd.Book:{[x]if[.conf.xtp.debug;.temp.L14,:enlist y:`exchange_id`ticker`last_price`qty`turnover`trades_count`bp`ap`bq`aq`data_time!x];};
 .upd.Tick:{[x]t:x[0];x:1_x;if[.conf.xtp.debug;$[t=.enum`XTP_TBT_ENTRUST;.temp.L15,:enlist y:`exchange_id`ticker`seq`data_time`channel_no`seq1`price`qty`side`ord_type!x;.temp.L15,:enlist y:`exchange_id`ticker`seq`data_time`channel_no`seq1`price`qty`money`bid_no`ask_no`trade_flag!x]];};
 

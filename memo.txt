@@ -28,7 +28,7 @@ id编码
 策略回调
 `timer`quote`exerpt`match`dayroll`sysinit`sysexit`alarm
 订阅
-`为不订,`symbol$()为全订,其它为显式订阅
+`为全订,`symbol$()为不订,其它为显式订阅
 变量命名
 标量:小写开头小写结束
 数组:小写开头大写结束

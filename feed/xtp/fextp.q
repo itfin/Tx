@@ -3,7 +3,7 @@
 txload "core/febase";
 txload "feed/xtp/xtpbase";
 
-`initxtpt`freextpt`xtptrun`insertOrder`cancelOrder`queryOrder`queryAllOrder`queryTrade`queryAllTrade`queryPos`queryAsset`transFund`qryFundTrans`qryETF`qryETFPCF`qryIPO`qryIPOQuota`qryOption {x set `extfextp 2:(x;y);}' 2 1 1,15#3;
+`initxtpt`freextpt`xtptrun`insertOrder`cancelOrder`queryOrder`queryAllOrder`queryTrade`queryAllTrade`queryPos`queryAsset`transFund`qryFundTrans`qryETF`qryETFPCF`qryIPO`qryIPOQuota`qryOption`loginALGO`establishAlgoChannel`insertOrderAlgo`cancelOrderAlgo`queryOrderAlgo {x set `extfextp 2:(x;y);}' 2 1 1,(15#3),1 2,3#3;
 
 .ctrl.O:$[`ft=.conf.feedtype;`O1;`O];
 
@@ -36,27 +36,32 @@ txload "feed/xtp/xtpbase";
 `XTP_OPT_CALL`XTP_OPT_PUT set' `int$1+til 2; /XTP_OPT_CALL_OR_PUT_TYPE:1(认购)2(认沽)
 `XTP_OPT_EXERCISE_TYPE_EUR`XTP_OPT_EXERCISE_TYPE_AME set' `int$1+til 2; /XTP_OPT_EXERCISE_TYPE_TYPE:1(欧式)2(美式)
 
+`XTP_STRATEGY_STATE_CREATING`XTP_STRATEGY_STATE_CREATED`XTP_STRATEGY_STATE_STARTING`XTP_STRATEGY_STATE_STARTED`XTP_STRATEGY_STATE_STOPPING`XTP_STRATEGY_STATE_STOPPED`XTP_STRATEGY_STATE_DESTROYING`XTP_STRATEGY_STATE_DESTROYED`XTP_STRATEGY_STATE_ERROR set' `char$til 9; /XTPStrategyStateType
+
 XTPReqHead:`session_id`error_id`error_msg;
 XTPQryHead:`request_id`is_last,XTPReqHead;
 XTPOrderKey:`order_xtp_id`order_client_id`order_cancel_xtp_id`ticker`market`price`quantity`price_type`side`position_effect`business_type`qty_traded`qty_left`insert_time`update_time`cancel_time`trade_amount`order_local_id`order_status`order_submit_status`order_type;
 XTPTradeKey:`order_xtp_id`order_client_id`ticker`market`exec_id`price`quantity`trade_time`trade_amount`report_index`order_exch_id`trade_type`side`position_effect`business_type`branch_pbu;
 XTPTransKey:`serial_id`transfer_type`amount`oper_status`transfer_time;
-
+XTPAlgoOrdKey:XTPReqHead,`strategy_type`strategy_state`client_strategy_id`xtp_strategy_id;
+XTPAlgoRptKey:`session_id`strategy_type`strategy_state`client_strategy_id`xtp_strategy_id`strategy_qty`strategy_ordered_qty`strategy_cancelled_qty`strategy_execution_qty`strategy_unclosed_qty`strategy_asset`strategy_ordered_asset`strategy_execution_asset`strategy_execution_price`strategy_market_price`strategy_price_diff`strategy_asset_diff`error_id`error_msg;
+XTPAlgoQryKey:`request_id`is_last,XTPReqHead,`strategy_type`strategy_state`client_strategy_id`xtp_strategy_id`strategy_param;
 \d .
 
 .enum.xtpexT:mirror .enum.exxtpT:.enum[`XTP_MKT_SH_A`XTP_MKT_SZ_A]!`XSHG`XSHE;
 .enum.xtpside:mirror .enum.sidextp:.enum[`XTP_SIDE_BUY`XTP_SIDE_SELL]!.enum[`BUY`SELL];
 .enum.xtpposefct:mirror .enum.posefctxtp:.enum[`XTP_POSITION_EFFECT_INIT`XTP_POSITION_EFFECT_OPEN`XTP_POSITION_EFFECT_CLOSE`XTP_POSITION_EFFECT_CLOSETODAY`XTP_POSITION_EFFECT_CLOSEYESTERDAY]!.enum[`NULL`OPEN`CLOSE`CLOSETODAY`CLOSEYESTODAY];
 .enum.statusxtp:.enum[`XTP_ORDER_STATUS_INIT`XTP_ORDER_STATUS_ALLTRADED`XTP_ORDER_STATUS_PARTTRADEDQUEUEING`XTP_ORDER_STATUS_PARTTRADEDNOTQUEUEING`XTP_ORDER_STATUS_NOTRADEQUEUEING`XTP_ORDER_STATUS_CANCELED`XTP_ORDER_STATUS_REJECTED`XTP_ORDER_STATUS_UNKNOWN]!.enum`PENDING_NEW`FILLED`PARTIALLY_FILLED`CANCELED`NEW`CANCELED`REJECTED`NULL;
+.enum.statusalgo:.enum[`XTP_STRATEGY_STATE_CREATING`XTP_STRATEGY_STATE_CREATED`XTP_STRATEGY_STATE_STARTING`XTP_STRATEGY_STATE_STARTED`XTP_STRATEGY_STATE_STOPPING`XTP_STRATEGY_STATE_STOPPED`XTP_STRATEGY_STATE_DESTROYING`XTP_STRATEGY_STATE_DESTROYED`XTP_STRATEGY_STATE_ERROR]!.enum`PENDING_NEW`PENDING_NEW`PENDING_NEW`NEW`NEW`EXPIRED`PENDING_CANCEL`CANCELED`REJECTED;
 
 \d .temp
-QREF:QUEUE:L23:L22:L21:L20:L19:L18:L17:L16:L15:L14:L13:L12:L11:L10:L:C:();MDSub:QTSub:()!();
+QREF:QUEUE:L27:L26:L25:L24:L23:L22:L21:L20:L19:L18:L17:L16:L15:L14:L13:L12:L11:L10:L:C:();MDSub:QTSub:()!();
 \d .
 
 xtpid2oid:{[x]exec first id from .db[.ctrl.O] where ordid=x,.z.D=`date$ntime};
 
 xtptconn:{[x;y]if[not any .z.T within/: .conf.xtp.openrange;:()];if[1i~.ctrl.xtp[`runT];:()];.ctrl.xtp[`conntimeT]:.z.P;.ctrl.xtp[`runT]:r:initxtpt[(.conf.xtp.cltid;.conf.xtp.tmpath;`int$`fatal`error`warning`info`debug`trace?.conf.xtp.loglevel;.conf.xtp.cltver;.conf.xtp.authocde;.conf.xtp.hbint);(.conf.xtp.osvrip;.conf.xtp.osport;.conf.xtp.user;.conf.xtp.pass;.conf.xtp.usetcp)];1b;};
-xtptdisc:{[x;y]if[any .z.T within/: .conf.xtp.openrange;:()];if[1i~.ctrl.xtp[`runT];:()];.ctrl.xtp[`runT]:freextpt[];1b;};
+xtptdisc:{[x;y]if[any .z.T within/: .conf.xtp.openrange;:()];if[not 1i~.ctrl.xtp[`runT];:()];.ctrl.xtp[`runT]:freextpt[];1b;};
 
 .init.ftxtp:{[x]xtptconn[`;.z.P];};
 .exit.ftxtp:{[x].ctrl.xtp[`runT]:freextpt[];};
@@ -66,17 +71,19 @@ xtptdisc:{[x;y]if[any .z.T within/: .conf.xtp.openrange;:()];if[1i~.ctrl.xtp[`ru
 .upd.DisconnectedT:{[x].ctrl.xtp[`ConnectT`LoginT`DiscReasonT`DisctimeT]:(0b;0b;x[0];.z.P);};
 
 .upd.LoginFailT:{[x].ctrl.xtp[`LoginT`LoginTimeT`LoginErrT`ErrCodeT`ErrMsgT]:(0b;.z.P;1b),x;}; 
-.upd.LoginT:{[x].ctrl.xtp[`LoginT`logintimeT`SessionID`ApiVersionT`TradingDayT`ServerRestart]:(1b;.z.P),x;};
+.upd.LoginT:{[x].temp.x:x;.ctrl.xtp[`LoginT`logintimeT`SessionID`ApiVersionT`TradingDayT`ServerRestart]:(1b;.z.P),x;if[1b~.conf.xtp`usealgo;r:loginALGO[.conf.xtp`asvrip`asport`user`algopass`localip];.ctrl.xtp[`loginAlgo`loginAlgoTime]:(r;.z.P);if[r=0;.ctrl.xtp[`ConnAlgo]:establishAlgoChannel[.conf.xtp[`osvrip`osport`user`pass];x[0]]]];};
+
+.upd.ALGOUserEstablishChannel:{[x].ctrl.xtp[`AlgoChannel`AlgoErr`Algouser]:1_x;};
 
 .upd.XTPErrorT:{[x].ctrl.xtp[`ErrTimeT`ErrCodeT`ErrMsgT`ErrFun]:.z.P,x;};
 
 .upd.RDUpdate:{[x]if[`xtp<>x`ref;:()];.db.QX:.db.QX uj get `$x`msg;};
 
-.upd.ordnew:.fe.ordnew:{[x]if[x[`sym]<>.conf.me;:.ha.ordnew[x]];k:x`oid;if[count opt:x`ordopt;h:strdict opt];if[not null .db[.ctrl.O;k;`sym];:()];k1:newidl[];.db[.ctrl.O;k;`feoid`ntime`status`x0`ft`ts`acc`fe`acc1`ref`sym`side`posefct`tif`typ`qty`price`ordopt]:(k1;.z.P;.enum`PENDING_NEW;enlist .enum.nulldict),x`ft`ts`acc`sym`acc1`ref`osym`side`posefct`tif`typ`qty`price`ordopt;if[not (1b~.ctrl.xtp`LoginT)&(.conf.xtp.ordmax>count .db[.ctrl.O]);rejectord[k;1i;"XTP_Not_Ready_Or_Toomany_Orders"];:()];esym:fs2s x`osym;ex:fs2e x`osym;.db[.ctrl.O;k;`j0]:r:xtpcall[`insertOrder;(1+rand 5i;esym;.enum.xtpexT ex;x`price;`long$x`qty;$[(0<x[`price])|(esym like "SP*");.enum`XTP_PRICE_LIMIT;.enum`XTP_PRICE_BEST5_OR_CANCEL];.enum.xtpside x`side;.enum.xtpposefct x`posefct;.enum`XTP_BUSINESS_TYPE_CASH)];if[0<r;.db[.ctrl.O;k;`ordid]:`$string r];}'; 
+.upd.ordnew:.fe.ordnew:{[x]if[x[`sym]<>.conf.me;:.ha.ordnew[x]];k:x`oid;h:$[count opt:x`ordopt;strdict opt;(`symbol$())!()];if[not null .db[.ctrl.O;k;`sym];:()];k1:newidl[];.db[.ctrl.O;k;`feoid`ntime`status`x0`ft`ts`acc`fe`acc1`ref`sym`side`posefct`tif`typ`qty`price`ordopt]:(k1;.z.P;.enum`PENDING_NEW;enlist .enum.nulldict),x`ft`ts`acc`sym`acc1`ref`osym`side`posefct`tif`typ`qty`price`ordopt;if[not (1b~.ctrl.xtp`LoginT)&(.conf.xtp.ordmax>count .db[.ctrl.O]);rejectord[k;1i;"XTP_Not_Ready_Or_Toomany_Orders"];:()];esym:fs2s x`osym;ex:fs2e x`osym;$[1b~h`algo;[.db[.ctrl.O;k;`special]:`algo;y:`int$h`algotype;z:`market`ticker`side`quantity!($[ex=`XSHE;`SZ;`SH];esym;$[.enum.BUY=x`side;`BUY;`SELL];x`qty);r:xtpcall[`insertOrderAlgo;(y;"J"$string k1;`$.j.j h[`algopara],$[y in 2001 2002 2101i;(enlist `trade_list)!enlist enlist z;z])]];[r:xtpcall[`insertOrder;(1+rand 5i;esym;.enum.xtpexT ex;x`price;`long$x`qty;$[(0<x[`price])|(esym like "SP*");.enum`XTP_PRICE_LIMIT;.enum`XTP_PRICE_BEST5_OR_CANCEL];.enum.xtpside x`side;.enum.xtpposefct x`posefct;$[`204001.XSHG~x`osym;.enum`XTP_BUSINESS_TYPE_REPO;.enum`XTP_BUSINESS_TYPE_CASH])]]];.db[.ctrl.O;k;`j0]:r;if[0<r;.db[.ctrl.O;k;`ordid]:`$string r];}'; 
 
-.upd.ordcxl:.fe.ordcxl:{[x]if[x[`sym]<>.conf.me;:.ha.ordcxl[x]];k:x`oid;r:.db[.ctrl.O;k];if[null r`sym;:()];.db[.ctrl.O;k;`cid`cstatus]:(x`cid;.enum`PENDING_CANCEL);h:$[count r[`x0];r[`x0;0];strdict r`rptopt];r:xtpcall[`cancelOrder;"J"$string r`ordid];if[0<r;.db[.ctrl.O;k;`cordid]:`$string r];}'; 
+.upd.ordcxl:.fe.ordcxl:{[x]if[x[`sym]<>.conf.me;:.ha.ordcxl[x]];k:x`oid;r:.db[.ctrl.O;k];if[null r`sym;:()];.db[.ctrl.O;k;`cid`cstatus]:(x`cid;.enum`PENDING_CANCEL);h:$[count r[`x0];r[`x0;0];strdict r`rptopt];r:xtpcall[$[`algo=r`special;`cancelOrderAlgo;`cancelOrder];"J"$string r`ordid];if[0<r;.db[.ctrl.O;k;`cordid]:`$string r];}'; 
 
-.upd.ordqry:.fe.ordqry:{[x]r:.db[.ctrl.O;x`oid];xtpcall[`queryOrder;"J"$string r`ordid];}';
+.upd.ordqry:.fe.ordqry:{[x]r:.db[.ctrl.O;x`oid];z:"J"$string r`ordid;$[`algo=r`special;xtpcall[`queryOrderAlgo;0 0,z];xtpcall[`queryOrder;z]];}';
 
 transfund:{[x;y]xtpcall[`transFund;(.conf.xtp.user;.conf.xtp.pass;`float$y;x)]} /[transtype;amount]
 transout:transfund[.enum.`XTP_FUND_TRANSFER_OUT];transin:transfund[.enum.`XTP_FUND_TRANSFER_IN];
@@ -110,6 +117,15 @@ transout:transfund[.enum.`XTP_FUND_TRANSFER_OUT];transin:transfund[.enum.`XTP_FU
 .upd.QryOption:{[x]b:x[0];x:x[1];.temp.L23,:enlist y:(.enum[`XTPQryHead],`ticker`security_id_source`symbol`contract_id`underlying_security_id`underlying_security_id_source`list_date`last_trade_date`ticker_type`day_trading`call_or_put`delivery_day`delivery_month`exercise_type`exercise_begin_date`exercise_end_date`exercise_price`qty_unit`contract_unit`contract_position`prev_close_price`prev_clearing_price`lmt_buy_max_qty`lmt_buy_min_qty`lmt_sell_max_qty`lmt_sell_min_qty`mkt_buy_max_qty`mkt_buy_min_qty`mkt_sell_max_qty`mkt_sell_min_qty`price_tick`upper_limit_price`lower_limit_price`sell_margin`margin_ratio_param1`margin_ratio_param2)!x;};
 
 .upd.QueryFund:{[x].temp.FundDst:x`ref;.temp.L17:();xtpcall[`queryAsset;()];};
+
+.upd.InsertAlgoOrder:{[x].temp.x11:x;.temp.L24,:enlist y:.enum.XTPAlgoOrdKey!x;z:`$string y`client_strategy_id;if[null k:exec first id from .db[.ctrl.O] where feoid=z;:()];r:.db[.ctrl.O;k];if[null r`ordid;.db[.ctrl.O;k;`ordid]:`$string y`xtp_strategy_id];st:.enum.statusalgo y`strategy_state;.db[.ctrl.O;k;`status]:st;if[st=.enum`REJECTED;.db[.ctrl.O;k;`reason`msg]:(y`error_id;y[`error_msg],":",string y`strategy_type)];execrpt[k];};
+
+.upd.CancelAlgoOrder:{[x].temp.x12:x;.temp.L25,:enlist y:.enum.XTPAlgoOrdKey!x;z:`$string y`xtp_strategy_id;if[null k:xtpid2oid z;:()];if[0<>ei:y`error_id;.db[.ctrl.O;k;`cstatus`reason`msg]:(.enum`REJECTED;ei;em:y`error_msg);rejcxl[k;ei;em]];}
+
+.upd.StrategyStateReport:{[x].temp.x13:x;.temp.L26,:enlist y:.enum.XTPAlgoRptKey!x;z:`$string y`client_strategy_id;if[null k:exec first id from .db[.ctrl.O] where feoid=z;:()];r:.db[.ctrl.O;k];st:.enum.statusalgo y`strategy_state;$[st=.enum`EXPIRED;if[r[`cstatus]=.enum`PENDING_CANCEL;st:.enum`CANCELED];if[0<cq:`float$y`strategy_execution_qty;ap:y`strategy_execution_price;lq:cq-0f^r`cumqty;lp:((cq*ap)-0f^prd r`cumqty`avgpx)%lq;.db[.ctrl.O;k;`cumqty`avgpx`lastqty`lastpx]:cq,ap,lq,lp;if[st in .enum`PENDING_NEW`NEW;st:.enum $[cq=r`qty;`FILLED;`PARTIALLY_FILLED]]]];.db[.ctrl.O;k;`status]:st;if[0<count m:y`error_msg;.db[.ctrl.O;k;`reason`msg]:(y`error_id;m)];execrpt[k];};
+
+.upd.QryStrategy:{[x].temp.x14:x;.temp.L27,:enlist y:.enum.XTPAlgoQryKey!x;};
+
 
 qryallorder:{[]xtpcall[`queryAllOrder;(`;0;0)];};
 qrytrade:{[x]xtpcall[`queryTrade;x];};

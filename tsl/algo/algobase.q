@@ -169,7 +169,7 @@ mktvwap:{[isrt;x]d:execstat[isrt;x];0f^ffill last d[0;1]};
 mktqty:{[isrt;x]d:execstat[isrt;x];0f^ffill last d[0;3]};
 matchno:{[isrt;x]exec count i from $[isrt;.db.O;.hdb.O] where cumqty>0,upid=x};
 
-oatbld:{[x;y;z]t:$[x;.db.O1;select from .hdb.O1 where (`date$ntime) within `date$(y,z)];update bias:0f^?[vwap=0;0f;?[side=.enum`BUY;1e4;-1e4]]*-1+avgpx%vwap from select id,hsid:cltid2,sym,algo,status,cstag:cstatus {y+2*x=.enum`PENDING_CANCEL}' suspend,side,qty,price,sentqty,cumqty,avgpx,leavesqty,string `datetime$ntime,string `second$ctime,string `second$ftime,pct:1-leavesqty%qty,vwap:"f"$mktvwap[x] each id,mktqty:"f"$mktqty[x] each id,mno:matchno[x] each id from update leavesqty:?[status in "01A";qty-cumqty;0f] from select from  t where extype<>`LIST}; 
+oatbld:{[x;y;z]t:$[x;.db.O1;select from .hdb.O1 where (`date$ntime) within `date$(y,z)];update bias:0f^?[vwap=0;0f;?[side=.enum`BUY;1e4;-1e4]]*-1+avgpx%vwap from select id,hsid:cltid2,sym,algo,status,cstag:cstatus {y+2*x=.enum`PENDING_CANCEL}' suspend,side,qty,price,sentqty,cumqty,avgpx,leavesqty,string `datetime$ntime,string `second$ctime,string `second$ftime,pct:1-leavesqty%qty,vwap:`float$@[mktvwap[x];;0n] each id,mktqty:`float$@[mktqty[x];;0n] each id,mno:matchno[x] each id from update leavesqty:?[status in "01A";qty-cumqty;0f] from select from  t where extype<>`LIST}; 
 
 subrejd:{[u;x;y;z]t:select from $[x;.db.O;select from .hdb.O where (`date$ntime) within (y,z)] where upid=u,status=.enum`REJECTED;select id,price,qty,ref,string `datetime$ntime,msg from t};
 

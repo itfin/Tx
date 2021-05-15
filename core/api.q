@@ -1,4 +1,4 @@
-.module.api:2016.12.29;
+.module.api:2021.04.06;
 
 /对于行情类消息sym为证券代码,对于日志消息sym为日志级别,对于其他类消息sym为接收方id(`ALL为全系统广播)
 
@@ -37,3 +37,9 @@ tsparam:([]time:`timespan$(); sym:`symbol$(); typ:`char$(); user:`symbol$(); ts:
 sysmsg:([]time:`timespan$(); sym:`symbol$(); typ:`symbol$(); ref:`symbol$(); msg:(); vbin:(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$()); /系统事件
 
 syslog:([]time:`timespan$(); sym:`symbol$(); typ:`symbol$(); msg:(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$()); /系统日志
+
+l2quote:quote;
+l2queue:([]time:`timespan$();sym:`symbol$();side:`char$();price:`float$();size:`float$();num:`long$();qtyQ:();extime:`timestamp$();src:`symbol$();srctime:`timestamp$();srcseq:`long$();dsttime:`timestamp$()); /Level-2 1档队列
+l2order:([]time:`timespan$();sym:`symbol$();side:`char$();typ:`char$();price:`float$();qty:`float$();gid:`int$();oid:`long$();origid:`long$();bizidx:`long$();extime:`timestamp$();src:`symbol$();srctime:`timestamp$();srcseq:`long$();dsttime:`timestamp$()); /Level-2 逐笔委托
+l2match:([]time:`timespan$();sym:`symbol$();side:`char$();typ:`char$();price:`float$();qty:`float$();amt:`float$();gid:`int$();mid:`long$();bid:`long$();aid:`long$();bizidx:`long$();extime:`timestamp$();src:`symbol$();srctime:`timestamp$();srcseq:`long$();dsttime:`timestamp$()); /Level-2 逐笔成交
+
