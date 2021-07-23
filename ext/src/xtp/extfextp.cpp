@@ -239,12 +239,12 @@ extern "C"{
   }
 
   K1(xtperror){
-    XTPRI *err=GetApiLastError();
+    XTPRI *err=pTradeApi->GetApiLastError();
     R kp(err->error_msg);
   }
   
   K1(xtpver){
-    R kp(GetApiVersion());
+    R kp((S)pTradeApi->GetApiVersion());
   }
   
   K3(insertOrder){

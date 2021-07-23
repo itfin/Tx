@@ -70,7 +70,7 @@ startnode:{[x]if[x in .conf.ha.nodelist;startmod each .conf.ha[x;`modules]];};
 
 gcall:{[x;y]if[0=count H:{x where 0<x} .ctrl.H;:()];neg[H]@\:(`.Q.gc;());1b};
 
-hball:{[x;y]{.ctrl.MOD[x;`hbsent]:.z.P;neg[.ctrl.MOD[x;`h]] ({[x]t:.z.P;neg[.z.w] ({[x;y;z]w:.z.P;.ctrl.MOD[x;`hbpeer`hbrecv`mem]:(y;w;z);d:1e-9*w-u:.ctrl.MOD[x;`hbsent];.temp.MS,:enlist (w;x;d;z);if[d>=.conf`maxdelay;lwarn[`delaytoolong;(x;d;u;y;w)]]};x;t;1e-6*.Q.w[]`heap)};x)} each exec id from .ctrl.MOD where 0<h;1b}; /mod heartbeat
+hball:{[x;y]{neg[.ctrl.MOD[x;`h]] ({[x;t0]neg[.z.w] ({[x;z;t0;t1].ctrl.MOD[x;`hbsent`hbpeer`hbrecv`mem]:(t0;t1;t2:.z.P;z);d:1e-9*t2-t0;.temp.MS,:enlist (t2;x;d;z);if[d>=.conf`maxdelay;lwarn[`delaytoolong;(x;d;t0;t1;t2)]]};x;1e-6*.Q.w[]`heap;t0;.z.P)};x;.z.P)} each exec id from .ctrl.MOD where 0<h;1b}; /mod heartbeat 
 
 nhall:{[x;y]{s:nodecmd[x;"mpstat -P ALL 1 1"];cu:1-1e-2*"F"$last flip {x where 13=count each x} {vs[" ";x] except enlist ""}each 3_s;s:nodecmd[x;"df -l -t ext4 --output=source,size,avail|grep ",string .ctrl.NOD[x;`diskdev]];du:1-last ratios "F"$-2#(vs[" "] s[0]) except enlist "";s:nodecmd[x;"free"];mu:{last ratios "F"$2#(1_vs[" "] x) except enlist ""}each 1_s;.temp.NS,:enlist (.z.P;x),.ctrl.NOD[x;`cpuuse`memuse`swapuse`diskuse`coreuse]:(cu[0];mu[0];mu[1];du;1_cu);if[any all each .conf[`maxcoreuse]<= flip first value flip select [neg[.conf.corechklen]]  cores from .temp.NS where id=x;lwarn[`cputoohigh;(x;cu)]]} each exec id from .ctrl.NOD;1b}; /nodehealth
 

@@ -115,3 +115,5 @@ batchpub:{[]n:count d:select sym,bid,ask,bsize,asize,price,high,low,vwap,cumqty,
 .ctrl.skipsyms:`symbol$()
 .ctrl.mhisbartime:(last .ctrl.histdates)+16:00
 .ctrl.mhisbarsymlst:asc exec sym from .db.QX where ex=`SEHK,status<10
+
+//.db.QX中status为空的非港A股代码自动订阅

@@ -20,4 +20,4 @@ unmap_column:{[]select from (raze {([]table:enlist x;columns:enlist where not un
 
 httpget1:{[host;location] r:(`$":http://",host)"GET ",location," HTTP/1.1\r\nHost:",host,"\r\n\r\n";i:first r ss "\r\n\r\n";(i+4) _ r}; /对于包含"\n"的二进制
 
-quote:{[x]"\"",(ssr[;"\\";"\\\\"] ssr[;"\"";"\\\""] x),"\""};
+quotestr:{[x]"\"",(ssr[;"\\";"\\\\"] ssr[;"\"";"\\\""] x),"\""};

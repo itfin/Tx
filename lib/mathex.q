@@ -22,48 +22,6 @@ lbfgs:qlbfgs[()]; /[f;f';x0] http://search.cpan.org/~laye/Algorithm-LBFGS/lib/Al
 
 speclu:{[x;y]d:sum x;L:(diag reciprocal d)$(diag d)-x;E:.qml.mev L;y:$[y<0;abs y;y&acna[E]];i:(neg y)#where 0<first each E[0];V:flip E[1][i];knn[`K`maxit`tol!(y;500;1e-10);V]}; /[相似度矩阵;分类数]谱聚类算法
 
-f_sphere:{[x]x$x};
-f_foxhole:{[a;x]m:count a;(1%0.002)+sum {1%(1+z)+sum (x-a[z]) xexp 6}[a;x] each til m};
-f_schaffer:{[x]y:x$x;0.5+((sin sqrt y)-0.5)%(1+0.001*y) xexp 2};
-f_rosenbrock:{[x]sum (100*((1_x)-(-1_x) xexp 2)xexp 2)+((-1_x)-1) xexp 2};
-f_rastrigin:{[x]sum 10+(x xexp 2)-10*cos 2*pi*x};
-f_schwefel:{[x]sum (neg x)* sin sqrt abs x};
-f_griewank:{[x]1+((sum (x-100) xexp 2)%4000)-prd cos (x-100) % sqrt 1+til count x};
-f_shubert:{[n;x]prd x {sum y+y*cos x*1+y}\: 1+til n};f_shubert_5:f_shubert[5];
-f_levyno3:{[n;x]y:1+til n;(sum y+y*cos x[0]*-1+y)*(sum y+y*cos x[0]*1+y)};
-f_ackley:{[x]20+e-(20*exp -0.2*sqrt (x$x)% count x)+exp sum cos 2*pi*x};
-
-adjmat:{[x]V:exec id from x;V in/: x[;`pa] each V}; /[gm]由有向图模型生成(反向)邻接矩阵pa(v)->v
-connmat:{[x]n:count x;y:(n,n)#0;z:x;do[n-1;y+:z;z*:x];y>0}; /[adjM]由邻接矩阵生成连通矩阵
-moral:{[x]x:x .[;;:;1b]/ (,/){{$[2>n:count x;();x comb[n;2]]} where x}each x;x|flip x}; /[(反向)邻接矩阵]在父节点间加边,有向图->无向图 
-
-fillin:{[x;y]I:{$[2>n:count x;();x comb[n;2]]} y;n:count I:I where not x ./:I;(n;x .[;;:;1b]/I,reverse each I)} /[无向邻接矩阵,顶点列表]在不相邻顶点间加边,返回(加边数;加边后邻接矩阵)      
-
-minfill:{[x;y;z]C:();e:();V:til n:count x;k:0;do[n-1;nb:where each x;fl:fillin[x] each nb;fisize:first each fl;fasize:prd each y V nb,'til count x;i:$[k<count z;V?z[k];first iasc fisize ,' fasize];c:V nb[i],i;if[not any c allin/:C;C,:enlist c];V _:i;x:{x _ y}[;i] each fl[i;1] _ i;k+:1];asc each C}; /[moralized邻接矩阵;顶点基数;优先消元顶点列表]使用minfill算法计算cliques.x:当前剩余节点连接矩阵,nb:相邻节点集,fl:模拟三角化,fisize:三角化需加边数,fasize:family总状态数,i:启发式消元下标,c:消元所在clique,x:去掉消元节点的邻接矩阵
-
-mst:{[x;y]z:();f:til x;n:count y;i:0;while[(i<n)&(1<x);if[(<>/) j:f e:y[i];z,:enlist e;f[where f=last j]:first j];i+:1];z}; /[顶点数;边按权重升序(降序)]minimal(maximal) spanning tree,返回生成树边列表
-
-cliquetree:{[x]I:comb[n:count x;2];w:{count (inter/) x} each x I;mst[n;I idesc w]}; /[cliqueset]
-
-axehole:{[x;y]x?((x?last y)#x) except y}; /[升序顶点集;升序子集]为保证势函数正确相乘对子集要填充的维度列表
-
-jtinit:{[x;y;z;u]V:exec id from x;y:V?y;z:V?z;u:V?u;if[(count z)&not any z allin/:y;y:(enlist z),y];m:('[last;fillin])/[moral adjmat x;y];N:count cs:minfill[m;D:exec dim from x;()];cs:cs where 1<count each cs;if[count z;i:first where z allin/:cs;cs:(cs _ i),enlist cs[i]];ct:cliquetree cs;F:$[count ct;(!/)flip ct;()!()];R:(til N)except key F;S:(cs key F) inter' cs F;L:sum each (key F)!not null flip value each (F\) F;PC:ones each D cs;PS:ones each D S[til N];fa:V?exec pa {x,y}'id from x;ci:first each where each fa allin/:\: cs;CPD:x[;`cpd] each V;i:0;do[count ci;if[(not i in u)&not null csi:ci[i];I:axehole[cs[csi];fa[i]];PC[csi]*:filldim/[CPD[i];I,'D cs[csi] I]];i+:1];`C`F`S`L`PC`PS`I`D`V!(cs;F;S;L;PC;PS;ci;D;V)}; /[gm;要求包含在同一Clique里的顶点集列表;要含在jree root节点里的顶点集;unroll顶点集(slice0 for DBN)]junction tree生成,unroll顶点集的条件分布不乘到对应Clique的势函数上
-
-propagate:{[x;y]N:count cs:y`C;PC:y`PC;PS:y`PS;S:y`S;F:y`F;D:y`D;I:idesc y`L;i:0;do[N-1;k:I[i];z:PS[k];PS[k]:levelat[count S[k];x/] flipxv[PC[k];cs[k]?S[k]];y:axehole[cs[F[k]];S[k]];PC[F[k]]*:filldim/[0f^PS[k]%z;y,'D cs[F[k]] y];i+:1];i-:1;do[N-1;k:I[i];z:PS[k];PS[k]:levelat[count S[k];x/] flipxv[PC[F[k]];cs[F[k]]?S[k]];y:axehole[cs[k];S[k]];PC[k]*:filldim/[0f^PS[k]%z;y,'D cs[k] y];i-:1];(PC;PS)}; /[传播函数;Junction tree]消息传播算法:cs(Cliques),PC(potential of Clique树的各节点),PS(potential of Clique树的各非根节点与父节点的Sep),S(Clique树的各非根节点与父节点的Sep成员),F(Clique树的各非根节点父节点在cs中序号),L(Clique树的各非根节点在树中深度),D(图模型各顶点状态数),I(消息上传顺序)
-
-margin:{[x;y;z]N:dim x;z:((til N) except y[0])?z;levelat[count z;sum/] flipxv[x . @[N#(::);y[0];:;y[1]];z]} /[联合概率;证据(证据维;证据值);查询维]计算边际分布或证据似然值
-
-jtree:{[J;vq;ev]cs:J`C;PC:J`PC;ci:J`I;D:J`D;qi:vq;ei:key ev;ev:value ev;$[count I:where qi allin/:cs;[i:I[0];k:0;do[count ei;j:ei[k];m:ci[j];lh:@[D[j]#0f;ev[k];:;1f];y:axehole[cs[m];j];PC[m]*:filldim/[lh;y,'D cs[m] y];k+:1];J[`PC]:PC;PC:first propagate[sum;J];margin[PC[i];(();());cs[i]?qi]];()]}; /[BayesNet;查询变量;证据变量]使用Jtree方法进行推理,当查询变量为空时证据似然值,只支持查询变量列表包在某个Clique里的情形 ;(count qi)&count I:where (qi,ei) allin/:cs;[i:I[0];margin[PC[i];(cs[i]?ei;ev);cs[i]?qi]];
-
-jtinf:{[bn;vq;ev]J:bn`J;V:J`V;$[count vq;normalize;::] jtree[J;V?vq;(V?key ev)!(value ev)]};
-
-fullpd:{[x]V:exec id from x;D:exec dim from x;prd exec (pa{x,y}'id) {[x;y;V;D]I:axehole[V;x];filldim/[y;I,'D I]}[;;V;D]' cpd from x}; /[gm]由图模型生成联合分布表.V:顶点列表,D:顶点状态数列表,对每个顶点,x:fa(x)=pa(x)U{x},y:CPD,I:需要填充的前导顶点序号列表.全概率P(V)=P(X)P(Y|X)P(Z|X,Y)...按顺序依次计算每个变量的扩展条件概率表
-
-naive:{[bn;vq;ev]F:bn`F;V:exec id from bn`M;$[count vq;normalize;::] margin[bn`F;(V?key ev;value ev);V?vq]}; /[BayesNet;查询变量;证据变量]使用Naive方法进行推理,当查询变量为空时证据似然值
-
-jtinit2:{[x]V:exec id from x;v0:exec id from x where null base;out0:(distinct raze exec pa from x where not null base) inter v0;e0:v0 except out0;J0:jtinit[select from x where null base;();out0;()];out1:exec id from x where base in out0;Jt:jtinit[update pa:(count e0)#() from (update pa:pa except\:e0 from x) where id in e0;(enlist out0);out1;v0];out0:V?out0;out1:V?out1;J0[`OF`OCI]:(out0;first where out0 allin/: J0`C);Jt[`IF`OF`ICI`0CI]:(out0;out1),first each where each (out0;out1) allin/:\:Jt`C;`J0`Jt!(J0;Jt)}; /gm
-
-jtinf2:{[bn;vq;evL]T:-1+count evL;J0:bn[`J2;`J0];Jt:bn[`J2;`Jt];V:Jt`V;D:Jt`D;ev:first evL;if[T=0;:jtree[J0;V?vq;(V?key ev)!(value ev)]];alpha:jtree[J0;J0`OF;(V?key ev)!(value ev)];ics:Jt[`C;Jt`ICI];I:axehole[ics;Jt`IF];ID:I,'D ics I;pci:Jt[`PC;Jt`ICI];i:1;do[T-1;ev:evL[i];Jt[`PC;Jt`ICI]:pci*filldim/[alpha;ID];alpha:jtree[Jt;Jt`OF;(V?key ev)!(value ev)];i+:1];ev:last evL;Jt[`PC;Jt`ICI]:pci*filldim/[alpha;ID];$[count vq;normalize;::] jtree[Jt;V?vq;(V?key ev)!(value ev)]}; /[2TBN型动态BayesNet;查询变量集;观测变量历史]
 
 
 

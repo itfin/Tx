@@ -3,7 +3,7 @@ maxcxlcnt:5;
 t0list:`511010.XSHG`518800.XSHG`518880.XSHG`159934.XSHE`159937.XSHE`159985.XSHE`511380.XSHG`159980.XSHE;
 t1list:`symbol$();
 useclosetoday:1b;
-closetodayexlist:enlist `XSGE;
+closetodayexlist:`XSGE`XINE;
 usecloseyestoday:0b;
 symblacklist:`symbol$();
 keepbar:0b;

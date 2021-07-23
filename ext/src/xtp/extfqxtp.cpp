@@ -108,7 +108,7 @@ public:
   }
 
   virtual void OnDepthMarketData(XTPMD *p, int64_t bid1_qty[], int32_t bid1_count, int32_t max_bid1_count, int64_t ask1_qty[], int32_t ask1_count, int32_t max_ask1_count){
-    K bp=ktn(KF,10),bq=ktn(KF,10),ap=ktn(KF,10),aq=ktn(KF,10),b1=ktn(KJ,max_bid1_count),a1=ktn(KJ,max_bid1_count);
+    K bp=ktn(KF,10),bq=ktn(KF,10),ap=ktn(KF,10),aq=ktn(KF,10),b1=ktn(KJ,bid1_count),a1=ktn(KJ,ask1_count);
     
     DO(10,kF(bp)[i]=p->bid[i])
       DO(10,kF(ap)[i]=p->ask[i])
@@ -136,9 +136,9 @@ public:
   }
   virtual void OnTickByTick(XTPTBT *p){
     if(XTP_TBT_ENTRUST==p->type){
-      mpub(knk(11,ks("Tick"),knk(59,ki(p->type),ki(p->exchange_id),kp(p->ticker),kj(p->seq),kj(p->data_time),ki(p->entrust.channel_no),kj(p->entrust.seq),kf(p->entrust.price),kj(p->entrust.qty),kc(p->entrust.side),kc(p->entrust.ord_type))));
+      mpub(knk(2,ks("TickOrder"),knk(11,ki(p->type),ki(p->exchange_id),kp(p->ticker),kj(p->seq),kj(p->data_time),ki(p->entrust.channel_no),kj(p->entrust.seq),kf(p->entrust.price),kj(p->entrust.qty),kc(p->entrust.side),kc(p->entrust.ord_type))));
     }else{
-      mpub(knk(11,ks("Tick"),knk(59,ki(p->type),ki(p->exchange_id),kp(p->ticker),kj(p->seq),kj(p->data_time),ki(p->trade.channel_no),kj(p->trade.seq),kf(p->trade.price),kj(p->trade.qty),kf(p->trade.money),kj(p->trade.bid_no),kj(p->trade.ask_no),kc(p->trade.trade_flag))));      
+      mpub(knk(2,ks("TickMatch"),knk(13,ki(p->type),ki(p->exchange_id),kp(p->ticker),kj(p->seq),kj(p->data_time),ki(p->trade.channel_no),kj(p->trade.seq),kf(p->trade.price),kj(p->trade.qty),kf(p->trade.money),kj(p->trade.bid_no),kj(p->trade.ask_no),kc(p->trade.trade_flag))));      
     }
   }
   
@@ -250,7 +250,8 @@ extern "C"{
 
     pQuoteApi->SetUDPBufferSize(kK(x)[3]->i);
     pQuoteApi->SetHeartBeatInterval(kK(x)[4]->i);
-
+    pQuoteApi->SetUDPSeqLogOutPutFlag(0<kK(x)[5]->g);
+    
     r=pQuoteApi->Login(kK(y)[0]->s, kK(y)[1]->i,kK(y)[2]->s,kK(y)[3]->s,(0<kK(y)[4]->i)?XTP_PROTOCOL_TCP:XTP_PROTOCOL_UDP);
     if(r){errinfo=pQuoteApi->GetApiLastError();mpub(knk(2,ks("LoginFailQ"),knk(3,ki(r),ki(errinfo->error_id),kp(errinfo->error_msg))));R ki(-11000);}
     mpub(knk(2,ks("LoginQ"),knk(2,kp((S)pQuoteApi->GetApiVersion()),kp((S)pQuoteApi->GetTradingDay()))));
