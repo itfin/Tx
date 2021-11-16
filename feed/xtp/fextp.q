@@ -1,9 +1,9 @@
-.module.fextp:2019.12.17;
+.module.fextp:2021.09.28;
 
 txload "core/febase";
 txload "feed/xtp/xtpbase";
 
-`initxtpt`freextpt`xtptrun`insertOrder`cancelOrder`queryOrder`queryAllOrder`queryTrade`queryAllTrade`queryPos`queryAsset`transFund`qryFundTrans`qryETF`qryETFPCF`qryIPO`qryIPOQuota`qryOption`loginALGO`establishAlgoChannel`insertOrderAlgo`cancelOrderAlgo`queryOrderAlgo {x set `extfextp 2:(x;y);}' 2 1 1,(15#3),1 2,3#3;
+(`initxtpt`freextpt`xtptrun`insertOrder`cancelOrder`queryOrder`queryAllOrder`queryTrade`queryAllTrade`queryPos`queryAsset`transFund`qryFundTrans`qryETF`qryETFPCF`qryIPO`qryIPOQuota`qryOption,$[1b~.conf.xtp[`usealgo];`xtpver`loginALGO`establishAlgoChannel`insertOrderAlgo`cancelOrderAlgo`queryOrderAlgo;`symbol$()]) {x set $[1b~.conf.xtp[`usealgo];`extfextpalgo;`extfextp] 2:(x;y);}' 2 1 1,(15#3),$[1b~.conf.xtp[`usealgo];1 1 2,3#3;`long$()];
 
 .ctrl.O:$[`ft=.conf.feedtype;`O1;`O];
 

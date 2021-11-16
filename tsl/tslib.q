@@ -23,6 +23,14 @@ synbar_libbar:{[x]b:exec last time,first sym,freq:`second$.db.Ts[x;`Cp;`barfreq]
 //libext:外接委托指令日终清除在kdb内的持仓(因不准确)
 onr_libext:{[x;y]delete from `.db.P where ts=x;}; /[tid;z.D]
 
+//libtask:定时委托条件单任务触发器
+//.db.ORDTASK:([id:`symbol$()]expire:`boolean$();ts:`symbol$();sym:`symbol$();side:`char$();qty:`float$();price:`float$();datemin:`date$();datemax:`date$();timemin:`time$();timemax:`time$();condfun:();lastrun:());
+//.db.TASK[`ORDTASK;`firetime`firefreq`weekmin`weekmax`handler]:(.z.D+`second$.z.T;0D00:00:01;0;4;`ordtimer_libtask);
+ordcheck_libtask:{[x]m:`$"libtask_",string[x];r:.db.ORDTASK[x];d:vtd[];t:.z.T;y:r`ts;z:r`sym;w:r`side;q:r`qty;h:.db.QX[z];p:r`price;p:$[p in 0 0n;h $[w=.enum`BUY;`ask;`bid];p=-0w;h`inf;p=0w;h`sup;p];if[(d<r`datemin)|((d>d1)&not null d1:r`datemax)|(t<r`timemin)|((t>t1)&not null t1:r`timemax)|(0>=q)|(p<h`inf)|(p>h`sup)|0<exec count i from .db.O where ref=m;:()];if[not ()~cf:r`condfun;if[not 1b~cf[y;z];:()]];if[not any t within/:trdsess[z];:()];k:limit_order[w;0N;y;z;q;p;m];.db.ORDTASK[x;`lastrun]:(now[];k);if[(null d1)|d>=d1;.db.ORDTASK[x;`expire]:1b];};
+ordtimer_libtask:{[x;y]ordcheck_libtask each exec id from .db.ORDTASK where not expire;1b};
+
+
+
 //tsstat:从委托表将开平仓组合为交易并进行盈亏统计
 
 pdstat:{[x].temp.t0:(.ctrl.conn.hdb.h "select cumamt:last cumqty*price,last price,last openint by sym from quote where date=last date,cumqty>0,src=`fqctp") lj 1!.ctrl.conn.hdb.h "{select sym,15 xbar dend+00:10,nend:15 xbar 00:10+nend0^nend1 from (select sym,dend:time from x where sess=09:00) lj (1!select sym,nend0:time from x where sess=21:00) lj  (1!select sym,nend1:time from x where sess=00:00)} select from (select last `minute$time by sym,sess:(`s#{x!x}`s#00:00 04:00 09:00 16:00 21:00 24:00) `minute$time from quote where date=last date,src=`fqctp,cumqty>(prev;cumqty) fby sym,bid>0,ask>0) where sess in 00:00 09:00 21:00";.temp.t1:(select last multiplier,last product,last ex,last pxunit,last rmarginl,last rfeetaxoa,last rfeetaxoq,last name by sym from .db.QX where not null product,1<=multiplier) lj (select sp:last product by `${[x]y:3_x;(floor(count[y]-1)%2)#y} each string product from .db.QX where not null product,sym like "SP *"),select sp:last product by `${[x]y:4_x;(floor(count[y]-1)%2)#y} each string product from .db.QX where not null product,sym like "SPD *";.temp.t2:.temp.t0 uj .temp.t1;t:0!.db.PD:update feeunit:2*fee%pxunit*multiplier,sess:getsess\'[ex;dend;nend] from update sumpct:sums amtpct,rmarginl*1e2,margin:rmarginl*size,fee:rfeetaxoq+rfeetaxoa*size,feebp:1e4*(rfeetaxoa+rfeetaxoq%size) from update amtpct:1e2*cumamt%sum cumamt,seq:i+1,size:price*multiplier,bpunit:1e4*pxunit%price from desc (select sum cumamt*multiplier*1e-8,last ex,last sp,last multiplier,last pxunit by product from .temp.t2) lj select last sym,last price,last rmarginl,last rfeetaxoa,last rfeetaxoq,last name,last dend,last nend by product from .temp.t2 where openint=(max;openint) fby product;};

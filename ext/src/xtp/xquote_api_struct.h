@@ -245,27 +245,35 @@ typedef struct OrderBookStruct {
 ////////////////////////////////// 逐笔数据
 
 
-///逐笔委托(仅适用深交所)
+///逐笔委托
 struct XTPTickByTickEntrust {
     ///频道代码
     int32_t channel_no;
-    ///委托序号(在同一个channel_no内唯一，从1开始连续)
+    ///SH: 委托序号(委托单独编号, 同一channel_no内连续)
+    ///SZ: 委托序号(委托成交统一编号, 同一channel_no内连续)
     int64_t seq;
     ///委托价格
     double  price;
-    ///委托数量
+    ///SH: 剩余委托数量(balance)
+    ///SZ: 委托数量
     int64_t qty;
-    ///'1':买; '2':卖; 'G':借入; 'F':出借
+    ///SH: 'B':买; 'S':卖
+    ///SZ: '1':买; '2':卖; 'G':借入; 'F':出借
     char  side;
-    ///订单类别: '1': 市价; '2': 限价; 'U': 本方最优
+    ///SH: 'A': 增加; 'D': 删除
+    ///SZ: 订单类别: '1': 市价; '2': 限价; 'U': 本方最优
     char ord_type;
+    ///SH: 原始订单号
+    ///SZ: 无意义
+    int64_t order_no;
 };
 
 ///逐笔成交
 struct XTPTickByTickTrade {
     ///频道代码
     int32_t channel_no;
-    ///委托序号(在同一个channel_no内唯一，从1开始连续)
+    ///SH: 成交序号(成交单独编号, 同一channel_no内连续)
+    ///SZ: 成交序号(委托成交统一编号, 同一channel_no内连续)
     int64_t seq;
     ///成交价格
     double price;
@@ -288,7 +296,8 @@ typedef struct XTPTickByTickStruct {
     XTP_EXCHANGE_TYPE exchange_id;
     ///合约代码（不包含交易所信息），不带空格，以'\0'结尾
     char ticker[XTP_TICKER_LEN];
-    ///预留
+    /// SH: 业务序号（委托成交统一编号，同一个channel_no内连续，此seq区别于联合体内的seq，channel_no等同于联合体内的channel_no）
+    /// SZ: 无意义
     int64_t seq;
     ///委托时间 or 成交时间
     int64_t data_time;
@@ -340,7 +349,9 @@ typedef struct XTPQuoteFullInfo {
 	int32_t market_ask_qty_upper_limit;						///<市价卖委托数量上限
 	int32_t market_ask_qty_lower_limit;						///<市价卖委托数量上限
 	int32_t market_ask_qty_unit;							///<市价卖数量单位
-	uint64_t unknown[4];									///<保留字段
+	XTP_SECURITY_STATUS security_status;                    ///<证券状态
+	uint32_t unknown1;                                      ///<保留字段
+	uint64_t unknown[3];                                    ///<保留字段
 }XTPQFI;
 
 #pragma pack()

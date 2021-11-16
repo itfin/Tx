@@ -26,11 +26,11 @@ StateEnter:(`symbol$())!`timestamp$();
 .temp:.enum.nulldict;
 
 \d .db
-seq:0;
+seq0:seq:0;
 sysdate:.z.D;
 TASK:([id:`symbol$()] expire:`boolean$(); firetime:`timestamp$(); firefreq:`timespan$(); datemin:`date$(); datemax:`date$(); weekmin:`int$(); weekmax:`int$(); timemin:`time$(); timemax:`time$(); handler:(); lastfire:());
 
-QX:([`u#sym:`symbol$()] ex:`symbol$(); esym:`symbol$(); name:`symbol$(); ticker:`symbol$(); status:`int$(); mode:`symbol$(); open:`float$(); vwap:`float$(); size:`float$(); sup:`float$(); inf:`float$(); pc:`float$(); scale:`float$(); date:`date$(); time:`timespan$(); price:`float$(); cumqty:`float$(); cumamt:`float$(); high:`float$(); low:`float$(); bid:`float$(); bsize:`float$(); ask:`float$(); asize:`float$(); bidQ:0#enlist`float$(); bsizeQ:0#enlist`float$(); askQ:0#enlist`float$(); asizeQ:0#enlist`float$(); bnum:`long$(); bqtyQ:0#enlist`float$(); anum:`long$(); aqtyQ:0#enlist`float$(); openint:`float$(); settlepx:`float$(); quoopt:(); refopt:();  recvtime:`timestamp$(); extime:`timestamp$(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); nticks:`long$(); settledate:`date$(); settleperiod:`int$(); industry:`symbol$(); underlying:`symbol$(); assetclass:`symbol$(); product:`symbol$(); multiplier:`float$(); pxunit:`float$(); qtylot:`float$(); qtyscale:`float$(); qtyminl:`float$(); qtymins:`float$(); qtymax:`float$(); qtymaxm:`float$(); qtymaxl:`float$(); qtymaxs:`float$(); margintype:`symbol$(); rmarginl:`float$(); rmargins:`float$(); rmarginoq:`float$(); rmarginmq:`float$(); rmarginioq:`float$(); rmarginimq:`float$(); rfeetaxoa:`float$(); rfeetaxoq:`float$(); rfeetaxca:`float$(); rfeetaxcq:`float$(); rfeetaxcat:`float$(); rfeetaxcqt:`float$(); rfeetaxom:`float$(); rfeetaxcm:`float$(); rfeetaxctm:`float$(); date1:`date$(); time1:`time$(); opendate:`date$(); createdate:`date$(); lifephase:`symbol$(); currency:`symbol$(); putcall:`symbol$(); optexec:`symbol$(); optsettle:`symbol$(); strikepx:`float$(); isin:`symbol$(); cficode:`symbol$(); sectype:`symbol$(); secclass:`symbol$(); secstatus:`symbol$(); tradetype:`symbol$(); tradephase:`symbol$(); suspendtype:`symbol$(); state:`symbol$(); remark:`symbol$(); sec_key:`symbol$(); ex1:`symbol$(); cficode:`symbol$(); notice:`symbol$() ); /L1 Static
+QX:([`u#sym:`symbol$()] ex:`symbol$(); esym:`symbol$(); name:`symbol$(); ticker:`symbol$(); status:`int$(); mode:`symbol$(); open:`float$(); vwap:`float$(); size:`float$(); sup:`float$(); inf:`float$(); pc:`float$(); scale:`float$(); date:`date$(); time:`timespan$(); price:`float$(); cumqty:`float$(); cumamt:`float$(); high:`float$(); low:`float$(); bid:`float$(); bsize:`float$(); ask:`float$(); asize:`float$(); bidQ:0#enlist`float$(); bsizeQ:0#enlist`float$(); askQ:0#enlist`float$(); asizeQ:0#enlist`float$(); bnum:`long$(); bqtyQ:0#enlist`float$(); anum:`long$(); aqtyQ:0#enlist`float$(); openint:`float$(); settlepx:`float$(); quoopt:(); refopt:();  recvtime:`timestamp$(); extime:`timestamp$(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$(); nticks:`long$(); settledate:`date$(); settleperiod:`int$(); industry:`symbol$(); underlying:`symbol$(); assetclass:`symbol$(); product:`symbol$(); multiplier:`float$(); pxunit:`float$(); qtylot:`float$(); qtyscale:`float$(); qtyminl:`float$(); qtymins:`float$(); qtymax:`float$(); qtymaxm:`float$(); qtymaxl:`float$(); qtymaxs:`float$(); margintype:`symbol$(); rmarginl:`float$(); rmargins:`float$(); rmarginoq:`float$(); rmarginmq:`float$(); rmarginioq:`float$(); rmarginimq:`float$(); rfeetaxoa:`float$(); rfeetaxoq:`float$(); rfeetaxca:`float$(); rfeetaxcq:`float$(); rfeetaxcat:`float$(); rfeetaxcqt:`float$(); rfeetaxom:`float$(); rfeetaxcm:`float$(); rfeetaxctm:`float$(); date1:`date$(); time1:`time$(); opendate:`date$(); createdate:`date$(); lifephase:`symbol$(); currency:`symbol$(); putcall:`symbol$(); optexec:`symbol$(); optsettle:`symbol$(); strikepx:`float$(); isin:`symbol$(); cficode:`symbol$(); sectype:`symbol$(); secclass:`symbol$(); secstatus:`symbol$(); tradetype:`symbol$(); tradephase:`symbol$(); suspendtype:`symbol$(); state:`symbol$(); remark:`symbol$(); sec_key:`symbol$(); ex1:`symbol$(); cficode:`symbol$(); notice:`symbol$() ); /L1 Static
 
 LOG:([]sym:`symbol$();typ:`symbol$();msg:0#enlist "";logtime:`timestamp$());
 
@@ -48,7 +48,7 @@ S:([mid:`symbol$();ref:`symbol$();state:`symbol$()]active:`boolean$();updtime:`t
 
 .init.base:{[x].ctrl.init:1b;loaddb[];.ctrl[`status`inittime]:(`Inited;.z.P);};
 .timer.base:{[x]if[not `init in key `.ctrl;.init[;x];];chkconn[];chksub[];};
-.roll.base:{[x]clearapi[];cleartemp[];.[.conf.histdb;(.conf.me;`LOG);,;.db.LOG];delete from `.db.LOG;.db.sysdate:x;}; /savedb[];
+.roll.base:{[x]clearapi[];cleartemp[];.[.conf.histdb;(.conf.me;`LOG);,;.db.LOG];delete from `.db.LOG;.db.seq0:0^jfill .conf[`seq0base];.db.sysdate:x;}; /savedb[];
 
 .base.boot:{[].ctrl[`boot`boottime]:(1b;.z.P);system "S ",string `int$.z.T;.base.cmdopt:first each .Q.opt .z.x;if[count cf:.base.cmdopt`conf;cfload cf];if[count cd:.base.cmdopt`code;@[value;cd;()]];};
 
@@ -89,13 +89,13 @@ upd:{[t;x]$[t in tables[];[if[1b~.conf[`dumpapi];insert[t;update dsttime:.z.P fr
 
 display:{(,/) `_.disp[;]};
 
-.timer.task:{[x]{[x;now]y:.db.TASK[x;`firetime];d:`date$y;t:`time$y;w:d-`week$y;w0:.db.TASK[x;`weekmin];w1:.db.TASK[x;`weekmax];d0:.db.TASK[x;`datemin];d1:.db.TASK[x;`datemax];t0:.db.TASK[x;`timemin];t1:.db.TASK[x;`timemax];ff:.db.TASK[x;`firefreq];z:.db.TASK[x;`firetime]+ff;if[z<now;z+:ff*ceiling (now-z)%ff];if[(w>=w0)&((w<=w1)|(null w1))&(d>=d0)&((d<=d1)|(null d1))&(t>=t0)&((t<=t1)|(null t1));r:.[{$[0>type x;value;::]x} .db.TASK[x;`handler];(x;now);()];.db.TASK[x;`lastfire]:(.z.P;r);if[not 1b~r;lwarn[`taskrun;(x;now;r)]]];$[(null z)|(not null d1)&(d1<`date$z);.db.TASK[x;`expire]:1b;.db.TASK[x;`firetime]:z];}[;x] each exec id from .db.TASK where not expire,not null handler,firetime<=x;};
+.timer.task:{[x]{[x;now]y:.db.TASK[x;`firetime];d:`date$y;t:`time$y;w:d-`week$y;w0:.db.TASK[x;`weekmin];w1:.db.TASK[x;`weekmax];d0:.db.TASK[x;`datemin];d1:.db.TASK[x;`datemax];t0:.db.TASK[x;`timemin];t1:.db.TASK[x;`timemax];ff:.db.TASK[x;`firefreq];z:.db.TASK[x;`firetime]+ff;if[z<now;z+:ff*ceiling (now-z)%ff];if[(w>=w0)&((w<=w1)|(null w1))&(d>=d0)&((d<=d1)|(null d1))&(t>=t0)&((t<=t1)|(null t1));zp:.z.P;r:.[{$[0>type x;value;::]x} .db.TASK[x;`handler];(x;now);()];.db.TASK[x;`lastfire]:(zp;.z.P;r);if[not 1b~r;lwarn[`taskrun;(x;now;r)]]];$[(null z)|(not null d1)&(d1<`date$z);.db.TASK[x;`expire]:1b;.db.TASK[x;`firetime]:z];}[;x] each exec id from .db.TASK where not expire,not null handler,firetime<=x;};
 
 .zpc.base:{[x]{if[x=.ctrl.conn[y;`h];.ctrl.conn[y;`h`disctime]:(-1;.z.P);if[y in key `.ctrl.sub;.ctrl.sub[y;`sub]:0b]]}[x] each tkey .ctrl.conn;};
 
 .upd.BeginOfDay:{[x].ctrl[`rollstart]:.z.P;{@[.roll[x];y;()]}[;"D"$x`msg] each (key .roll) except `;.Q.gc[];.ctrl[`rollend]:.z.P;savedb[];};
 
-newseq:{[]:.db.seq+:1};newidl:{[]`$string newseq[]};newid:{[]` sv .conf.id,`$string newseq[]};
+newseq:{[]:.db.seq+:1};newidl:{[]`$string newseq[]};newid:{[]` sv .conf.id,`$string newseq[]};newseq0:{[]:.db.seq0+:1};newidl0:{[]`$string newseq0[]};newid0:{[]` sv .conf.id,`$string newseq0[]};
 fs2se:{[x]`$"." vs string x};se2fs:{[x]`$"." sv string x};fs2e:{last fs2se x};fs2s:{first fs2se x};
 now:{.z.P};ntd:{.z.D};vtd:{.db.sysdate};
 clearapi:{[]{delete from x;@[x;`sym;`g#];} each tables[]};

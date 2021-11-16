@@ -119,9 +119,9 @@ public:
       
       
       if(XTP_MARKETDATA_ACTUAL==p->data_type){  
-	mpub(knk(2,ks("DepthMD"),knk(59,ki((I)p->data_type),ki((I)p->exchange_id),kp(p->ticker),kf(p->last_price),kf(p->pre_close_price),kf(p->open_price),kf(p->high_price),kf(p->low_price),kf(p->close_price),kf(p->pre_total_long_positon),ki(p->total_long_positon),kf(p->pre_settl_price),kf(p->settl_price),kf(p->upper_limit_price),kf(p->lower_limit_price),kf(p->pre_delta),kf(p->curr_delta),kj(p->data_time),kj(p->qty),kf(p->turnover),kf(p->avg_price),bp,ap,bq,aq,b1,a1,kj(p->trades_count),kp(p->ticker_status),kj(p->stk.total_bid_qty),kj(p->stk.total_ask_qty),kf(p->stk.ma_bid_price),kf(p->stk.ma_ask_price),kf(p->stk.ma_bond_bid_price),kf(p->stk.ma_bond_ask_price),kf(p->stk.yield_to_maturity),kf(p->stk.iopv),ki(p->stk.etf_buy_count),ki(p->stk.etf_sell_count),kf(p->stk.etf_buy_qty),kf(p->stk.etf_buy_money),kf(p->stk.etf_sell_qty),kf(p->stk.etf_sell_money),kf(p->stk.total_warrant_exec_qty),kf(p->stk.warrant_lower_price),kf(p->stk.warrant_upper_price),ki(p->stk.cancel_buy_count),ki(p->stk.cancel_sell_count),kf(p->stk.cancel_buy_qty),kf(p->stk.cancel_sell_qty),kf(p->stk.cancel_buy_money),kf(p->stk.cancel_sell_money),kj(p->stk.total_buy_count),kj(p->stk.total_sell_count),ki(p->stk.duration_after_buy),kf(p->stk.duration_after_sell),ki(p->stk.num_bid_orders),ki(p->stk.num_ask_orders),kf(p->stk.pre_iopv))));
+	mpub(knk(2,ks("DepthMD"),knk(61,ki((I)p->data_type),ki((I)p->exchange_id),kp(p->ticker),kf(p->last_price),kf(p->pre_close_price),kf(p->open_price),kf(p->high_price),kf(p->low_price),kf(p->close_price),kf(p->pre_total_long_positon),ki(p->total_long_positon),kf(p->pre_settl_price),kf(p->settl_price),kf(p->upper_limit_price),kf(p->lower_limit_price),kf(p->pre_delta),kf(p->curr_delta),kj(p->data_time),kj(p->qty),kf(p->turnover),kf(p->avg_price),bp,ap,bq,aq,b1,a1,ki(max_bid1_count),ki(max_ask1_count),kj(p->trades_count),kp(p->ticker_status),kj(p->stk.total_bid_qty),kj(p->stk.total_ask_qty),kf(p->stk.ma_bid_price),kf(p->stk.ma_ask_price),kf(p->stk.ma_bond_bid_price),kf(p->stk.ma_bond_ask_price),kf(p->stk.yield_to_maturity),kf(p->stk.iopv),ki(p->stk.etf_buy_count),ki(p->stk.etf_sell_count),kf(p->stk.etf_buy_qty),kf(p->stk.etf_buy_money),kf(p->stk.etf_sell_qty),kf(p->stk.etf_sell_money),kf(p->stk.total_warrant_exec_qty),kf(p->stk.warrant_lower_price),kf(p->stk.warrant_upper_price),ki(p->stk.cancel_buy_count),ki(p->stk.cancel_sell_count),kf(p->stk.cancel_buy_qty),kf(p->stk.cancel_sell_qty),kf(p->stk.cancel_buy_money),kf(p->stk.cancel_sell_money),kj(p->stk.total_buy_count),kj(p->stk.total_sell_count),ki(p->stk.duration_after_buy),kf(p->stk.duration_after_sell),ki(p->stk.num_bid_orders),ki(p->stk.num_ask_orders),kf(p->stk.pre_iopv))));
       }else if(XTP_MARKETDATA_OPTION==p->data_type){
-	mpub(knk(2,ks("DepthMD"),knk(32,ki((I)p->data_type),ki((I)p->exchange_id),kp(p->ticker),kf(p->last_price),kf(p->pre_close_price),kf(p->open_price),kf(p->high_price),kf(p->low_price),kf(p->close_price),kf(p->pre_total_long_positon),ki(p->total_long_positon),kf(p->pre_settl_price),kf(p->settl_price),kf(p->upper_limit_price),kf(p->lower_limit_price),kf(p->pre_delta),kf(p->curr_delta),kj(p->data_time),kj(p->qty),kf(p->turnover),kf(p->avg_price),bp,ap,bq,aq,b1,a1,kj(p->trades_count),kp(p->ticker_status),kf(p->opt.auction_price),kj(p->opt.auction_qty),kj(p->opt.last_enquiry_time))));	
+	mpub(knk(2,ks("DepthMD"),knk(34,ki((I)p->data_type),ki((I)p->exchange_id),kp(p->ticker),kf(p->last_price),kf(p->pre_close_price),kf(p->open_price),kf(p->high_price),kf(p->low_price),kf(p->close_price),kf(p->pre_total_long_positon),ki(p->total_long_positon),kf(p->pre_settl_price),kf(p->settl_price),kf(p->upper_limit_price),kf(p->lower_limit_price),kf(p->pre_delta),kf(p->curr_delta),kj(p->data_time),kj(p->qty),kf(p->turnover),kf(p->avg_price),bp,ap,bq,aq,b1,a1,ki(max_bid1_count),ki(max_ask1_count),kj(p->trades_count),kp(p->ticker_status),kf(p->opt.auction_price),kj(p->opt.auction_qty),kj(p->opt.last_enquiry_time))));	
       }else{}
   }
 
@@ -136,7 +136,7 @@ public:
   }
   virtual void OnTickByTick(XTPTBT *p){
     if(XTP_TBT_ENTRUST==p->type){
-      mpub(knk(2,ks("TickOrder"),knk(11,ki(p->type),ki(p->exchange_id),kp(p->ticker),kj(p->seq),kj(p->data_time),ki(p->entrust.channel_no),kj(p->entrust.seq),kf(p->entrust.price),kj(p->entrust.qty),kc(p->entrust.side),kc(p->entrust.ord_type))));
+      mpub(knk(2,ks("TickOrder"),knk(12,ki(p->type),ki(p->exchange_id),kp(p->ticker),kj(p->seq),kj(p->data_time),ki(p->entrust.channel_no),kj(p->entrust.seq),kf(p->entrust.price),kj(p->entrust.qty),kc(p->entrust.side),kc(p->entrust.ord_type),kj(p->entrust.order_no))));
     }else{
       mpub(knk(2,ks("TickMatch"),knk(13,ki(p->type),ki(p->exchange_id),kp(p->ticker),kj(p->seq),kj(p->data_time),ki(p->trade.channel_no),kj(p->trade.seq),kf(p->trade.price),kj(p->trade.qty),kf(p->trade.money),kj(p->trade.bid_no),kj(p->trade.ask_no),kc(p->trade.trade_flag))));      
     }
@@ -241,6 +241,7 @@ extern "C"{
 
     run++;
     INITLOCK;
+    setm(1);
     sd1(p[0],onmq);
     pQuoteApi = XTP::API::QuoteApi::CreateQuoteApi(kK(x)[0]->i,kK(x)[1]->s,(XTP_LOG_LEVEL)kK(x)[2]->i);
     if(NULL==pQuoteApi) R ki(-10004);
@@ -251,7 +252,8 @@ extern "C"{
     pQuoteApi->SetUDPBufferSize(kK(x)[3]->i);
     pQuoteApi->SetHeartBeatInterval(kK(x)[4]->i);
     pQuoteApi->SetUDPSeqLogOutPutFlag(0<kK(x)[5]->g);
-    
+
+    O("[Login](%s,%d,%s,%s,%d)\n",kK(y)[0]->s, kK(y)[1]->i,kK(y)[2]->s,kK(y)[3]->s,(0<kK(y)[4]->i)?XTP_PROTOCOL_TCP:XTP_PROTOCOL_UDP);
     r=pQuoteApi->Login(kK(y)[0]->s, kK(y)[1]->i,kK(y)[2]->s,kK(y)[3]->s,(0<kK(y)[4]->i)?XTP_PROTOCOL_TCP:XTP_PROTOCOL_UDP);
     if(r){errinfo=pQuoteApi->GetApiLastError();mpub(knk(2,ks("LoginFailQ"),knk(3,ki(r),ki(errinfo->error_id),kp(errinfo->error_msg))));R ki(-11000);}
     mpub(knk(2,ks("LoginQ"),knk(2,kp((S)pQuoteApi->GetApiVersion()),kp((S)pQuoteApi->GetTradingDay()))));
@@ -279,7 +281,10 @@ extern "C"{
   K1(xtpqrun){
     R ki(run);
   } 
-
+  K1(xtpver){
+    R kp((S)pQuoteApi->GetApiVersion());
+  }
+    
   K1(submkt){ //([x:market]1:SH,2:SZ,3:All)
     I r=pQuoteApi->SubscribeAllMarketData((XTP_EXCHANGE_TYPE)xi);
     XTPPUBERR(r,"submkt")

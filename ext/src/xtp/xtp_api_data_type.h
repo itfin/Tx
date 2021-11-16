@@ -570,6 +570,8 @@ typedef enum XTP_SECURITY_TYPE {
 	XTP_SECURITY_ETF_SINGLE_MARKET_STOCK = 14,
 	/// 跨市场股票 ETF
 	XTP_SECURITY_ETF_INTER_MARKET_STOCK,
+	// 跨境股票 ETF
+	XTP_SECURITY_ETF_CROSS_BORDER_STOCK = 16,
 	/// 本市场实物债券 ETF
 	XTP_SECURITY_ETF_SINGLE_MARKET_BOND = 17,
 	/// 黄金 ETF
@@ -595,6 +597,29 @@ typedef enum XTP_SECURITY_TYPE {
 	/// 其他
 	XTP_SECURITY_OTHERS = 255
 }XTP_SECURITY_TYPE;
+
+/////////////////////////////////////////////////////////////////////////
+///@brief XTP_POSITION_SECURITY_TYPE是一个持仓证券枚举类型
+/////////////////////////////////////////////////////////////////////////
+typedef enum  XTP_POSITION_SECURITY_TYPE
+{
+	XTP_POSITION_SECURITY_NORMAL = 0,			///<普通持仓
+	XTP_POSITION_SECURITY_PLACEMENT = 1,		///<配售类型的持仓，包含配股、配债等
+	XTP_POSITION_SECURITY_UNKNOWN = 2			///<未知类型
+}XTP_POSITION_SECURITY_TYPE;
+
+/////////////////////////////////////////////////////////////////////////
+///@brief XTP_SECURITY_STATUS是一个证券状态枚举类型
+/////////////////////////////////////////////////////////////////////////
+typedef enum  XTP_SECURITY_STATUS
+{
+	XTP_SECURITY_STATUS_ST = 0,         ///< 风险警示板
+	XTP_SECURITY_STATUS_N_IPO,          ///< 首日上市
+	XTP_SECURITY_STATUS_COMMON,         ///< 普通
+	XTP_SECURITY_STATUS_RESUME,         ///< 恢复上市
+	XTP_SECURITY_STATUS_DELISTING = 10, ///< 退市整理期
+	XTP_SECURITY_STATUS_OTHERS = 255    ///< 其他
+}XTP_SECURITY_STATUS;
 
 #pragma pack()
 

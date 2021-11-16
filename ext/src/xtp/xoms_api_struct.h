@@ -300,8 +300,14 @@ struct XTPQueryAssetRsp
     double fund_cancel_data_charges;
     //流量费统计新增字段结束（数量2）
 
+    ///交易所实时风险度（仅限期权账户,后续服务器版本支持，目前为0）
+    double exchange_cur_risk_degree;
+    ///公司实时风险度（仅限期权账户,后续服务器版本支持，目前为0）
+    double company_cur_risk_degree;
+    //风险度新增字段结束（数量2）
+
     ///(保留字段)
-    uint64_t unknown[43 - 12 - 1 - 2];
+    uint64_t unknown[43 - 12 - 1 - 2 - 2];
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -342,8 +348,8 @@ struct XTPQueryStkPositionRsp
 	//以下为期权用户关心字段
     /// 持仓方向
 	XTP_POSITION_DIRECTION_TYPE      position_direction;
-	///保留字段1
-	uint32_t			reserved1;
+	///持仓类型(此字段所有账户都可能用到，可以用来区分股份是否为配售)
+	XTP_POSITION_SECURITY_TYPE		position_security_type;
     /// 可行权合约
     int64_t             executable_option;
     /// 可锁定标的
@@ -713,7 +719,7 @@ typedef struct XTPOptCombLegInfo {
 
 ///期权组合策略报单附加信息结构体
 typedef struct XTPOptCombPlugin {
-    char                                strategy_id[XTP_STRATEGY_ID_LEN];               ///< 组合策略代码，比如CNSJC认购牛市价差策略等。
+    char                                strategy_id[XTP_STRATEGY_ID_LEN];               ///< 组合策略代码，比如CNSJC认购牛市价差策略等。合并行权时，此字段可为空
     char                                comb_num[XTP_SECONDARY_ORDER_ID_LEN];           ///< 组合编码，组合申报时，该字段为空；拆分申报时，填写拟拆分组合的组合编码。
     int32_t                             num_legs;                                       ///< 成分合约数
     XTPOptCombLegInfo                   leg_detail[XTP_STRATEGE_LEG_NUM];               ///< 成分合约数组，最多四条腿。
@@ -876,7 +882,7 @@ typedef struct XTPCrdDebtInfo
 typedef struct XTPCrdFundInfo
 {
     double maintenance_ratio;       ///< 维持担保品比例
-    double all_asset;               ///< 总资产
+    double all_asset;               ///< 总资产(包含证券资产)
     double all_debt;                ///< 总负债
     double line_of_credit;          ///< 两融授信额度
     double guaranty;                ///< 两融保证金可用数
@@ -919,10 +925,10 @@ typedef struct XTPClientQueryCrdPositionStkInfo
 {
     XTP_MARKET_TYPE market;                 ///< 证券市场
     char            ticker[XTP_TICKER_LEN]; ///< 证券代码
-    int64_t         limit_qty;              ///< 融券限量
-    int64_t         yesterday_qty;          ///< 昨日日融券数量
+    int64_t         limit_qty;              ///< 融券限量(保留字段)
+    int64_t         yesterday_qty;          ///< 昨日日融券数量(保留字段)
     int64_t         left_qty;               ///< 剩余可融券数量
-    int64_t         frozen_qty;             ///< 冻结融券数量
+    int64_t         frozen_qty;             ///< 冻结融券数量(保留字段)
 }XTPClientQueryCrdPositionStkInfo;
 
 

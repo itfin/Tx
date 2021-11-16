@@ -249,7 +249,7 @@ namespace XTP {
 			///@remark 可以在调用api接口失败时调用，例如login失败时
 			virtual XTPRI *GetApiLastError() = 0;
 
-			///设置采用UDP方式连接时的接收缓冲区大小
+			///设置采用UDP方式连接时的单个队列接收缓冲区大小，目前可能最大使用4个缓冲区队列
 			///@remark 需要在Login之前调用，默认大小和最小设置均为64MB。此缓存大小单位为MB，请输入2的次方数，例如128MB请输入128。
 			virtual void SetUDPBufferSize(uint32_t buff_size) = 0;
 
@@ -263,15 +263,27 @@ namespace XTP {
 			///@remark 此函数必须在Login之前调用
 			virtual void SetHeartBeatInterval(uint32_t interval) = 0;
 
-			///使用UDP接收行情时，设置接收行情线程绑定的cpu
+			///使用UDP接收行情时，设置接收行情线程绑定的cpu，此版本不建议使用，只为跟之前的版本兼容，请替换使用SetUDPRecvThreadAffinityArray函数
 			///@param cpu_no 设置绑定的cpu，例如绑定cpu 0，可以设置0，绑定cpu 2，可以设置2，建议绑定后面的cpu
-			///@remark 此函数可不调用，如果调用则必须在Login之前调用，否则不会生效
+			///@remark 此版本不建议使用,请替换使用SetUDPRecvThreadAffinityArray函数，如果调用则必须在Login之前调用，否则不会生效，与SetUDPRecvThreadAffinityArray一起使用时，仅第一个被调用的生效
 			virtual void SetUDPRecvThreadAffinity(int32_t cpu_no) = 0;
 
-			///使用UDP接收行情时，设置解析行情线程绑定的cpu
+			///使用UDP接收行情时，设置接收行情线程绑定的cpu集合
+			///@param cpu_no_array 设置绑定的cpu集合数组
+			///@param count cpu集合数组长度
+			///@remark 此函数可不调用，如果调用则必须在Login之前调用，否则不会生效。绑核时，将从数组前面的核开始使用
+			virtual void SetUDPRecvThreadAffinityArray(int32_t cpu_no_array[], int32_t count) = 0;
+
+			///使用UDP接收行情时，设置解析行情线程绑定的cpu，此版本不建议使用，只为跟之前的版本兼容，请替换使用SetUDPParseThreadAffinityArray函数
 			///@param cpu_no 设置绑定的cpu，例如绑定cpu 0，可以设置0，绑定cpu 2，可以设置2，建议绑定后面的cpu
-			///@remark 此函数可不调用，如果调用则必须在Login之前调用，否则不会生效
+			///@remark 此版本不建议使用，请替换使用SetUDPParseThreadAffinityArray函数，如果调用则必须在Login之前调用，否则不会生效，与SetUDPParseThreadAffinityArray一起使用时，仅第一个被调用的生效
 			virtual void SetUDPParseThreadAffinity(int32_t cpu_no) = 0;
+
+			///使用UDP接收行情时，设置解析行情线程绑定的cpu集合
+			///@param cpu_no_array 设置绑定的cpu集合数组
+			///@param count cpu集合数组长度
+			///@remark 此函数可不调用，如果调用则必须在Login之前调用，否则不会生效。绑核时，将从数组前面的核开始使用
+			virtual void SetUDPParseThreadAffinityArray(int32_t cpu_no_array[], int32_t count) = 0;
 
 			///设定UDP收行情时是否输出异步日志
 			///@param flag 是否输出标识，默认为true，如果不想输出“udpseq”开头的异步日志，请设置此参数为false

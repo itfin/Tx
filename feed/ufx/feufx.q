@@ -1,6 +1,7 @@
 /恒生柜台交易接口程序(T2SDK)
+//**注意不同ufx实例需要采用不同的seq0base以保证不同实例的feoid字段(8位)互不重复！！！
 
-.module.feufx:2020.04.07;
+.module.feufx:2021.08.23;
 
 txload "core/febase";
 
@@ -36,9 +37,9 @@ connHSsub:{[x;y]c:connt2sub[(`t2sdk`servers;`t2sdk`license_file;`t2sdk`if_error_
 /api msg
 sectype:{[x;y]$[y in `3`4`7`9`k;$[(x like "IO*")|(x like "*-*")|(x like "*[0-9]C[0-9]*")|(x like "*[0-9]P[0-9]*");`OPT;x like "SP*";`FUTSP;`FUT];y in `1`2;$[8=count string x;`OPT;`STK];y in `35`o;`STKHK;`STK]}; /[sym;hsex]
 
-etfss:{[x;y;z;w]hsfunc[91008i;`src`oid`req!(`;`;`user_token`combi_no`market_no`stock_code`entrust_direction`entrust_amount`purchase_way`extsystem_id`third_reff`mac_address`ip_address`hd_volserial!(.ctrl.ufx.token;x;.enum.ex2hs fs2e y;fs2s y;$[z;`26;`27];w;`0;newidl[];`etfss;.conf.ufx.macaddr;.conf.ufx.ipaddr;.conf.ufx.disksn))];}; /[组合号;ETF代码;申购:1b|赎回:0b;篮子数]
+etfss:{[x;y;z;w]hsfunc[91008i;`src`oid`req!(`;`;`user_token`combi_no`market_no`stock_code`entrust_direction`entrust_amount`purchase_way`extsystem_id`third_reff`mac_address`ip_address`hd_volserial!(.ctrl.ufx.token;x;.enum.ex2hs fs2e y;fs2s y;$[z;`26;`27];w;`0;newidl0[];`etfss;.conf.ufx.macaddr;.conf.ufx.ipaddr;.conf.ufx.disksn))];}; /[组合号;ETF代码;申购:1b|赎回:0b;篮子数]
 
-.upd.ordnew:{[x].temp.x0:x;if[x[`sym]<>.conf.me;:.ha.ordnew[x]];k:x`oid;if[0b~.conf[`feactive];rejordnew[x`ft;k;10000i;"fe_disable"];:()];if[count opt:x`ordopt;h:strdict opt];x[`qty`price]:`float$x`qty`price;k1:newidl[];.db.O[k;`feoid`ntime`status`ft`ts`acc`fe`acc1`ref`sym`side`posefct`tif`typ`qty`price`ordopt]:(k1;.z.P;.enum`PENDING_NEW),x`ft`ts`acc`sym`acc1`ref`osym`side`posefct`tif`typ`qty`price`ordopt;if[@[riskassert;k;0b];rejectord[k;1i;"Reject_by_Risk_Check"];:()];acL:vs[`] x`acc1;ac0:acL[0];ac:acL[1];se:fs2se x`osym;se[1]:.enum.ex2hs se[1];st:sectype[se[0];se[1]];pe:.enum.posefct2hs x`posefct;ct:`0;if["4"~pe;pe:"2";ct:`1];if["5"~pe;pe:"2";ct:`2];sd:x`side;if[sd in .enum`ETFCreation`ETFRedemption;:hsfunc[91008i;`src`oid`req!(x`src;k;`user_token`account_code`combi_no`market_no`stock_code`entrust_direction`entrust_amount`purchase_way`extsystem_id`third_reff`mac_address`ip_address`hd_volserial!(.ctrl.ufx.token;ac0;ac;se[1];se[0];$[sd=.enum`ETFCreation;`26;`27];x`qty;`0;k1;sv[`;x`ft`ts`oid];.conf.ufx.macaddr;.conf.ufx.ipaddr;.conf.ufx.disksn))]];hsfunc[(`STK`STKHK`FUT`OPT`FUTSP!91001 91021 91004 91005 91013i)st;`src`oid`req!(x`src;k;(`user_token`account_code`combi_no`market_no`stock_code`entrust_direction`price_type`entrust_price`entrust_amount`extsystem_id`third_reff`mac_address`ip_address`hd_volserial,$[st in `STK`STKHK;();`futures_direction`close_direction])!(.ctrl.ufx.token;ac0;ac;se[1];se[0];.enum.side2hs sd;$[st=`STKHK;`g;x[`tif]~.enum`IMMEDIATE_OR_CANCEL;`K;`0];x`price;x`qty;k1;sv[`;x`ft`ts`oid];.conf.ufx.macaddr;.conf.ufx.ipaddr;.conf.ufx.disksn),$[st in `STK`STKHK;();(pe;ct)])]}'; 
+.upd.ordnew:{[x].temp.x0:x;if[x[`sym]<>.conf.me;:.ha.ordnew[x]];k:x`oid;if[0b~.conf[`feactive];rejordnew[x`ft;k;10000i;"fe_disable"];:()];if[count opt:x`ordopt;h:strdict opt];x[`qty`price]:`float$x`qty`price;k1:newidl0[];.db.O[k;`feoid`ntime`status`ft`ts`acc`fe`acc1`ref`sym`side`posefct`tif`typ`qty`price`ordopt]:(k1;.z.P;.enum`PENDING_NEW),x`ft`ts`acc`sym`acc1`ref`osym`side`posefct`tif`typ`qty`price`ordopt;if[@[riskassert;k;0b];rejectord[k;1i;"Reject_by_Risk_Check"];:()];acL:vs[`] x`acc1;ac0:acL[0];ac:acL[1];se:fs2se x`osym;se[1]:.enum.ex2hs se[1];st:sectype[se[0];se[1]];pe:.enum.posefct2hs x`posefct;ct:`0;if["4"~pe;pe:"2";ct:`1];if["5"~pe;pe:"2";ct:`2];sd:x`side;if[sd in .enum`ETFCreation`ETFRedemption;:hsfunc[91008i;`src`oid`req!(x`src;k;`user_token`account_code`combi_no`market_no`stock_code`entrust_direction`entrust_amount`purchase_way`extsystem_id`third_reff`mac_address`ip_address`hd_volserial!(.ctrl.ufx.token;ac0;ac;se[1];se[0];$[sd=.enum`ETFCreation;`26;`27];x`qty;`0;k1;sv[`;x`ft`ts`oid];.conf.ufx.macaddr;.conf.ufx.ipaddr;.conf.ufx.disksn))]];hsfunc[(`STK`STKHK`FUT`OPT`FUTSP!91001 91021 91004 91005 91013i)st;`src`oid`req!(x`src;k;(`user_token`account_code`combi_no`market_no`stock_code`entrust_direction`price_type`entrust_price`entrust_amount`extsystem_id`third_reff`mac_address`ip_address`hd_volserial,$[st in `STK`STKHK;();`futures_direction`close_direction])!(.ctrl.ufx.token;ac0;ac;se[1];se[0];.enum.side2hs sd;$[st=`STKHK;`g;x[`tif]~.enum`IMMEDIATE_OR_CANCEL;`K;`0];x`price;x`qty;k1;sv[`;x`ft`ts`oid];.conf.ufx.macaddr;.conf.ufx.ipaddr;.conf.ufx.disksn),$[st in `STK`STKHK;();(pe;ct)])]}'; 
 
 .upd.ordcxl:{[x].temp.x1:x;if[x[`sym]<>.conf.me;:.ha.ordcxl[x]];k:x`oid;if[(null k)|(null .db.O[k;`ordid]);:()];if[@[riskassertcxl;k;0b];rejcxl[k;1i;"Reject_by_Risk_Check"];:()];.db.O[k;`cstatus]:.enum`PENDING_CANCEL;execrpt[k];acL:vs[`] .db.O[k;`acc1];ac0:acL[0];ac:acL[1];se:fs2se .db.O[k;`sym];se[1]:.enum.ex2hs se[1];st:sectype[se[0];se[1]];hsfunc[(`STK`STKHK`FUT`OPT`FUTSP!91114 91117 91119 91120 91121i)st;`src`oid`req!(x`src;k;`user_token`account_code`combi_no`entrust_no!(.ctrl.ufx.token;ac0;ac;.db.O[k;`ordid]))];}';
 
@@ -118,8 +119,8 @@ hsfunc:{[x;y].temp.X:(x;y);fid:`$string x;req:y`req;$[`SYNC~.conf.ufx.mode;[k:ne
 
 .upd[`30012]:{.temp.x7:x;d:1!`sym xcols update sym:esym {sv[`]x,y}' ex,product:secclass from select ex:.enum.hsexmap `$market_no,esym:`$stock_code,name:`$stock_name,secclass:`$target_type,multiplier:multiple,settledate:"D"$string last_trade_date,date1:"D"$string exercise_date,isin:`$optcontract_id,putcall:`$option_type,strikepx:exercise_price,optexec:(`1`2`3!`E`A`B) `$apply_style,tradetype:`$contract_version,tradephase:`$compact_status from x[`res;1];.db.QX:.db.QX uj d;.ctrl.ufx[`qryres]+:1;.ctrl.ufx[`numopt]:count[d];if[1<=.ctrl.ufx[`qryres];(path:` sv .conf.tempdb,.conf.me,`RDOpt) set d;pubm[`ALL;`RDUpdate;`ctp;string path];.db.QX:.db.QX uj d];}; /optqry
 
-.upd[`31001]:{[x].temp.x11:x;.temp.P,:1!select from (select sym:(`$stock_code) {sv[`]x,y}'.enum.hsexmap `$market_no,lqty:current_amount,sqty:0f from .temp.x11[`res;1]) where lqty>0;.temp.nQPack+:1;if[(not null x`src)&(.temp.nQPack>=2);pubmx[x`src;`PosUpdate;.conf.me;string x`oid;-8!.temp.P]];};
-.upd[`31003]:{[x].temp.x12:x;if[1<count[.temp.x12[`res]];.temp.P,:(1!select from (select sym:(`$stock_code) {sv[`]x,y}'.enum.hsexmap `$market_no,lqty:current_amount,sqty:0f from .temp.x12[`res;1] where `1=`$position_flag) where lqty>0) uj (1!select from (select sym:(`$stock_code) {sv[`]x,y}'.enum.hsexmap `$market_no,lqty:0f,sqty:neg current_amount from .temp.x12[`res;1] where `2=`$position_flag) where sqty<0)];.temp.nQPack+:1;if[(not null x`src)&(.temp.nQPack>=2);pubmx[x`src;`PosUpdate;.conf.me;string x`oid;-8!.temp.P]];};
+.upd[`31001]:{[x].temp.x11:x;.temp.P,:1!select from (select sym:(`$stock_code) {sv[`]x,y}'.enum.hsexmap `$market_no,lqty:current_amount,sqty:0f,aqty:enable_amount from .temp.x11[`res;1]) where lqty>0;.temp.nQPack+:1;if[(not null x`src)&(.temp.nQPack>=2);pubmx[x`src;`PosUpdate;.conf.me;string x`oid;-8!.temp.P]];};
+.upd[`31003]:{[x].temp.x12:x;if[1<count[.temp.x12[`res]];.temp.P,:(1!select from (select sym:(`$stock_code) {sv[`]x,y}'.enum.hsexmap `$market_no,lqty:current_amount,sqty:0f,aqty:0f from .temp.x12[`res;1] where `1=`$position_flag) where lqty>0) uj (1!select from (select sym:(`$stock_code) {sv[`]x,y}'.enum.hsexmap `$market_no,lqty:0f,sqty:neg current_amount from .temp.x12[`res;1] where `2=`$position_flag) where sqty<0)];.temp.nQPack+:1;if[(not null x`src)&(.temp.nQPack>=2);pubmx[x`src;`PosUpdate;.conf.me;string x`oid;-8!.temp.P]];};
 
 .upd[`35024]:{[x].temp.x18:x;if[1<count[x`res];pubmx[x`src;`FundUpdate;.conf.me;string x`oid;-8!x[`res;1]]];};
 
@@ -141,6 +142,8 @@ e ".db.seq:10000+.db.seq|exec max \"J\"$string feoid from .db.O:h ({[x]select fr
 e ".temp.OHS:();qryordacc each exec distinct acc1 from .db.O"
 SLEEP 10秒以上
 e ".db.O:.db.O lj 8!select id,ft,ts,acc1,sym,side,price,qty,feoid,ordid from .temp.OHS where feoid<>`0"
+e ".temp.O:.db.O lj 6!select id,ft,ts,acc1,sym,side,feoid,ordid,status,cumqty,avgpx from .temp.OHS where feoid<>`0"
+
 e "if[.db.seq<n:exec max \"J\"$string feoid from .db.O;.db.seq:n+10000]"
 h1 "qryall[]" /7010为全集
 h1 "cxlall[]" /7010为全集

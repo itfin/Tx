@@ -105,6 +105,10 @@ chk300idx:{[x;y]r:.ctrl.H[`ft] ({x!{-1+(%/).db.QX[x;`price`pc]} each x};`000300.
 
 chkonline:{[x;y]startmod each exec id from .ctrl.MOD where h<0,id in .conf.modules;1b};
 
+freerdb:{[x;y].ctrl.H[`rdb] ({[] {set[x;0#get x]} each tables[];.Q.gc[]};());1b};
+
 \
 .db.TASK[`CHK300;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:30:10;1D;0;4;`chk300idx);
 .db.TASK[`CHKONLINE;`firetime`firefreq`weekmin`weekmax`timemin`timemax`handler]:(`timestamp$.z.D+08:55:00;`timespan$00:01;0;4;`time$08:56;`time$16:54;`chkonline);
+
+.db.TASK[`FREERDB;`firetime`firefreq`weekmin`weekmax`timemin`timemax`handler]:(`timestamp$.z.D+10:00:00;`timespan$00:30;0;4;`time$10:00;`time$16:00;`freerdb);

@@ -9,7 +9,9 @@ qidfe2ft:{[x]exec first id from .db.QT where feqid=x};
 
 .upd.exerpt:.fe.exerpt:.ha.exerpt';
 
-.roll.fe:{[x]gtc:.enum`GOOD_TILL_CANCEL;.[.conf.histdb;(.conf.me;`O);,;select from .db.O where end|tif<>gtc];delete from `.db.O where end|tif<>gtc;update `u#id from `.db.O;};
+.roll.fe:{[x]gtc:.enum`GOOD_TILL_CANCEL;.[.conf.histdb;(.conf.me;`O);,;select from .db.O where end|tif<>gtc];delete from `.db.O where end|tif<>gtc;update `u#id from `.db.O;.[.conf.histdb;(.conf.me;`M);,;.db.M];delete from `.db.M;};
+
+.timer.fe:{[x]if[.db.sysdate<.z.D;.upd.BeginOfDay[enlist[`msg]!enlist string .z.D]];};
 
 rejordnew:{[ft;x;y;z]pub[`exerpt;enlist `sym`typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`corderid`reason`msg`rptopt!(ft;.enum`NEW;x;.enum`REJECTED;0f;0f;`;`;.enum`NULL;`;`;y;z;"")];}; /[ft;oid;reason;msg]
 

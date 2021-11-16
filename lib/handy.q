@@ -15,9 +15,14 @@ dictstr:{[x]{"|" sv (string key x),'"=",/:(-3!)each value x} ` _x};
 strdict:{[x] value each (!/)"S=|" 0: x};
 unixdate:{08:00+`datetime$-10957+x%86400};
 
+exholiday:{[x]$[x~`XHKG;.conf.exholiday.xhkg;.conf.holiday]};
+trddiff:{[x;y;z]w:10+2*abs[y];d:z+$[0<y;til[w];reverse neg til[w]];d:(d where 4>=weekday[d]) except exholiday[x];d[y+d?z]}; /[ex;n;date]依交易所ex日历计算date偏移n交易日的日期
+
 unmap_helper:{$[(type x)or not count x;1;t:type first x;all t=type each x;0]};
 unmap_column:{[]select from (raze {([]table:enlist x;columns:enlist where not unmap_helper each flip .Q.en[`:.]`. x)} each tables[]) where 0<count each columns};
 
 httpget1:{[host;location] r:(`$":http://",host)"GET ",location," HTTP/1.1\r\nHost:",host,"\r\n\r\n";i:first r ss "\r\n\r\n";(i+4) _ r}; /对于包含"\n"的二进制
 
 quotestr:{[x]"\"",(ssr[;"\\";"\\\\"] ssr[;"\"";"\\\""] x),"\""};
+
+getip:{[]`$"." sv string "i"$0x0 vs .z.a};
