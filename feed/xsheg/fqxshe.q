@@ -1,6 +1,6 @@
-.module.fqxshe:2020.10.20;
+.module.fqxshe:2022.05.16;
 
-//深交所行情规范V1.07
+//深交所行情规范V1.11
 
 txload "core/fqbase";
 txload "lib/extutil";
@@ -36,7 +36,7 @@ BIN[390019i]:{[x];}; /市场状态
 BIN[390013i]:{[x];}; /证券状态
 BIN[390012i]:{[x];}; /公告
 
-snapshot:{[x]h:first each (8 2 3 8 4 8 8 8 8 8;"jhssssjjjj") 1: 65#x;if[not h[2] in `010`020`030`040`060`061`370`630`900`910`920;:`];dt:"DT"$'0 8 cut string h[0];z:` sv h[3],$[h[4]=`102;`XSHE;`XHKE];h[6 7 8 9]*:1e-4 1 1e-2 1e-4;.db.QX[z;`recvtime`extime`nticks`vwap`state`pc`cumqty`cumamt]:(.z.P;dt[0]+`timespan$dt[1];1+0^.db.QX[z;`nticks];h[9]%h[8]),h[5 6 8 9];z}; /快照头,单一代码
+snapshot:{[x]h:first each (8 2 3 8 4 8 8 8 8 8;"jhssssjjjj") 1: 65#x;if[not h[2] in `010`020`030`040`060`061`370`630`900`910`920;:`];dt:"DT"$'0 8 cut string h[0];z:` sv h[3],$[h[4]=`102;`XSHE;`XHKE];h[6 7 8 9]*:1e-4 1 1e-2 1e-4;.db.QX[z;`recvtime`extime`nticks`vwap`mode`pc`cumqty`cumamt]:(.z.P;dt[0]+`timespan$dt[1];1+0^.db.QX[z;`nticks];h[9]%h[8]),h[5 6 8 9];z}; /快照头,单一代码
 
 BIN[300111i]:{[x].temp.X1:x;if[null z:snapshot[x];:()];n:`long$0x0 sv `byte$x[65+til 4];.db.QX[z;`bidQ`askQ`bsizeQ`asizeQ]:4#enlist `float$();{[z;x]r:first each (2 8 8 2 8 4;"sjjhji") 1:x;t:r[0];r[1 2]*:1e-6 1e-2;l:r[3];$[t in `0`1;[if[l=1;.db.QX[z;((`0`1;`1`1)!(`bid`bsize;`ask`asize))t,`$string l]:r[1 2]];k:$[t=`0;`bidQ;`askQ];if[l>count d:.db.QX[z;k];.db.QX[z;k]:padf[l;d]];.db.QX[z;k;l-1]:r[1];k:$[t=`0;`bsizeQ;`asizeQ];if[l>count d:.db.QX[z;k];.db.QX[z;k]:padf[l;d]];.db.QX[z;k;l-1]:r[2]];t in `2`4`7`8`9`x7`x8`xe`xf`xg;.db.QX[z;(`2`4`7`8`9`x7`x8`xe`xf`xg!`price`open`high`low`vwap`openint`settlepx`sup`inf`openint) t]:r[1];()]}[z] each (n,32)#69_x;}; /竞价快照(Level-1 32byte定长记录,Level-2不适用)t:买卖,r[3]档位 
 
@@ -55,6 +55,14 @@ BIN[300792i]:{[x];}; /融券逐笔委托
 BIN[300191i]:{[x];}; /竞价逐笔成交
 BIN[300591i]:{[x];}; /协议逐笔成交
 BIN[300791i]:{[x];}; /融券逐笔成交
+
+BIN[300211i]:{[x];}; /债券快照
+BIN[300291i]:{[x];}; /债券逐笔成交
+BIN[300292i]:{[x];}; /债券逐笔委托
+BIN[300391i]:{[x];}; /债券匹配逐笔成交
+BIN[300392i]:{[x];}; /债券匹配逐笔委托
+BIN[300491i]:{[x];}; /债券竞买逐笔成交
+BIN[300492i]:{[x];}; /债券竞买逐笔委托
 
 
 //h(msgtype;bodylen:8)b(...:n)t(crc:4)
@@ -84,7 +92,7 @@ batchpub:{[]if[.db.fqopendate<d0:.db.sysdate;.db.fqopendate:d0;.temp.L:.temp.Las
 //`Version`SecurityID`SecurityIDSource`Symbol`FundManagementCompany`UnderlyingSecurityID`UnderlyingSecurityIDSource`CreationRedemptionUnit`EstimateCashComponent`MaxCashRatio`Publish`Creation`Redemption`RecordNum`TotalRecordNum`TradingDay`PreTradingDay`CashComponent`NAVperCU`NAV`DividendPerCU`CreationLimit`RedemptionLimit`CreationLimitPerUser`RedemptionLimitPerUser`NetCreationLimit`NetRedemptionLimit`NetCreationLimitPerUser`NetRedemptionLimitPerUser
 //`UnderlyingSecurityID`UnderlyingSecurityIDSource`UnderlyingSymbol`ComponentShare`SubstituteFlag`PremiumRatio`CreationCashSubstitute`RedemptionCashSubstitute
 
-loadpcfsz:{[x]m:@[getrefxml;f:`$"pcf_",string fs2s x;()];if[0=count[m];lwarn[`loadpcfsz;(x;f)];:()];r:(!/)flip m[0;1];d:"D"$r`TradingDay;idsrc:`$r`UnderlyingSecurityIDSource;.db.ETF[x;`trday`cu`cueu`cutc`cunv`cudv`nav`ctmax`rdmax`cashrmax`pubok`ctok`rdok`cashct`pfnumlocal`pfnum`pretrday`underlying`etftype`name`companyname`version]:(d;"F"$r`CreationRedemptionUnit;"F"$r`EstimateCashComponent;0n;"F"$r`NAVperCU;"F"$r`DividendPerCU;"F"$r`NAV;"F"$r`CreationLimit;"F"$r`RedemptionLimit;"F"$r`MaxCashRatio;"B"$r`Publish;"B"$r`Creation;"B"$r`Redemption;0b;"J"$r`RecordNum;"J"$r`TotalRecordNum;"D"$r`PreTradingDay;sv[`;(`$r`UnderlyingSecurityID),`XSHE];`1;`;`;`$r`Version);.db.ETF[x;`crsym]:x;delete from `.db.ETFPF where etfsym=x;.db.ETFPF,:select etfsym:x,sym:UnderlyingSecurityID {[x;y]y:`$y;`$x,$[x like "m*";".XDCE";x like "[acnpsz]*";".XSGE";x like "6*";".XSHG";y=`103;".XHKE";".XSHE"]}' UnderlyingSecurityIDSource,qty:"F"$ComponentShare,cctype:first each SubstituteFlag,ccprem:"F"$PremiumRatio,camt:"F"$CreationCashSubstitute,ramt:"F"$RedemptionCashSubstitute,trday:d from {`DiscountRatio _(!/) flip x[1]} each r`Components;};
+loadpcfsz:{[x]m:@[getrefxml;f:`$"pcf_",string fs2s x;()];if[0=count[m];lwarn[`loadpcfsz;(x;f)];:()];r:(!/)flip m[0;1];d:"D"$r`TradingDay;idsrc:`$r`UnderlyingSecurityIDSource;.db.ETF[x;`trday`cu`cueu`cutc`cunv`cudv`nav`ctmax`rdmax`cashrmax`pubok`ctok`rdok`cashct`pfnumlocal`pfnum`pretrday`underlying`etftype`name`companyname`version]:(d;"F"$r`CreationRedemptionUnit;"F"$r`EstimateCashComponent;0n;"F"$r`NAVperCU;"F"$r`DividendPerCU;"F"$r`NAV;"F"$r`CreationLimit;"F"$r`RedemptionLimit;"F"$r`MaxCashRatio;"B"$r`Publish;"B"$r`Creation;"B"$r`Redemption;0b;"J"$r`RecordNum;"J"$r`TotalRecordNum;"D"$r`PreTradingDay;sv[`;(`$r`UnderlyingSecurityID),`XSHE];`1;`;`;`$r`Version);.db.ETF[x;`crsym]:x;delete from `.db.ETFPF where etfsym=x;.db.ETFPF,:select etfsym:x,sym:UnderlyingSecurityID {[x;y]y:`$y;`$x,$[y=`103;".XHKE";x like "m*";".XDCE";x like "[acnpsz]*";".XSGE";x like "6*";".XSHG";".XSHE"]}' UnderlyingSecurityIDSource,qty:"F"$ComponentShare,cctype:first each SubstituteFlag,ccprem:"F"$PremiumRatio,camt:"F"$CreationCashSubstitute,ramt:"F"$RedemptionCashSubstitute,trday:d from {`DiscountRatio _(!/) flip x[1]} each r`Components;};
 
 loadpcfsh:{[x]y:fs2se[x];c:`char$@[read1;f:` sv (.conf.refpathsh),`$(string y[0]),(-4#(string .z.D) except "."),".etf";()];if[0=count[c];linfo[`loadpcfsh;(x;f)];:loadpcfsh2[x]];i0:1+c?"\n";i1:first c ss "TAGTAG";i2:first c ss "ENDENDEND";c:(i0,i1,i2)_c;h:(!/)"S=\n" 0: ssr [;"maxCashratio";"MaxCashRatio"] ssr [;"Estimatecashcomponent";"EstimateCashComponent"] ssr[;"Recordnum";"RecordNum"] c[0] except "\r";.db.ETF[x;`trday`cu`cueu`cutc`cunv`cudv`nav`ctmax`rdmax`cashrmax`pubok`cashct`pfnumlocal`pfnum`pretrday`underlying`etftype`name`companyname`version]:"DFFFFFFFFFBBIIDSSSSS"$' h[`TradingDay`CreationRedemptionUnit`EstimateCashComponent`CashComponent`NAVperCU`DividendPerCU`NAV`CreationLimit`RedemptionLimit`MaxCashRatio`Publish`CashCreation`RecordNum`TotalRecordNum`PreTradingDay`UnderlyingIndex`Type`FundName`FundManagementCompany`Version];.db.ETF[x;`crsym`ctok`rdok]:(`$h[`Fundid1],".XSHG";first[h[`CreationRedemption]] in "12";first[h[`CreationRedemption]] in "13");delete from `.db.ETFPF where etfsym=x;.db.ETFPF,:`etfsym xcols update etfsym:x,sym:{[x]se2fs x,$[5>=count[string x];`XHKG;(x like "6*")|(x like "11[03]*")|(x like "13*");`XSHG;`XSHE]} each sym,ramt:camt^ramt,trday:.db.ETF[x;`trday] from flip `sym`qty`cctype`ccprem`camt`ramt!("S FCFFF";"|") 0: (8_c[1]);};
 
@@ -92,7 +100,9 @@ loadpcfsh2:{[x]y:fs2se[x];c:`char$@[read1;f:` sv (.conf.refpathsh),`$(string y[0
 
 loadpcf:{[x]e:fs2e x;$[e=`XSHE;loadpcfsz;loadpcfsh] x;};
 
-updetf:{[x;y]@[loadpcf;;()] each .conf.etflist;{set[` sv .conf[`tempdb],x;.db[x]];} each `ETF`ETFPF;1b};
+loadpcfer:{[]m:@[getrefxml;f:`imcexchangerate;()];if[0=count[m];lwarn[`loadpcfer;(x;f)];:()];r:update trday:.z.D   from 2!`fc`tc`bid`ask`midpx xcol {"SSFFF"$'(!/)flip x[1]}  each  m[0;1];.db.ETFER:.db.ETFER uj r;};
+
+updetf:{[x;y]@[loadpcf;;()] each .conf.etflist;@[loadpcfer;();()];{set[` sv .conf[`tempdb],x;.db[x]];} each `ETF`ETFPF`ETFER;1b};
 
 .disp.fqxshe:{.ctrl.tcpconn};
 \
@@ -103,5 +113,7 @@ d:flip `sym`isin`name`name1`name2`underlying`block`stype`currency`scale`facevalu
 .db.ETF:([`u#sym:`symbol$()]trday:`date$();cu:`float$();cueu:`float$();cutc:`float$();cunv:`float$();cudv:`float$();nav:`float$();ctmax:`float$();rdmax:`float$();cashrmax:`float$();pubok:`boolean$();ctok:`boolean$();rdok:`boolean$();cashct:`boolean$();pfnumlocal:`long$();pfnum:`long$();pretrday:`date$();underlying:`symbol$();etftype:`symbol$();name:`symbol$();companyname:`symbol$();version:`symbol$()); /ETF Meta
 
 .db.ETFPF:([etfsym:`symbol$();sym:`symbol$()]qty:`float$();cctype:`char$();ccprem:`float$();camt:`float$();ramt:`float$();trday:`date$()); /ETF Portfolio
+
+.db.ETFER:([fc:`symbol$();tc:`symbol$()]trday:`date$();bid:`float$();ask:`float$();midpx:`float$()); /ETF ExchangeRate
 
 .db.TASK[`UPDETF;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:05;1D;0;4;`updetf);

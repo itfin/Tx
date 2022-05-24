@@ -205,6 +205,26 @@ public:
     mpub(knk(2,ks("MDHKTSnapshot"),L));
     amd::ama::IAMDApi::FreeMemory(p0);
   }
+
+  virtual void OnMDBondSnapshot(amd::ama::MDBondSnapshot* p0, uint32_t cnt) override{
+    amd::ama::MDBondSnapshot* p=p0;
+    K L=knk(0);    
+	
+    for (uint32_t _i = 0; _i < cnt; ++_i){
+      K pa=ktn(KJ,10),qa=ktn(KJ,10),pb=ktn(KJ,10),qb=ktn(KJ,10);
+      DO(10,kJ(pa)[i]=p->offer_price[i];kJ(qa)[i]=p->offer_volume[i];kJ(pb)[i]=p->bid_price[i];kJ(qb)[i]=p->bid_volume[i]);
+	  
+      jk(&L,knk(50,ki(p->market_type),kp(p->security_code),kj(p->orig_time),kp(p->trading_phase_code),kj(p->pre_close_price),kj(p->open_price),kj(p->high_price),kj(p->low_price),kj(p->last_price),kj(p->close_price),pb,qb,pa,qa,kj(p->num_trades),kj(p->total_volume_trade),kj(p->total_value_trade),kj(p->total_bid_volume),kj(p->total_offer_volume),kj(p->weighted_avg_bid_price),kj(p->weighted_avg_offer_price),kj(p->high_limited),kj(p->low_limited),kj(p->change1),kj(p->change2),kj(p->weighted_avg_bp),kj(p->pre_close_weighted_avg_price),kj(p->auct_last_price),kc(p->last_price_trading_type),ki(p->channel_no),kp(p->md_stream_id),kp(p->instrument_status),kj(p->withdraw_buy_number),kj(p->withdraw_buy_amount),kj(p->withdraw_buy_money),kj(p->withdraw_sell_number),kj(p->withdraw_sell_amount),kj(p->withdraw_sell_money),kj(p->total_bid_number),kj(p->total_offer_number),ki(p->bid_trade_max_duration),ki(p->offer_trade_max_duration),ki(p->num_bid_orders),ki(p->num_offer_orders),kj(p->last_trade_time),kj(p->weighted_avg_price),ki(p->no_sub_trading_phase_code),kj(p->auct_volume_trade),kj(p->auct_value_trade),kc(p->variety_category)));
+      p++;
+    }
+    mpub(knk(2,ks("MDBondSnapshot"),L));
+        /* 手动释放数据内存, 否则会造成内存泄露 */
+        amd::ama::IAMDApi::FreeMemory(p0);
+  }
+  
+  virtual void OnMDBondTickOrder(amd::ama::MDBondTickOrder* ticks, uint32_t cnt) override{ amd::ama::IAMDApi::FreeMemory(ticks); (void)cnt; }
+  virtual void OnMDBondTickExecution(amd::ama::MDBondTickExecution* ticks, uint32_t cnt) override{ amd::ama::IAMDApi::FreeMemory(ticks); (void)cnt; }
+  virtual void OnMDBondQuotedTickExecution(amd::ama::MDBondQuotedTickExecution* ticks, uint32_t cnt) override{ amd::ama::IAMDApi::FreeMemory(ticks); (void)cnt; }  
 };
 
 
@@ -284,14 +304,26 @@ extern "C"{
   } 
 
   K1(sub){ //
-    amd::ama::SubscribeItem sub[1];
+    K syms;
+    I n=0;
+    I t=kK(x)[0]->i;
+    I m=kK(x)[1]->i;
+    J f=kK(x)[2]->j;
+    
+    amd::ama::SubscribeItem sub[100000];
     memset(sub, 0, sizeof(sub));
 
-    sub[0].market = kK(x)[1]->i;
-    sub[0].flag =kK(x)[2]->j;
-    strcpy(sub[0].security_code,kK(x)[3]->s);
+    syms=kK(x)[3];
+    if(-11==syms->t){
+      n=1;
+      sub[0].market = m;
+      sub[0].flag =f;
+      strcpy(sub[0].security_code,kK(x)[3]->s);
     
-    R ki(amd::ama::IAMDApi::SubscribeData(kK(x)[0]->i,sub,1));
-  }  
-  
+    }else{
+      n=syms->n;
+      DO(n,sub[i].market=m;sub[i].flag =f;strcpy(sub[i].security_code,kS(syms)[i]);)
+    }
+    R ki(amd::ama::IAMDApi::SubscribeData(t,sub,n));
+  }    
 }

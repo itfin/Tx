@@ -1,6 +1,6 @@
 /runq Tx/core/base.q -conf cffc0 -code "txload \"core/fcbase\"" -p 5000
 
-.module.fcbase:2021.04.13;
+.module.fcbase:2021.12.24;
 
 \d .temp
 NS:([]stime:`timestamp$();id:`symbol$();cpu:`float$();mem:`float$();swap:`float$();disk:`float$();cores:());
@@ -59,9 +59,9 @@ stopmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"stopping ",
 
 startmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"starting ",string[x],"...";system modstartcmd x;system "sleep 0.25";connmod[x];if[0<h:.ctrl.H[x];.ctrl.MOD[x;`starttime]:.z.P];0N!$[0<h;"Done.";"Failed."];};
 
-modstartcmd:{[x]p:(y:.conf[x])`port;z:string x;r:not (a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip],$[(::)~b:.conf.ha[.conf.ha.node;`ipx];`symbol$();b];:.ctrl.Cmd[x]:$[r;"ssh root@",(string a)," '";""],"sh -c cd ",.conf.wd," && ",cfill[y`env],$[`bsd~.conf[`ostype];" cpuset -l ";" taskset -c "],("," sv string raze mod[;$[r;1000;.ctrl.NOD[.conf.ha.node;`cpucores]]] y`cpu)," nohup ",.conf.qbin," ",($[r;ssr[;"'";"'\"'\"'"];::] cfill y[`args]),$[1<count y`qclfull;y`qclfull;.conf.qcl,(cfill y[`qcl])]," -p ",$[1b~y`bindip;string[a],":";1b~.conf[`bindlocal];"127.0.0.1:";""],(string p)," </dev/null >>/tmp/",z,".",(string .conf.app)," 2>&1&",$[r;"'&";""]};
+modstartcmd:{[x]p:(y:.conf[x])`port;z:string x;r:not (a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip],$[(::)~b:.conf.ha[.conf.ha.node;`ipx];`symbol$();b];:.ctrl.Cmd[x]:$[r;"ssh ",string[`root^sfill .conf[`ruser]],"@",(string a)," '";""],"sh -c cd ",.conf.wd," && ",cfill[y`env],$[`bsd~.conf[`ostype];" cpuset -l ";" taskset -c "],("," sv string raze mod[;$[r;1000;.ctrl.NOD[.conf.ha.node;`cpucores]]] y`cpu)," nohup ",.conf.qbin," ",($[r;ssr[;"'";"'\"'\"'"];::] cfill y[`args]),$[1<count y`qclfull;y`qclfull;.conf.qcl,(cfill y[`qcl])]," -p ",$[1b~y`bindip;string[a],":";1b~.conf[`bindlocal];"127.0.0.1:";""],(string p)," </dev/null >>/tmp/",z,".",(string .conf.app)," 2>&1&",$[r;"'&";""]};
 
-nodecmd:{[x;y].temp.cmd:cmd:$[x~.conf.ha.node;y;"ssh root@",(string .conf.ha[x;`ip])," 'sh -c \"",y,"\"'"];system cmd}; /[节点id;shell 命令]
+nodecmd:{[x;y].temp.cmd:cmd:$[x~.conf.ha.node;y;"ssh ",string[`root^sfill .conf[`ruser]],"@",(string .conf.ha[x;`ip])," 'sh -c \"",y,"\"'"];system cmd}; /[节点id;shell 命令]
 
 .zpc.fcbase:{[x]m:exec first id from .ctrl.MOD where h=x;if[not null m;.ctrl.MOD[m;`h`stoptime]:(-1;.z.P);.ctrl.H[m]:-1];};
 

@@ -78,7 +78,7 @@ beginofday:{[x]h:.ctrl.conn[.conf.pubto;`h];if[-6h<>type h;:()];if[x<=h[`.u.d];:
 sysalarm:{[x;y]pubm[`ALL;`Alarm;x;-3!y];}; /[ref;msg]
 
 wlog:{[x;y;z]if[(`int$`.enum.loglevels$x)>`int$`.enum.loglevels$.conf.loglevel;:()];z:$[10h=type z;z;-3!z];.db.LOG,:(x;y;z;now[]);pub[`syslog;enlist `sym`typ`msg!(x;y;z)];};
-lerr:wlog[`error];lwarn:wlog[`warn];linfo:wlog[`info];ldebug:wlog[`debug];
+lerr:wlog[`error];lwarn:wlog[`warn];linfo:wlog[`info];ldebug:wlog[`debug];llocal:{[y;z]x:`local;z:$[10h=type z;z;-3!z];.db.LOG,:(x;y;z;now[]);};
 
 .upd.sysmsg:{[x]{.upd[x`typ][x]} each x;}; /sysmsg,:x;
 .upd.syslog:{[x]}; /syslog,:x;

@@ -12,6 +12,7 @@
 #ifndef AMD_AMA_H_
 #define AMD_AMA_H_
 
+#include <vector>
 #include "ama_datatype.h"
 #include "ama_struct.h"
 #include "ama_export.h"
@@ -65,15 +66,58 @@ public:
     static void FreeMemory(void* data);
 
     /**
+     * @brief                       释放ETF代码表数据内存函数
+     *
+     * @param data                  数据指针
+     */
+    static void FreeMemory(amd::ama::ETFCodeTableRecord* data);
+
+    /**
      * @brief                       代码订阅操作
      *
      * @param subscribe_type        订阅类型，请参考 SubscribeType
      * @param item                  订阅代码的数据项，具体参数请参考 SubscribeItem
-     * @param cnt                   订阅代码的数据项个数
+     * @param cnt                   订阅的数据项个数
      *
      * @return 
      */
     static int32_t SubscribeData(int32_t subscribe_type, const SubscribeItem* item, uint32_t cnt);
+
+    /**
+     * @brief                       代码以及证券品种订阅操作
+     *
+     * @param subscribe_type        订阅类型，请参考 SubscribeType
+     * @param item                  订阅代码以及证券品种的数据项，具体参数请参考 SubscribeCategoryItem
+     * @param cnt                   订阅的数据项个数
+     *
+     * @return 
+     */
+    static int32_t SubscribeData(int32_t subscribe_type, const SubscribeCategoryItem* item, uint32_t cnt);
+
+    /**
+     * @brief                       代码以及证券品种订阅操作(必须登录AES成功后才能此接口才能调用成功(EventCode::kOrderBookLogonSuccess))
+     *
+     * @param subscribe_type        订阅类型，请参考 SubscribeType
+     * @param item                  订阅代码以及证券品种的数据项，具体参数请参考 SubscribeOrderBookItem
+     * @param cnt                   订阅的数据项个数
+     *
+     * @return 
+     */
+    static int32_t SubscribeOrderBookData(int32_t subscribe_type, const SubscribeOrderBookItem* item, uint32_t cnt);
+
+    /**
+     * @brief                       代码表请求操作
+     *
+     * @return                      代码表数据
+     */
+    static bool GetCodeTableList(CodeTableRecordList& list);
+
+     /**
+     * @brief                       ETF代码表请求操作
+     *
+     * @return                      ETF代码表数据
+     */
+    static bool GetETFCodeTableList(ETFCodeTableRecordList& list,const ETFItem* items, uint32_t cnt);
 }; // end of IAMDApi
 
 /**
@@ -110,6 +154,7 @@ public:
      * @param len                   事件具体信息长度
      */
     virtual void OnEvent(uint32_t level, uint32_t code, const char* event_msg, uint32_t len) { (void)level; (void)code; (void)event_msg; (void)len; }
+    
     /**
      * @brief OnMDSnapshot          接收现货快照数据回调
      *
@@ -171,7 +216,7 @@ public:
     virtual void OnMDTickExecution(MDTickExecution* ticks, uint32_t cnt) { IAMDApi::FreeMemory(ticks); (void)cnt; }
 
     /**
-     * @brief                       接收委托队列数据回调
+     * @brief OnMDOrderQueue        接收委托队列数据回调
      *
      * @param orderqueues           委托队列数据
      * @param cnt                   委托队列数据条数
@@ -314,6 +359,100 @@ public:
      */
     virtual void OnMDNEEQHierarchicalInfo(MDNEEQHierarchicalInfo* infos, uint32_t cnt) { IAMDApi::FreeMemory(infos); (void)cnt; }
     
+    /**
+    * @brief                        接收委托簿回调
+    *                               注意：启用委托簿功能后盘中不能进行动态数据订阅，会影响委托簿的计算结果
+    *
+    * @param order_book             委托簿数据列表
+    */
+    virtual void OnMDOrderBook(std::vector<MDOrderBook>& order_book) {(void)order_book; }
+
+    /**
+    * @brief                        接收委托簿快照回调
+    *
+    * @param order_book_snapshots  接收委托簿快照数据
+    * @param cnt                   接收委托簿快照数据条数
+    */
+    virtual void OnMDOrderBookSnapshot(MDOrderBookSnapshot* order_book_snapshots, uint32_t cnt) {IAMDApi::FreeMemory(order_book_snapshots); (void)cnt; }
+
+    /**
+    * @brief                        港股通市场状态
+    *                               
+    *
+    * @param status                 港股通市场状态数据
+    * @param cnt                    港股通市场状态数据条数
+    */
+    virtual void OnMDHKMarketStatus(MDHKMarketStatus* status, uint32_t cnt) { IAMDApi::FreeMemory(status); (void)cnt; }
+
+    /**
+     * @brief                       接收股转系统协议转让申报信息
+     *
+     * @param infos                 接收股转系统协议转让申报信息
+     * @param cnt                   接收股转系统协议转让申报信息条数
+     */
+    virtual void OnMDNEEQNegotiableDeclaredInfo(MDNEEQNegotiableDeclaredInfo* infos, uint32_t cnt) { IAMDApi::FreeMemory(infos); (void)cnt; }
+
+    /**
+     * @brief                       接收股转系统做市业务申报信息
+     *
+     * @param infos                 接收股转系统做市业务申报信息
+     * @param cnt                   接收股转系统做市业务申报信息条数
+     */
+    virtual void OnMDNEEQMarketMakerDeclaredInfo(MDNEEQMarketMakerDeclaredInfo* infos, uint32_t cnt) { IAMDApi::FreeMemory(infos); (void)cnt; }
+
+    /**
+     * @brief                       接收股转系统非公开转让成交信息
+     *
+     * @param infos                 接收股转系统非公开转让成交信息
+     * @param cnt                   接收股转系统非公开转让成交信息条数
+     */
+    virtual void OnMDNEEQNonPublicTransferDealInfo(MDNEEQNonPublicTransferDealInfo* infos, uint32_t cnt) { IAMDApi::FreeMemory(infos); (void)cnt; }
+
+    /**
+     * @brief OnMDBondSnapshot      债券行情快照数据回调
+     *
+     * @param snapshot              快照数据
+     * @param cnt                   快照数据个数
+     *
+     * @attention                   使用后需要通过接口 IAMDApi::FreeMemory释放数据
+     */
+    virtual void OnMDBondSnapshot(MDBondSnapshot* snapshots, uint32_t cnt) { IAMDApi::FreeMemory(snapshots); (void)cnt; }
+
+    /**
+     * @brief OnMDBondTickOrder     债券逐笔委托数据回调
+     *
+     * @param tick                  逐笔委托数据
+     * @param cnt                   逐笔委托数据条数
+     *
+     * @attention                   使用后需要通过接口 IAMDApi::FreeMemory释放数据
+     */
+    virtual void OnMDBondTickOrder(MDBondTickOrder* ticks, uint32_t cnt) { IAMDApi::FreeMemory(ticks); (void)cnt; }
+
+    /**
+     * @brief                       接收深交所债券业务报价及大额逐笔委托数据回调
+     *  
+     * @param ticks                 深交所债券业务报价及大额逐笔委托数据
+     * @param cnt                   深交所债券业务报价及大额逐笔委托数据条数
+     */
+    virtual void OnMDBondQuotedTickOrder(MDBondQuotedTickOrder* ticks, uint32_t cnt) { IAMDApi::FreeMemory(ticks); (void)cnt; }
+
+    /**
+     * @brief OnMDBondTickExecution 债券逐笔成交数据回调
+     *
+     * @param tick                  逐笔成交数据
+     * @param cnt                   逐笔成交数据条数
+     *
+     * @attention                   使用后需要通过接口 IAMDApi::FreeMemory释放数据
+     */  
+    virtual void OnMDBondTickExecution(MDBondTickExecution* ticks, uint32_t cnt) { IAMDApi::FreeMemory(ticks); (void)cnt; }
+
+    /**
+     * @brief                       接收深交所债券业务报价及大额逐笔成交数据回调
+     *  
+     * @param ticks                 深交所债券业务报价及大额逐笔成交数据
+     * @param cnt                   深交所债券业务报价及大额逐笔成交数据条数
+     */
+    virtual void OnMDBondQuotedTickExecution(MDBondQuotedTickExecution* ticks, uint32_t cnt) { IAMDApi::FreeMemory(ticks); (void)cnt; }
 }; // end of IAMDSpi
 
 }; // end of ama

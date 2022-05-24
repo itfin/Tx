@@ -1,5 +1,5 @@
 //算法交易策略
-.module.tsalgobase:2017.04.26;
+.module.tsalgobase:2022.04.08;
 
 txload "tsl/tslib";
 
@@ -131,10 +131,10 @@ qtyadjust:{[x;y]if[not null a:.db.O1[x;`amt];if[0<>dq:.db.O1[x;`qty]-q:roundqty[
 
 newsubord:{[texp;pfix;upid;id;qty;price;slot]if[(qty<=0)|(price<0);lerr[`newsubord;(upid;`qtyorprice;`$"newsubord[",(string pfix),";",(string upid),";",(string id),";",(string qty),";",(string price),";",(string slot),"]";0)];:()];if[violateoddlotrule[upid;qty];lwarn[`newsubordcantsend;(upid;`oddlotmustsellallonce;.db.O1[upid;`side];(-/).db.O1[upid;`qty`cumqty];qty)];:()];if[.db.O1[upid;`typ] in .enum`LIMIT`STOP_LIMIT;plim:.db.O1[upid;`price];pmkt:getordpx[.db.O1[upid;`sym];.db.O1[upid;`side];`LEASTPASSIVE];if[((.db.O1[upid;`side]~.enum`BUY)&(price>plim))|((.db.O1[upid;`side]~.enum`SELL)&(price<plim));$[not pfix;price:plim;[linfo[`newsubordskip;(upid;`price_exceed_limit;.db.O1[upid;`side];price;plim;pmkt;pfix;qty;slot;id)];:()]]]];qtyadjust[upid;price];qty&:.db.O1[upid;`qty]-sq:0f^.db.O1[upid;`sentqty];.db.O1[upid;`sentqty]:qty+sq;k:newordex[.db.O1[upid;`side];.db.O1[upid;`posefct];.db.O1[upid;`ts];.db.O1[upid;`sym];qty;price;id;`acc1`tsexec`tif`typ`upid`slot`style`expiretime`ex`esym`cltid2`cltacc`handlinst`msg`stoppx`cltalt`cltsub!.db.O1[upid;`acc1`tsexec],($[slot<0;.db.O1[upid;`tif];.enum`DAY];$[slot<0;.db.O1[upid;`typ];$[price=0f;.enum`MARKET;.enum`LIMIT]];upid;slot;.db.O1[upid;`style];(`timestamp$(`date$now[])+{$[(x>.conf.ex[`XSHG;`closeAM])&(x<.conf.ex[`XSHG;`openPM]);x+(.conf.ex[`XSHG;`openPM])-.conf.ex[`XSHG;`closeAM];x]} (`time$now[])+`time$.db.Ts[.conf.algots][`DEFAULTTIMEOUT]^"T"$cfill .db.O1[upid;`para][0;`CxlTimeout])^texp;.db.O1[upid;`ex];.db.O1[upid;`esym];.db.O1[upid;`cltid2];.db.O1[upid;`cltacc];$[slot<0;.db.O1[upid;`handlinst];`];$[slot<0;`$cfill .db.O1[upid;`para][0;`Text];`];.db.O1[upid;`stoppx];.db.O1[upid;`cltalt];.db.O1[upid;`cltsub])];.temp.hO[k]:upid;k}; /创建新的小单:更新小单表,对柜台fix网关发NewOrderSingle.当母单有限价且子单报价超限时:若无报价只读限制则以限价报盘,否则放弃本次子单报盘. 2012.03.09去掉且限价在当前盘口有效(优于或等于本方最优价格)&(((.db.O1[upid;`side]~.enum`BUY)&(plim>=pmkt))|((.db.O1[upid;`side]~.enum`SELL)&(plim<=pmkt))) if[.db.O1[k;`typ]=.enum`LIMIT;plim:.db.O1[x;`price];if[((.db.O1[k;`side]=.enum`BUY)&())|((.db.O1[k;`side]=.enum`BUY)&());pnew:plim];if[ishidden[.db.O1[k;`sym];.db.O1[k;`side];pnew];:()]];
 
-newso:newsubord[0Np;0b];newsofix:newsubord[0Np;1b];newsofixl:newsubord[0Wp;1b];
+newso:newsubord[0Np;0b];newsol:newsubord[0Wp;0b];newsofix:newsubord[0Np;1b];newsofixl:newsubord[0Wp;1b]; //newsol:不自动超时撤单,newsofix:当子单价格超出母单限价时不报单
 
 newsubordex:{[texp;pfix;upid;id;qty;price;slot;thre]fss:.db.O1[upid;`sym`side];thre:$[0<thre;roundqty[fss] thre;getqtymax[fss]];$[qty<=thre;newsubord[texp;pfix;upid;id;qty;price;slot];[n:-1+ceiling qty%thre;vl:(n#thre),qty-n*thre;{[texp;pfix;x;y;z;w]newsubord[texp;pfix;x;w 0;w 1;y;z]}[texp;pfix;upid;price;slot;] each ((`$((string id),"_"),/:string til n+1),'vl)]]}; //当委托数量超过上限时自动拆单 
-newsox:newsubordex[0Np;0b];newsoxfix:newsubordex[0Np;1b];newsoxfixl:newsubordex[0Wp;1b];
+newsox:newsubordex[0Np;0b];newsoxl:newsubordex[0Wp;0b];newsoxfix:newsubordex[0Np;1b];newsoxfixl:newsubordex[0Wp;1b];
 
 cxloachildren:{[k]update pending:0b from `.db.O where upid=k,pending;cxlord each exec id from .db.O where id in key[.temp.hO],upid=k,status in "01A",cstatus=.enum[`NULL];}; //update pending:0b from `O where upid=k,pending
 
@@ -169,7 +169,7 @@ mktvwap:{[isrt;x]d:execstat[isrt;x];0f^ffill last d[0;1]};
 mktqty:{[isrt;x]d:execstat[isrt;x];0f^ffill last d[0;3]};
 matchno:{[isrt;x]exec count i from $[isrt;.db.O;.hdb.O] where cumqty>0,upid=x};
 
-oatbld:{[x;y;z]t:$[x;.db.O1;select from .hdb.O1 where (`date$ntime) within `date$(y,z)];update bias:0f^?[vwap=0;0f;?[side=.enum`BUY;1e4;-1e4]]*-1+avgpx%vwap from select id,hsid:cltid2,sym,algo,status,cstag:cstatus {y+2*x=.enum`PENDING_CANCEL}' suspend,side,qty,price,sentqty,cumqty,avgpx,leavesqty,string `datetime$ntime,string `second$ctime,string `second$ftime,pct:1-leavesqty%qty,vwap:`float$@[mktvwap[x];;0n] each id,mktqty:`float$@[mktqty[x];;0n] each id,mno:matchno[x] each id from update leavesqty:?[status in "01A";qty-cumqty;0f] from select from  t where extype<>`LIST}; 
+oatbld:{[x;y;z]t:$[x;.db.O1;select from .hdb.O1 where (`date$ntime) within `date$(y,z)];.temp.OA:update bias:0f^?[vwap=0;0f;?[side=.enum`BUY;1e4;-1e4]]*-1+avgpx%vwap from select id,hsid:cltid2,sym,algo,status,cstag:cstatus {y+2*x=.enum`PENDING_CANCEL}' suspend,side,qty,price,sentqty,cumqty,avgpx,leavesqty,string `datetime$ntime,string `second$ctime,string `second$ftime,pct:1-leavesqty%qty,vwap:`float$@[mktvwap[x];;0n] each id,mktqty:`float$@[mktqty[x];;0n] each id,mno:matchno[x] each id from update leavesqty:?[status in "01A";qty-cumqty;0f] from select from  t where extype<>`LIST}; 
 
 subrejd:{[u;x;y;z]t:select from $[x;.db.O;select from .hdb.O where (`date$ntime) within (y,z)] where upid=u,status=.enum`REJECTED;select id,price,qty,ref,string `datetime$ntime,msg from t};
 

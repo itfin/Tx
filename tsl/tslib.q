@@ -1,8 +1,8 @@
 //tslib.q:标准化的策略组件函数或辅助函数
 
-.module.tslib:2019.09.23;
+.module.tslib:2022.02.11;
 
-//libpeg:自动撤补单功能,要求策略存在参数.db.Ts[x;`Cp;TRDTIME`tmout`tmout1`tmout2`urge]:(交易时段列表;委托超时撤单时间间隔;补单时间间隔1(超过则至少urge=1);补单时间间隔2(超过则至少urge=2);紧急程度{0W;打对手涨跌停价;[3,n]:打对手盘口+[1,n-2]跳,2:打对手盘口,1:本方盘口+1跳;0:挂本方盘口})
+//libpeg:自动撤补单功能,要求策略存在参数.db.Ts[x;`Cp;TRDTIME`tmout`tmout1`tmout2`urge`lmtref`lmtpct]:(交易时段列表;委托超时撤单时间间隔;补单时间间隔1(超过则至少urge=1);补单时间间隔2(超过则至少urge=2);紧急程度{0W;打对手涨跌停价;[3,n]:打对手盘口+[1,n-2]跳,2:打对手盘口,1:本方盘口+1跳;0:挂本方盘口};保护基准价;保护比例)
 //在策略的ont事件中调用oexpire_libpeg,ono事件中调用opeg_libpeg,策略下单后对oid调用pegord_libpeg
 
 pegord_libpeg:{[x].db.O[x;`special]:`PEG;x}; /[oid]
@@ -12,6 +12,8 @@ ordpxex_libpeg:{[x;y;z;w]pu:pxunit[y];pb:.db.QX[y;`bid];pa:.db.QX[y;`ask];ps:.db
 oexpire_libpeg:{[x;y]if[not any (`time$y) within/:.db.Ts[x;`Cp;`TRDTIME];:()];cxlord each exec id from .db.O where ts=x,not end,special=`PEG,.db.Ts[x;`Cp;`tmout]<y-ntime;}; /[tid;.z.P]对超时委托进行撤单
 
 opeg_libpeg:{[x;y]r:.db.O[y];if[(.enum[`CANCELED]=r[`status])&(`PEG=r[`special]);s:r[`sym];sd:r[`side];z:r`origid;cp:.db.Ts[x;`Cp];w:cp[`urge];k:limit_order[sd;0N;r`ts;s;roundqty[(s;sd);r[`qty]-r[`cumqty]];ordpxex_libpeg[x;s;sd;$[(null z)|(.z.P<.db.O[z;`ntime]+cp[`tmout1]);w;.z.P<.db.O[z;`ntime]+cp[`tmout2];1|w;2|w]];r[`ref]];{[x;y].db.O[x;`special`origid]:(`PEG;y^.db.O[y;`origid])}[;y] each k];};  /[tid;oid]对需要补单的撤单委托进行补单操作
+
+peg_buy:(')[pegord_libpeg';limit_buy];peg_sell:(')[pegord_libpeg';limit_sell];
 
 
 //libbar:自动根据策略订阅的Bar频率将系统Bar合成为策略需要的n周期bar后再回调策略的barx事件,要求策略存在标的代码.db.Ts[x;xsym]控制参数.db.Ts[x;`Cp;barfreq]和缓存区.db.Ts[x;`BBUF]:()

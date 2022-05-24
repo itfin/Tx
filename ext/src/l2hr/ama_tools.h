@@ -27,9 +27,30 @@ public:
 
     static SubscribeItem* CreateSubscribeItem(uint32_t cnt);
     static void DestroySubscribeItem(SubscribeItem* item);
+    static SubscribeCategoryItem* CreateSubscribeCategoryItem(uint32_t cnt);
+    static void DestroySubscribeCategoryItem(SubscribeCategoryItem* item);
 
     static void SetSubscribeItem(SubscribeItem* item,  uint32_t index, const SubscribeItem& value);
     static const SubscribeItem& GetSubscribeItemByIndex(const SubscribeItem* item, uint32_t index);
+    static void SetSubscribeCategoryItem(SubscribeCategoryItem* item,  uint32_t index, const SubscribeCategoryItem& value);
+    static const SubscribeCategoryItem& GetSubscribeCategoryItemByIndex(const SubscribeCategoryItem* item, uint32_t index);
+
+    static SubscribeOrderBookItem* CreateSubscribeOrderBookItem(uint32_t cnt);
+    static void DestroySubscribeOrderBookItem(SubscribeOrderBookItem *item);
+
+    static void SetSubscribeOrderBookItem(SubscribeOrderBookItem* item,  uint32_t index, const SubscribeOrderBookItem& value);
+    static const SubscribeOrderBookItem& GetSubscribeOrderBookItemByIndex(const SubscribeOrderBookItem* item, uint32_t index);
+
+    static CodeTableRecordList* CreateCodeTableRecordList();
+    static void DestroyCodeTableRecordList(CodeTableRecordList* item);
+
+    static ETFCodeTableRecordList* CreateETFCodeTableRecordList();
+    static void DestroyETFCodeTableRecordList(ETFCodeTableRecordList* item);
+
+    static ETFItem* CreateETFItem(uint32_t cnt);
+    static void DestroyETFItem(ETFItem* item);
+    static void SetETFItem(ETFItem* item,  uint32_t index, const ETFItem& value);
+    static const ETFItem& GetETFItemByIndex(const ETFItem* item, uint32_t index);
 
     static const MDSnapshot &GetDataByIndex(const MDSnapshot* snapshot, uint32_t index);
     static const MDOptionSnapshot &GetDataByIndex(const MDOptionSnapshot* snapshot, uint32_t index);
@@ -52,14 +73,34 @@ public:
     static const MDNegotiableTickOrder& GetDataByIndex(const MDNegotiableTickOrder* ticks, uint32_t index);
     static const MDNegotiableTickExecution& GetDataByIndex(const MDNegotiableTickExecution* ticks, uint32_t index);
     static const MDHKTRealtimeLimit& GetDataByIndex(const MDHKTRealtimeLimit* limits, uint32_t index);
+    static const MDHKMarketStatus& GetDataByIndex(const MDHKMarketStatus* limits, uint32_t index);
     static const MDHKTProductStatus& GetDataByIndex(const MDHKTProductStatus* status, uint32_t index);
     static const MDHKTVCM& GetDataByIndex(const MDHKTVCM* status, uint32_t index);
     static const MDNEEQSnapshot& GetDataByIndex(const MDNEEQSnapshot* snapshots, uint32_t index);
     static const MDNEEQSecurityInfo& GetDataByIndex(const MDNEEQSecurityInfo* infos, uint32_t index);
     static const MDNEEQNonPublicTransDeclaredInfo& GetDataByIndex(const MDNEEQNonPublicTransDeclaredInfo* infos, uint32_t index);
     static const MDNEEQHierarchicalInfo& GetDataByIndex(const MDNEEQHierarchicalInfo* infos, uint32_t index);
+    static const MDNEEQNegotiableDeclaredInfo& GetDataByIndex(const MDNEEQNegotiableDeclaredInfo* infos, uint32_t index);
+    static const MDNEEQMarketMakerDeclaredInfo& GetDataByIndex(const MDNEEQMarketMakerDeclaredInfo* infos, uint32_t index);
+    static const MDNEEQNonPublicTransferDealInfo& GetDataByIndex(const MDNEEQNonPublicTransferDealInfo* infos, uint32_t index);
+    static const MDOrderBook& GetDataByIndex(std::vector<MDOrderBook>& order_book, uint32_t index);
+    static const MDOrderBookSnapshot &GetDataByIndex(const MDOrderBookSnapshot* snapshot, uint32_t index);
+    static const CodeTableRecord& GetDataByIndex(const CodeTableRecord* records, uint32_t index);
+    static const MDBondSnapshot &GetDataByIndex(const MDBondSnapshot* snapshot, uint32_t index);
+    static const MDBondTickOrder &GetDataByIndex(const MDBondTickOrder* snapshot, uint32_t index);
+    static const MDBondQuotedTickOrder &GetDataByIndex(const MDBondQuotedTickOrder* snapshot, uint32_t index);
+    static const MDBondTickExecution &GetDataByIndex(const MDBondTickExecution* snapshot, uint32_t index);
+    static const MDBondQuotedTickExecution &GetDataByIndex(const MDBondQuotedTickExecution* snapshot, uint32_t index);
 
+    static const long long GetDataSize(std::vector<MDOrderBook>& order_book);
     static const long long& GetInt64DataByIndex(const long long* array_data, uint32_t index);
+
+    static const ETFCodeTableRecord& GetDataByIndex(const ETFCodeTableRecord* records, uint32_t index);
+    static const long long GetDataSize(std::vector<ConstituentStockInfo>& stocks);
+    static const ConstituentStockInfo& GetDataByIndex(std::vector<ConstituentStockInfo>& stocks, uint32_t index);
+
+    static const long long GetDataSize(std::vector<MDOrderBookItem>& book_item);
+    static const MDOrderBookItem& GetDataByIndex(std::vector<MDOrderBookItem>& book_item, uint32_t index);
 
     static std::string Serialize(const MDSnapshot& snapshot);
     static std::string Serialize(const MDOptionSnapshot& snapshot);
@@ -83,11 +124,24 @@ public:
     static std::string Serialize(const MDNegotiableTickExecution& tick);
     static std::string Serialize(const MDHKTRealtimeLimit& limit);
     static std::string Serialize(const MDHKTProductStatus& status);
+    static std::string Serialize(const MDHKMarketStatus& status);
     static std::string Serialize(const MDHKTVCM& status);
     static std::string Serialize(const MDNEEQSnapshot& snapshot);
     static std::string Serialize(const MDNEEQSecurityInfo& info);
     static std::string Serialize(const MDNEEQNonPublicTransDeclaredInfo& info);
     static std::string Serialize(const MDNEEQHierarchicalInfo& info);
+    static std::string Serialize(const MDNEEQNegotiableDeclaredInfo& info);
+    static std::string Serialize(const MDNEEQMarketMakerDeclaredInfo& info);
+    static std::string Serialize(const MDNEEQNonPublicTransferDealInfo& info);
+    static std::string Serialize(const MDOrderBookSnapshot& snapshot);
+    static std::string Serialize(const MDOrderBook& order_book);
+    static std::string Serialize(const CodeTableRecord& record);
+    static std::string Serialize(const MDBondSnapshot& snapshot);
+    static std::string Serialize(const MDBondTickOrder& snapshot);
+    static std::string Serialize(const MDBondQuotedTickOrder& snapshot);
+    static std::string Serialize(const MDBondTickExecution& snapshot);
+    static std::string Serialize(const MDBondQuotedTickExecution& snapshot);
+    static std::string Serialize(const ETFCodeTableRecord& record);
 
     static void FreeMemory(MDSnapshot* snapshots);
     static void FreeMemory(MDOptionSnapshot* snapshots);
@@ -107,12 +161,24 @@ public:
     static void FreeMemory(MDNegotiableTickOrder* ticks);
     static void FreeMemory(MDNegotiableTickExecution* ticks);
     static void FreeMemory(MDHKTRealtimeLimit* limit);
+    static void FreeMemory(MDHKMarketStatus* limit);
     static void FreeMemory(MDHKTProductStatus* status);
     static void FreeMemory(MDHKTVCM* status);
     static void FreeMemory(MDNEEQSnapshot* snapshot);
     static void FreeMemory(MDNEEQSecurityInfo* info);
     static void FreeMemory(MDNEEQNonPublicTransDeclaredInfo* info);
     static void FreeMemory(MDNEEQHierarchicalInfo* info);
+    static void FreeMemory(MDNEEQNegotiableDeclaredInfo* info);
+    static void FreeMemory(MDNEEQMarketMakerDeclaredInfo* info);
+    static void FreeMemory(MDNEEQNonPublicTransferDealInfo* info);
+    static void FreeMemory(CodeTableRecord* info);
+    static void FreeMemory(ETFCodeTableRecord* info);
+    static void FreeMemory(MDBondSnapshot* info);
+    static void FreeMemory(MDBondTickOrder* info);
+    static void FreeMemory(MDBondQuotedTickOrder* info);
+    static void FreeMemory(MDBondTickExecution* info);
+    static void FreeMemory(MDBondQuotedTickExecution* info);
+    static void FreeMemory(MDOrderBookSnapshot* info);
 
     static std::string GetEventLevelString(uint32_t level);
     static std::string GetEventCodeString(uint32_t level);

@@ -1,4 +1,4 @@
-.module.fetws:2018.01.04;
+.module.fetws:2022.04.21;
 
 txload "core/febase";
 txload "feed/tws/twsbase";
@@ -15,7 +15,7 @@ pdnewmon:{[x;y]if[null fs0:exec last sym from .db.QX where product=x,settledate<
 
 .upd.ordcxl:{[x]if[x[`sym]<>.conf.me;:.ha.ordcxl[x]];k:x`oid;r:.db.O[k];if[null r`sym;:()];.db.O[k;`cstatus`cid]:(.enum`PENDING_CANCEL;x`cid);tws_cancel_order[r[`feoid]^x`feoid];}';
 
-tws_err_msg:{[x]r:.db.O k:idfe2ft `$x`id;if[(null r`sym)|(0<r`cumqty)|r`end;:tws_err_msg_1[x]];.db.O[k;`end`status`reason`msg]:(1b;.enum`REJECTED;"I"$x`reason;x`text);execrpt[k];};
+tws_err_msg:{[x]r:.db.O k:idfe2ft `$x`id;if[null r`sym;:tws_err_msg_1[x]];if[x[`text] like "Warning*";:()];.db.O[k;`msg]:x`text;execrpt[k];}; /if[x[`text] like "*rejected*";.db.O[k;`end`status`reason]:(1b;.enum`REJECTED;"I"$x`reason)];
 
 tws_order_status:{[x]r:.db.O k:idfe2ft `$x`oid;if[r[`end]|(null r`sym);:()];if[null r[`ordid];.db.O[k;`ordid`acc1]:`$x`permid`clientid];st:.enum.TWSStatusMap`$x`status;cq:"F"$x`filled;lq:$[st in .enum`CANCELED`REJECTED;0f;"F"$x`remaining];ap:"F"$x`avgfillprice;if[(cq>0)&st=.enum`NEW;st:.enum`PARTIALLY_FILLED];.db.O[k;`status`cumqty`avgpx]:st,cq,ap;if[st=.enum`CANCELED;.db.O[k;`cstatus]:.enum`CANCELED];if[st in .enum`FILLED`CANCELED`REJECTED;.db.O[k;`end]:1b];execrpt[k];};
 

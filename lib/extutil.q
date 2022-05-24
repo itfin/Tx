@@ -59,7 +59,7 @@ emailx:{[s;xu;xp;f;t;u;m] system "/usr/bin/sendemail -q -l /tmp/sendemail.log",(
 inline:{[x;y;z;c]u:md5s raze z;v:(string x),"_",(string y),"_",u;w:` sv `:/q/l64,`$v,".so";if[()~key w;s:` sv `:/tmp,`$v,".c";s 0: (enlist "#include\"kcomm.h\""),$[0<count hdrs:c`h;"#include ",/: hdrs;""],(enlist "K",(string y),"(",(string x),"){"),$[0=type z;z;enlist z],enlist enlist "}";system "/usr/bin/gcc -m64 -fPIC -shared -DJ64 -DKXVER=3 -I/q/c -lpthread ",$[0<count libs:c`l;" " sv "-l",/: string libs;""]," ",(1_string s)," -o ",(1_string w);];(`$v) 2: (x;y)}; /[fun;argc;fundef;`h`l!(headers;libs)]
 osiconv:inline[`osiconv;4;"size_t n,n0=z->n,n1=w->n;S s1=z->G0,s2=w->G0;iconv_t cd=iconv_open(xs,y->s);n=iconv(cd,&s1,&n0,&s2,&n1);iconv_close(cd);R ki(n1);";`h`l!(enlist "<iconv.h>";())];
 iconv:{[t;f;x]y:#[3*count[x];"\000"];n:osiconv[t;f;x;y];neg[n]_y};
-gbk2utf8:iconv[`UTF8;`GBK];utf82gbk:iconv[`GBK;`UTF8];
+gbk2utf8:iconv[`UTF8;`GBK];utf82gbk:iconv[`GBK;`UTF8];u162utf8:iconv[`$"UTF-16";`UTF8];u322utf8:iconv[`$"UTF-32";`UTF8];
 
 /
 pd¸´ÔÓ»æÍ¼Ê¾Àý:
