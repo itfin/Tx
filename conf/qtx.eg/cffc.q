@@ -7,6 +7,12 @@ id:`990;
 ui.title:"TxÖ÷¿ØÌ¨(Qtx)";
 ui.lib:"fcui.js";
 
+maxzwlen:1000000;
+maxcxlratio:0.9;
+maxdelay:4f;
+corechklen:5;
+maxcoreuse:0.9;
+
 \d .
 
 \d .db

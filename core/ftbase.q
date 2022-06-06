@@ -1,4 +1,4 @@
-.module.ftbase:2022.04.21;
+.module.ftbase:2022.05.25;
 
 txload "core/rcbase";
 
@@ -134,7 +134,7 @@ fok_buy:xlimit_buy[``tif!(::;.enum.FILL_OR_KILL)];fok_sell:xlimit_sell[``tif!(::
 
 //.upd.quote:{[x]y:update recvtime:.z.P from select by sym from x;ljt:.conf[`quoteljtime];.db.QX:.db.QX lj y;{[x;y]z:realsyms[x;y];if[count z;.[{(x)[y;z]};(.db.Ts[x;`event;`quote];x;z);()]];}[;exec sym from y] each tsl[];};
 
-.upd.quote:{[x]{[x;y].db.QX[y`sym;x]:y x}[.enum.quotefields] each update dsttime:.z.P from x;{[x;y]z:realsyms[x;y];if[count z;.[{(x)[y;z]};(.db.Ts[x;`event;`quote];x;z);()]];}[;exec sym from x] each tsl[];};
+.upd.quote:{[x]$[0=count .db.QX;.db.QX:.db.QX uj y;{[x;y].db.QX[y`sym;x]:y x}[.enum.quotefields] each update dsttime:.z.P from x];{[x;y]z:realsyms[x;y];if[count z;.[{(x)[y;z]};(.db.Ts[x;`event;`quote];x;z);()]];}[;exec sym from x] each tsl[];};
 
 .upd.quoteref:{[x].db.QX[x`sym;`pc`open`sup`inf]:x`pc`open`sup`inf;}'; //.upd.quoteref:{[x].db.QX:.db.QX uj select by sym from x;}; /VERY SLOW
 

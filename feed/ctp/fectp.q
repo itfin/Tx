@@ -46,7 +46,7 @@ ctpphasemap:"0123"!`NotStart`Started`Pause`Expired;
 ctpposefct:{[x;y]$[x=.enum`OPEN;.enum`OF_Open;(x=.enum`CLOSETODAY)&(y in `XSGE`XINE);.enum`OF_CloseToday;.enum`OF_Close]}; /[posefct;ex]
 
 ctptconn:{[x;y]if[not any .z.T within/: .conf.ctp.openrange;:()];.ctrl.ctp[`Run]:initctpt[.conf.ctp.tdfront;.conf.me;0i];1b;};
-ctptdisc:{[x;y]if[any .z.T within/: .conf.ctp.openrange;:()];.ctrl.ctp[`Run]:freectpt[];.upd.FrontDisconnectT[];1b};
+ctptdisc:{[x;y]if[any .z.T within/: .conf.ctp.openrange;:()];savedb[];.ctrl.ctp[`Run]:freectpt[];.upd.FrontDisconnectT[];1b};
 
 .init.fectp:{[x]ctptconn[`;.z.P];};
 .exit.fectp:{[x]ctptdisc[`;.z.P];};

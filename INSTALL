@@ -1,6 +1,6 @@
 Tx安装运行步骤说明(以通过CTP接口交易为例)
 
-0.保证电脑里已安装了Linux版的64位kdb+软件在/q,并设置了环境变量QHOME=/q,PATH=/q/l64:$PATH,LD_LIBRARY_PATH=/q/l64:$LD_LIBRARY_PATH,同时电脑里已安装好了make和gcc
+0.保证电脑里已安装了Linux版的64位kdb+软件在/q,并设置了环境变量QHOME=/q,PATH=/q/l64:$PATH,LD_LIBRARY_PATH=/q/l64:$LD_LIBRARY_PATH,同时电脑里已安装好了make和clang
 
 1.从github下载Tx:cd /q && git clone https://github.com/itfin/Tx
 
