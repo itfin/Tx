@@ -43,7 +43,7 @@ enqueuel2:{[t;x]$[t=`Q;.temp.L2Q,:x;t=`O;.temp.L2O,:x;.temp.L2M,:x];};
 enqueuel2q:enqueuel2[`Q];enqueuel2o:enqueuel2[`O];enqueuel2m:enqueuel2[`M];
 batchpubl2:{[]if[(not 1b~.conf.batchpubl2);:()];if[0<count .temp.L2Q;pub[`l2queue;distinct .temp.L2Q];.temp.L2Q:()];if[0<count .temp.L2O;pub[`l2order;distinct .temp.L2O];.temp.L2O:()];if[0<count .temp.L2M;pub[`l2match;distinct .temp.L2M];.temp.L2M:()];};
 
-imphkbroker:{[]`:/kdb/hkborker set  `num xcols ungroup update `$utf82gbk each string name,`$utf82gbk each string sname from flip `code`name`sname`esname`num!flip {[x]x:x[1];(first `$1_flip 4#x),`$1_flip 4_x} each  2_.[;0 1 0 1] xmlparse read0 `:/q/ref/hk/HKBrokerList2.xml;}; /导入港股券商席位号表
+imphkbroker:{[]`:/kdb/HKBRKR set  `num xcols ungroup update `$utf82gbk each string name,`$utf82gbk each string sname from flip `code`name`sname`esname`num!flip {[x]x:x[1];(first `$1_flip 4#x),`$1_flip 4_x} each  2_.[;0 1 0 1] xmlparse read0 `:/q/ref/hk/HKBrokerList2.xml;}; /导入港股券商席位号表
 
 .upd.SYS_DISCONNECT_NETWORK:{[x]lwarn[`tdf_disconnected;()];.ctrl.tdf[`disctime]:.z.P;};
 
@@ -51,7 +51,7 @@ imphkbroker:{[]`:/kdb/hkborker set  `num xcols ungroup update `$utf82gbk each st
 
 .upd.SYS_LOGIN_RESULT:{[x]lwarn[`tdf_login;()];.ctrl.tdf[`logintime`LoginResult`LoginMsg`mktdate]:(.z.P;x[0];`$x 1;(`$x 3)!x 4);};
 
-.upd.SYS_CODETABLE_RESULT:{[x]lwarn[`tdf_full_codetable;()];.temp.x10:x;y:`$x[2];.ctrl.tdf[`codetime`CodeMsg`M]:(.z.P;`$x[0];([]ex:y;num:x[3];today:"D"$string x[4]));.ctrl.tdf[`C]:update ssym:esym {sv[`]x,`$first vs["-"] string y}' ex,sym:esym {sv[`] {[x;y]x:string[x];`$$[("0"=first[x])&not y in `XSHG`XSHE;string "I"$x;x]}[x;y],y}' .enum.exmap ex from update `$wsym,`$ex,`$esym,`$wtyp from flip `wsym`ex`esym`name`cname`typ`wtyp`seq`qtylot!flip raze codetable each y;.db.CodeMap:exec (`u#wsym)!sym from .ctrl.tdf[`C];.db.SubMap:exec (`u#sym)!ssym from .ctrl.tdf[`C];};
+.upd.SYS_CODETABLE_RESULT:{[x]lwarn[`tdf_full_codetable;()];.temp.x10:x;y:`$x[2];.ctrl.tdf[`codetime`CodeMsg`M]:(.z.P;`$x[0];([]ex:y;num:x[3];today:"D"$string x[4]));.ctrl.tdf[`C]:update ssym:esym {[x;y]sv[`]x,`$first vs["-"] string y}' ex,sym:esym {[x;y]sv[`] {[x;y]x:string[x];`$$[("0"=first[x])&not y in `XSHG`XSHE;string "I"$x;x]}[x;y],y}' .enum.exmap ex from update `$wsym,`$ex,`$esym,`$wtyp from flip `wsym`ex`esym`name`cname`typ`wtyp`seq`qtylot!flip raze codetable each y;.db.CodeMap:exec (`u#wsym)!sym from .ctrl.tdf[`C];.db.SubMap:exec (`u#sym)!ssym from .ctrl.tdf[`C];};
 
 .upd.SYS_QUOTATIONDATE_CHANGE:{[x]lwarn[`tdf_date_change;x];};
 .upd.SYS_MARKET_CLOSE:{[x]lwarn[`tdf_market_close;x];};

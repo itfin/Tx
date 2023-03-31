@@ -4,7 +4,7 @@ VERSION[`OGWPUSH]:"2016.03.16";
 
 qload "oscomm.q";
 
-//SysOpt[`QryPageNum`optId`optPwd`optMode`OptAcc`OptAccPwd`OptRegId`OptTrdPwd`StkAcc`StkAccPwd`StkRegId`StkTrdPwd`CltMAC`GWOS`BatchNum]:(500;`000898;`666666;`W1;`000000000899;`666666;`0000000898;`666666;`000000000898;`666666;`0000000898;`666666;`12345678;`OS_GW`::9010:guosen:guosen;1);
+//SysOpt[`QryPageNum`optId`optPwd`optMode`OptAcc`OptAccPwd`OptRegId`OptTrdPwd`StkAcc`StkAccPwd`StkRegId`StkTrdPwd`CltMAC`GWOS`BatchNum]:(500;`000898;`666666;`W1;`000000000899;`666666;`0000000898;`666666;`000000000898;`666666;`0000000898;`666666;`12345678;`OS_GW`::9010:user:pass;1);
 
 SysOpt[`QryPageNum`optId`optPwd`optMode`OptAcc`OptAccPwd`OptRegId`OptTrdPwd`StkAcc`StkAccPwd`StkRegId`StkTrdPwd`FutAcc`FutAccPwd`FutRegId`FutTrdPwd`CltMAC`GWOSID`GWOSADDR`BatchNum`AsyncMode]:(500;`00001^`$CmdOpt`optid;`666666^`$CmdOpt`optpwd;`W1^`$CmdOpt`optmode;`000000003001^`$CmdOpt`optacc;`666666^`$CmdOpt`optaccpwd;`0899024792^`$CmdOpt`optregid;`666666^`$CmdOpt`opttrdpwd;`000000002001^`$CmdOpt`stkacc;`666666^`$CmdOpt`stkaccpwd;`0899024792^`$CmdOpt`stkregid;`666666^`$CmdOpt`stktrdpwd;`000000002001^`$CmdOpt`futacc;`666666^`$CmdOpt`futaccpwd;`0899024792^`$CmdOpt`futregid;`666666^`$CmdOpt`futtrdpwd;`12345678;`$CmdOpt`gwosid;`$CmdOpt`gwosaddr;1;0^"I"$CmdOpt`asyncmode);
 

@@ -32,7 +32,7 @@ getbdtoken:{[x;y]if[count[.lib.BDTTSTOKEN]&.z.P<.lib.BDTTSEXPIRE;:.lib.BDTTSTOKE
 getbdaudioex:{[x;y;z].Q.hg "http://tsn.baidu.com/text2audio?lan=zh&ctp=1&cuid=123456&per=1&spd=5&pit=5&vol=9&aue=3&tok=",getbdtoken[x;y],"&tex=",.h.hu z};
 getbdaudio:getbdaudioex[.lib.BDTTSAPPKEY;.lib.BDTTSAPPSECRET];
 
-ttsread:{[x]`:/tmp/bdtts.mp3 1: `byte$getbdaudio[x];system "mpg321 -q /tmp/bdtts.mp3"};
+ttsread:{[x]`:/tmp/bdtts.mp3 1: `byte$getbdaudio[x];system "mpg321 -q ",p:"/tmp/bdtts.mp3";p};
 
 cb_ws:cb_tts:cb_iat:cb_ise:{[x]};
 

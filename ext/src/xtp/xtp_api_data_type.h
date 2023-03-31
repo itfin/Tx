@@ -332,8 +332,8 @@ typedef enum XTP_FUND_TRANSFER_TYPE
 {
     XTP_FUND_TRANSFER_OUT = 0,		///<转出 从XTP转出到柜台
     XTP_FUND_TRANSFER_IN,	        ///<转入 从柜台转入XTP
-    XTP_FUND_INTER_TRANSFER_OUT,    ///<跨节点转出 从本XTP节点1，转出到对端XTP节点2，XTP服务器之间划拨，只能跨账户用户使用
-    XTP_FUND_INTER_TRANSFER_IN,     ///<跨节点转入 从对端XTP节点2，转入到本XTP节点1，XTP服务器之间划拨，只能跨账户用户使用
+    XTP_FUND_INTER_TRANSFER_OUT,    ///<跨节点转出 从本XTP节点1，转出到对端XTP节点2，XTP服务器之间划拨，只能“一账号两中心”跨节点用户使用
+    XTP_FUND_INTER_TRANSFER_IN,     ///<跨节点转入 从对端XTP节点2，转入到本XTP节点1，XTP服务器之间划拨，只能“一账号两中心”跨节点用户使用
     XTP_FUND_TRANSFER_UNKNOWN		///<未知类型
 }XTP_FUND_TRANSFER_TYPE;
 
@@ -385,7 +385,28 @@ typedef enum XTP_SPLIT_MERGE_STATUS {
 typedef enum XTP_TBT_TYPE {
 	XTP_TBT_ENTRUST = 1,	///<逐笔委托
 	XTP_TBT_TRADE = 2,		///<逐笔成交
+	XTP_TBT_STATE = 3,      ///<逐笔状态订单，2.2.32版本新增字段，为上海新债券Level2行情中独有
 }XTP_TBT_TYPE;
+
+/////////////////////////////////////////////////////////////////////////
+///@brief XTP_QUOTE_DATA_TYPE是行情数据类型 逐笔，快照等
+/////////////////////////////////////////////////////////////////////////
+typedef enum XTP_QUOTE_REBUILD_DATA_TYPE {
+	XTP_QUOTE_REBUILD_UNKNOW = 0,	///<未知类型
+	XTP_QUOTE_REBUILD_MD = 1,		///<快照类型
+	XTP_QUOTE_REBUILD_TBT = 2,		///<逐笔类型
+}XTP_QUOTE_REBUILD_DATA_TYPE;
+
+/////////////////////////////////////////////////////////////////////////
+///@brief XTP_REBUILD_RET_TYPE 实时行情回补返回结果类型
+/////////////////////////////////////////////////////////////////////////
+typedef enum XTP_REBUILD_RET_TYPE {
+    XTP_REBUILD_RET_COMPLETE    = 1,	///<全部数据
+    XTP_REBUILD_RET_PARTLY      = 2,	///<部分数据
+    XTP_REBUILD_RET_NO_DATA     = 3,	///<没有数据
+    XTP_REBUILD_RET_PARAM_ERR   = 4,	///<参数错误
+    XTP_REBUILD_RET_FREQUENTLY  = 5,	///<请求频繁
+}XTP_REBUILD_RET_TYPE;
 
 /////////////////////////////////////////////////////////////////////////
 ///@brief XTP_OPT_CALL_OR_PUT_TYPE是一个认沽或认购类型
@@ -464,7 +485,10 @@ typedef char TXTPTradeTypeType;
 #define XTP_TRDT_PRIMARY '2'
 ///跨市场资金成交
 #define XTP_TRDT_CROSS_MKT_CASH '3'
-
+///港市资金成交
+#define XTP_TRDT_HK_MKT_CASH	'4'
+///非沪深资金成交
+#define XTP_TRDT_NON_SHSZ_MKT_CASH	'5'
 
 /////////////////////////////////////////////////////////////////////////
 ///TXTPOrderTypeType是报单类型类型

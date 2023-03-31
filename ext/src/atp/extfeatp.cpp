@@ -300,6 +300,8 @@ extern "C"{
     login_msg.client_seq_id = xj;        // 客户系统消息号
     login_msg.order_way = kK(y)[4]->g;     // 委托方式，自助委托
     login_msg.client_feature_code = kK(y)[5]->s; // 终端识别码
+    login_msg.login_mode = kK(y)[6]->g; // 登录方式
+    login_msg.extra_data = kK(y)[7]->s; // 补充字段
 	
 	
     ATPRetCodeType ec = pTradeApi->ReqCustLoginOther(&login_msg);

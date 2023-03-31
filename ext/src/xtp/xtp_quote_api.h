@@ -65,10 +65,10 @@ namespace XTP {
 			///深度行情通知，包含买一卖一队列
 			///@param market_data 行情数据
 			///@param bid1_qty 买一队列数据
-			///@param bid1_count 买一队列的有效委托笔数
+			///@param bid1_count 买一队列的有效委托笔数，即bid1_qty数组的长度，最大为50
 			///@param max_bid1_count 买一队列总委托笔数
 			///@param ask1_qty 卖一队列数据
-			///@param ask1_count 卖一队列的有效委托笔数
+			///@param ask1_count 卖一队列的有效委托笔数，即ask1_qty数组的长度，最大为50
 			///@param max_ask1_count 卖一队列总委托笔数
 			///@remark 需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 			virtual void OnDepthMarketData(XTPMD *market_data, int64_t bid1_qty[], int32_t bid1_count, int32_t max_bid1_count, int64_t ask1_qty[], int32_t ask1_count, int32_t max_ask1_count) {};
@@ -199,6 +199,26 @@ namespace XTP {
 			///@param error_info 查询合约完整静态信息时发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
 			///@param is_last 是否此次查询合约完整静态信息的最后一个应答，当为最后一个的时候为true，如果为false，表示还有其他后续消息响应
 			virtual void OnQueryAllTickersFullInfo(XTPQFI* ticker_info, XTPRI *error_info, bool is_last) {};
+
+			///当客户端与回补行情服务器通信连接断开时，该方法被调用。
+			///@param reason 错误原因，请与错误代码表对应
+			///@remark api不会自动重连，当断线发生时，请用户自行选择后续操作。回补服务器会在无消息交互后会定时断线，请注意仅在需要回补数据时才保持连接，无回补需求时，无需登陆。
+			virtual void OnRebuildQuoteServerDisconnected(int reason) {};
+
+			///请求回补指定频道的逐笔行情的总体结果应答
+			///@param rebuild_result 当回补结束时被调用，如果回补结果失败，则msg参数表示失败原因
+			///@remark 需要快速返回，仅在回补数据发送结束后调用，如果请求数据太多，一次性无法回补完，那么rebuild_result.result_code = XTP_REBUILD_RET_PARTLY，此时需要根据回补结果继续发起回补数据请求
+			virtual void OnRequestRebuildQuote(XTPQuoteRebuildResultRsp* rebuild_result) {};
+
+			///回补的逐笔行情数据
+			///@param tbt_data 回补的逐笔行情数据
+			///@remark 需要快速返回，此函数调用与OnTickByTick不在一个线程内，会在OnRequestRebuildQuote()之前回调
+			virtual void OnRebuildTickByTick(XTPTBT *tbt_data) {};
+
+			///回补的快照行情数据
+			///@param md_data 回补的逐笔行情数据
+			///@remark 需要快速返回，此函数调用与OnDepthMarketData不在一个线程内，会在OnRequestRebuildQuote()之前回调
+			virtual void OnRebuildMarketData(XTPMD *md_data) {};
 		};
 	}
 }
@@ -447,6 +467,28 @@ namespace XTP {
 			///@return 发送查询请求是否成功，“0”表示发送查询请求成功，非“0”表示发送查询请求不成功
 			///@param exchange_id 交易所代码，必须提供 1-上海 2-深圳
 			virtual int QueryAllTickersFullInfo(XTP_EXCHANGE_TYPE exchange_id) = 0;
+
+			///用户登录回补服务器请求
+			///@return 登录是否成功，“0”表示登录成功，“-1”表示连接服务器出错，此时用户可以调用GetApiLastError()来获取错误代码，“-2”表示已存在连接，不允许重复登录，如果需要重连，请先logout，“-3”表示输入有错误
+			///@param ip 服务器ip地址，类似“127.0.0.1”
+			///@param port 服务器端口号
+			///@param user 登陆用户名
+			///@param password 登陆密码
+			///@param sock_type “1”代表TCP，“2”代表UDP
+			///@param local_ip 本地网卡地址，类似“127.0.0.1”
+			///@remark 此函数为同步阻塞式，不需要异步等待登录成功，当函数返回即可进行后续操作，此api只能有一个连接。回补服务器会在无消息交互后定时断线，请注意仅在需要回补数据时才保持连接，回补完成后请及时logout
+			virtual int LoginToRebuildQuoteServer(const char* ip, int port, const char* user, const char* password, XTP_PROTOCOL_TYPE sock_type, const char* local_ip = NULL) = 0;
+
+			///登出回补服务器请求
+			///@return 登出是否成功，“0”表示登出成功，非“0”表示登出出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@remark 此函数为同步阻塞式，不需要异步等待登出，当函数返回即可进行后续操作
+			virtual int LogoutFromRebuildQuoteServer() = 0;
+
+			///请求回补指定行情，包括快照和逐笔
+			///@return 请求回补指定频道的逐笔行情接口调用是否成功，“0”表示接口调用成功，非“0”表示接口调用出错
+			///@param rebuild_param 指定回补的参数信息，注意一次性回补最多1000个数据，超过1000需要分批次请求，一次只能指定一种类型的数据
+			///@remark 仅在逐笔行情丢包时或者确实快照行情时使用，回补的行情数据将从OnRebuildTickByTick或者OnRebuildMarketData()接口回调提供，与订阅的行情数据不在同一个线程内
+			virtual int RequestRebuildQuote(XTPQuoteRebuildReq* rebuild_param) = 0;
 
 
 		protected:

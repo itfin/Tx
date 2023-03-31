@@ -122,6 +122,72 @@ struct XTPOrderInfo
 
 
 
+///报单响应结构体，新版本
+struct XTPOrderInfoEx
+{
+    ///XTP系统订单ID，在XTP系统中唯一
+    uint64_t                order_xtp_id;
+    ///报单引用，用户自定义
+    uint32_t	            order_client_id;
+    ///报单操作引用，用户自定义（暂未使用）
+    uint32_t                order_cancel_client_id;
+    ///撤单在XTP系统中的id，在XTP系统中唯一
+    uint64_t                order_cancel_xtp_id;
+    ///合约代码
+    char                    ticker[XTP_TICKER_LEN];
+    ///交易市场
+    XTP_MARKET_TYPE         market;
+    ///价格
+    double                  price;
+    ///数量，此订单的报单数量
+    int64_t                 quantity;
+    ///报单价格条件
+    XTP_PRICE_TYPE          price_type;
+    union{
+        uint32_t            u32;
+        struct {
+            ///买卖方向
+            XTP_SIDE_TYPE               side;
+            ///开平标志
+            XTP_POSITION_EFFECT_TYPE    position_effect;
+            ///预留字段1
+            uint8_t                     reserved1;
+            ///预留字段2
+            uint8_t                     reserved2;
+        };
+    };
+    ///业务类型
+    XTP_BUSINESS_TYPE       business_type;
+    ///今成交数量，为此订单累计成交数量
+    int64_t                 qty_traded;
+    ///剩余数量，当撤单成功时，表示撤单数量
+    int64_t                 qty_left;
+    ///委托时间，格式为YYYYMMDDHHMMSSsss
+    int64_t                 insert_time;
+    ///最后修改时间，格式为YYYYMMDDHHMMSSsss
+    int64_t                 update_time;
+    ///撤销时间，格式为YYYYMMDDHHMMSSsss
+    int64_t                 cancel_time;
+    ///成交金额，为此订单的成交总金额
+    double                  trade_amount;
+    ///本地报单编号 OMS生成的单号，不等同于order_xtp_id，为服务器传到报盘的单号
+    char                    order_local_id[XTP_LOCAL_ORDER_LEN];
+    ///报单状态，订单响应中没有部分成交状态的推送，在查询订单结果中，会有部分成交状态
+    XTP_ORDER_STATUS_TYPE   order_status;
+    ///报单提交状态，OMS内部使用，用户无需关心
+    XTP_ORDER_SUBMIT_STATUS_TYPE   order_submit_status;
+    ///报单类型
+    TXTPOrderTypeType       order_type;
+    ///报单编号 --交易所单号，上交所为空，深交所有此字段
+    char                    order_exch_id[XTP_ORDER_EXCH_LEN];
+    ///订单的错误信息
+    XTPRI                   order_err_t;
+    ///保留字段
+    uint64_t                unknown[2];
+};
+
+
+
 ///报单成交结构体
 struct XTPTradeReport
 {
@@ -368,9 +434,12 @@ struct XTPQueryStkPositionRsp
     double             buy_cost;
     ///盈亏成本
     double             profit_cost;
+	
+	///持仓市值（此字段目前只有期权账户有值，其他类型账户为0）
+	double				market_value;
 
     ///(保留字段)
-    uint64_t unknown[50 - 9];
+    uint64_t unknown[50 - 10];
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -1061,6 +1130,62 @@ struct XTPOptCombOrderInfo
 
     ///期权组合策略信息
     XTPOptCombPlugin        opt_comb_info;
+};
+
+
+
+///期权组合策略报单响应结构体，新版本
+struct XTPOptCombOrderInfoEx
+{
+    ///XTP系统订单ID，在XTP系统中唯一
+    uint64_t                order_xtp_id;
+    ///报单引用，用户自定义
+    uint32_t	            order_client_id;
+    ///报单操作引用，用户自定义（暂未使用）
+    uint32_t                order_cancel_client_id;
+    ///撤单在XTP系统中的id，在XTP系统中唯一
+    uint64_t                order_cancel_xtp_id;
+    ///证券代码
+    ///char                    ticker[XTP_TICKER_LEN];
+    ///交易市场
+    XTP_MARKET_TYPE         market;
+    ///数量，此订单的报单数量
+    int64_t                 quantity;
+
+    ///组合方向
+    XTP_SIDE_TYPE               side;
+
+    ///业务类型
+    XTP_BUSINESS_TYPE       business_type;
+    ///今成交数量，为此订单累计成交数量
+    int64_t                 qty_traded;
+    ///剩余数量，当撤单成功时，表示撤单数量
+    int64_t                 qty_left;
+    ///委托时间，格式为YYYYMMDDHHMMSSsss
+    int64_t                 insert_time;
+    ///最后修改时间，格式为YYYYMMDDHHMMSSsss
+    int64_t                 update_time;
+    ///撤销时间，格式为YYYYMMDDHHMMSSsss
+    int64_t                 cancel_time;
+    ///成交金额，组合拆分涉及的保证金
+    double                  trade_amount;
+    ///本地报单编号 OMS生成的单号，不等同于order_xtp_id，为服务器传到报盘的单号
+    char                    order_local_id[XTP_LOCAL_ORDER_LEN];
+    ///报单状态，订单响应中没有部分成交状态的推送，在查询订单结果中，会有部分成交状态
+    XTP_ORDER_STATUS_TYPE   order_status;
+    ///报单提交状态，OMS内部使用，用户无需关心
+    XTP_ORDER_SUBMIT_STATUS_TYPE   order_submit_status;
+    ///报单类型
+    TXTPOrderTypeType       order_type;
+
+    ///期权组合策略信息
+    XTPOptCombPlugin        opt_comb_info;
+    ///报单编号 --交易所单号，上交所为空，深交所有此字段
+    char                    order_exch_id[XTP_ORDER_EXCH_LEN];
+    ///订单的错误信息
+    XTPRI                   order_err_t;
+    ///保留字段
+    uint64_t                unknown[2];
 };
 
 

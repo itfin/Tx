@@ -2,6 +2,8 @@
 #include <queue>
 #include "xtp_trader_api.h"
 
+#undef _XTPALGO
+
 #define PIPE_CAPACITY 65536
 #define b9 
 #define d9 
@@ -87,14 +89,14 @@ public:
 
   virtual void OnOrderEvent(XTPOrderInfo *p, XTPRI *error_info, uint64_t session_id) {
 #if defined(_XTPALGO)        
-    if(0!=pTradeApi->GetAlgorithmIDByOrder(p->order_xtp_id,p->order_client_id))R;
+    //    if(0!=pTradeApi->GetAlgorithmIDByOrder(p->order_xtp_id,p->order_client_id))R;
 #endif    
     XTPPUB1("Order",knk(24,kj(session_id),ki((NULL==error_info)?0:error_info->error_id),kp((NULL==error_info)?(S)"":error_info->error_msg),kj(p->order_xtp_id),ki(p->order_client_id),kj(p->order_cancel_xtp_id),kp(p->ticker),ki(p->market),kf(p->price),kj(p->quantity),ki(p->price_type),kc(p->side),kc(p->position_effect),ki(p->business_type),kj(p->qty_traded),kj(p->qty_left),kj(p->insert_time),kj(p->update_time),kj(p->cancel_time),kf(p->trade_amount),kp(p->order_local_id),ki(p->order_status),ki(p->order_submit_status),ki(p->order_type)));  
   };
 
   virtual void OnTradeEvent(XTPTradeReport *p, uint64_t session_id){
 #if defined(_XTPALGO)        
-    if(0!=pTradeApi->GetAlgorithmIDByOrder(p->order_xtp_id,p->order_client_id))R;
+    //    if(0!=pTradeApi->GetAlgorithmIDByOrder(p->order_xtp_id,p->order_client_id))R;
 #endif        
     XTPPUB1("Trade",knk(17,kj(session_id),kj(p->order_xtp_id),ki(p->order_client_id),kp(p->ticker),ki(p->market),kp(p->exec_id),kf(p->price),kj(p->quantity),kj(p->trade_time),kf(p->trade_amount),kj(p->report_index),kp(p->order_exch_id),ki(p->trade_type),kc(p->side),kc(p->position_effect),ki(p->business_type),kp(p->branch_pbu)));  
   };
@@ -154,7 +156,7 @@ public:
   };
 
 #if defined(_XTPALGO)    
-  virtual void OnStrategyStateReport(XTPStrategyStateReportStruct* p, uint64_t session_id) {
+  //  virtual void OnStrategyStateReport(XTPStrategyStateReportStruct* p, uint64_t session_id) {
     XTPPUB1("StrategyStateReport",knk(19,kj(session_id),ki(p->m_strategy_info.m_strategy_type),kc(p->m_strategy_info.m_strategy_state),kj(p->m_strategy_info.m_client_strategy_id),kj(p->m_strategy_info.m_xtp_strategy_id),kj(p->m_strategy_qty),kj(p->m_strategy_ordered_qty),kj(p->m_strategy_cancelled_qty),kj(p->m_strategy_execution_qty),kj(p->m_strategy_unclosed_qty),kf(p->m_strategy_asset),kf(p->m_strategy_ordered_asset),kf(p->m_strategy_execution_asset),kf(p->m_strategy_execution_price),kf(p->m_strategy_market_price),kf(p->m_strategy_price_diff),kf(p->m_strategy_asset_diff),ki(p->m_error_info.error_id),kp(p->m_error_info.error_msg)));  
     
   };
@@ -433,7 +435,8 @@ extern "C"{
     R(ki(r));
   }
 
-#if defined(_XTPALGO)    
+#if defined(_XTPALGO)
+  /*  
   K1(loginALGO){
     R ki(pTradeApi->LoginALGO(kK(x)[0]->s,kK(x)[1]->i,kK(x)[2]->s,kK(x)[3]->s,XTP_PROTOCOL_TCP,kK(x)[4]->s));
   }
@@ -470,6 +473,6 @@ extern "C"{
     
     R(ki(r));
   }
-
+  */
 #endif
 }

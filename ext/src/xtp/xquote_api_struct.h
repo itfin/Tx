@@ -20,7 +20,7 @@ typedef struct XTPSpecificTickerStruct
 	char	ticker[XTP_TICKER_LEN];
 } XTPST;
 
-///股票、基金、债券等额外数据
+///股票、基金 等额外数据
 struct XTPMarketDataStockExData {
     ///委托买入总量(SH,SZ)
     int64_t total_bid_qty;
@@ -89,6 +89,68 @@ struct XTPMarketDataStockExData {
     int64_t r2;
 };
 
+///债券额外数据
+struct XTPMarketDataBondExData {
+    ///委托买入总量(SH,SZ)
+    int64_t total_bid_qty;
+    ///委托卖出总量(SH,SZ)
+    int64_t total_ask_qty;
+    ///加权平均委买价格(SH,SZ)
+    double ma_bid_price;
+    ///加权平均委卖价格(SH,SZ)
+    double ma_ask_price;
+    ///债券加权平均委买价格(SH)
+    double ma_bond_bid_price;
+    ///债券加权平均委卖价格(SH)
+    double ma_bond_ask_price;
+    ///债券到期收益率(SH)
+    double yield_to_maturity;
+	///匹配成交最近价(SZ)
+	double match_lastpx;
+    ///债券加权平均价格(SH)
+    double ma_bond_price;
+    ///预留
+    double r2;
+    ///预留
+    double r3;
+    ///预留
+    double r4;
+    ///预留
+    double r5;
+    ///预留
+    double r6;
+    ///预留
+    double r7;
+    ///预留
+    double r8;
+    ///买入撤单笔数(SH)
+    int32_t cancel_buy_count;
+    ///卖出撤单笔数(SH)
+    int32_t cancel_sell_count;
+    ///买入撤单数量(SH)
+    double cancel_buy_qty;
+    ///卖出撤单数量(SH)
+    double cancel_sell_qty;
+    ///买入撤单金额(SH)
+    double cancel_buy_money;
+    ///卖出撤单金额(SH)
+    double cancel_sell_money;
+    ///买入总笔数(SH)
+    int64_t total_buy_count;
+    ///卖出总笔数(SH)
+    int64_t total_sell_count;
+    ///买入委托成交最大等待时间(SH)
+    int32_t duration_after_buy;
+    ///卖出委托成交最大等待时间(SH)
+    int32_t duration_after_sell;
+    ///买方委托价位数(SH)
+    int32_t num_bid_orders;
+    ///卖方委托价位数(SH)
+    int32_t num_ask_orders;
+    ///时段(SHL2)，L1快照数据没有此字段，具体字段说明参阅《上海新债券Level2行情说明.doc》文档
+    char instrument_status[8];
+};
+
 /// 期权额外数据
 struct XTPMarketDataOptionExData {
     ///波段性中断参考价(SH)
@@ -100,11 +162,21 @@ struct XTPMarketDataOptionExData {
 };
 
 /////////////////////////////////////////////////////////////////////////
-///@brief XTP_MARKETDATA_TYPE是行情快照数据类型
+///@brief XTP_MARKETDATA_TYPE是行情快照数据类型，2.2.32以前版本所用
 /////////////////////////////////////////////////////////////////////////
 enum XTP_MARKETDATA_TYPE {
     XTP_MARKETDATA_ACTUAL = 0, // 现货(股票/基金/债券等)
     XTP_MARKETDATA_OPTION = 1, // 期权
+};
+
+/////////////////////////////////////////////////////////////////////////
+///@brief XTP_MARKETDATA_TYPE_V2是行情快照数据类型，2.2.32版本新增字段
+/////////////////////////////////////////////////////////////////////////
+enum XTP_MARKETDATA_TYPE_V2 {
+    XTP_MARKETDATA_V2_INDEX  = 0, // 指数
+    XTP_MARKETDATA_V2_OPTION = 1, // 期权
+    XTP_MARKETDATA_V2_ACTUAL = 2, // 现货(股票/基金等)
+    XTP_MARKETDATA_V2_BOND   = 3, // 债券
 };
 
 ///行情
@@ -135,9 +207,9 @@ typedef struct XTPMarketDataStruct
     int64_t pre_total_long_positon;
     ///持仓量(张)
 	int64_t	total_long_positon;
-    ///昨日结算价
+    ///昨日结算价（SH）
     double	pre_settl_price;
-    ///今日结算价
+    ///今日结算价（SH）
 	double	settl_price;
 
 	// 涨跌停
@@ -158,7 +230,7 @@ typedef struct XTPMarketDataStruct
     int64_t	qty;
     ///成交金额，为总成交金额（单位元，与交易所一致）
     double	turnover;
-    ///当日均价=(turnover/qty)
+    ///预留(无意义)
     double	avg_price;
 
     // 买卖盘
@@ -180,11 +252,12 @@ typedef struct XTPMarketDataStruct
     union {
         XTPMarketDataStockExData  stk;
         XTPMarketDataOptionExData opt;
+        XTPMarketDataBondExData  bond;
     } ;
-    ///决定了union是哪种数据类型
+    ///决定了union是哪种数据类型 (2.2.32版本以前所用字段，仅为了保持兼容，不建议使用该字段)
     XTP_MARKETDATA_TYPE data_type;
-    ///预留
-    int32_t r4;
+    ///决定了union是哪种数据类型（2.2.32版本新增字段，更详细区分了行情快照数据类型）
+    XTP_MARKETDATA_TYPE_V2 data_type_v2;
 } XTPMD;
 
 
@@ -213,7 +286,7 @@ typedef struct XTPQuoteStaticInfo {
 } XTPQSI;
 
 
-///定单薄
+///订单薄
 typedef struct OrderBookStruct {
     ///交易所代码
     XTP_EXCHANGE_TYPE exchange_id;
@@ -290,6 +363,16 @@ struct XTPTickByTickTrade {
     char trade_flag;
 };
 
+///逐笔状态订单
+struct XTPTickByTickStatus {
+    ///频道代码
+    int32_t channel_no;
+    ///同一channel_no内连续
+    int64_t seq;
+    ///状态信息
+    char flag[8];
+};
+
 ///逐笔数据信息
 typedef struct XTPTickByTickStruct {
     ///交易所代码
@@ -307,6 +390,7 @@ typedef struct XTPTickByTickStruct {
     union {
         XTPTickByTickEntrust entrust;
         XTPTickByTickTrade     trade;
+        XTPTickByTickStatus    state;
     };
 } XTPTBT;
 
@@ -357,3 +441,4 @@ typedef struct XTPQuoteFullInfo {
 #pragma pack()
 
 #endif
+

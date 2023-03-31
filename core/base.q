@@ -1,4 +1,4 @@
-.module.base:2019.10.16;
+.module.base:2022.10.11;
 
 txload:{[x]@[system;"l Tx/",x,".q";@[system;"l Tx/",x,".q_";`$"txload_",x]];};
 cfload:{[x]txload "conf/",x;};
@@ -57,6 +57,7 @@ S:([mid:`symbol$();ref:`symbol$();state:`symbol$()]active:`boolean$();updtime:`t
 loaddb:{[]if[count key x:` sv .conf[`feeddb`me];`.db set get x];};
 savedb:{[](` sv .conf[`feeddb`me]) set .db;};
 loadhdb:{[]if[count key x:` sv .conf[`histdb`me];`.hdb set get x];};
+unloadhdb:{[]`.hdb set ()!();};
 loadhist:{[x].[`.temp;enlist x;:;get ` sv .conf[`histdb],x];};
 savehist:{[x]set[` sv .conf[`histdb],x;.temp[x]];};
 
@@ -71,7 +72,7 @@ chksub:{[]if[not `sub in key `.conf;:()];{[x]if[not x in key `.ctrl.conn;:()];if
 pub:{[t;x]if[null d:.conf[`pubto];:()];h:.ctrl.conn[d;`h];$[-6h<>type h;();0>=h;();[neg[h] (".u.upd";t;value flip update src:.conf.me,srctime:.z.P,srcseq:.db.seq,dsttime:0Np from x);.db.seq+:1]];};
 pubmx:{[x;y;z;w;d]pub[`sysmsg;enlist `sym`typ`ref`msg`vbin!(x;y;z;w;d)];};pubm:pubmx[;;;;`byte$()]; /(sym;typ;ref;msg)
 
-nextworkday:{[x]y:weekday[x];z:x+$[y=4;3;y=5;2;1];$[z in .conf.holiday;.z.s[z];z]};
+nextworkday:{[x]y:weekday[x];z:x+$[y=4;3;y=5;2;1];w:.conf[`holidayexlist];$[z in $[11h=type w;.conf.holiday inter (inter/).conf[`exholiday] w;.conf.holiday];.z.s[z];z]};
 
 beginofday:{[x]h:.ctrl.conn[.conf.pubto;`h];if[-6h<>type h;:()];if[x<=h[`.u.d];:()];neg[h] (`.u.beginofday;x);pubm[`ALL;`BeginOfDay;.conf.me;string x];};
 
@@ -93,7 +94,7 @@ display:{(,/) `_.disp[;]};
 
 .zpc.base:{[x]{if[x=.ctrl.conn[y;`h];.ctrl.conn[y;`h`disctime]:(-1;.z.P);if[y in key `.ctrl.sub;.ctrl.sub[y;`sub]:0b]]}[x] each tkey .ctrl.conn;};
 
-.upd.BeginOfDay:{[x].ctrl[`rollstart]:.z.P;{@[.roll[x];y;()]}[;"D"$x`msg] each (key .roll) except `;.Q.gc[];.ctrl[`rollend]:.z.P;savedb[];};
+.upd.BeginOfDay:{[x].ctrl[`rollstart]:.z.P;{@[.roll[x];y;()]}[;"D"$x`msg] each (reverse key .roll) except `;.Q.gc[];.ctrl[`rollend]:.z.P;savedb[];};
 
 newseq:{[]:.db.seq+:1};newidl:{[]`$string newseq[]};newid:{[]` sv .conf.id,`$string newseq[]};newseq0:{[]:.db.seq0+:1};newidl0:{[]`$string newseq0[]};newid0:{[]` sv .conf.id,`$string newseq0[]};
 fs2se:{[x]`$"." vs string x};se2fs:{[x]`$"." sv string x};fs2e:{last fs2se x};fs2s:{first fs2se x};
@@ -105,4 +106,11 @@ setstate:{[x;y]if[(null y)|(y~y0:.ctrl.StateMap[x]);:()];t0:.ctrl.StateEnter[x];
 
 updstate:{[x;y;z]m:.conf.me;t0:.db.S[m,x,y;`entertime];t:now[];z0:.db.S[m,x,y;`active];.db.S[m,x,y;`active`updtime]:(z;t);if[z0&not z;.db.S[m,x,y;`leavetime]:t;lwarn[`LeaveState;(m;x;y;t0;t;t-t0)];sysalarm[`LeaveState;m,x,y]];if[(not z0)&z;.db.S[m,x,y;`entertime]:t;lwarn[`EnterState;(m;x;y;t)];sysalarm[`EnterState;m,x,y]];}; /[ref;state;active]
 
+loadhdbtask:{[x;y]loadhdb[];1b};
+unloadhdbtask:{[x;y]unloadhdb[];.Q.gc[];1b};
+cleartemptask:{[x;y]cleartemp[];.Q.gc[];1b};
+
 if[not `boot in key `.ctrl;.base.boot[]];
+
+//----ChangeLog----
+//2022.10.11:{nextworkday} add support for multiple exchanges. should add .conf.holidayexlist to cfbase.q  

@@ -139,8 +139,8 @@ hscxlord:{[x]acL:vs[`] x`acc1;ac0:acL[0];ac:acL[1];se:fs2se x`sym;se[1]:.enum.ex
 
 //应急处理步骤:0.在各ft中停策略1.设置cffeufx.q中feacive:0b,重启ufx接口,2:从ft同步O表中fe字段为`feufx的记录(如果ft也崩溃要先从总线恢复ft的O表:recoverdb[]),3:将.db.seq设为比当前最大的feoid还大的值(因feoid可能有丢失,要至少增大10000),4:对.db.O中的每一个组合acc1进行委托查询,并将feoid和ordid更新到.db.O,5:在ft中对所有未完成委托进行查询以同步状态,[6:在ft中对所有未完成委托进行撤单以进行持仓比对],7:修改内存.conf.feactive:1b允许继续交易,修改配置文件cffeufx.q中feacive:1b以保证第二天正常启动
 c "startmod `feufx"
-e:hopen `::9010:swhy:swhy
-e "h:hopen `::7010:swhy:swhy" /(全部委托)
+e:hopen `::9010:user:pass
+e "h:hopen `::7010:user:pass" /(全部委托)
 e ".db.seq:10000+.db.seq|exec max \"J\"$string feoid from .db.O:h ({[x]select from .db.O where fe=x};`feufx)"
 e ".temp.OHS:();qryordacc each exec distinct acc1 from .db.O"
 SLEEP 10秒以上
@@ -156,7 +156,7 @@ e "select from (`cumqty1 xcols 0!(select  from .db.O where cumqty>0) uj 1!select
 //比对持仓
 //重启策略
 
-
+{[x]sd:x`side;pe:x`posefct;ts:x`ts;acc:x`acc;sym:x`sym;k:ts,acc,sym;$[pe=.enum.OPEN;[.db.P[k;$[sd=.enum.BUY;`lqty`lqty0;`sqty`sqty0]]+:$[sd=.enum.BUY;1f;-1f]*x`cumqty];[.db.P[k;$[sd=.enum.SELL;`lqty;`sqty]]-:$[sd=.enum.BUY;-1f;1f]*x`cumqty;if[pe=.enum.CLOSETODAY;.db.P[k;$[sd=.enum.BUY;`sqty0;`lqty0]]-:$[sd=.enum.BUY;-1f;1f]*x`cumqty]]];} each select from .db.O where 0<cumqty
 
 
 e "exec distinct acc1 from .db.O"

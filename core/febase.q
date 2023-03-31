@@ -1,4 +1,4 @@
-.module.febase:2019.07.31;
+.module.febase:2022.10.13;
 
 \d .db
 feclosedate:feopendate:0Np;
@@ -9,7 +9,7 @@ qidfe2ft:{[x]exec first id from .db.QT where feqid=x};
 
 .upd.exerpt:.fe.exerpt:.ha.exerpt';
 
-.roll.fe:{[x]gtc:.enum`GOOD_TILL_CANCEL;.[.conf.histdb;(.conf.me;`O);,;select from .db.O where end|tif<>gtc];delete from `.db.O where end|tif<>gtc;update `u#id from `.db.O;.[.conf.histdb;(.conf.me;`M);,;.db.M];delete from `.db.M;};
+.roll.fe:{[x]gtc:.enum`GOOD_TILL_CANCEL;.[.conf.histdb;(.conf.me;`O);,;select from .db.O where end|tif<>gtc];delete from `.db.O where end|tif<>gtc;update `u#id from `.db.O;.[.conf.histdb;(.conf.me;`M);,;.db.M];delete from `.db.M;savedb[];};
 
 .timer.fe:{[x]if[.db.sysdate<.z.D;.upd.BeginOfDay[enlist[`msg]!enlist string .z.D]];};
 
@@ -25,8 +25,11 @@ ackquote:{[k]r:.db.QT[k];if[null r`sym;:()];pub[`quoteack;enlist `sym`typ`qid`st
 
 
 rejcxl:{[k;r;m]h:.db.O[k];rejectcxl[h`ft;k;h`cid;r;m];};
-
+rejcrpt:{[k]h:.db.O[k];rejcxl[k;h`reason;h`msg];};
 riskassert:{[x]0b}; /风控检查委托请求默认处理函数
 riskassertcxl:{[x]0b}; /风控检查撤单请求默认处理函数
 riskstatrej:{[x];}; /风控检查委托拒绝默认处理函数
 riskstatexe:{[x];}; /风控检查委托回报默认处理函数
+
+//----ChangeLog----
+//2022.10.13:在.roll.fe函数增加savedb操作

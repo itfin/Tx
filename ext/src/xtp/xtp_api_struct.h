@@ -10,6 +10,7 @@
 #include "xquote_api_struct.h"
 #include "xoms_api_struct.h"
 #include "xoms_api_fund_struct.h"
+#include "xquote_api_rebuild_tbt_struct.h"
 
 #endif // !_XTP_API_STRUCT_H_
 

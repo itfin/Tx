@@ -1,6 +1,6 @@
 /runq Tx/core/base.q -conf cffc0 -code "txload \"core/fcbase\"" -p 5000
 
-.module.fcbase:2021.12.24;
+.module.fcbase:2023.02.02;
 
 \d .temp
 NS:([]stime:`timestamp$();id:`symbol$();cpu:`float$();mem:`float$();swap:`float$();disk:`float$();cores:());
@@ -20,7 +20,7 @@ MOD:([id:`symbol$()]mtyp:`symbol$();node:`symbol$();ip:`symbol$();port:`long$();
 
 .init.fc:{[]initnod[];initmod[];conntx[];}; /
 
-nod_init:{[x].ctrl.NOD[x;`ip`portoffset`backup]:.conf.ha[x;`ip`portoffset`backup];s:nodecmd[x;"lscpu"];.ctrl.NOD[x;`cpufreq`cpucores]:(1e-3*"F"$last vs[2#" "]  s[15];"J"$last vs[2#" "]  s[4]);s:nodecmd[x;"free"];.ctrl.NOD[x;`mem`swap]:(1%1024 xexp 2)*{"F"$@[;1] vs[" ";x] except enlist ""} each s[1 2];s:nodecmd[x;"df -l --output=source,size"];r:(!/)"SF"$flip {vs[" ";x] except enlist ""} each 1_s;.ctrl.NOD[x;`diskdev`disk]:(first where r=max r;(1%1024 xexp 3)*max r);s:nodecmd[x;"uptime -s"];.ctrl.NOD[x;`uptime]:"P"$first s;}; /-t ext4
+nod_init:{[x].ctrl.NOD[x;`ip`portoffset`backup]:.conf.ha[x;`ip`portoffset`backup];s:nodecmd[x;"lscpu"];t:update `$k from flip `k`v!flip (2#) each vs[":"] each except[;" ()"] each s;.ctrl.NOD[x;`cpufreq`cpucores]:(1e-3*exec "F"$first v from t where k like "CPU*MHz";exec "J"$first v from t where k=`CPUs);s:nodecmd[x;"free"];.ctrl.NOD[x;`mem`swap]:(1%1024 xexp 2)*{"F"$@[;1] vs[" ";x] except enlist ""} each s[1 2];s:nodecmd[x;"sudo df -l --output=source,size"];r:(!/)"SF"$flip {vs[" ";x] except enlist ""} each 1_s;.ctrl.NOD[x;`diskdev`disk]:(first where r=max r;(1%1024 xexp 3)*max r);s:nodecmd[x;"uptime -s"];.ctrl.NOD[x;`uptime]:"P"$first s;}; /-t ext4
 
 initnod:{[]@[nod_init;;()] each .conf.ha.nodelist;};
 
@@ -89,7 +89,7 @@ chkmodstatus:{[x]if[not .z.T within 08:58 15:00;:()];{[x]lerr[`modoffline;enlist
 
 chkfestatus:{[x]if[not .z.T within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`feufx;`h];:()];if[not 1b~h (`.ctrl.ufx;`login);lerr[`ufxloginfail;()]];}; /check ufx login
 
-chkfqstatus:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`rdb;`h];:()];r:h ({[x]exec `time$last time by src from quote};());{[r;t;x]if[r[x]<t-00:00:02;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each enlist `fqctp;if[t<09:30;:()];{[r;t;x]if[r[x]<t-00:00:10;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each `fqxshe`fqxshg`fqxshgopt;}; /check fqsrc quote timestamp
+chkfqstatus:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`rdb;`h];:()];r:h ({[x]exec `time$last time by src from quote};());{[r;t;x]if[r[x]<t-00:00:02;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each enlist `fqctp;if[t<09:30;:()];{[r;t;x]if[r[x]<t-00:00:10;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each .conf.ha.ha.fq except `fqbar;}; /check fqsrc quote timestamp
 
 chktpzw:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`tp;`h];:()];if[.conf.maxzwlen<n:h ({sum sum each .z.W};());lwarn[`tpzwfull;(t;n)]];};
 
@@ -103,12 +103,25 @@ hc10:{[x;y]chkmodstatus[];chkfestatus[];chkfqstatus[];chkordstatus[];chketfstatu
 
 chk300idx:{[x;y]r:.ctrl.H[`ft] ({x!{-1+(%/).db.QX[x;`price`pc]} each x};`000300.XSHG`510330.XSHG`159919.XSHE);if[0.005<=max[r]-min[r];lwarn[`300idxpriceerror;r]];1b};
 
-chkonline:{[x;y]startmod each exec id from .ctrl.MOD where h<0,id in .conf.modules;1b};
+chkonline1:{[x;y]startmod each exec id from .ctrl.MOD where h<0,id in .conf.modules;1b};
+
+chkonline:{[x;y] {if[(1b~.conf[x;`chkonline])&(not .z.D in .conf.holiday);$[any .z.T within/:.conf[x;`onlinetime];if[0>.ctrl.H[x];startmod x];if[0<.ctrl.H[x];stopmod x]]]} each .conf.modules;1b};
 
 freerdb:{[x;y].ctrl.H[`rdb] ({[] {set[x;0#get x]} each tables[];.Q.gc[]};());1b};
+
+restartmod:{[x]stopmod[x];startmod[x];};
+restartdaily:{[x;y] {if[1b~.conf[x;`restart];restartmod x]} each .conf.modules;1b};
+
+//----ChangeLog----
+//2023.02.02:新增restartmod函数和restartdaily函数 
+
 
 \
 .db.TASK[`CHK300;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:30:10;1D;0;4;`chk300idx);
 .db.TASK[`CHKONLINE;`firetime`firefreq`weekmin`weekmax`timemin`timemax`handler]:(`timestamp$.z.D+08:55:00;`timespan$00:01;0;4;`time$08:56;`time$16:54;`chkonline);
-
 .db.TASK[`FREERDB;`firetime`firefreq`weekmin`weekmax`timemin`timemax`handler]:(`timestamp$.z.D+10:00:00;`timespan$00:30;0;4;`time$10:00;`time$16:00;`freerdb);
+
+.db.TASK[`CHKONLINE;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+08:30;`timespan$00:00:15;0;4;`chkonline);
+.db.TASK[`STOP_X;`firetime`firefreq`weekmin`weekmax`timemin`timemax`handler]:(`timestamp$.z.D+08:30;`timespan$00:00:15;0;4;`time$00:00;`time$24:00;`stopdailyx);
+
+.db.TASK[`RESTART;`firetime`firefreq`handler]:(`timestamp$.z.D+03:00:00;1D;`restartdaily);

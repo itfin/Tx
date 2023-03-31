@@ -1,5 +1,5 @@
 //算法交易策略
-.module.tsalgobase:2022.04.08;
+.module.tsalgobase:2022.07.05;
 
 txload "tsl/tslib";
 
@@ -109,7 +109,7 @@ checkems:{[]if[`ERROR~.ctrl.StateMap`EMS;:()];
  if[(`BUSY~.ctrl.StateMap`EMS)&(not eb)&(np<=rl);setstate[`EMS;`OK]];
  };
 
-checkqs:{[x]t:`time$x;if[not max t within/: ((.db.Ts[.conf.algots]`ALARMQUOTELAG),0) +/: 0N 2#.conf.ex[`XSHG;`moo`mooend`openAM`closeAM`openPM`closePM];:()];tm:exec max time by fs2e each sym from .db.QX;ae:(t<.conf.ex[`XSHE;`moc])&(t-.conf.ex[`XSHE;`moo]|tm`XSHE)>.db.Ts[.conf.algots]`ALARMQUOTELAG;ag:(t-.conf.ex[`XSHG;`moo]|tm`XSHG)>.db.Ts[.conf.algots]`ALARMQUOTELAG;s:$[ae&ag;`QuoteStop;ae;`QuoteSZStop;ag;`QuoteSHStop;`OK];setstate[`QS;s];};
+checkqs:{[x]t:`time$x;if[not max t within/: ((.db.Ts[.conf.algots]`ALARMQUOTELAG),0) +/: 0N 2#.conf.ex[`XSHG;`moo`mooend`openAM`closeAM`openPM`closePM];:()];tm:exec max time by ex from .db.QX;ae:(t<.conf.ex[`XSHE;`moc])&(t-.conf.ex[`XSHE;`moo]|tm`XSHE)>.db.Ts[.conf.algots]`ALARMQUOTELAG;ag:(t-.conf.ex[`XSHG;`moo]|tm`XSHG)>.db.Ts[.conf.algots]`ALARMQUOTELAG;s:$[ae&ag;`QuoteStop;ae;`QuoteSZStop;ag;`QuoteSHStop;`OK];setstate[`QS;s];};
 
 chkordexp:{[x;y]{[x]pa:.db.O1[.db.O[x;`upid];`price];p:.db.O[x;`price];sd:.db.O[x;`side];pn:getordpx[.db.O[x;`sym];sd;`AGGRESSIVE];if[((pa=p)&(0<pa))|((sd=.enum`BUY)&(pn<=p))|((sd=.enum`SELL)&(pn>=p));:()];.db.O[x;`ctime`pending`s1`s2]:(now[];1b;`peg;`AGGRESSIVE);cxlord x;} each exec id from .db.O where id in key[.temp.hO],tsexec=x,(status in .enum`PENDING_NEW`NEW`PARTIALLY_FILLED),((cstatus=.enum`NULL)&(not null expiretime)&(expiretime<y|rtime+.db.Ts[.conf.algots][`MINACKTOCXL]))|((cstatus in .enum`PENDING_CANCEL`REJECTED)&((ctime+`timespan$.db.Ts[.conf.algots]`CXLTMOUT)<y)&(cn<.db.Ts[.conf.algots]`CXLCOUNT));{[x;y]queryord x;.db.O[x;`qtime`qn]:(y;1i+0i^.db.O[x;`qn])}[;y] each exec id from .db.O where id in key[.temp.hO],tsexec=x,(((status=.enum[`PENDING_NEW])&((ntime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y))|((cstatus<>.enum[`NULL]&((ctime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y))))&((qtime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y)&(qn<.db.Ts[.conf.algots]`QRYCOUNT);}; /超时撤单处理,对限价母单且子单价格已为限价时不做撤单(20110428),对新订单未及时确认或撤单未及时拒绝且全部成交的可疑单发查询请求 
 
@@ -157,7 +157,7 @@ rejectcxloa:rejectcxlrploa[;;;;;0b];rejectrploa:rejectcxlrploa[;;;;;1b];
 lastsubordpx:{[x]exec last price from .db.O where id in key[.temp.hO],upid=x,0<qty-0f^cumqty,cstatus=.enum[`NULL]}; /[upid]最新子单委托价格
 lastsubordtime:{[x]`time$exec last ntime from .db.O where id in key[.temp.hO],upid=x}; /[upid]最新子单委托时间
 
-newalgord:{[x;y;z;t;p;a;u;v]e:`;pe:$[2<count x;x[2];.enum`NULL];if[1<count x;e:x[1];x:x[0]];to:`;if[1<count a;to:a[0];a:a[1]];if[(p=0f)&(t=.enum`LIMIT);t:.enum`MARKET];.upd[`NewOrderAlgo][`src`id`ts`acc1`handlinst`execinst`sym`side`typ`qty`amt`price`algo`para`cltalt`cltsub`cltid2`cltacc`ex`sym`stoppx`posefct!(.conf.me;newid[];to;a;.enum`AUTOMATED_EXECUTION_ORDER_PUBLIC_BROKER_INTERVENTION_OK;e;x;y;t;z;0n;p;u;enlist v;`;`;`;`;fs2e x;fs2s x;$[t=.enum`STOP;p;0n];pe)];}; /[sym|(sym;execinst)|(sym;execinst;posefct);side;qty;ordtype;price;acc1|(tsorig;acc1);algo;parahash]
+newalgord:{[x;y;z;t;p;a;u;v]e:`;pe:$[2<count x;x[2];.enum`NULL];if[1<count x;e:x[1];x:x[0]];to:`;if[1<count a;to:a[0];a:a[1]];if[(p=0f)&(t=.enum`LIMIT);t:.enum`MARKET];k:newid[];.upd[`NewOrderAlgo][`src`id`ts`acc1`handlinst`execinst`sym`side`typ`qty`amt`price`algo`para`cltalt`cltsub`cltid2`cltacc`ex`sym`stoppx`posefct!(.conf.me;k;to;a;.enum`AUTOMATED_EXECUTION_ORDER_PUBLIC_BROKER_INTERVENTION_OK;e;x;y;t;z;0n;p;u;enlist v;`;`;`;`;fs2e x;fs2s x;$[t=.enum`STOP;p;0n];pe)];k}; /[sym|(sym;execinst)|(sym;execinst;posefct);side;qty;ordtype;price;acc1|(tsorig;acc1);algo;parahash]
 
 newalgolst:{[x;y;z;t;p;a;u;v].upd[`NewOrderAlgoList][`id`totalsize`algo`para`list!(newid[];-1+count x;u;enlist v;{[s;x;y;z;t;p;a]e:`;pe:$[2<count x;x[2];.enum`NULL];if[1<count x;e:x[1];x:x[0]];to:`;if[1<count a;to:a[0];a:a[1]];`src`id`ts`acc1`handlinst`execinst`sym`side`typ`qty`amt`price`cltalt`cltsub`cltid2`cltacc`ex`sym`slot`algo`para`stoppx`posefct!(.conf.me;newid[];to;a;.enum`AUTOMATED_EXECUTION_ORDER_PUBLIC_BROKER_INTERVENTION_OK;e;x;y;t;z;0n;p;`;`;`;`;fs2e x;fs2s x;s;`;();$[t=.enum`STOP;p;0n];pe)}'[til count x;x;y;z;t;p;a])];}; /[sym|(sym;execinst);side;qty;ordtype;price;acc;algo;para]
 
@@ -169,7 +169,9 @@ mktvwap:{[isrt;x]d:execstat[isrt;x];0f^ffill last d[0;1]};
 mktqty:{[isrt;x]d:execstat[isrt;x];0f^ffill last d[0;3]};
 matchno:{[isrt;x]exec count i from $[isrt;.db.O;.hdb.O] where cumqty>0,upid=x};
 
-oatbld:{[x;y;z]t:$[x;.db.O1;select from .hdb.O1 where (`date$ntime) within `date$(y,z)];.temp.OA:update bias:0f^?[vwap=0;0f;?[side=.enum`BUY;1e4;-1e4]]*-1+avgpx%vwap from select id,hsid:cltid2,sym,algo,status,cstag:cstatus {y+2*x=.enum`PENDING_CANCEL}' suspend,side,qty,price,sentqty,cumqty,avgpx,leavesqty,string `datetime$ntime,string `second$ctime,string `second$ftime,pct:1-leavesqty%qty,vwap:`float$@[mktvwap[x];;0n] each id,mktqty:`float$@[mktqty[x];;0n] each id,mno:matchno[x] each id from update leavesqty:?[status in "01A";qty-cumqty;0f] from select from  t where extype<>`LIST}; 
+oatbld:{[x;y;z]t:$[x;.db.O1;select from .hdb.O1 where (`date$ntime) within `date$(y,z)];:.temp.OA:update bias:0f^?[vwap=0;0f;?[side=.enum`BUY;1e4;-1e4]]*-1+avgpx%vwap from select id,hsid:cltid2,sym,algo,status,cstag:cstatus {y+2*x=.enum`PENDING_CANCEL}' suspend,side,qty,price,sentqty,cumqty,avgpx,leavesqty,string `datetime$ntime,string `second$ctime,string `second$ftime,pct:1-leavesqty%qty,vwap:`float$@[mktvwap[x];;0n] each id,mktqty:`float$@[mktqty[x];;0n] each id,mno:matchno[x] each id from update leavesqty:?[status in "01A";qty-cumqty;0f] from select from  t where extype<>`LIST}; 
+
+oatbld1:{[x;y;z]t:$[x;.db.O1;select from .hdb.O1 where (`date$ntime) within `date$(y,z)];:.temp.OA:update bias:0n from select id,hsid:cltid2,sym,algo,status,cstag:cstatus {y+2*x=.enum`PENDING_CANCEL}' suspend,side,qty,price,sentqty,cumqty,avgpx,leavesqty,string `datetime$ntime,string `second$ctime,string `second$ftime,pct:1-leavesqty%qty,vwap:0n,mktqty:0n,mno:matchno[x] each id from update leavesqty:?[status in "01A";qty-cumqty;0f] from select from  t where extype<>`LIST}; 
 
 subrejd:{[u;x;y;z]t:select from $[x;.db.O;select from .hdb.O where (`date$ntime) within (y,z)] where upid=u,status=.enum`REJECTED;select id,price,qty,ref,string `datetime$ntime,msg from t};
 

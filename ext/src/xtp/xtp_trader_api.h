@@ -12,6 +12,7 @@
 #endif // _MSC_VER > 1000
 
 #include "xtp_api_struct.h"
+#include "algo_api_struct.h"
 
 #if defined(ISLIB) && defined(WIN32)
 #ifdef LIB_TRADER_API_EXPORT
@@ -49,6 +50,14 @@ namespace XTP {
 			///@remark 此函数只有在服务器发生错误时才会调用，一般无需用户处理
 			virtual void OnError(XTPRI *error_info) {};
 
+			///请求查询用户在本节点上可交易市场的响应
+			///@param trade_location 查询到的交易市场信息，按位来看，从低位开始数，第0位表示沪市，即如果(trade_location&0x01) == 0x01，代表可交易沪市，第1位表示深市，即如果(trade_location&0x02) == 0x02，表示可交易深市，如果第0位和第1位均是1，即(trade_location&(0x01|0x02)) == 0x03，就表示可交易沪深2个市场
+			///@param error_info 查询可交易市场发生错误时，返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
+			///@param request_id 此消息响应函数对应的请求ID
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@remark 此查询只会有一个结果
+			virtual void OnQueryAccountTradeMarket(int trade_location, XTPRI *error_info, int request_id, uint64_t session_id) {};
+
 			///报单通知
 			///@param order_info 订单响应具体信息，用户可以通过order_info.order_xtp_id来管理订单，通过GetClientIDByXTPID() == client_id来过滤自己的订单，order_info.qty_left字段在订单为未成交、部成、全成、废单状态时，表示此订单还没有成交的数量，在部撤、全撤状态时，表示此订单被撤的数量。order_info.order_cancel_xtp_id为其所对应的撤单ID，不为0时表示此单被撤成功
 			///@param error_info 订单被拒绝或者发生错误时错误代码和错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -69,16 +78,25 @@ namespace XTP {
 			///@remark 此响应只会在撤单发生错误时被回调
 			virtual void OnCancelOrderError(XTPOrderCancelInfo *cancel_info, XTPRI *error_info, uint64_t session_id) {};
 
-			///请求查询报单响应
+			///请求查询报单响应-旧版本接口
 			///@param order_info 查询到的一个报单
 			///@param error_info 查询报单时发生错误时，返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
 			///@param request_id 此消息响应函数对应的请求ID
 			///@param is_last 此消息响应函数是否为request_id这条请求所对应的最后一个响应，当为最后一个的时候为true，如果为false，表示还有其他后续消息响应
 			///@param session_id 资金账户对应的session_id，登录时得到
-			///@remark 由于支持分时段查询，一个查询请求可能对应多个响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
+			///@remark 由于支持分时段查询，一个查询请求可能对应多个响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线。此对应的请求函数不建议轮询使用，当报单量过多时，容易造成用户线路拥堵，导致api断线
 			virtual void OnQueryOrder(XTPQueryOrderRsp *order_info, XTPRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 
-			///分页请求查询报单响应
+			///请求查询报单响应-新版本接口
+			///@param order_info 查询到的一个报单信息
+			///@param error_info 查询报单时发生错误时，返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
+			///@param request_id 此消息响应函数对应的请求ID
+			///@param is_last 此消息响应函数是否为request_id这条请求所对应的最后一个响应，当为最后一个的时候为true，如果为false，表示还有其他后续消息响应
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@remark 由于支持分时段查询，一个查询请求可能对应多个响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
+			virtual void OnQueryOrderEx(XTPOrderInfoEx *order_info, XTPRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
+
+			///分页请求查询报单响应-旧版本接口
 			///@param order_info 查询到的一个报单
 			///@param req_count 分页请求的最大数量
 			///@param order_sequence 分页请求的当前回报数量
@@ -89,13 +107,24 @@ namespace XTP {
 			///@remark 当order_sequence为0，表明当次查询没有查到任何记录，当is_last为true时，如果order_sequence等于req_count，那么表示还有报单，可以进行下一次分页查询，如果不等，表示所有报单已经查询完毕。一个查询请求可能对应多个响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线。
 			virtual void OnQueryOrderByPage(XTPQueryOrderRsp *order_info, int64_t req_count, int64_t order_sequence, int64_t query_reference, int request_id, bool is_last, uint64_t session_id) {};
 
+			///分页请求查询报单响应-新版本接口
+			///@param order_info 查询到的一个报单
+			///@param req_count 分页请求的最大数量
+			///@param order_sequence 分页请求的当前回报数量
+			///@param query_reference 当前报单信息所对应的查询索引，需要记录下来，在进行下一次分页查询的时候需要用到
+			///@param request_id 此消息响应函数对应的请求ID
+			///@param is_last 此消息响应函数是否为request_id这条请求所对应的最后一个响应，当为最后一个的时候为true，如果为false，表示还有其他后续消息响应
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@remark 当order_sequence为0，表明当次查询没有查到任何记录，当is_last为true时，如果order_sequence等于req_count，那么表示还有报单，可以进行下一次分页查询，如果不等，表示所有报单已经查询完毕。一个查询请求可能对应多个响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线。
+			virtual void OnQueryOrderByPageEx(XTPOrderInfoEx *order_info, int64_t req_count, int64_t order_sequence, int64_t query_reference, int request_id, bool is_last, uint64_t session_id) {};
+
 			///请求查询成交响应
 			///@param trade_info 查询到的一个成交回报
 			///@param error_info 查询成交回报发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
 			///@param request_id 此消息响应函数对应的请求ID
 			///@param is_last 此消息响应函数是否为request_id这条请求所对应的最后一个响应，当为最后一个的时候为true，如果为false，表示还有其他后续消息响应
 			///@param session_id 资金账户对应的session_id，登录时得到
-			///@remark 由于支持分时段查询，一个查询请求可能对应多个响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
+			///@remark 由于支持分时段查询，一个查询请求可能对应多个响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线。此对应的请求函数不建议轮询使用，当报单量过多时，容易造成用户线路拥堵，导致api断线
 			virtual void OnQueryTrade(XTPQueryTradeRsp *trade_info, XTPRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 
 			///分页请求查询成交响应
@@ -147,7 +176,7 @@ namespace XTP {
 
 			///资金划拨通知
 			///@param fund_transfer_info 资金划拨通知的具体信息，用户可以通过fund_transfer_info.serial_id来管理订单，通过GetClientIDByXTPID() == client_id来过滤自己的订单。
-			///@param error_info 资金划拨订单被拒绝或者发生错误时错误代码和错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误。当资金划拨方向为一号两中心节点之间划拨，且error_info.error_id=11000384时，error_info.error_msg为结点中可用于划拨的资金（以整数为准），用户需进行stringToInt的转化，可据此填写合适的资金，再次发起划拨请求
+			///@param error_info 资金划拨订单被拒绝或者发生错误时错误代码和错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误。当资金划拨方向为一号两中心节点之间划拨，且error_info.error_id=11000384时，error_info.error_msg中含有对方结点中可用于划拨的资金（以整数为准），用户需解析后进行stringToInt的转化，可据此填写合适的资金，再次发起划拨请求
 			///@param session_id 资金账户对应的session_id，登录时得到
 			///@remark 当资金划拨订单有状态变化的时候，会被调用，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线。所有登录了此用户的客户端都将收到此用户的资金划拨通知。
 			virtual void OnFundTransfer(XTPFundTransferNotice *fund_transfer_info, XTPRI *error_info, uint64_t session_id) {};
@@ -341,7 +370,7 @@ namespace XTP {
 			///@remark 此响应只会在撤单发生错误时被回调
 			virtual void OnCancelOptionCombinedOrderError(XTPOptCombOrderCancelInfo *cancel_info, XTPRI *error_info, uint64_t session_id) {};
 
-			///请求查询期权组合策略报单响应
+			///请求查询期权组合策略报单响应-旧版本接口
 			///@param order_info 查询到的一个报单
 			///@param error_info 查询报单时发生错误时，返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
 			///@param request_id 此消息响应函数对应的请求ID
@@ -350,7 +379,16 @@ namespace XTP {
 			///@remark 由于支持分时段查询，一个查询请求可能对应多个响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线。此对应的请求函数不建议轮询使用，当报单量过多时，容易造成用户线路拥堵，导致api断线
 			virtual void OnQueryOptionCombinedOrders(XTPQueryOptCombOrderRsp *order_info, XTPRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 
-			///分页请求查询期权组合策略报单响应
+			///请求查询期权组合策略报单响应-新版本接口
+			///@param order_info 查询到的一个报单
+			///@param error_info 查询报单时发生错误时，返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
+			///@param request_id 此消息响应函数对应的请求ID
+			///@param is_last 此消息响应函数是否为request_id这条请求所对应的最后一个响应，当为最后一个的时候为true，如果为false，表示还有其他后续消息响应
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@remark 由于支持分时段查询，一个查询请求可能对应多个响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线。此对应的请求函数不建议轮询使用，当报单量过多时，容易造成用户线路拥堵，导致api断线
+			virtual void OnQueryOptionCombinedOrdersEx(XTPOptCombOrderInfoEx *order_info, XTPRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
+
+			///分页请求查询期权组合策略报单响应-旧版本接口
 			///@param order_info 查询到的一个报单
 			///@param req_count 分页请求的最大数量
 			///@param order_sequence 分页请求的当前回报数量
@@ -360,6 +398,17 @@ namespace XTP {
 			///@param session_id 资金账户对应的session_id，登录时得到
 			///@remark 当order_sequence为0，表明当次查询没有查到任何记录，当is_last为true时，如果order_sequence等于req_count，那么表示还有报单，可以进行下一次分页查询，如果不等，表示所有报单已经查询完毕。一个查询请求可能对应多个响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线。
 			virtual void OnQueryOptionCombinedOrdersByPage(XTPQueryOptCombOrderRsp *order_info, int64_t req_count, int64_t order_sequence, int64_t query_reference, int request_id, bool is_last, uint64_t session_id) {};
+
+			///分页请求查询期权组合策略报单响应-新版本接口
+			///@param order_info 查询到的一个报单
+			///@param req_count 分页请求的最大数量
+			///@param order_sequence 分页请求的当前回报数量
+			///@param query_reference 当前报单信息所对应的查询索引，需要记录下来，在进行下一次分页查询的时候需要用到
+			///@param request_id 此消息响应函数对应的请求ID
+			///@param is_last 此消息响应函数是否为request_id这条请求所对应的最后一个响应，当为最后一个的时候为true，如果为false，表示还有其他后续消息响应
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@remark 当order_sequence为0，表明当次查询没有查到任何记录，当is_last为true时，如果order_sequence等于req_count，那么表示还有报单，可以进行下一次分页查询，如果不等，表示所有报单已经查询完毕。一个查询请求可能对应多个响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线。
+			virtual void OnQueryOptionCombinedOrdersByPageEx(XTPOptCombOrderInfoEx *order_info, int64_t req_count, int64_t order_sequence, int64_t query_reference, int request_id, bool is_last, uint64_t session_id) {};
 
 			///请求查询期权组合策略成交响应
 			///@param trade_info 查询到的一个成交回报
@@ -408,6 +457,56 @@ namespace XTP {
 			///@remark 一个查询请求可能对应多个响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线。
 			virtual void OnQueryOptionCombinedExecPosition(XTPQueryOptCombExecPosRsp *position_info, XTPRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 
+			///algo业务中查询策略列表的响应
+			///@param strategy_info 策略具体信息
+			///@param strategy_param 此策略中包含的参数，如果error_info.error_id为0时，有意义
+			///@param error_info 查询查询策略列表发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
+			///@param request_id 此消息响应函数对应的请求ID
+			///@param is_last 此消息响应函数是否为request_id这条请求所对应的最后一个响应，当为最后一个的时候为true，如果为false，表示还有其他后续消息响应
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@remark 需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
+			virtual void OnQueryStrategy(XTPStrategyInfoStruct* strategy_info, char* strategy_param, XTPRI *error_info, int32_t request_id, bool is_last, uint64_t session_id) {};
+
+			///algo业务中策略运行时策略状态通知
+			///@param strategy_state 用户策略运行情况的状态通知
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@remark 需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
+			virtual void OnStrategyStateReport(XTPStrategyStateReportStruct* strategy_state, uint64_t session_id) {};
+
+			///algo业务中用户建立算法通道的消息响应
+			///@param user 用户名
+			///@param error_info 建立算法通道发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误，即算法通道成功
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@remark 算法通道建立成功后，才能对用户创建策略等操作，一个用户只能拥有一个算法通道，如果之前已经建立，则无需重复建立
+			virtual void OnALGOUserEstablishChannel(char* user, XTPRI* error_info, uint64_t session_id) {};
+
+			///algo业务中报送策略单的响应
+			///@param strategy_info 用户报送的策略单的具体信息
+			///@param error_info 报送策略单发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@remark 需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
+			virtual void OnInsertAlgoOrder(XTPStrategyInfoStruct* strategy_info, XTPRI *error_info, uint64_t session_id) {};
+
+			///algo业务中撤销策略单的响应
+			///@param strategy_info 用户撤销的策略单的具体信息
+			///@param error_info 撤销策略单发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@remark 需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
+			virtual void OnCancelAlgoOrder(XTPStrategyInfoStruct* strategy_info, XTPRI *error_info, uint64_t session_id) {};
+
+			///当客户端与AlgoBus通信连接断开时，该方法被调用。
+			///@param reason 错误原因，请与错误代码表对应
+			///@remark 请不要堵塞此线程，否则会影响algo的登录，与Algo之间的连接，断线后会自动重连，用户无需做其他操作
+			virtual void OnAlgoDisconnected(int reason) {};
+
+			///当客户端与AlgoBus断线后重新连接时，该方法被调用，仅在断线重连成功后会被调用。
+			virtual void OnAlgoConnected() {};
+
+			///algo业务中策略运行时策略指定证券执行状态通知
+			///@param strategy_symbol_state 用户策略指定证券运行情况的状态通知
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@remark 需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
+			virtual void OnStrategySymbolStateReport(XTPStrategySymbolStateReport* strategy_symbol_state, uint64_t session_id) {};
 		};
 	}
 }
@@ -433,7 +532,7 @@ namespace XTP {
 		{
 		public:
 			///创建TraderApi
-			///@param client_id （必须输入）客户端id，用于区分同一用户的不同客户端，由用户自定义，普通用户必须使用1-99之间的数值，否则可能无法登录
+			///@param client_id （必须输入）客户端id，用于区分同一用户的不同客户端，由用户自定义，普通用户必须使用1-99之间的数值
 			///@param save_file_path （必须输入）存贮订阅信息文件的目录，请设定一个真实存在的有可写权限的路径
 			///@param log_level 日志输出级别
 			///@return 创建出的UserApi
@@ -525,7 +624,20 @@ namespace XTP {
 			///@param info 需要修改成的用户硬件信息
 			///@param session_id 资金账户对应的session_id,登录时得到
 			///@remark 此函数必须在Login之后调用，且仅限授权系统使用，一般客户无需使用
-			virtual int ModifyUserTerminalInfo(const XTPUserTerminalInfoReq* info,uint64_t session_id) = 0;
+			virtual int ModifyUserTerminalInfo(const XTPUserTerminalInfoReq* info, uint64_t session_id) = 0;
+
+			///查询用户在本节点上的可交易市场类型
+			///@return 发送消息是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param session_id 资金账户对应的session_id,登录时得到
+			///@param request_id 用于用户定位查询响应的ID，由用户自定义
+			///@remark 此函数必须在Login之后调用，对应的响应函数是OnQueryAccountTradeMarket()
+			virtual int QueryAccountTradeMarket(uint64_t session_id, int request_id) = 0;
+
+			///为用户获取一个新的订单XTPID，用于报单
+			///@return 生成的订单XTPID，非“0”表示获取成功，“0”表示获取失败，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param session_id 资金账户对应的session_id,登录时得到
+			///@remark 此函数必须在Login之后调用，通过这个函数获取的order_xtp_id仅用于对应的用户报单，如果设置错误，将会导致下单失败
+			virtual uint64_t GetANewOrderXTPID(uint64_t session_id) = 0;
 
 			///报单录入请求
 			///@return 报单在XTP系统中的ID,如果为‘0’表示报单发送失败，此时用户可以调用GetApiLastError()来获取错误代码，非“0”表示报单发送成功，用户需要记录下返回的order_xtp_id，它保证一个交易日内唯一，不同的交易日不保证唯一性
@@ -534,6 +646,13 @@ namespace XTP {
 			///@remark 交易所接收订单后，会在报单响应函数OnOrderEvent()中返回报单未成交的状态，之后所有的订单状态改变（除了部成状态）都会通过报单响应函数返回
 			virtual uint64_t InsertOrder(XTPOrderInsertInfo *order, uint64_t session_id) = 0;
 
+			///已经提前设置order_xtp_id的报单录入请求，与GetANewOrderXTPID()配合使用
+			///@return 报单在XTP系统中的ID,如果为‘0’表示报单发送失败，此时用户可以调用GetApiLastError()来获取错误代码，非“0”表示报单发送成功，此时等同与传入的order_xtp_id
+			///@param order 报单录入信息，其中order.order_client_id字段是用户自定义字段，用户输入什么值，订单响应OnOrderEvent()返回时就会带回什么值，类似于备注，方便用户自己定位订单，也可以什么都不填。order.order_xtp_id字段必须是通过GetANewOrderXTPID()获得的值，order.ticker必须不带空格，以'\0'结尾
+			///@param session_id 资金账户对应的session_id,登录时得到
+			///@remark 使用设置好的order_xtp_id（通过GetANewOrderXTPID()获得）进行报单，注意此处如果order_xtp_id设置不对，将导致报单失败。交易所接收订单后，会在报单响应函数OnOrderEvent()中返回报单未成交的状态，之后所有的订单状态改变（除了部成状态）都会通过报单响应函数返回
+			virtual uint64_t InsertOrderExtra(XTPOrderInsertInfo *order, uint64_t session_id) = 0;
+
 			///报单操作请求
 			///@return 撤单在XTP系统中的ID,如果为‘0’表示撤单发送失败，此时用户可以调用GetApiLastError()来获取错误代码，非“0”表示撤单发送成功，用户需要记录下返回的order_cancel_xtp_id，它保证一个交易日内唯一，不同的交易日不保证唯一性
 			///@param order_xtp_id 需要撤销的委托单在XTP系统中的ID
@@ -541,14 +660,14 @@ namespace XTP {
 			///@remark 如果撤单成功，会在报单响应函数OnOrderEvent()里返回原单部撤或者全撤的消息，如果不成功，会在OnCancelOrderError()响应函数中返回错误原因
 			virtual uint64_t CancelOrder(const uint64_t order_xtp_id, uint64_t session_id) = 0;
 
-			///根据报单ID请求查询报单
+			///根据报单ID请求查询报单-旧版本接口
 			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
 			///@param order_xtp_id 需要查询的报单在xtp系统中的ID，即InsertOrder()成功时返回的order_xtp_id
 			///@param session_id 资金账户对应的session_id，登录时得到
 			///@param request_id 用于用户定位查询响应的ID，由用户自定义
 			virtual int QueryOrderByXTPID(const uint64_t order_xtp_id, uint64_t session_id, int request_id) = 0;
 
-			///请求查询报单
+			///请求查询报单-旧版本接口
 			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
 			///@param query_param 需要查询的订单相关筛选条件，其中合约代码可以为空，则默认所有存在的合约代码，如果不为空，请不带空格，并以'\0'结尾，其中起始时间格式为YYYYMMDDHHMMSSsss，为0则默认当前交易日0点，结束时间格式为YYYYMMDDHHMMSSsss，为0则默认当前时间
 			///@param session_id 资金账户对应的session_id，登录时得到
@@ -556,19 +675,48 @@ namespace XTP {
 			///@remark 该方法支持分时段查询，如果股票代码为空，则默认查询时间段内的所有报单，否则查询时间段内所有跟股票代码相关的报单，此函数查询出的结果可能对应多个查询结果响应。此函数不建议轮询使用，当报单量过多时，容易造成用户线路拥堵，导致api断线
 			virtual int QueryOrders(const XTPQueryOrderReq *query_param, uint64_t session_id, int request_id) = 0;
 
-			///请求查询未完结报单
+			///请求查询未完结报单-旧版本接口
 			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
 			///@param session_id 资金账户对应的session_id，登录时得到
 			///@param request_id 用于用户定位查询响应的ID，由用户自定义
 			virtual int QueryUnfinishedOrders(uint64_t session_id, int request_id) = 0;
 
-			///分页请求查询报单
+			///分页请求查询报单-旧版本接口
 			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
 			///@param query_param 需要分页查询订单的条件，如果第一次查询，那么query_param.reference填0
 			///@param session_id 资金账户对应的session_id，登录时得到
 			///@param request_id 用于用户定位查询响应的ID，由用户自定义
 			///@remark 该方法支持分页查询，注意用户需要记录下最后一笔查询结果的reference以便用户下次查询使用
 			virtual int QueryOrdersByPage(const XTPQueryOrderByPageReq *query_param, uint64_t session_id, int request_id) = 0;
+
+			///根据报单ID请求查询报单-新版本接口
+			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param order_xtp_id 需要查询的报单在xtp系统中的ID，即InsertOrder()成功时返回的order_xtp_id
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@param request_id 用于用户定位查询响应的ID，由用户自定义
+			virtual int QueryOrderByXTPIDEx(const uint64_t order_xtp_id, uint64_t session_id, int request_id) = 0;
+
+			///请求查询报单-新版本接口
+			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param query_param 需要查询的订单相关筛选条件，其中合约代码可以为空，则默认所有存在的合约代码，如果不为空，请不带空格，并以'\0'结尾，其中起始时间格式为YYYYMMDDHHMMSSsss，为0则默认当前交易日0点，结束时间格式为YYYYMMDDHHMMSSsss，为0则默认当前时间
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@param request_id 用于用户定位查询响应的ID，由用户自定义
+			///@remark 该方法支持分时段查询，如果股票代码为空，则默认查询时间段内的所有报单，否则查询时间段内所有跟股票代码相关的报单，此函数查询出的结果可能对应多个查询结果响应。此函数不建议轮询使用，当报单量过多时，容易造成用户线路拥堵，导致api断线
+			virtual int QueryOrdersEx(const XTPQueryOrderReq *query_param, uint64_t session_id, int request_id) = 0;
+
+			///请求查询未完结报单-新版本接口
+			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@param request_id 用于用户定位查询响应的ID，由用户自定义
+			virtual int QueryUnfinishedOrdersEx(uint64_t session_id, int request_id) = 0;
+
+			///分页请求查询报单-新版本接口
+			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param query_param 需要分页查询订单的条件，如果第一次查询，那么query_param.reference填0
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@param request_id 用于用户定位查询响应的ID，由用户自定义
+			///@remark 该方法支持分页查询，注意用户需要记录下最后一笔查询结果的reference以便用户下次查询使用
+			virtual int QueryOrdersByPageEx(const XTPQueryOrderByPageReq *query_param, uint64_t session_id, int request_id) = 0;
 
 			///根据委托编号请求查询相关成交
 			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
@@ -697,7 +845,6 @@ namespace XTP {
 			///@param request_id 用于用户定位查询响应的ID，由用户自定义
 			virtual int QueryCreditCashRepayInfo(uint64_t session_id, int request_id) = 0;
 
-
 			///请求查询信用账户特有信息，除资金账户以外的信息
 			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
 			///@param session_id 资金账户对应的session_id,登录时得到
@@ -743,7 +890,7 @@ namespace XTP {
 			///@param query_param 需要查询的余券信息。若填入市场和股票代码，返回单支股票信息；若市场代码为空，股票代码非空，是无效查询，会在SPI中返回错误；若市场和股票代码均为空，返回全市场信息；若市场代码非空，股票代码为空，返回单市场信息。
 			///@param session_id 资金账户对应的session_id,登录时得到
 			///@param request_id 用于用户定位查询响应的ID，由用户自定义
-			virtual int QueryMulCreditExcessStock(XTPClientQueryCrdSurplusStkReqInfo *query_param, uint64_t session_id, int request_id) = 0;   
+			virtual int QueryMulCreditExcessStock(XTPClientQueryCrdSurplusStkReqInfo *query_param, uint64_t session_id, int request_id) = 0;
 
 			///融资融券业务中请求负债合约展期
 			///@return 负债合约展期订单在XTP系统中的ID,如果为‘0’表示消息发送失败，此时用户可以调用GetApiLastError()来获取错误代码，非“0”表示消息发送成功，用户需要记录下返回的xtp_id，它保证一个交易日内唯一，不同的交易日不保证唯一性
@@ -778,8 +925,12 @@ namespace XTP {
 			///@remark 交易所接收订单后，会在报单响应函数OnOptionCombinedOrderEvent()中返回报单未成交的状态，之后所有的订单状态改变（除了部成状态）都会通过报单响应函数返回
 			virtual uint64_t InsertOptionCombinedOrder(XTPOptCombOrderInsertInfo *order, uint64_t session_id) = 0;
 
-
-
+			///已经提前设置order_xtp_id的期权组合策略报单录入请求，与GetANewOrderXTPID()配合使用
+			///@return 报单在XTP系统中的ID,如果为‘0’表示报单发送失败，此时用户可以调用GetApiLastError()来获取错误代码，非“0”表示报单发送成功，此时等同与传入的order_xtp_id
+			///@param order 报单录入信息，其中order.order_client_id字段是用户自定义字段，用户输入什么值，订单响应OnOrderEvent()返回时就会带回什么值，类似于备注，方便用户自己定位订单，也可以什么都不填。order.order_xtp_id字段必须是通过GetANewOrderXTPID()获得的值，order.ticker必须不带空格，以'\0'结尾
+			///@param session_id 资金账户对应的session_id,登录时得到
+			///@remark 使用设置好的order_xtp_id（通过GetANewOrderXTPID()获得）进行报单，注意此处如果order_xtp_id设置不对，将导致报单失败。交易所接收订单后，会在报单响应函数OnOptionCombinedOrderEvent()中返回报单未成交的状态，之后所有的订单状态改变（除了部成状态）都会通过报单响应函数返回
+			virtual uint64_t InsertOptionCombinedOrderExtra(XTPOptCombOrderInsertInfo *order, uint64_t session_id) = 0;
 
 			///期权组合策略报单撤单请求
 			///@return 撤单在XTP系统中的ID,如果为‘0’表示撤单发送失败，此时用户可以调用GetApiLastError()来获取错误代码，非“0”表示撤单发送成功，用户需要记录下返回的order_cancel_xtp_id，它保证一个交易日内唯一，不同的交易日不保证唯一性
@@ -788,20 +939,20 @@ namespace XTP {
 			///@remark 如果撤单成功，会在报单响应函数OnOptionCombinedOrderEvent()里返回原单部撤或者全撤的消息，如果不成功，会在OnCancelOrderError()响应函数中返回错误原因
 			virtual uint64_t CancelOptionCombinedOrder(const uint64_t order_xtp_id, uint64_t session_id) = 0;
 
-			///请求查询期权组合策略未完结报单
+			///请求查询期权组合策略未完结报单-旧版本接口
 			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
 			///@param session_id 资金账户对应的session_id，登录时得到
 			///@param request_id 用于用户定位查询响应的ID，由用户自定义
 			virtual int QueryOptionCombinedUnfinishedOrders(uint64_t session_id, int request_id) = 0;
 
-			///根据报单ID请求查询期权组合策略报单
+			///根据报单ID请求查询期权组合策略报单-旧版本接口
 			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
 			///@param order_xtp_id 需要查询的报单在xtp系统中的ID，即InsertOrder()成功时返回的order_xtp_id
 			///@param session_id 资金账户对应的session_id，登录时得到
 			///@param request_id 用于用户定位查询响应的ID，由用户自定义
 			virtual int QueryOptionCombinedOrderByXTPID(const uint64_t order_xtp_id, uint64_t session_id, int request_id) = 0;
 
-			///请求查询期权组合策略报单
+			///请求查询期权组合策略报单-旧版本接口
 			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
 			///@param query_param 需要查询的订单相关筛选条件，其中合约代码可以为空，则默认所有存在的合约代码，如果不为空，请不带空格，并以'\0'结尾，其中起始时间格式为YYYYMMDDHHMMSSsss，为0则默认当前交易日0点，结束时间格式为YYYYMMDDHHMMSSsss，为0则默认当前时间
 			///@param session_id 资金账户对应的session_id，登录时得到
@@ -809,13 +960,42 @@ namespace XTP {
 			///@remark 该方法支持分时段查询，如果股票代码为空，则默认查询时间段内的所有报单，否则查询时间段内所有跟股票代码相关的报单，此函数查询出的结果可能对应多个查询结果响应。此函数不建议轮询使用，当报单量过多时，容易造成用户线路拥堵，导致api断线
 			virtual int QueryOptionCombinedOrders(const XTPQueryOptCombOrderReq *query_param, uint64_t session_id, int request_id) = 0;
 
-			///分页请求查询期权组合策略报单
+			///分页请求查询期权组合策略报单-旧版本接口
 			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
 			///@param query_param 需要分页查询订单的条件，如果第一次查询，那么query_param.reference填0
 			///@param session_id 资金账户对应的session_id，登录时得到
 			///@param request_id 用于用户定位查询响应的ID，由用户自定义
 			///@remark 该方法支持分页查询，注意用户需要记录下最后一笔查询结果的reference以便用户下次查询使用
 			virtual int QueryOptionCombinedOrdersByPage(const XTPQueryOptCombOrderByPageReq *query_param, uint64_t session_id, int request_id) = 0;
+
+			///请求查询期权组合策略未完结报单-新版本接口
+			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@param request_id 用于用户定位查询响应的ID，由用户自定义
+			virtual int QueryOptionCombinedUnfinishedOrdersEx(uint64_t session_id, int request_id) = 0;
+
+			///根据报单ID请求查询期权组合策略报单-新版本接口
+			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param order_xtp_id 需要查询的报单在xtp系统中的ID，即InsertOrder()成功时返回的order_xtp_id
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@param request_id 用于用户定位查询响应的ID，由用户自定义
+			virtual int QueryOptionCombinedOrderByXTPIDEx(const uint64_t order_xtp_id, uint64_t session_id, int request_id) = 0;
+
+			///请求查询期权组合策略报单-新版本接口
+			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param query_param 需要查询的订单相关筛选条件，其中合约代码可以为空，则默认所有存在的合约代码，如果不为空，请不带空格，并以'\0'结尾，其中起始时间格式为YYYYMMDDHHMMSSsss，为0则默认当前交易日0点，结束时间格式为YYYYMMDDHHMMSSsss，为0则默认当前时间
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@param request_id 用于用户定位查询响应的ID，由用户自定义
+			///@remark 该方法支持分时段查询，如果股票代码为空，则默认查询时间段内的所有报单，否则查询时间段内所有跟股票代码相关的报单，此函数查询出的结果可能对应多个查询结果响应。此函数不建议轮询使用，当报单量过多时，容易造成用户线路拥堵，导致api断线
+			virtual int QueryOptionCombinedOrdersEx(const XTPQueryOptCombOrderReq *query_param, uint64_t session_id, int request_id) = 0;
+
+			///分页请求查询期权组合策略报单-新版本接口
+			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param query_param 需要分页查询订单的条件，如果第一次查询，那么query_param.reference填0
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@param request_id 用于用户定位查询响应的ID，由用户自定义
+			///@remark 该方法支持分页查询，注意用户需要记录下最后一笔查询结果的reference以便用户下次查询使用
+			virtual int QueryOptionCombinedOrdersByPageEx(const XTPQueryOptCombOrderByPageReq *query_param, uint64_t session_id, int request_id) = 0;
 
 			///根据期权组合策略委托编号请求查询相关成交
 			///@return 查询是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
@@ -863,6 +1043,61 @@ namespace XTP {
 			///@param request_id 用于用户定位查询响应的ID，由用户自定义
 			///@remark 该方法可能对应多条响应消息
 			virtual int QueryOptionCombinedExecPosition(const XTPQueryOptCombExecPosReq* query_param, uint64_t session_id, int request_id) = 0;
+
+			///用户登录algo服务器请求
+			///@return 表明此资金账号登录是否成功，非“0”表示登录失败，可以调用GetApiLastError()来获取错误代码，“0”表示登录成功
+			///@param ip algo服务器地址，类似“127.0.0.1”
+			///@param port algo服务器端口号
+			///@param user 登录用户名
+			///@param password 登录密码
+			///@param sock_type “1”代表TCP，“2”代表UDP，目前暂时只支持TCP
+			///@param local_ip 本地网卡地址，类似“127.0.0.1”
+			///@remark 此函数为同步阻塞式，不需要异步等待登录成功，当函数返回即可进行后续操作，此api只需调用一次，所有用户共用即可
+			virtual int LoginALGO(const char* ip, int port, const char* user, const char* password, XTP_PROTOCOL_TYPE sock_type, const char* local_ip = NULL) = 0;
+
+			///algo业务中查询用户策略请求
+			///@return 请求发送是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param strategy_type 需要查询的策略类型，可填0
+			///@param client_strategy_id 需要查询的策略用户自定义id，可填0
+			///@param xtp_strategy_id 需要查询的策略在xtp系统中的id，如果指定，就一定按指定查询，如果填0，则按其他筛选条件查询
+			///@param session_id 资金账户对应的session_id,登录时得到
+			///@param request_id 用于用户定位查询响应的ID，由用户自定义
+			///@remark xtp_strategy_id条件的优先级最高，只有当xtp_strategy_id为0时，其他条件才生效，此条请求可能对应多条回应消息
+			virtual int QueryStrategy(uint32_t strategy_type, uint64_t client_strategy_id, uint64_t xtp_strategy_id, uint64_t session_id, int32_t request_id) = 0;
+
+			///用户请求使用algo服务器建立算法通道
+			///@return 表明此资金账号建立算法通道请求消息发送是否成功，非“0”表示发送失败，可以调用GetApiLastError()来获取错误代码，“0”表示发送成功
+			///@param oms_ip oms服务器地址，类似“127.0.0.1”，非algo服务器地址
+			///@param oms_port oms服务器端口号，非algo服务器端口号
+			///@param user 登录用户名
+			///@param password 登录密码
+			///@param session_id 资金账户对应的session_id,登录时得到
+			///@remark 此函数为异步方式，一个用户只能拥有一个算法通道，如果之前已经建立，则无需重复建立，在使用算法前，请先建立算法通道
+			virtual int ALGOUserEstablishChannel(const char* oms_ip, int oms_port, const char* user, const char* password, uint64_t session_id) = 0;
+
+			///algo业务中用户报算法单请求
+			///@return 算法报单请求发送是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param strategy_type 需要创建的策略类型
+			///@param client_strategy_id 用户自定义id，帮助用户定位
+			///@param strategy_param 策略参数
+			///@param session_id 资金账户对应的session_id,登录时得到
+			///@remark 仅能在用户建立算法通道后使用，算法单的异步通知得
+			virtual int InsertAlgoOrder(uint32_t strategy_type, uint64_t client_strategy_id, char* strategy_param, uint64_t session_id) = 0;
+
+			///algo业务中用户撤销算法单请求
+			///@return 请求发送是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param cancel_flag 是否需要算法去处理已下的算法子单标志，true-交给算法自行处理，包括撤单、平仓等，算法处理完成后会通知客户；false-立即停止算法母单的执行，此时算法平台会对已下的子单做撤单操作，其余的平仓等操作需要客户自己处理
+			///@param xtp_strategy_id 需要撤销的算法单在xtp algobus系统中的id
+			///@param session_id 资金账户对应的session_id,登录时得到
+			///@remark 仅能在用户建立算法通道后调用
+			virtual int CancelAlgoOrder(bool cancel_flag, uint64_t xtp_strategy_id, uint64_t session_id) = 0;
+
+			///获取算法单的母单ID
+			///@return 返回算法单的母单ID，如果返回为0表示不是算法单
+			///@param order_xtp_id 算法单对应的xtp id
+			///@param order_client_id 算法单对应的自定义ID，不可随意填写
+			///@remark 返回为0表示，不是算法单，如果传入的参数不对的话，可能会得不到正确结果，此函数调用不依赖于是否登录
+			virtual uint64_t GetAlgorithmIDByOrder(uint64_t order_xtp_id, uint32_t order_client_id) = 0;
 
 		protected:
 			~TraderApi() {};
