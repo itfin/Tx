@@ -113,7 +113,7 @@ public:
 
   virtual void OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     O("OnRspError:\n"); 
-    O("ErrorCode=[%d], ErrorMsg=[%s]\n", pRspInfo->ErrorID, pRspInfo->ErrorMsg); 
+    if(null!=pRspInfo) O("ErrorCode=[%d], ErrorMsg=[%s]\n", pRspInfo->ErrorID, pRspInfo->ErrorMsg); 
     O("RequestID=[%d], Chain=[%d]\n", nRequestID, bIsLast); 
   }
  
@@ -141,297 +141,297 @@ public:
     CTPPUB("OrderInsert",knk(24,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->OrderRef),kp(p->UserID),kc(p->OrderPriceType),kc(p->Direction),kp(p->CombOffsetFlag),kp(p->CombHedgeFlag),kf(p->LimitPrice),ki(p->VolumeTotalOriginal),kc(p->TimeCondition),kp(p->GTDDate),kc(p->VolumeCondition),ki(p->MinVolume),kc(p->ContingentCondition),kf(p->StopPrice),kc(p->ForceCloseReason),ki(p->IsAutoSuspend),kp(p->BusinessUnit),ki(p->RequestID),ki(p->UserForceClose),ki((NULL==pe)?0:(pe->ErrorID)),kp((NULL==pe)?(S)"":(pe->ErrorMsg))));
 };
 
-  ///±¨µ¥²Ù×÷ÇëÇóÏìÓ¦
+  ///æŠ¥å•æ“ä½œè¯·æ±‚å“åº”
   virtual void OnRspOrderAction(CThostFtdcInputOrderActionField *p, CThostFtdcRspInfoField *pe, int nRequestID, bool bIsLast) {
     //O("OnRspOrderAction:%d\n",p); 
     //RETURNONERR;
     CTPPUB("OrderAction",knk(16,kp(p->BrokerID),kp(p->InvestorID),ki(p->OrderActionRef),kp(p->OrderRef),ki(p->RequestID),ki(p->FrontID),ki(p->SessionID),kp(p->ExchangeID),kp(p->OrderSysID),kc(p->ActionFlag),kf(p->LimitPrice),ki(p->VolumeChange),kp(p->UserID),kp(p->InstrumentID),ki((NULL==pe)?0:(pe->ErrorID)),kp((NULL==pe)?(S)"":(pe->ErrorMsg))));  
   };
 
-  ///Ñ¯¼ÛÂ¼ÈëÇëÇóÏìÓ¦
+  ///è¯¢ä»·å½•å…¥è¯·æ±‚å“åº”
   virtual void OnRspForQuoteInsert(CThostFtdcInputForQuoteField *p, CThostFtdcRspInfoField *pe, int nRequestID, bool bIsLast) {
     CTPPUB("ForQuoteInsert",knk(7,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->ForQuoteRef),kp(p->UserID),ki((NULL==pe)?0:(pe->ErrorID)),kp((NULL==pe)?(S)"":(pe->ErrorMsg))));  
   };
 
-  ///±¨¼ÛÂ¼ÈëÇëÇóÏìÓ¦
+  ///æŠ¥ä»·å½•å…¥è¯·æ±‚å“åº”
   virtual void OnRspQuoteInsert(CThostFtdcInputQuoteField *p, CThostFtdcRspInfoField *pe, int nRequestID, bool bIsLast) {
         CTPPUB("QuoteInsert",knk(17,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->QuoteRef),kp(p->UserID),kf(p->AskPrice),kf(p->BidPrice),ki(p->AskVolume),ki(p->BidVolume),ki(p->RequestID),kp(p->BusinessUnit),kc(p->AskOffsetFlag),kc(p->BidOffsetFlag),kc(p->AskHedgeFlag),kc(p->BidHedgeFlag),ki((NULL==pe)?0:(pe->ErrorID)),kp((NULL==pe)?(S)"":(pe->ErrorMsg))));    
   };
 
-  ///±¨¼Û²Ù×÷ÇëÇóÏìÓ¦
+  ///æŠ¥ä»·æ“ä½œè¯·æ±‚å“åº”
   virtual void OnRspQuoteAction(CThostFtdcInputQuoteActionField *p,CThostFtdcRspInfoField *pe, int nRequestID, bool bIsLast) {
         CTPPUB("QuoteAction",knk(14,kp(p->BrokerID),kp(p->InvestorID),ki(p->QuoteActionRef),kp(p->QuoteRef),ki(p->RequestID),ki(p->FrontID),ki(p->SessionID),kp(p->ExchangeID),kp(p->QuoteSysID),kc(p->ActionFlag),kp(p->UserID),kp(p->InstrumentID),ki((NULL==pe)?0:(pe->ErrorID)),kp((NULL==pe)?(S)"":(pe->ErrorMsg))));    
   };
 
-  ///±¨µ¥Í¨Öª
+  ///æŠ¥å•é€šçŸ¥
   virtual void OnRtnOrder(CThostFtdcOrderField *p) {
     //O("OnRtnOrder:%d\n",p); 
     CTPPUB1("Order",knk(55,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->OrderRef),kp(p->UserID),kc(p->OrderPriceType),kc(p->Direction),kp(p->CombOffsetFlag),kp(p->CombHedgeFlag),kf(p->LimitPrice),ki(p->VolumeTotalOriginal),kc(p->TimeCondition),kp(p->GTDDate),kc(p->VolumeCondition),ki(p->MinVolume),kc(p->ContingentCondition),kf(p->StopPrice),kc(p->ForceCloseReason),ki(p->IsAutoSuspend),kp(p->BusinessUnit),ki(p->RequestID),kp(p->OrderLocalID),kp(p->ExchangeID),kp(p->ParticipantID),kp(p->ClientID),kp(p->ExchangeInstID),kp(p->TraderID),ki(p->InstallID),kc(p->OrderSubmitStatus),ki(p->NotifySequence),kp(p->TradingDay),ki(p->SettlementID),kp(p->OrderSysID),kc(p->OrderSource),kc(p->OrderStatus),kc(p->OrderType),ki(p->VolumeTraded),ki(p->VolumeTotal),kp(p->InsertDate),kp(p->InsertTime),kp(p->ActiveTime),kp(p->SuspendTime),kp(p->UpdateTime),kp(p->CancelTime),kp(p->ActiveTraderID),kp(p->ClearingPartID),ki(p->SequenceNo),ki(p->FrontID),ki(p->SessionID),kp(p->UserProductInfo),kp(p->StatusMsg),ki(p->UserForceClose),kp(p->ActiveUserID),ki(p->BrokerOrderSeq),kp(p->RelativeOrderSysID)));  
   };
 
-  ///³É½»Í¨Öª
+  ///æˆäº¤é€šçŸ¥
   virtual void OnRtnTrade(CThostFtdcTradeField *p) {
     //O("OnRtnTrade:%d\n",p); 
     CTPPUB1("Trade",knk(30,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->OrderRef),kp(p->UserID),kp(p->ExchangeID),kp(p->TradeID),kc(p->Direction),kp(p->OrderSysID),kp(p->ParticipantID),kp(p->ClientID),kc(p->TradingRole),kp(p->ExchangeInstID),kc(p->OffsetFlag),kc(p->HedgeFlag),kf(p->Price),ki(p->Volume),kp(p->TradeDate),kp(p->TradeTime),kc(p->TradeType),kc(p->PriceSource),kp(p->TraderID),kp(p->OrderLocalID),kp(p->ClearingPartID),kp(p->BusinessUnit),ki(p->SequenceNo),kp(p->TradingDay),ki(p->SettlementID),ki(p->BrokerOrderSeq),kc(p->TradeSource)));  
   };
 
-  ///±¨µ¥Â¼Èë´íÎó»Ø±¨
+  ///æŠ¥å•å½•å…¥é”™è¯¯å›žæŠ¥
   virtual void OnErrRtnOrderInsert(CThostFtdcInputOrderField *p, CThostFtdcRspInfoField *pe) {
     //O("OnErrRtnOrderInsert:%d\n",p); 
     //RETURNONERR1;
     CTPPUB1("OrderInsertErr",knk(24,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->OrderRef),kp(p->UserID),kc(p->OrderPriceType),kc(p->Direction),kp(p->CombOffsetFlag),kp(p->CombHedgeFlag),kf(p->LimitPrice),ki(p->VolumeTotalOriginal),kc(p->TimeCondition),kp(p->GTDDate),kc(p->VolumeCondition),ki(p->MinVolume),kc(p->ContingentCondition),kf(p->StopPrice),kc(p->ForceCloseReason),ki(p->IsAutoSuspend),kp(p->BusinessUnit),ki(p->RequestID),ki(p->UserForceClose),ki((NULL==pe)?0:(pe->ErrorID)),kp((NULL==pe)?(S)"":(pe->ErrorMsg))));
   };
 
-  ///±¨µ¥²Ù×÷´íÎó»Ø±¨
+  ///æŠ¥å•æ“ä½œé”™è¯¯å›žæŠ¥
   virtual void OnErrRtnOrderAction(CThostFtdcOrderActionField *p, CThostFtdcRspInfoField *pe) {
     //O("OnErrRtnOrderAction:%d\n",p); 
     //RETURNONERR1;
     CTPPUB1("OrderActionErr",knk(16,kp(p->BrokerID),kp(p->InvestorID),ki(p->OrderActionRef),kp(p->OrderRef),ki(p->RequestID),ki(p->FrontID),ki(p->SessionID),kp(p->ExchangeID),kp(p->OrderSysID),kc(p->ActionFlag),kf(p->LimitPrice),ki(p->VolumeChange),kp(p->UserID),kp(p->InstrumentID),ki((NULL==pe)?0:(pe->ErrorID)),kp((NULL==pe)?(S)"":(pe->ErrorMsg))));
   };
 
-  ///Ñ¯¼ÛÍ¨Öª
+  ///è¯¢ä»·é€šçŸ¥
   virtual void OnRtnForQuoteRsp(CThostFtdcForQuoteRspField *p) {
     CTPPUB1("ForQuote",knk(5,kp(p->TradingDay),kp(p->InstrumentID),kp(p->ForQuoteSysID),kp(p->ForQuoteTime),kp(p->ActionDay)));  
   };
 
-  ///±¨¼ÛÍ¨Öª
+  ///æŠ¥ä»·é€šçŸ¥
   virtual void OnRtnQuote(CThostFtdcQuoteField *p) {
     CTPPUB1("Quote",knk(41,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->QuoteRef),kp(p->UserID),kf(p->AskPrice),kf(p->BidPrice),ki(p->AskVolume),ki(p->BidVolume),ki(p->RequestID),kp(p->BusinessUnit),kc(p->AskOffsetFlag),kc(p->BidOffsetFlag),kc(p->AskHedgeFlag),kc(p->BidHedgeFlag),kp(p->QuoteLocalID),kp(p->ExchangeID),kp(p->ParticipantID),kp(p->ClientID),kp(p->ExchangeInstID),kp(p->TraderID),ki(p->InstallID),ki(p->NotifySequence),kc(p->OrderSubmitStatus),kp(p->TradingDay),ki(p->SettlementID),kp(p->QuoteSysID),kp(p->InsertDate),kp(p->InsertTime),kp(p->CancelTime),kc(p->QuoteStatus),kp(p->ClearingPartID),ki(p->SequenceNo),kp(p->AskOrderSysID),kp(p->BidOrderSysID),ki(p->FrontID),ki(p->SessionID),kp(p->UserProductInfo),kp(p->StatusMsg),kp(p->ActiveUserID),ki(p->BrokerQuoteSeq)));  
   };
 
-  ///Ñ¯¼ÛÂ¼Èë´íÎó»Ø±¨
+  ///è¯¢ä»·å½•å…¥é”™è¯¯å›žæŠ¥
   virtual void OnErrRtnForQuoteInsert(CThostFtdcInputExecOrderField *p, CThostFtdcRspInfoField *pe) {};
 
-  ///±¨¼ÛÂ¼Èë´íÎó»Ø±¨
+  ///æŠ¥ä»·å½•å…¥é”™è¯¯å›žæŠ¥
   virtual void OnErrRtnQuoteInsert(CThostFtdcInputQuoteField *p, CThostFtdcRspInfoField *pe) {
     CTPPUB1("QuoteInsertErr",knk(17,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->QuoteRef),kp(p->UserID),kf(p->AskPrice),kf(p->BidPrice),ki(p->AskVolume),ki(p->BidVolume),ki(p->RequestID),kp(p->BusinessUnit),kc(p->AskOffsetFlag),kc(p->BidOffsetFlag),kc(p->AskHedgeFlag),kc(p->BidHedgeFlag),ki((NULL==pe)?0:(pe->ErrorID)),kp((NULL==pe)?(S)"":(pe->ErrorMsg))));
 };
 
-  ///±¨¼Û²Ù×÷´íÎó»Ø±¨
+  ///æŠ¥ä»·æ“ä½œé”™è¯¯å›žæŠ¥
   virtual void OnErrRtnQuoteAction(CThostFtdcQuoteActionField *p, CThostFtdcRspInfoField *pe) {
     CTPPUB1("QuoteActionErr",knk(25,kp(p->BrokerID),kp(p->InvestorID),ki(p->QuoteActionRef),kp(p->QuoteRef),ki(p->RequestID),ki(p->FrontID),ki(p->SessionID),kp(p->ExchangeID),kp(p->QuoteSysID),kc(p->ActionFlag),kp(p->ActionDate),kp(p->ActionTime),kp(p->TraderID),ki(p->InstallID),kp(p->QuoteLocalID),kp(p->ActionLocalID),kp(p->ParticipantID),kp(p->ClientID),kp(p->BusinessUnit),kc(p->OrderActionStatus),kp(p->UserID),kp(p->StatusMsg),kp(p->InstrumentID),ki((NULL==pe)?0:(pe->ErrorID)),kp((NULL==pe)?(S)"":(pe->ErrorMsg))));
 };
 
 
-  ///Ô¤Âñµ¥Â¼ÈëÇëÇóÏìÓ¦
+  ///é¢„åŸ‹å•å½•å…¥è¯·æ±‚å“åº”
   virtual void OnRspParkedOrderInsert(CThostFtdcParkedOrderField *pParkedOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
-  ///Ô¤Âñ³·µ¥Â¼ÈëÇëÇóÏìÓ¦
+  ///é¢„åŸ‹æ’¤å•å½•å…¥è¯·æ±‚å“åº”
   virtual void OnRspParkedOrderAction(CThostFtdcParkedOrderActionField *pParkedOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
 
-  ///²éÑ¯×î´ó±¨µ¥ÊýÁ¿ÏìÓ¦
+  ///æŸ¥è¯¢æœ€å¤§æŠ¥å•æ•°é‡å“åº”
   virtual void OnRspQueryMaxOrderVolume(CThostFtdcQueryMaxOrderVolumeField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("QueryMaxOrderVolume:%d\n",p); 
     RETURNONERR;
     CTPPUB("QueryMaxOrderVolume",knk(7,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kc(p->Direction),kc(p->OffsetFlag),kc(p->HedgeFlag),ki(p->MaxVolume)));
   };
 
-  ///É¾³ýÔ¤Âñµ¥ÏìÓ¦
+  ///åˆ é™¤é¢„åŸ‹å•å“åº”
   virtual void OnRspRemoveParkedOrder(CThostFtdcRemoveParkedOrderField *pRemoveParkedOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
-  ///É¾³ýÔ¤Âñ³·µ¥ÏìÓ¦
+  ///åˆ é™¤é¢„åŸ‹æ’¤å•å“åº”
   virtual void OnRspRemoveParkedOrderAction(CThostFtdcRemoveParkedOrderActionField *pRemoveParkedOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
-  ///Ö´ÐÐÐû¸æÂ¼ÈëÇëÇóÏìÓ¦
+  ///æ‰§è¡Œå®£å‘Šå½•å…¥è¯·æ±‚å“åº”
   virtual void OnRspExecOrderInsert(CThostFtdcInputExecOrderField *pInputExecOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
-  ///Ö´ÐÐÐû¸æ²Ù×÷ÇëÇóÏìÓ¦
+  ///æ‰§è¡Œå®£å‘Šæ“ä½œè¯·æ±‚å“åº”
   virtual void OnRspExecOrderAction(CThostFtdcInputExecOrderActionField *pInputExecOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
-  ///ÇëÇó²éÑ¯±¨µ¥ÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢æŠ¥å•å“åº”
   virtual void OnRspQryOrder(CThostFtdcOrderField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryOrder:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryOrder",knk(55,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->OrderRef),kp(p->UserID),kc(p->OrderPriceType),kc(p->Direction),kp(p->CombOffsetFlag),kp(p->CombHedgeFlag),kf(p->LimitPrice),ki(p->VolumeTotalOriginal),kc(p->TimeCondition),kp(p->GTDDate),kc(p->VolumeCondition),ki(p->MinVolume),kc(p->ContingentCondition),kf(p->StopPrice),kc(p->ForceCloseReason),ki(p->IsAutoSuspend),kp(p->BusinessUnit),ki(p->RequestID),kp(p->OrderLocalID),kp(p->ExchangeID),kp(p->ParticipantID),kp(p->ClientID),kp(p->ExchangeInstID),kp(p->TraderID),ki(p->InstallID),kc(p->OrderSubmitStatus),ki(p->NotifySequence),kp(p->TradingDay),ki(p->SettlementID),kp(p->OrderSysID),kc(p->OrderSource),kc(p->OrderStatus),kc(p->OrderType),ki(p->VolumeTraded),ki(p->VolumeTotal),kp(p->InsertDate),kp(p->InsertTime),kp(p->ActiveTime),kp(p->SuspendTime),kp(p->UpdateTime),kp(p->CancelTime),kp(p->ActiveTraderID),kp(p->ClearingPartID),ki(p->SequenceNo),ki(p->FrontID),ki(p->SessionID),kp(p->UserProductInfo),kp(p->StatusMsg),ki(p->UserForceClose),kp(p->ActiveUserID),ki(p->BrokerOrderSeq),kp(p->RelativeOrderSysID)));
   };
 
-  ///ÇëÇó²éÑ¯³É½»ÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢æˆäº¤å“åº”
   virtual void OnRspQryTrade(CThostFtdcTradeField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryTrade:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryTrade",knk(30,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->OrderRef),kp(p->UserID),kp(p->ExchangeID),kp(p->TradeID),kc(p->Direction),kp(p->OrderSysID),kp(p->ParticipantID),kp(p->ClientID),kc(p->TradingRole),kp(p->ExchangeInstID),kc(p->OffsetFlag),kc(p->HedgeFlag),kf(p->Price),ki(p->Volume),kp(p->TradeDate),kp(p->TradeTime),kc(p->TradeType),kc(p->PriceSource),kp(p->TraderID),kp(p->OrderLocalID),kp(p->ClearingPartID),kp(p->BusinessUnit),ki(p->SequenceNo),kp(p->TradingDay),ki(p->SettlementID),ki(p->BrokerOrderSeq),kc(p->TradeSource)));
   };
 
-  ///ÇëÇó²éÑ¯Í¶×ÊÕß³Ö²ÖÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢æŠ•èµ„è€…æŒä»“å“åº”
   virtual void OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryInvestorPosition:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryInvestorPosition",knk(40,kp(p->InstrumentID),kp(p->BrokerID),kp(p->InvestorID),kc(p->PosiDirection),kc(p->HedgeFlag),kc(p->PositionDate),ki(p->YdPosition),ki(p->Position),ki(p->LongFrozen),ki(p->ShortFrozen),kf(p->LongFrozenAmount),kf(p->ShortFrozenAmount),ki(p->OpenVolume),ki(p->CloseVolume),kf(p->OpenAmount),kf(p->CloseAmount),kf(p->PositionCost),kf(p->PreMargin),kf(p->UseMargin),kf(p->FrozenMargin),kf(p->FrozenCash),kf(p->FrozenCommission),kf(p->CashIn),kf(p->Commission),kf(p->CloseProfit),kf(p->PositionProfit),kf(p->PreSettlementPrice),kf(p->SettlementPrice),kp(p->TradingDay),ki(p->SettlementID),kf(p->OpenCost),kf(p->ExchangeMargin),ki(p->CombPosition),ki(p->CombLongFrozen),ki(p->CombShortFrozen),kf(p->CloseProfitByDate),kf(p->CloseProfitByTrade),ki(p->TodayPosition),kf(p->MarginRateByMoney),kf(p->MarginRateByVolume)));
 };
 
-  ///ÇëÇó²éÑ¯×Ê½ðÕË»§ÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢èµ„é‡‘è´¦æˆ·å“åº”
   virtual void OnRspQryTradingAccount(CThostFtdcTradingAccountField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryTradingAccount:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryTradingAccount",knk(30,kp(p->BrokerID),kp(p->AccountID),kf(p->PreMortgage),kf(p->PreCredit),kf(p->PreDeposit),kf(p->PreBalance),kf(p->PreMargin),kf(p->InterestBase),kf(p->Interest),kf(p->Deposit),kf(p->Withdraw),kf(p->FrozenMargin),kf(p->FrozenCash),kf(p->FrozenCommission),kf(p->CurrMargin),kf(p->CashIn),kf(p->Commission),kf(p->CloseProfit),kf(p->PositionProfit),kf(p->Balance),kf(p->Available),kf(p->WithdrawQuota),kf(p->Reserve),kp(p->TradingDay),ki(p->SettlementID),kf(p->Credit),kf(p->Mortgage),kf(p->ExchangeMargin),kf(p->DeliveryMargin),kf(p->ExchangeDeliveryMargin)));
   };
 
-  ///ÇëÇó²éÑ¯Í¶×ÊÕßÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢æŠ•èµ„è€…å“åº”
   virtual void OnRspQryInvestor(CThostFtdcInvestorField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryInvestor:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryInvestor",knk(12,kp(p->InvestorID),kp(p->BrokerID),kp(p->InvestorGroupID),kp(p->InvestorName),kc(p->IdentifiedCardType),kp(p->IdentifiedCardNo),ki(p->IsActive),kp(p->Telephone),kp(p->Address),kp(p->OpenDate),kp(p->Mobile),kp(p->CommModelID)));
   };
 
-  ///ÇëÇó²éÑ¯½»Ò×±àÂëÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢äº¤æ˜“ç¼–ç å“åº”
   virtual void OnRspQryTradingCode(CThostFtdcTradingCodeField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryTradingCode:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryTradingCode",knk(6,kp(p->InvestorID),kp(p->BrokerID),kp(p->ExchangeID),kp(p->ClientID),ki(p->IsActive),kc(p->ClientIDType)));
   };
 
-  ///ÇëÇó²éÑ¯ºÏÔ¼±£Ö¤½ðÂÊÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢åˆçº¦ä¿è¯é‡‘çŽ‡å“åº”
   virtual void OnRspQryInstrumentMarginRate(CThostFtdcInstrumentMarginRateField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryInstrumentMarginRate:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryInstrumentMarginRate",knk(10,kp(p->InstrumentID),kc(p->InvestorRange),kp(p->BrokerID),kp(p->InvestorID),kc(p->HedgeFlag),kf(p->LongMarginRatioByMoney),kf(p->LongMarginRatioByVolume),kf(p->ShortMarginRatioByMoney),kf(p->ShortMarginRatioByVolume),ki(p->IsRelative)));
   };
 
-  ///ÇëÇó²éÑ¯ºÏÔ¼ÊÖÐø·ÑÂÊÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢åˆçº¦æ‰‹ç»­è´¹çŽ‡å“åº”
   virtual void OnRspQryInstrumentCommissionRate(CThostFtdcInstrumentCommissionRateField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryInstrumentCommissionRate:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryInstrumentCommissionRate",knk(10,kp(p->InstrumentID),kc(p->InvestorRange),kp(p->BrokerID),kp(p->InvestorID),kf(p->OpenRatioByMoney),kf(p->OpenRatioByVolume),kf(p->CloseRatioByMoney),kf(p->CloseRatioByVolume),kf(p->CloseTodayRatioByMoney),kf(p->CloseTodayRatioByVolume)));
   };
 
-  ///ÇëÇó²éÑ¯½»Ò×ËùÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢äº¤æ˜“æ‰€å“åº”
   virtual void OnRspQryExchange(CThostFtdcExchangeField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryExchange:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryExchange",knk(3,kp(p->ExchangeID),kp(p->ExchangeName),kc(p->ExchangeProperty)));
   };
 
-  ///ÇëÇó²éÑ¯ÐÐÇéÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢è¡Œæƒ…å“åº”
   virtual void OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
-  ///ÇëÇó²éÑ¯Í¶×ÊÕß½áËã½á¹ûÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢æŠ•èµ„è€…ç»“ç®—ç»“æžœå“åº”
   virtual void OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQrySettlementInfo:%d\n",p); 
     RETURNONERR;
     CTPPUB("QrySettlementInfo",knk(6,kp(p->TradingDay),ki(p->SettlementID),kp(p->BrokerID),kp(p->InvestorID),ki(p->SequenceNo),kp(p->Content)));
   };
 
-  ///ÇëÇó²éÑ¯Í¶×ÊÕß³Ö²ÖÃ÷Ï¸ÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢æŠ•èµ„è€…æŒä»“æ˜Žç»†å“åº”
   virtual void OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryInvestorPositionDetail:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryInvestorPositionDetail",knk(26,kp(p->InstrumentID),kp(p->BrokerID),kp(p->InvestorID),kc(p->HedgeFlag),kc(p->Direction),kp(p->OpenDate),kp(p->TradeID),ki(p->Volume),kf(p->OpenPrice),kp(p->TradingDay),ki(p->SettlementID),kc(p->TradeType),kp(p->InstrumentID),kp(p->ExchangeID),kf(p->CloseProfitByDate),kf(p->CloseProfitByTrade),kf(p->PositionProfitByDate),kf(p->PositionProfitByTrade),kf(p->Margin),kf(p->ExchMargin),kf(p->MarginRateByMoney),kf(p->MarginRateByVolume),kf(p->LastSettlementPrice),kf(p->SettlementPrice),ki(p->CloseVolume),kf(p->CloseAmount)));    
   };
 
-  ///ÇëÇó²éÑ¯¿Í»§Í¨ÖªÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢å®¢æˆ·é€šçŸ¥å“åº”
   virtual void OnRspQryNotice(CThostFtdcNoticeField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryNotice:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryNotice",knk(3,kp(p->BrokerID),kp(p->Content),kp(p->SequenceLabel)));      
   };
 
-  ///ÇëÇó²éÑ¯Í¶×ÊÕß×éºÏ³Ö²ÖÃ÷Ï¸ÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢æŠ•èµ„è€…ç»„åˆæŒä»“æ˜Žç»†å“åº”
   virtual void OnRspQryInvestorPositionCombineDetail(CThostFtdcInvestorPositionCombineDetailField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
     //O("OnRspQryInvestorPositionCombineDetail:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryInvestorPositionCombineDetail",knk(19,kp(p->TradingDay),kp(p->OpenDate),kp(p->ExchangeID),ki(p->SettlementID),kp(p->BrokerID),kp(p->InvestorID),kp(p->ComTradeID),kp(p->TradeID),kp(p->InstrumentID),kc(p->HedgeFlag),kc(p->Direction),ki(p->TotalAmt),kf(p->Margin),kf(p->ExchMargin),kf(p->MarginRateByMoney),kf(p->MarginRateByVolume),ki(p->LegID),ki(p->LegMultiple),kp(p->CombInstrumentID)));    
   };
 
-  ///ÇëÇó²éÑ¯²Öµ¥ÕÛµÖÐÅÏ¢ÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢ä»“å•æŠ˜æŠµä¿¡æ¯å“åº”
   virtual void OnRspQryEWarrantOffset(CThostFtdcEWarrantOffsetField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryEWarrantOffset:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryEWarrantOffset",knk(8,kp(p->TradingDay),kp(p->BrokerID),kp(p->InvestorID),kp(p->ExchangeID),kp(p->InstrumentID),kc(p->Direction),kc(p->HedgeFlag),ki(p->Volume)));    
   };
 
-  ///ÇëÇó²éÑ¯ÆÚÈ¨½»Ò×³É±¾ÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢æœŸæƒäº¤æ˜“æˆæœ¬å“åº”
   virtual void OnRspQryOptionInstrTradeCost(CThostFtdcOptionInstrTradeCostField *pOptionInstrTradeCost, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
-  ///ÇëÇó²éÑ¯ÆÚÈ¨ºÏÔ¼ÊÖÐø·ÑÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢æœŸæƒåˆçº¦æ‰‹ç»­è´¹å“åº”
   virtual void OnRspQryOptionInstrCommRate(CThostFtdcOptionInstrCommRateField *pOptionInstrCommRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
-  ///ÇëÇó²éÑ¯Ö´ÐÐÐû¸æÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢æ‰§è¡Œå®£å‘Šå“åº”
   virtual void OnRspQryExecOrder(CThostFtdcExecOrderField *pExecOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
-  ///ÇëÇó²éÑ¯Ñ¯¼ÛÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢è¯¢ä»·å“åº”
   virtual void OnRspQryForQuote(CThostFtdcForQuoteField *pForQuote, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
-  ///ÇëÇó²éÑ¯±¨¼ÛÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢æŠ¥ä»·å“åº”
   virtual void OnRspQryQuote(CThostFtdcQuoteField *pQuote, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
-  ///ÇëÇó²éÑ¯×ªÕÊÁ÷Ë®ÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢è½¬å¸æµæ°´å“åº”
   virtual void OnRspQryTransferSerial(CThostFtdcTransferSerialField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
     //O("OnRspQryTransferSerial:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryTransferSerial",knk(28,ki(p->PlateSerial),kp(p->TradeDate),kp(p->TradingDay),kp(p->TradeTime),kp(p->TradeCode),ki(p->SessionID),kp(p->BankID),kp(p->BankBranchID),kc(p->BankAccType),kp(p->BankAccount),kp(p->BankSerial),kp(p->BrokerID),kp(p->BrokerBranchID),kc(p->FutureAccType),kp(p->AccountID),kp(p->InvestorID),ki(p->FutureSerial),kc(p->IdCardType),kp(p->IdentifiedCardNo),kp(p->CurrencyID),kf(p->TradeAmount),kf(p->CustFee),kf(p->BrokerFee),kc(p->AvailabilityFlag),kp(p->OperatorCode),kp(p->BankNewAccount),ki(p->ErrorID),kp(p->ErrorMsg)));    
   };
 
-  ///ºÏÔ¼½»Ò××´Ì¬Í¨Öª
+  ///åˆçº¦äº¤æ˜“çŠ¶æ€é€šçŸ¥
   virtual void OnRtnInstrumentStatus(CThostFtdcInstrumentStatusField *p) {
     //O("OnRtnInstrumentStatus:%d\n",p); 
     CTPPUB1("InstrumentStatus",knk(8,kp(p->ExchangeID),kp(p->ExchangeInstID),kp(p->SettlementGroupID),kp(p->InstrumentID),kc(p->InstrumentStatus),ki(p->TradingSegmentSN),kp(p->EnterTime),kc(p->EnterReason)));  
   };
 
-  ///½»Ò×Í¨Öª
+  ///äº¤æ˜“é€šçŸ¥
   virtual void OnRtnTradingNotice(CThostFtdcTradingNoticeInfoField *p) {
     //O("OnRtnTradingNotice:%d\n",p); 
     CTPPUB1("TradingNotice",knk(6,kp(p->BrokerID),kp(p->InvestorID),kp(p->SendTime),kp(p->FieldContent),kh(p->SequenceSeries),ki(p->SequenceNo)));  
   };
 
-  ///ÌáÊ¾Ìõ¼þµ¥Ð£Ñé´íÎó
+  ///æç¤ºæ¡ä»¶å•æ ¡éªŒé”™è¯¯
   virtual void OnRtnErrorConditionalOrder(CThostFtdcErrorConditionalOrderField *p) {
     //O("OnRtnErrorConditionalOrder:%d\n",p); 
     CTPPUB1("ErrorConditionalOrder",knk(24,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->OrderRef),kp(p->UserID),kc(p->OrderPriceType),kc(p->Direction),kp(p->CombOffsetFlag),kp(p->CombHedgeFlag),kf(p->LimitPrice),ki(p->VolumeTotalOriginal),kc(p->TimeCondition),kp(p->GTDDate),kc(p->VolumeCondition),ki(p->MinVolume),kc(p->ContingentCondition),kf(p->StopPrice),kc(p->ForceCloseReason),ki(p->IsAutoSuspend),kp(p->BusinessUnit),ki(p->RequestID),ki(p->UserForceClose),ki(p->ErrorID),kp(p->ErrorMsg)));  
   };
 
-  ///ÇëÇó²éÑ¯Ô¤Âñµ¥ÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢é¢„åŸ‹å•å“åº”
   virtual void OnRspQryParkedOrder(CThostFtdcParkedOrderField *pParkedOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
-  ///ÇëÇó²éÑ¯Ô¤Âñ³·µ¥ÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢é¢„åŸ‹æ’¤å•å“åº”
   virtual void OnRspQryParkedOrderAction(CThostFtdcParkedOrderActionField *pParkedOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
 
 };
 
-  ///ÇëÇó²éÑ¯½»Ò×Í¨ÖªÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢äº¤æ˜“é€šçŸ¥å“åº”
   virtual void OnRspQryTradingNotice(CThostFtdcTradingNoticeField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryTradingNotice:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryTradingNotice",knk(8,kp(p->BrokerID),kc(p->InvestorRange),kp(p->InvestorID),kh(p->SequenceSeries),kp(p->UserID),kp(p->SendTime),ki(p->SequenceNo),kp(p->FieldContent)));
   };
 
-  ///ÇëÇó²éÑ¯¾­¼Í¹«Ë¾½»Ò×²ÎÊýÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢ç»çºªå…¬å¸äº¤æ˜“å‚æ•°å“åº”
   virtual void OnRspQryBrokerTradingParams(CThostFtdcBrokerTradingParamsField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryBrokerTradingParams:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryBrokerTradingParams",knk(5,kp(p->BrokerID),kp(p->InvestorID),kc(p->MarginPriceType),kc(p->Algorithm),kc(p->AvailIncludeCloseProfit)));
   };
 
-  ///ÇëÇó²éÑ¯¾­¼Í¹«Ë¾½»Ò×Ëã·¨ÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢ç»çºªå…¬å¸äº¤æ˜“ç®—æ³•å“åº”
   virtual void OnRspQryBrokerTradingAlgos(CThostFtdcBrokerTradingAlgosField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryBrokerTradingAlgos:%d\n",p); 
     RETURNONERR;
     CTPPUB("QryBrokerTradingAlgos",knk(6,kp(p->BrokerID),kp(p->ExchangeID),kp(p->InstrumentID),kc(p->HandlePositionAlgoID),kc(p->FindMarginRateAlgoID),kc(p->HandleTradingAccountAlgoID)));
   };
 
-  ///ÉêÇë×éºÏÂ¼ÈëÇëÇóÏìÓ¦
+  ///ç”³è¯·ç»„åˆå½•å…¥è¯·æ±‚å“åº”
   virtual void OnRspCombActionInsert(CThostFtdcInputCombActionField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     CTPPUB("CombActionInsert",knk(9,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->CombActionRef),kp(p->UserID),kc(p->Direction),ki(p->Volume),kc(p->CombDirection),kc(p->HedgeFlag)));
   };
 
-  ///ÉêÇë×éºÏÍ¨Öª
+  ///ç”³è¯·ç»„åˆé€šçŸ¥
   virtual void OnRtnCombAction(CThostFtdcCombActionField *p) {
     CTPPUB1("CombAction",knk(25,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->CombActionRef),kp(p->UserID),kc(p->Direction),ki(p->Volume),kc(p->CombDirection),kc(p->HedgeFlag),kp(p->ActionLocalID),kp(p->ExchangeID),kp(p->ParticipantID),kp(p->ClientID),kp(p->ExchangeInstID),kp(p->TraderID),ki(p->InstallID),kc(p->ActionStatus),ki(p->NotifySequence),kp(p->TradingDay),ki(p->SettlementID),ki(p->SequenceNo),ki(p->FrontID),ki(p->SessionID),kp(p->UserProductInfo),kp(p->StatusMsg)));  
   };
 
-  ///ÉêÇë×éºÏÂ¼Èë´íÎó»Ø±¨
+  ///ç”³è¯·ç»„åˆå½•å…¥é”™è¯¯å›žæŠ¥
   virtual void OnErrRtnCombActionInsert(CThostFtdcInputCombActionField *p, CThostFtdcRspInfoField *pe) {
     CTPPUB1("CombActionInsertErr",knk(11,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->CombActionRef),kp(p->UserID),kc(p->Direction),ki(p->Volume),kc(p->CombDirection),kc(p->HedgeFlag),ki((NULL==pe)?0:(pe->ErrorID)),kp((NULL==pe)?(S)"":(pe->ErrorMsg))));
   };
 
 
-  ///ÇëÇó²éÑ¯×éºÏºÏÔ¼°²È«ÏµÊýÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢ç»„åˆåˆçº¦å®‰å…¨ç³»æ•°å“åº”
   virtual void OnRspQryCombInstrumentGuard(CThostFtdcCombInstrumentGuardField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     RETURNONERR;
     CTPPUB("QryCombInstrumentGuard",knk(3,kp(p->BrokerID),kp(p->InstrumentID),kf(p->GuarantRatio)));
   };
 
-  ///ÇëÇó²éÑ¯ÉêÇë×éºÏÏìÓ¦
+  ///è¯·æ±‚æŸ¥è¯¢ç”³è¯·ç»„åˆå“åº”
   virtual void OnRspQryCombAction(CThostFtdcCombActionField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     RETURNONERR;
     CTPPUB("QryCombAction",knk(25,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->CombActionRef),kp(p->UserID),kc(p->Direction),ki(p->Volume),kc(p->CombDirection),kc(p->HedgeFlag),kp(p->ActionLocalID),kp(p->ExchangeID),kp(p->ParticipantID),kp(p->ClientID),kp(p->ExchangeInstID),kp(p->TraderID),ki(p->InstallID),kc(p->ActionStatus),ki(p->NotifySequence),kp(p->TradingDay),ki(p->SettlementID),ki(p->SequenceNo),ki(p->FrontID),ki(p->SessionID),kp(p->UserProductInfo),kp(p->StatusMsg)));
@@ -955,7 +955,7 @@ extern "C"{
 
 /*
 
-///±¨µ¥»Ø±¨ 
+///æŠ¥å•å›žæŠ¥ 
 virtual void OnRtnOrder(CThostFtdcOrderField *pOrder){
 printf("OnRtnOrder:\n"); printf("OrderSysID=[%s]\n", pOrder->OrderSysID); 
 } 
