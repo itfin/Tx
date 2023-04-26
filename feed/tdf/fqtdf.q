@@ -26,7 +26,7 @@ ontdf:{[x]if[.conf.tdf.debug;.temp.L,:(enlist .z.P),/:x];@[{.upd[x[0]][x[1]]};;(
 
 tdfconn:{[x;y]if[not any .z.T within/: .conf.tdf.openrange;:()];if[1i~.ctrl.tdf[`runQ];:()];.ctrl.tdf[`conntimeQ`TDFVersion]:(.z.P;tdfver[]);.ctrl.tdf[`runQ]:r:inittdf[.conf.tdf[`servercnt],{(first each x),last each x} .conf.tdf`serverip`serverport`user`pass;.conf.tdf`submkts`subsyms`subtime`subtype`subcode`logdir];1b};
 
-tdfdisc:{[x;y]if[any .z.T within/: .conf.tdf.openrange;:()];if[1i~.ctrl.tdf[`runQ];:()];.ctrl.tdf[`runQ]:freetdf[];if[((.z.D>d0)|(.z.T>.conf.tdf.mktclosetime)&(.z.D=d0))&(.db.fqclosedate<d0:.db.fqopendate);pubm[`ALL;`MarketClose;.conf.me;string d0];.db.fqclosedate:d0];1b};
+tdfdisc:{[x;y]if[any .z.T within/: .conf.tdf.openrange;:()];if[not 1i~.ctrl.tdf[`runQ];:()];.ctrl.tdf[`runQ]:freetdf[];if[((.z.D>d0)|(.z.T>.conf.tdf.mktclosetime)&(.z.D=d0))&(.db.fqclosedate<d0:.db.fqopendate);pubm[`ALL;`MarketClose;.conf.me;string d0];.db.fqclosedate:d0];1b};
 
 .init.fqtdf:{[x]tdfconn[`;.z.P];};
 .exit.fqtdf:{[x].ctrl.tdf[`runQ]:freetdf[];};
@@ -43,7 +43,7 @@ enqueuel2:{[t;x]$[t=`Q;.temp.L2Q,:x;t=`O;.temp.L2O,:x;.temp.L2M,:x];};
 enqueuel2q:enqueuel2[`Q];enqueuel2o:enqueuel2[`O];enqueuel2m:enqueuel2[`M];
 batchpubl2:{[]if[(not 1b~.conf.batchpubl2);:()];if[0<count .temp.L2Q;pub[`l2queue;distinct .temp.L2Q];.temp.L2Q:()];if[0<count .temp.L2O;pub[`l2order;distinct .temp.L2O];.temp.L2O:()];if[0<count .temp.L2M;pub[`l2match;distinct .temp.L2M];.temp.L2M:()];};
 
-imphkbroker:{[]`:/kdb/HKBRKR set  `num xcols ungroup update `$utf82gbk each string name,`$utf82gbk each string sname from flip `code`name`sname`esname`num!flip {[x]x:x[1];(first `$1_flip 4#x),`$1_flip 4_x} each  2_.[;0 1 0 1] xmlparse read0 `:/q/ref/hk/HKBrokerList2.xml;}; /����۹�ȯ��ϯλ�ű�
+imphkbroker:{[]`:/kdb/HKBRKR set  `num xcols ungroup update `$utf82gbk each string name,`$utf82gbk each string sname from flip `code`name`sname`esname`num!flip {[x]x:x[1];(first `$1_flip 4#x),`$1_flip 4_x} each  2_.[;0 1 0 1] xmlparse read0 `:/q/ref/hk/HKBrokerList2.xml;}; /µ¼Èë¸Û¹ÉÈ¯ÉÌÏ¯Î»ºÅ±í
 
 .upd.SYS_DISCONNECT_NETWORK:{[x]lwarn[`tdf_disconnected;()];.ctrl.tdf[`disctime]:.z.P;};
 
@@ -76,6 +76,7 @@ imphkbroker:{[]`:/kdb/HKBRKR set  `num xcols ungroup update `$utf82gbk each stri
 
 //.upd.ReSub:{[x]sub[(`$x`msg;.enum.SUBSCRIPTION_SET)];};
 //.upd.ReSubAdd:{[x]sub[(`$x`msg;.enum.SUBSCRIPTION_ADD)];};
-.upd.ReSubAdd:{[x]sub[(`$sv[";"] string (distinct .db.SubMap -9!x`vbin) except `;.enum.SUBSCRIPTION_ADD)];};
+//.upd.ReSubAdd:{[x]sub[(`$sv[";"] string (distinct .db.SubMap -9!x`vbin) except `;.enum.SUBSCRIPTION_ADD)];};
+.upd.ReSubAdd:{[x] if[count sl:(distinct .db.SubMap -9!x`vbin) except `;sub[(`$sv[";"] string sl;.enum.SUBSCRIPTION_ADD)]]};
 //.upd.ReSubDel:{[x]sub[(`$x`msg;.enum.SUBSCRIPTION_DEL)];};
 //.upd.ReSubFull:{[x]sub[(`$x`msg;.enum.SUBSCRIPTION_FULL)];};
