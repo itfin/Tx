@@ -19,7 +19,7 @@ QREF:QUEUE:L13:L12:L11:L:C:();MDSub:QTSub:()!();
 \d .
 
 ctpqconn:{[x;y]if[not any .z.T within/: .conf.ctp.openrange;:()];.ctrl.ctp[`run]:initctpq[.conf.ctp.mdfront;.conf.me];1b;};
-ctpqdisc:{[x;y]if[any .z.T within/: .conf.ctp.openrange;:()]if[((.z.D>d0)|(.z.T>.conf.ctp.mktclosetime)&(.z.D=d0))&(.db.fqclosedate<d0:.db.fqopendate);pubm[`ALL;`MarketClose;.conf.me;string d0];.db.fqclosedate:d0];.exit.fqctp[];1b;};
+ctpqdisc:{[x;y]if[any .z.T within/: .conf.ctp.openrange;:()];if[((.z.D>d0)|(.z.T>.conf.ctp.mktclosetime)&(.z.D=d0))&(.db.fqclosedate<d0:.db.fqopendate);pubm[`ALL;`MarketClose;.conf.me;string d0];.db.fqclosedate:d0];.exit.fqctp[];1b;};
 
 .init.fqctp:{[x]ctpqconn[`;.z.P];};
 .exit.fqctp:{[x]savedb[];.ctrl.ctp[`run]:freectpq[];.upd.FrontDisconnectQ[];};
