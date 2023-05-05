@@ -1,41 +1,33 @@
-Tx��װ���в���˵��(��ͨ��CTP�ӿڽ���Ϊ��)
+Tx安装运行步骤说明(以通过CTP接口交易为例)
 
-0.��֤�������Ѱ�װ��Linux���64λkdb+������/q,�������˻�������QHOME=/q,PATH=/q/l64:$PATH,LD_LIBRARY_PATH=/q/l64:$LD_LIBRARY_PATH,ͬʱ�������Ѱ�װ����make��clang
+0.保证电脑里已安装了Linux版的64位kdb+软件在/q,并设置了环境变量QHOME=/q,PATH=/q/l64:$PATH,LD_LIBRARY_PATH=/q/l64:$LD_LIBRARY_PATH,同时电脑里已安装好了make和clang
 
-1.��github����Tx:cd /q && git clone https://github.com/itfin/Tx
+1.从github下载Tx:cd /q && git clone https://github.com/itfin/Tx
 
-2.���ر���CTP�ӿ�:cd /q/Tx/ext/src/ctp && sh buildl64.sh && ls -alt ../../dll/l64/ #ȷ���Ѿ�������extfqctp.so��extfectp.so
+2.本地编译CTP接口:cd /q/Tx/ext/src/ctp && sh buildl64.sh && ls -alt ../../dll/l64/ #确认已经产生了extfqctp.so和extfectp.so
 
-3.������Ҫ�ķ�������:cd /q/Tx && sh mklinks.sh #ȷ����/qĿ¼��������tickĿ¼��tick.q������,�Լ�l64��Ŀ¼�������
+3.创建必要的符号链接:cd /q/Tx && sh mklinks.sh #确认在/q目录下生成了tick目录和tick.q的链接,以及l64子目录里的链接
 
-4.��ʼ������Ŀ¼:cd /q/Tx/conf && cp -r qtx.eg qtx
+4.初始化配置目录:cd /q/Tx/conf && cp -r qtx.eg qtx
 
-5.�༭/q/Tx/conf/qtx/cfctp.q,ʹ�ñ��˵���ʵ����CTP������Ϣ��ȫ�����ctp.mdfront,ctp.tdfront,ctp.authocde�Լ�ctp.broker,ctp.user,ctp.pass�����ֶ�
+5.编辑/q/Tx/conf/qtx/cfctp.q,使用本人的真实环境CTP开户信息补全里面的ctp.mdfront,ctp.tdfront,ctp.authocde以及ctp.broker,ctp.user,ctp.pass六个字段
 
-6.ȷ�����ݿ�Ŀ¼/kdb/txdb/�Ѵ���
+6.确认数据库目录/kdb/txdb/已存在
 
-6.����Txƽ̨������ģ��:cd /q/Tx && sh startfcqtx #ȷ��������/tmp/fc.qtx�ļ�
+6.启动Tx平台的主控模块:cd /q/Tx && sh startfcqtx #确认已生成/tmp/fc.qtx文件
 
-7.����q�ͻ����������ؽڵ㲢����Txƽ̨������ģ��:q)c:hopen 5000;c "starttx[]";c ".ctrl.MOD" #ȷ�ϸ�ģ��ľ���ֶ�h��Ϊ��������������
+7.启动q客户端连接主控节点并启动Tx平台的其他模块:q)c:hopen 5000;c "starttx[]";c ".ctrl.MOD" #确认各模块的句柄字段h均为正数即正常启动
 
-8.��q�ͻ�������fectpģ��ȷ��ctp��½����:q)e:hopen 9010;e ".ctrl.ctp" #ȷ��LoginTΪ1b
-                                   q)e ".db.QX" #ȷ���ѻ�ȡ����Լ�б�
-8.��q�ͻ�������fqctpģ��ȷ��ctp���鶩������:q)q:hopen 6010;q ".ctrl.ctp" #ȷ��SubScribeQΪ1b
-                                       q)q ".db.QX" #ȷ���Ѵ�fectpͬ������Լ�б�
-				       q)q ".temp.MDSub" #ȷ�Ϻ�Լ�����ѱ�ȷ��
-9.��q�ͻ�������ftģ��ȷ���������յ�����:q)t:hopen 7010;t ".db.QX[;`srctime`bid`ask]"
+8.在q客户端连接fectp模块确认ctp登陆正常:q)e:hopen 9010;e ".ctrl.ctp" #确认LoginT为1b
+                                   q)e ".db.QX" #确认已获取到合约列表
+8.在q客户端连接fqctp模块确认ctp行情订阅正常:q)q:hopen 6010;q ".ctrl.ctp" #确认SubScribeQ为1b
+                                       q)q ".db.QX" #确认已从fectp同步到合约列表
+				       q)q ".temp.MDSub" #确认合约订阅已被确认
+9.在q客户端连接ft模块确认能正常收到行情:q)t:hopen 7010;t ".db.QX[;`srctime`bid`ask]"
 
-10.��ftģ���ж�.db.Ts.qtx���Խ������ã���ɺ�����qtx����:q)t ".db.enablets,:`qtx"
-                               ʹ�õ�ͣ�۲�������ί��:q)t "limit_buy[`qtx;`c2001.XDCE;1f;1782;`test]" #�����ڲ�ί�к�`0.1,����ͨ��t ".db.O"�鿴ί���б�
-                                          ����ί��: q)t "cxlord `0.1"	                           #t ".db.O"���Կ���ί��״̬�ѱ�Ϊ"4"���������		             
+10.在ft模块中对.db.Ts.qtx策略进行配置，完成后上线qtx策略:q)t ".db.enablets,:`qtx"
+                               使用跌停价测试买入委托:q)t "limit_buy[`qtx;`c2001.XDCE;1f;1782;`test]" #返回内部委托号`0.1,可以通过t ".db.O"查看委托列表
+                                          撤单委托: q)t "cxlord `0.1"	                           #t ".db.O"可以看到委托状态已变为"4"即撤单完成		             
 
-11.�ر�Txƽ̨ʱ��������ģ������q)c "stoptx[]",Ȼ��\\�˳�q�ͻ��˺�����/q/TxĿ¼������sh stopfc.֮���������netstat -ntpl|grep qȷ�ϲ��������е�q����
+11.关闭Tx平台时先在主控模块运行q)c "stoptx[]",然后\\退出q客户端后再在/q/Tx目录下运行sh stopfc.之后可以运行netstat -ntpl|grep q确认不存在运行的q进程
  
-                     
-
-
-
-
-
-
-
