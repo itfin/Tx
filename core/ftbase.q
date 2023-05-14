@@ -289,7 +289,8 @@ imptrade:imptradex[0b];impoldtrade:imptradex[1b];
 
 impshcxl:{[x]y:x`sym;q:x`qty;u:"I"$string[x`gid],string[x`origid];if[0<=p:.db.Vm[u];.db.Lm[u]-:q;$["B"=x`side;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p]]];}; /上海撤单委托处理
 
-.upd.l2order:{[x].temp.x3:x;e:fs2e y:x`sym;if["D"=x`typ;impshcxl x;:()];z:"I"$string[x`gid],string[x`origid];if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];w:x`side;p:x`price;q:x`qty;.db.Vm[z]:p;.db.Lm[z]:q;$[w in "1B";[.db.Bm[y;p]:q+0f^.db.Bm[y;p]];w in "2S";[.db.Am[y;p]:q+0f^.db.Am[y;p]];[]];if[count r:.db.Wm[z];impoldtrade each .db.Tm r];}'; /逐笔委托处理
+// 对于typ为1或U的订单（市价单和本方最优订单），将价格改为0
+.upd.l2order:{[x].temp.x3:x;e:fs2e y:x`sym;if["D"=x`typ;impshcxl x;:()];z:"I"$string[x`gid],string[x`origid];if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];w:x`side;p:x`price;q:x`qty;if[x[`typ] in "1U";p:0f];.db.Vm[z]:p;.db.Lm[z]:q;$[w in "1B";[.db.Bm[y;p]:q+0f^.db.Bm[y;p]];w in "2S";[.db.Am[y;p]:q+0f^.db.Am[y;p]];[]];if[count r:.db.Wm[z];impoldtrade each .db.Tm r];}'; /逐笔委托处理
 
 .upd.l2match:{[x].temp.x4:x;imptrade each x;};
 
