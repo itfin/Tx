@@ -21,10 +21,10 @@ L2M:L2O:L2Q:QREF:QUEUE:L16:L15:L14:L13:L12:L11:L:C:();TKSub:BKSub:MDSub:()!();
 
 quotetbl:$[1b~.conf[`usel2quote];`l2quote;`quote];
 
-xtpqconn:{[x;y]if[not any .z.T within/: .conf.xtp.openrange;:()];if[1i~.ctrl.xtp[`runQ];:()];.ctrl.xtp[`conntimeQ]:.z.P;.ctrl.xtp[`runQ]:r:initxtpq[(.conf.xtp.cltid;.conf.xtp.tmpath;`int$`fatal`error`warning`info`debug`trace?.conf.xtp.loglevel;.conf.xtp.bufsize;.conf.xtp.hbint);(.conf.xtp.qsvrip;.conf.xtp.qsport;.conf.xtp.user;.conf.xtp.pass;.conf.xtp.usetcp)];1b;};
+xtpqconn:{[x;y]if[not any .z.T within/: .conf.xtp.openrange;:()];if[1i~.ctrl.xtp[`runQ];:()];.ctrl.xtp[`conntimeQ]:.z.P;.ctrl.xtp[`runQ]:r:initxtpq[(.conf.xtp.cltid;.conf.xtp.tmpath;`int$`fatal`error`warning`info`debug`trace?.conf.xtp.loglevel;.conf.xtp.bufsize;.conf.xtp.hbint;.conf.xtp.udpseq);(.conf.xtp.qsvrip;.conf.xtp.qsport;.conf.xtp.user;.conf.xtp.pass;.conf.xtp.usetcp)];1b;};
 xtpqdisc:{[x;y]if[any .z.T within/: .conf.xtp.openrange;:()];if[not 1i~.ctrl.xtp[`runQ];:()];.ctrl.xtp[`runQ]:freextpq[];if[((.z.D>d0)|(.z.T>.conf.xtp.mktclosetime)&(.z.D=d0))&(.db.fqclosedate<d0:.db.fqopendate);pubm[`ALL;`MarketClose;.conf.me;string d0];.db.fqclosedate:d0];1b;};
 
-.init.fqxtp:{[x]xtpqconn[`;.z.P];};
+.init.fqxtp:{[x]xtpqconn[`;.z.P];.ctrl.xtp[`inittime]:.z.P;};
 .exit.fqxtp:{[x].ctrl.xtp[`runQ]:freextpq[];};
 
 .timer.fqxtp:{[x]if[any .z.T within/:.conf.xtp.openrange;dosubscribe[]];batchpub[];batchpubl2[];};

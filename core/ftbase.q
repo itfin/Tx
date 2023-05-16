@@ -1,4 +1,4 @@
-.module.ftbase:2023.03.20;
+.module.ftbase:2023.04.27;
 
 txload "core/rcbase";
 
@@ -151,7 +151,7 @@ realbarsyms:{[x;y]$[11h<>abs type sl:.db.Ts[x;`barsyms];`symbol$();0=count sl;`s
 .upd.bar:{[x]if[1b~.conf.keepbar;bar,:update dsttime:.z.P from x];sl:exec distinct sym from x;{[tid;sl;t]z:realbarsyms[tid;sl];if[count z;{[tid;t].[{(x)[y;z]};(.db.Ts[tid;`event;`bar];tid;t);()]}[tid] each select from t where sym in z];}[;sl;x] each tsl[];};
 
 chkerrfix:{[x]r:.db.O k:x`oid;if[(0=r`avgpx)&(r[`cumqty]=x`cumqty)&(0<p:x`avgpx);.db.O[k;`avgpx`cumamt]:p,p*getmultiple[r`sym]*r`cumqty];if[0<n:count m:x`msg;if[not m~neg[n]#r`msg;.db.O[k;`msg],:$[count r`msg;"=>";""],m]];}; //(x[`typ]=.enum`CORRECT)&恒生部成部撤状态更正
-setcs:{[x]r:.db.O k:x`oid;s:x`status;if[.enum[`CANCELED]=s;.db.O[k;`cstatus]:s;if[null r`ctime;.db.O[k;`ctime]:now[]]];if[r[`cstatus]<>.enum`PENDING_CANCEL;:()];.db.O[k;`cfeoid`cordid]:x`cfeoid`cordid;if[s in .enum`REJECTED`FILLED`DONE_FOR_DAY;.db.O[k;`cstatus]:.enum`REJECTED];if[(x[`typ]=.enum`CORRECT)&(x[`cstatus]=.enum`NULL);.db.O[k;`cstatus]:.enum`NULL];};
+setcs:{[x]r:.db.O k:x`oid;s:x`status;if[.enum[`CANCELED]=s;.db.O[k;`cstatus]:s;if[null r`ctime;.db.O[k;`ctime]:now[]]];if[r[`cstatus]<>.enum`PENDING_CANCEL;:()];.db.O[k;`cfeoid`cordid`cexchid]:x`cfeoid`cordid`cexchid;if[s in .enum`REJECTED`FILLED`DONE_FOR_DAY;.db.O[k;`cstatus]:.enum`REJECTED];if[(x[`typ]=.enum`CORRECT)&(x[`cstatus]=.enum`NULL);.db.O[k;`cstatus]:.enum`NULL];};
 
 frzqty:{[k;q]r:.db.O[k];pe:r`posefct;sd:r`side;tid:r`ts;acc:r`acc;fs:r`sym;sq:$[sd=.enum`SELL;1f;-1f]*q;if[pe in .enum`CLOSE`CLOSETODAY`CLOSEYESTODAY`MARGIN_CLOSE;ff:$[sd=.enum`SELL;`flqty;`fsqty];q1:.db.P[(tid;acc;fs);ff]:sq+q0:0f^.db.P[(tid;acc;fs);ff];ldebug[`frzqty;(k;q;fs;ff;sq;q0;q1)];if[pe=.enum`CLOSETODAY;ff:$[sd=.enum`SELL;`flqty0;`fsqty0];.db.P[(tid;acc;fs);ff]:sq+0f^.db.P[(tid;acc;fs);ff]]];};
 
@@ -205,7 +205,7 @@ settleord:{[k;q;a]r:.db.O k;f:getfee[r[`sym`side`posefct],(q;a)];.db.O[k;`cumamt
 
 ordexerpt:{[k]r:.db.O[k];;if[not (t:r[`ts]^r`tsexec) in key .db.Ts;:()];if[99h<>type .db.Ts[t;`event];:()];.[{(x)[y;z]};(.db.Ts[t;`event;`exerpt];t;k);()];}; /[oid]触发策略的委托回调
 
-.upd.exerpt:.ft.exerpt:{[x].temp.x:x;r:.db.O k:x`oid;if[`COMB~r`special;:.upd.comback[x]];s:x`status;sy:r`sym;if[(null sy)|((s=.enum`PENDING_NEW)&(s<>r`status)&(r[`status]<>.enum`NULL));:()];if[(r[`end])&(x[`cumqty]<=r`cumqty);chkerrfix[x];:()];if[null x`cumqty;x[`cumqty]:0f];if[null x`avgpx;x[`avgpx]:0f];if[(x`cumqty)<r`cumqty;lwarn[`cumqty_decrease;(k;r`cumqty;x`cumqty;x`src;x`seq)];:()];if[(x[`cumqty]~r`qty)&(s<>.enum`FILLED);s:.enum`FILLED];.db.O[k;`status`end`rtime`feoid`ordid`rptopt]:(s;s in .enum`REJECTED`FILLED`DONE_FOR_DAY`CANCELED`REPLACED`EXPIRED;now[];x`feoid;x`ordid;x`rptopt);if[.db.O[k;`end];.db.pO:.db.pO except k];if[count m:x`msg;.db.O[k;`msg],:$[count r`msg;"=>";""],m];setcs[x];$[s=.enum`NEW;();s=.enum`REJECTED;execrej[k;x];[lq:(0f^x`cumqty)-0f^r`cumqty;la:(prd 0f^x`cumqty`avgpx)-prd 0f^r`cumqty`avgpx;lp:0f^la% lq;if[0>lq;lwarn[`neg_lastshares;(k;r`cumqty;x`cumqty;lq;x`src;x`seq)];:()];if[0<lq;settleord[k;lq;la*$[.enum[`BUY]=r`side;-1;1]*getmultiple[sy]];.db.O[k;`ftime]:now[];newmatch[k;lq;lp]];if[0f<lq;frzqty[k;neg lq]];.db.O[k;`cumqty`lastqty`lastpx]:(x`cumqty;lq;lp);if[(0>=r`avgpx)|(0<x`avgpx);if[s in .enum`CANCELED`EXPIRED;frzqty[k;neg r[`qty]-0f^x`cumqty]];.db.O[k;`avgpx]:x`avgpx]]];ordexerpt[k];}'; /`t1`f2`f3 ,.db.QX[sy;`extime`bid`ask]
+.upd.exerpt:.ft.exerpt:{[x].temp.x:x;r:.db.O k:x`oid;if[`COMB~r`special;:.upd.comback[x]];s:x`status;sy:r`sym;if[(null sy)|((s=.enum`PENDING_NEW)&(s<>r`status)&(r[`status]<>.enum`NULL));:()];if[(r[`end])&(x[`cumqty]<=r`cumqty);chkerrfix[x];:()];if[null x`cumqty;x[`cumqty]:0f];if[null x`avgpx;x[`avgpx]:0f];if[(x`cumqty)<r`cumqty;lwarn[`cumqty_decrease;(k;r`cumqty;x`cumqty;x`src;x`seq)];:()];if[(x[`cumqty]~r`qty)&(s<>.enum`FILLED);s:.enum`FILLED];.db.O[k;`status`end`rtime`feoid`ordid`exchid`rptopt]:(s;s in .enum`REJECTED`FILLED`DONE_FOR_DAY`CANCELED`REPLACED`EXPIRED;now[];x`feoid;x`ordid;x`exchid;x`rptopt);if[.db.O[k;`end];.db.pO:.db.pO except k];if[count m:x`msg;.db.O[k;`msg],:$[count r`msg;"=>";""],m];setcs[x];$[s=.enum`NEW;();s=.enum`REJECTED;execrej[k;x];[lq:(0f^x`cumqty)-0f^r`cumqty;la:(prd 0f^x`cumqty`avgpx)-prd 0f^r`cumqty`avgpx;lp:0f^la% lq;if[0>lq;lwarn[`neg_lastshares;(k;r`cumqty;x`cumqty;lq;x`src;x`seq)];:()];if[0<lq;settleord[k;lq;la*$[.enum[`BUY]=r`side;-1;1]*getmultiple[sy]];.db.O[k;`ftime]:now[];newmatch[k;lq;lp]];if[0f<lq;frzqty[k;neg lq]];.db.O[k;`cumqty`lastqty`lastpx]:(x`cumqty;lq;lp);if[(0>=r`avgpx)|(0<x`avgpx);if[s in .enum`CANCELED`EXPIRED;frzqty[k;neg r[`qty]-0f^x`cumqty]];.db.O[k;`avgpx]:x`avgpx]]];ordexerpt[k];}'; /`t1`f2`f3 ,.db.QX[sy;`extime`bid`ask]
 
 .upd.exenoe:{[x]r:.db.O k:x`oid;if[not null r`sym;:()];.db.O[k;`special`ntime`status`tif`typ`ft`ts`acc`fe`acc1`ref`sym`side`posefct`qty`price]:(`NOE;now[];.enum`PENDING_NEW;.enum`DAY;.enum`LIMIT),x`ft`ts`acc`src`acc1`ref`osym`side`posefct`cumqty`avgpx;frzqty[k;x`cumqty];x[`feoid`cstatus`cfeoid`cordid`reason]:(`;.enum`NULL;`;`;0N);.upd.exerpt enlist x;}';
 
@@ -303,4 +303,5 @@ getcbbo:{[x]bq:.db.Bm[x] bp:first desc (key .db.Bm[x]) except 0f;oq:.db.Am[x] op
 .db.TASK[`DOREPOTASK;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+14:58:30;1D;0;4;`dorepotask);
 
 //----ChangeLog----
+//2023.04.27:setcs和.upd.exerpt增加对exchid和cexchid的支持
 //2023.03.20:.upd.l2order函数中统一使用`origid,深市不再区别使用`oid

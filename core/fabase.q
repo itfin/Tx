@@ -1,5 +1,17 @@
 .module.fabase:2017.08.17;
 
+.fa.tblist:`symbol$();
+
+saveatbl:{set [sv[`].fa.dbdir,x;.adb[x]]};
+loadatbl:{.adb[x]:get sv[`].fa.dbdir,x;};
+
+saveadb:{[]if[not 1b~.fa.db;:()];saveatbl each .fa.tblist;};
+loadadb:{[]if[not 1b~.fa.db;:()];loadatbl each .fa.tblist;};
+
+.exit.fa:{[x]saveadb[];};
+.init.fa:{[x]loadadb[];};
+
+
 ccfx_rank:{[x;y]z:"http://www.cffex.com.cn/sj/ccpm/",((string `month$y) except "."),"/",(-2#string y),"/",(string x),".xml";s:wget[z];d:xmlparse[s];t:flip `instrumentId`tradingDay`dataTypeId`rank`shortname`volume`varVolume`partyid`productid!"SDJJSFFSS"$'flip {x where 9=count each x} d[0;1;;1;;1];t} /[product;date]{dataTypeId|0->成交量;1->持买单量;2->持卖单量}
 
 

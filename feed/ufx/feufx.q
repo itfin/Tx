@@ -1,7 +1,7 @@
 /恒生柜台交易接口程序(T2SDK)
 //**注意不同ufx实例需要采用不同的seq0base以保证不同实例的feoid字段(8位)互不重复！！！
 
-.module.feufx:2021.08.23;
+.module.feufx:2023.04.27;
 
 txload "core/febase";
 
@@ -96,7 +96,7 @@ errmsg:{[r]r[0;0;`ErrorMsg]};
 cxlrej:{[k]rejcxl[k;.db.O[k;`reason];.db.O[k;`msg]];};
 ordrej:{[k]rejectord[k;.db.O[k;`reason];.db.O[k;`msg]];};
 
-.upd.SubRecv:{[x].temp.x10:x;y:x[1;0;0];z:`$string y`batch_no;u:`$string y`entrust_no;v:`${$[10h=type x;x;string x]}y`cancel_entrust_no;w:.enum.hssidemap first y`entrust_direction;a:`$string y`extsystem_id;k:exec first id from .db.O where ordid in (u,v) except `;if[null k;k:exec first id from .db.O where feoid=a];if[null k;:()];if[null .db.O[k;`ordid];.db.O[k;`ordid]:u];se:fs2se fs:.db.O[k;`sym];se[1]:.enum.ex2hs se[1];st:sectype[se[0];se[1]];hs:`$y`msgtype;.db.O[k;`rptopt],:"-",string[hs];$[hs in `a`b`d;[execrpt[k]];hs=`c;[.db.O[k;`status`reason`msg]:(.enum`REJECTED;-1i;y`revoke_cause);ordrej[k]];hs=`f;[.db.O[k;`cstatus`reason`msg]:(.enum`REJECTED;-1i;y`revoke_cause);cxlrej[k]];[$[hs=`e;[cq:`float$y`cancel_amount;.db.O[k;`status`cumqty]:(.enum`CANCELED;.db.O[k;`qty]-cq)];[cq:`float$y`total_deal_amount;ca:`float$y`total_deal_balance;.db.O[k;`status`cumqty`avgpx]:(.enum$[cq=.db.O[k;`qty];`FILLED;`PARTIALLY_FILLED];cq;ca%cq*$[st in `FUT`OPT`FUTSP;1f^.db.QX[fs;`multiplier];1f])]];execrpt[k]]];}; /a委托下达b委托确认g委托成交c委托拒绝d委托撤单e委托撤成f委托撤废
+.upd.SubRecv:{[x].temp.x10:x;y:x[1;0;0];z:`$string y`batch_no;u:`$string y`entrust_no;v:`${$[10h=type x;x;string x]}y`cancel_entrust_no;w:.enum.hssidemap first y`entrust_direction;a:`$string y`extsystem_id;k:exec first id from .db.O where ordid in (u,v) except `;if[null k;k:exec first id from .db.O where feoid=a];if[null k;:()];if[null .db.O[k;`ordid];.db.O[k;`ordid]:u];se:fs2se fs:.db.O[k;`sym];se[1]:.enum.ex2hs se[1];st:sectype[se[0];se[1]];hs:`$y`msgtype;.db.O[k;`rptopt],:"-",string[hs];$[hs in `a`b`d;[if[hs=`b;.db.O[k;`exchid]:`$y`confirm_no];execrpt[k]];hs=`c;[.db.O[k;`status`reason`msg]:(.enum`REJECTED;-1i;y`revoke_cause);ordrej[k]];hs=`f;[.db.O[k;`cstatus`reason`msg]:(.enum`REJECTED;-1i;y`revoke_cause);cxlrej[k]];[$[hs=`e;[cq:`float$y`cancel_amount;.db.O[k;`status`cumqty]:(.enum`CANCELED;.db.O[k;`qty]-cq)];[cq:`float$y`total_deal_amount;ca:`float$y`total_deal_balance;.db.O[k;`status`cumqty`avgpx]:(.enum$[cq=.db.O[k;`qty];`FILLED;`PARTIALLY_FILLED];cq;ca%cq*$[st in `FUT`OPT`FUTSP;1f^.db.QX[fs;`multiplier];1f])]];execrpt[k]]];}; /a委托下达b委托确认g委托成交c委托拒绝d委托撤单e委托撤成f委托撤废
 
 .timer.feufx:{[x]s:.ctrl.tcpconn[.conf.ufx.t2name];if[0>=h:ifill s`h;connHS[`;`]];if[0<h;if[(1b~.ctrl.ufx[`Registered])&(not 1b~.ctrl.ufx[`login])&not 1b~.ctrl.ufx[`loginfail];.ctrl.ufx[`loginfail]:1b;.upd.Login[]];if[((s[`hbsent]+`timespan$`second$s[`hbint])<x)&1b~.ctrl.ufx[`login];.upd.Hello[()];.ctrl.tcpconn[.conf.ufx.t2name;`hbsent]:now[]]];s:.ctrl.tcpconn[.conf.ufx.subname];if[0>=h:ifill s`h;connHSsub[`;`]];}; 
 

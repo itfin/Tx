@@ -1,4 +1,4 @@
-.module.api:2021.04.06;
+.module.api:2023.04.27;
 
 /对于行情类消息sym为证券代码,对于日志消息sym为日志级别,对于其他类消息sym为接收方id(`ALL为全系统广播)
 
@@ -12,7 +12,7 @@ ordnew:([]time:`timespan$(); sym:`symbol$(); oid:`symbol$(); ft:`symbol$(); ts:`
 
 ordcxl:([]time:`timespan$(); sym:`symbol$(); oid:`symbol$(); feoid:`symbol$(); cid:`symbol$(); ordopt:(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$()); /撤单请求
 
-exerpt:([]time:`timespan$(); sym:`symbol$(); typ:`char$(); oid:`symbol$(); status:`char$(); cumqty:`float$(); avgpx:`float$(); feoid:`symbol$(); ordid:`symbol$(); cstatus:`char$(); cfeoid:`symbol$(); cordid:`symbol$(); reason:`long$(); msg:(); rptopt:(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$()); /执行报告
+exerpt:([]time:`timespan$(); sym:`symbol$(); typ:`char$(); oid:`symbol$(); status:`char$(); cumqty:`float$(); avgpx:`float$(); feoid:`symbol$(); ordid:`symbol$(); exchid:`symbol$(); cstatus:`char$(); cfeoid:`symbol$(); cordid:`symbol$(); cexchid:`symbol$(); reason:`long$(); msg:(); rptopt:(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$()); /执行报告
 
 exenoe:([]time:`timespan$(); sym:`symbol$(); typ:`char$(); oid:`symbol$(); ft:`symbol$(); ts:`symbol$(); acc:`symbol$(); acc1:`symbol$(); ref:`symbol$(); osym:`symbol$(); side:`char$(); posefct:`char$(); status:`char$(); cumqty:`float$(); avgpx:`float$(); ordid:`symbol$(); msg:(); rptopt:(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$()); /NOE执行报告
 
@@ -43,3 +43,5 @@ l2queue:([]time:`timespan$();sym:`symbol$();side:`char$();price:`float$();size:`
 l2order:([]time:`timespan$();sym:`symbol$();side:`char$();typ:`char$();price:`float$();qty:`float$();gid:`int$();oid:`long$();origid:`long$();bizidx:`long$();extime:`timestamp$();src:`symbol$();srctime:`timestamp$();srcseq:`long$();dsttime:`timestamp$()); /Level-2 逐笔委托
 l2match:([]time:`timespan$();sym:`symbol$();side:`char$();typ:`char$();price:`float$();qty:`float$();amt:`float$();gid:`int$();mid:`long$();bid:`long$();aid:`long$();bizidx:`long$();extime:`timestamp$();src:`symbol$();srctime:`timestamp$();srcseq:`long$();dsttime:`timestamp$()); /Level-2 逐笔成交
 
+//----ChangeLog----
+//2023.04.27:exerpt表新增exchid和cexchid两列
