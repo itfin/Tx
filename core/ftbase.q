@@ -41,16 +41,16 @@ cxlordex:{[x;y;z]r:.db.O[x];if[y<>r`ts;:()];if[(0b~.db`ftactive)|(null r`sym)|(n
 cxlord:{[x]cxlordex[x;.db.O[x;`ts];`];};cxlordx:{[x;y]cxlordex[x;.db.O[x;`ts];y];};
 
 qryord:{[x]r:.db.O[x];if[(0b~.db`ftactive)|(null r`sym);:()];if[not null r`fe;pub[`ordqry;enlist `sym`oid`feoid`ordopt!(r`fe;x;r`feoid;r`ordopt)]];};
-qryfund:{[x]pubmx[.conf.acc[x;`sym];`QueryFund;.conf.me;string x;-8!sfill .conf.acc[x;`acc2]];}; /[acc]è¿”å›ç»“æœåœ¨.upd.FundUpdateå¤„ç†(acc2ä¸ºèµ„äº§å•å…ƒ)
-qryasset:{[x]pubmx[.conf.acc[x;`sym];`QueryAsset;.conf.me;string x;-8!sfill .conf.acc[x;`acc2]];}; /[acc]è¿”å›ç»“æœåœ¨.upd.AssetUpdateå¤„ç†(acc2ä¸ºèµ„äº§å•å…ƒ)
-qrypos:{[x]pubmx[.conf.acc[x;`sym];`QueryPos;.conf.me;string x;-8!sfill .conf.acc[x;`acc1]];}; /[acc] è¿”å›ç»“æœåœ¨.upd.PosUpdateå¤„ç†(acc1ä¸ºç»„åˆ|èµ„äº§å•å…ƒ)
-qryoda:{[x]pubmx[.conf.acc[x;`sym];`QueryOrdAcc;.conf.me;string x;-8!sfill .conf.acc[x;`acc1]];}; /[acc] è¿”å›ç»“æœåœ¨.upd.OrdUpdateå¤„ç†(acc1ä¸ºç»„åˆ|èµ„äº§å•å…ƒ)
+qryfund:{[x]pubmx[.conf.acc[x;`sym];`QueryFund;.conf.me;string x;-8!sfill .conf.acc[x;`acc2]];}; /[acc]·µ»Ø½á¹ûÔÚ.upd.FundUpdate´¦Àí(acc2Îª×Ê²úµ¥Ôª)
+qryasset:{[x]pubmx[.conf.acc[x;`sym];`QueryAsset;.conf.me;string x;-8!sfill .conf.acc[x;`acc2]];}; /[acc]·µ»Ø½á¹ûÔÚ.upd.AssetUpdate´¦Àí(acc2Îª×Ê²úµ¥Ôª)
+qrypos:{[x]pubmx[.conf.acc[x;`sym];`QueryPos;.conf.me;string x;-8!sfill .conf.acc[x;`acc1]];}; /[acc] ·µ»Ø½á¹ûÔÚ.upd.PosUpdate´¦Àí(acc1Îª×éºÏ|×Ê²úµ¥Ôª)
+qryoda:{[x]pubmx[.conf.acc[x;`sym];`QueryOrdAcc;.conf.me;string x;-8!sfill .conf.acc[x;`acc1]];}; /[acc] ·µ»Ø½á¹ûÔÚ.upd.OrdUpdate´¦Àí(acc1Îª×éºÏ|×Ê²úµ¥Ôª)
 
 fe2acc:{[x] first where x=(`_ .conf.acc)[;`sym]}; /[fe]
-assetclass:{[x]e:fs2e x;s:fs2s x;$[e=`XSHE;$[8=count string s;`Option;s like "[03]0*";`AShare;s like "20*";`BshareSZ;s like "1[568]*";`Fund;s like "[02]3*";`Warrant;s like "1[12]*";`BondSZ;s like "13*";`RepoSZ;`AShare];e=`XSHG;$[8=count string s;`Option;s like "60[013]*";`AShare;s like "900*";`BshareSS;s like "5[018]*";`Fund;s like "80*";`Warrant;s like "1*";`BondSS;s like "20[124]*";`RepoSS;`AShare];e=`XHKG;`HShare;`Future^.db.QX[x;`assetclass]]}; /[sym]èµ„äº§ç±»åˆ«`Ashare`Fund`Warrant`BshareSZ`BshareSS`BondSZ`BondSS`RepoSZ`RepoSS`Future
+assetclass:{[x]e:fs2e x;s:fs2s x;$[e=`XSHE;$[8=count string s;`Option;s like "[03]0*";`AShare;s like "20*";`BshareSZ;s like "1[568]*";`Fund;s like "[02]3*";`Warrant;s like "1[12]*";`BondSZ;s like "13*";`RepoSZ;`AShare];e=`XSHG;$[8=count string s;`Option;s like "60[013]*";`AShare;s like "900*";`BshareSS;s like "5[018]*";`Fund;s like "80*";`Warrant;s like "1*";`BondSS;s like "20[124]*";`RepoSS;`AShare];e=`XHKG;`HShare;`Future^.db.QX[x;`assetclass]]}; /[sym]×Ê²úÀà±ğ`Ashare`Fund`Warrant`BshareSZ`BshareSS`BondSZ`BondSS`RepoSZ`RepoSS`Future
 
-vtime:{[x;y]z:.conf.dayendtime;x:?[x>=z;x-24:00:00;x];y:?[y>=z;y-24:00:00;y];((0|(y&x 7)-x 6)-0|(y&x 9)-x 8)+((0|(y&x 3)-x 2)-0|(y&x 5)-x 4)+(0|(y&x 1)-x 0)}; /å°†ç‰©ç†æ—¶é—´æ¢ç®—æˆäº¤æ˜“æ—¶é—´
-vtimex:{[x;y]vtime[.conf.ex[x;`openNT`closeNT`openAM`closeAM`openAMrest`closeAMrest`openPM`closePM`openPMrest`closePMrest];`time$y]}; /ç‰©ç†æ—¶é—´æ¢ç®—ä¸ºé€»è¾‘äº¤æ˜“æ—¶é—´
+vtime:{[x;y]z:.conf.dayendtime;x:?[x>=z;x-24:00:00;x];y:?[y>=z;y-24:00:00;y];((0|(y&x 7)-x 6)-0|(y&x 9)-x 8)+((0|(y&x 3)-x 2)-0|(y&x 5)-x 4)+(0|(y&x 1)-x 0)}; /½«ÎïÀíÊ±¼ä»»Ëã³É½»Ò×Ê±¼ä
+vtimex:{[x;y]vtime[.conf.ex[x;`openNT`closeNT`openAM`closeAM`openAMrest`closeAMrest`openPM`closePM`openPMrest`closePMrest];`time$y]}; /ÎïÀíÊ±¼ä»»ËãÎªÂß¼­½»Ò×Ê±¼ä
 
 isfut:{[x]assetclass[x] in `Future`Combination}; /[sym]
 isopt:{[x]`Option=assetclass[x]}; /[sym]
@@ -63,25 +63,25 @@ iscnopt:{[x]isopt[x]&QX[x;`margintype]<>`US}; /[sym]
 iscndrv:{[x]iscnfut[x]|iscnopt[x]};     /[sym]
 
 iswarrant:{[x]{(x within 580001 580999)|(x within 30001 39999)} "I"$string fs2s x}; /x:sym
-isfund:{[x]e:fs2e x;f:fs2s x;((e=`XSHG)&(f like "5*"))|((e=`XSHE)&(f like "1[5-8]*"))}; /[sym]åŸºé‡‘
-isbond:{[x]e:fs2e x;f:fs2s x;((e=`XSHG)&(f like "[0-1][1-3]*"))|((e=`XSHE)&(f like "1[1-2]*"))}; /[sym]å€ºåˆ¸
-isrepo:{[x]e:fs2e x;f:fs2s x;((e=`XSHG)&(f like "204*"))|((e=`XSHE)&(f like "131*"))}; /[sym]å›è´­
+isfund:{[x]e:fs2e x;f:fs2s x;((e=`XSHG)&(f like "5*"))|((e=`XSHE)&(f like "1[5-8]*"))}; /[sym]»ù½ğ
+isbond:{[x]e:fs2e x;f:fs2s x;((e=`XSHG)&(f like "[0-1][1-3]*"))|((e=`XSHE)&(f like "1[1-2]*"))}; /[sym]Õ®È¯
+isrepo:{[x]e:fs2e x;f:fs2s x;((e=`XSHG)&(f like "204*"))|((e=`XSHE)&(f like "131*"))}; /[sym]»Ø¹º
 
 ist0:{[x](x in .conf.t0list)|((isfut[x]|isopt[x]|ishk[x])&not .db.QX[x;`product] in .conf.t1list)}; /is T+0?,x:sym
 
-getsess:{[ex;dend;nend]0 -00:00:00.001+/:$[ex=`CCFX;(09:30 11:30;13:00,dend);null nend;(09:00 10:15;10:30 11:30;13:30 15:00);nend>21:00;(09:00 10:15;10:30 11:30;13:30 15:00;21:00,nend);(00:00,nend;09:00 10:15;10:30 11:30;13:30 15:00;21:00 24:00)]}; /[ex;dend;nend]å–äº¤æ˜“æ—¶æ®µåˆ—è¡¨
-trdsess:{[x]$[isfut[x];.db.PD[.db.QX[x;`product];`sess];.conf.ex[fs2e x;`session]]}; /[sym]å–åˆçº¦äº¤æ˜“æ—¶æ®µåˆ—è¡¨ 
-trddate:{[x]w:weekday d:`date$x;t:`time$x;d+?[(t>08:30)&(t<17:30);0;?[t>=17:30;?[w<4;1;3];?[w<5;0;2]]]}; /[time]å–äº¤æ˜“æ—¥æœŸ,æ”¯æŒå‘é‡å…¥å‚
-trdtime:{[x;y]t0:.conf.dayendtime;s:trdsess[x];s0:s where s[;0]<t0;s1:s where s[;0]>t0;tn:$[count[s1];sum 00:00:00.001+s1[;1]-s1[;0];00:00:00.000];?[y>t0;$[count s1;sum each 0|(y&\:00:00:00.001+s1[;1])-\:s1[;0];y];tn+sum each 0|(y&\:00:00:00.001+s0[;1])-\:s0[;0]]}; /[sym;timelist]å°†åˆçº¦ç‰©ç†æ—¶é—´è½¬æ¢ä¸ºè¿ç»­äº¤æ˜“çš„ç´¯è®¡æ—¶é—´
-trddatetime:{[x;y]trddate[y]+trdtime[x;y]}; /[sym;timestamp list]å°†ç‰©ç†æ—¶é—´æˆ³è½¬ä¸ºé€»è¾‘æ—¶é—´æˆ³
-sesstotal:{[x]s:trdsess[x];sum (`time$1)+s[;1]-s[;0]}; /[sym] æ—¥äº¤æ˜“æ—¶æ®µæ€»é•¿
+getsess:{[ex;dend;nend]0 -00:00:00.001+/:$[ex=`CCFX;(09:30 11:30;13:00,dend);null nend;(09:00 10:15;10:30 11:30;13:30 15:00);nend>21:00;(09:00 10:15;10:30 11:30;13:30 15:00;21:00,nend);(00:00,nend;09:00 10:15;10:30 11:30;13:30 15:00;21:00 24:00)]}; /[ex;dend;nend]È¡½»Ò×Ê±¶ÎÁĞ±í
+trdsess:{[x]$[isfut[x];.db.PD[.db.QX[x;`product];`sess];.conf.ex[fs2e x;`session]]}; /[sym]È¡ºÏÔ¼½»Ò×Ê±¶ÎÁĞ±í 
+trddate:{[x]w:weekday d:`date$x;t:`time$x;d+?[(t>08:30)&(t<17:30);0;?[t>=17:30;?[w<4;1;3];?[w<5;0;2]]]}; /[time]È¡½»Ò×ÈÕÆÚ,Ö§³ÖÏòÁ¿Èë²Î
+trdtime:{[x;y]t0:.conf.dayendtime;s:trdsess[x];s0:s where s[;0]<t0;s1:s where s[;0]>t0;tn:$[count[s1];sum 00:00:00.001+s1[;1]-s1[;0];00:00:00.000];?[y>t0;$[count s1;sum each 0|(y&\:00:00:00.001+s1[;1])-\:s1[;0];y];tn+sum each 0|(y&\:00:00:00.001+s0[;1])-\:s0[;0]]}; /[sym;timelist]½«ºÏÔ¼ÎïÀíÊ±¼ä×ª»»ÎªÁ¬Ğø½»Ò×µÄÀÛ¼ÆÊ±¼ä
+trddatetime:{[x;y]trddate[y]+trdtime[x;y]}; /[sym;timestamp list]½«ÎïÀíÊ±¼ä´Á×ªÎªÂß¼­Ê±¼ä´Á
+sesstotal:{[x]s:trdsess[x];sum (`time$1)+s[;1]-s[;0]}; /[sym] ÈÕ½»Ò×Ê±¶Î×Ü³¤
 
 openordn:{[x]exec count i from .db.O where ts=x,not end};
 openordsn:{[x;y]exec count i from .db.O where ts=x,sym=y,not end};
 
-availpos:{[s;x]y:x[2];z:s=.enum`SELL;(0f^.db.P[x;$[z;`lqty;`sqty]])-(0f^.db.P[x;$[z;`flqty;`fsqty]])+$[ist0[y];0f;0f^.db.P[x;$[z;`lqty0;`sqty0]]]} /[side;(tid;acc;sym)]ä»“ä½å¯ç”¨/å¹³æ•°
+availpos:{[s;x]y:x[2];z:s=.enum`SELL;(0f^.db.P[x;$[z;`lqty;`sqty]])-(0f^.db.P[x;$[z;`flqty;`fsqty]])+$[ist0[y];0f;0f^.db.P[x;$[z;`lqty0;`sqty0]]]} /[side;(tid;acc;sym)]²ÖÎ»¿ÉÓÃ/Æ½Êı
 availlongpos:availpos[.enum`SELL];availshortpos:availpos[.enum`BUY];
-availt0pos:{[s;x]z:s=.enum`SELL;(0f^.db.P[x;$[z;`lqty0;`sqty0]])-0f^.db.P[x;$[z;`flqty0;`fsqty0]]}; /[side;(tid;acc;sym)]æœ¬æ—¥ä»“ä½å¯ç”¨/å¹³æ•°
+availt0pos:{[s;x]z:s=.enum`SELL;(0f^.db.P[x;$[z;`lqty0;`sqty0]])-0f^.db.P[x;$[z;`flqty0;`fsqty0]]}; /[side;(tid;acc;sym)]±¾ÈÕ²ÖÎ»¿ÉÓÃ/Æ½Êı
 
 netposx:{[t;a;s](0f^.db.P[(t;a;s);`lqty])+0f^.db.P[(t;a;s);`sqty]}; /[tid;acc;sym]
 netpos:{[t;s]netposx[t;.db.Ts[t;`acc];s]}; /[tid;sym] 
@@ -91,32 +91,32 @@ pxunit:{[x]1e-4^.conf.ac[assetclass x;`pxunit]^.db.QX[x;`pxunit]}; /[sym]
 qtyunit:{[x]1e2^.db.QX[x;`qtylot]^.conf.ac[assetclass x;`qtylot]}; /[sym]  
 qtyceil:{[x]1e6^.conf.ac[assetclass x;`qtymax]^.db.QX[x;`qtymax]}; /[sym]
 
-getqtymin:{[x]qtyunit[x[0]]}; /[(ä»£ç ;æ–¹å‘)]
+getqtymin:{[x]qtyunit[x[0]]}; /[(´úÂë;·½Ïò)]
 
-getqtymax:{[x]qtyceil[x[0]]}; /[(ä»£ç ;æ–¹å‘)]
-roundpx:{[x;y;z]if[(e:fs2e x) in `XHKG`XHKE;:roundpxhk[y;z]];w:pxunit[x];w*$[y=.enum[`BUY];{ceiling x-1e-2};y=.enum[`SELL];{floor x+1e-2};{floor x+0.5}]z%w}; //å¯¹å§”æ‰˜ä»·æ ¼æŒ‰ä»·æ ¼å•ä½è¿›è¡Œå‘å¯¹æ‰‹æ–¹å–æ•´[sym;BS;px]
+getqtymax:{[x]qtyceil[x[0]]}; /[(´úÂë;·½Ïò)]
+roundpx:{[x;y;z]if[(e:fs2e x) in `XHKG`XHKE;:roundpxhk[y;z]];w:pxunit[x];w*$[y=.enum[`BUY];{ceiling x-1e-2};y=.enum[`SELL];{floor x+1e-2};{floor x+0.5}]z%w}; //¶ÔÎ¯ÍĞ¼Û¸ñ°´¼Û¸ñµ¥Î»½øĞĞÏò¶ÔÊÖ·½È¡Õû[sym;BS;px]
 
 get_last_price:{[x]$[0<p:.db.QX[x;`price];p;.db.QX[x;`pc]]}; /x:fsym
 
-getordpx1:{[x;y;z]h:.db.QX[x];if[0=count h`price;:0n];if[null h`price;h[`price]:avg h`bid`ask];nu:neg u:pxunit[x];p0:{$[x<0w;x;0f]} h`inf;p1:{$[x>0;x;0w]} h`sup;o5:p1&u+o4:p1&u+o3:p1&u+o2:p1&u+o1:max h`ask`bid;mp:avg (h`ask`bid) except 0f;b5:p0|nu+b4:p0|nu+b3:p0|nu+b2:p0|nu+b1:min (p0|h`bid`ask) except 0f;p:$[y=.enum[`BUY];$[`MOSTAGGRESSIVE=z;o5;`MOREAGGRESSIVE=z;o4;`AGGRESSIVE=z;o3;`LESSAGGRESSIVE=z;o2;`LEASTAGGRESSIVE=z;o1;`NEUTRAL=z;mp;`LEASTPASSIVE=z;b1;`LESSPASSIVE=z;b2;`PASSIVE=z;b3;`MOREPASSIVE=z;b4;`MOSTPASSIVE=z;b5;h`price];$[`MOSTAGGRESSIVE=z;b5;`MOREAGGRESSIVE=z;b4;`AGGRESSIVE=z;b3;`LESSAGGRESSIVE=z;b2;`LEASTAGGRESSIVE=z;b1;`NEUTRAL=z;mp;`LEASTPASSIVE=z;o1;`LESSPASSIVE=z;o2;`PASSIVE=z;o3;`MOREPASSIVE=z;o4;`MOSTPASSIVE=z;o5;h`price]];p:$[(p<pxunit[x])|(p=0w);h`price;p];roundpx[x;y;p]}; //[fsym;side;style] åªæœ‰1æ¡£è¡Œæƒ…æ—¶çš„å¤„ç† 
+getordpx1:{[x;y;z]h:.db.QX[x];if[0=count h`price;:0n];if[null h`price;h[`price]:avg h`bid`ask];nu:neg u:pxunit[x];p0:{$[x<0w;x;0f]} h`inf;p1:{$[x>0;x;0w]} h`sup;o5:p1&u+o4:p1&u+o3:p1&u+o2:p1&u+o1:max h`ask`bid;mp:avg (h`ask`bid) except 0f;b5:p0|nu+b4:p0|nu+b3:p0|nu+b2:p0|nu+b1:min (p0|h`bid`ask) except 0f;p:$[y=.enum[`BUY];$[`MOSTAGGRESSIVE=z;o5;`MOREAGGRESSIVE=z;o4;`AGGRESSIVE=z;o3;`LESSAGGRESSIVE=z;o2;`LEASTAGGRESSIVE=z;o1;`NEUTRAL=z;mp;`LEASTPASSIVE=z;b1;`LESSPASSIVE=z;b2;`PASSIVE=z;b3;`MOREPASSIVE=z;b4;`MOSTPASSIVE=z;b5;h`price];$[`MOSTAGGRESSIVE=z;b5;`MOREAGGRESSIVE=z;b4;`AGGRESSIVE=z;b3;`LESSAGGRESSIVE=z;b2;`LEASTAGGRESSIVE=z;b1;`NEUTRAL=z;mp;`LEASTPASSIVE=z;o1;`LESSPASSIVE=z;o2;`PASSIVE=z;o3;`MOREPASSIVE=z;o4;`MOSTPASSIVE=z;o5;h`price]];p:$[(p<pxunit[x])|(p=0w);h`price;p];roundpx[x;y;p]}; //[fsym;side;style] Ö»ÓĞ1µµĞĞÇéÊ±µÄ´¦Àí 
 
-getordpx:{[x;y;z]h:.db.QX[x];if[0=count h`bidQ;:getordpx1[x;y;z]];if[0=count h`price;:0n];if[null h`price;h[`price]:avg h`bid`ask];o5:max h[`askQ;4],o4:max h[`askQ;3],o3:max h[`askQ;2],o2:max h[`askQ;1],o1:max h`ask`bid;mp:avg (h`ask`bid) except 0f;b5:min (h[`bidQ;enlist 4] except 0f),b4:min (h[`bidQ;enlist 3] except 0f),b3:min (h[`bidQ;enlist 2] except 0f),b2:min (h[`bidQ;enlist 1] except 0f),b1:min (h`bid`ask) except 0f;p:$[y=.enum[`BUY];$[`MOSTAGGRESSIVE=z;o5;`MOREAGGRESSIVE=z;o4;`AGGRESSIVE=z;o3;`LESSAGGRESSIVE=z;o2;`LEASTAGGRESSIVE=z;o1;`NEUTRAL=z;mp;`LEASTPASSIVE=z;b1;`LESSPASSIVE=z;b2;`PASSIVE=z;b3;`MOREPASSIVE=z;b4;`MOSTPASSIVE=z;b5;h`price];$[`MOSTAGGRESSIVE=z;b5;`MOREAGGRESSIVE=z;b4;`AGGRESSIVE=z;b3;`LESSAGGRESSIVE=z;b2;`LEASTAGGRESSIVE=z;b1;`NEUTRAL=z;mp;`LEASTPASSIVE=z;o1;`LESSPASSIVE=z;o2;`PASSIVE=z;o3;`MOREPASSIVE=z;o4;`MOSTPASSIVE=z;o5;h`price]];p:$[(p<pxunit[x])|(p=0w);h`price;p];roundpx[x;y;p]}; //[fsym;side;style] å–åˆé€‚çš„å§”æ‰˜ä»·æ ¼:`MOSTAGGRESSIVE:å–å½“å‰å–(ä¹°)äº”ä»·ä¸ºä¹°(å–)ä»·,å³åŠ›æ±‚å³åˆ»æˆäº¤;`MOREAGGRESSIVE:å–(ä¹°)å››ä»·;`AGGRESSIVE:å–(ä¹°)ä¸‰ä»·;`LESSAGGRESSIVE:å–(ä¹°)äºŒä»·;`LEASTAGGRESSIVE:å–(ä¹°)ä¸€ä»·,å³å¯¹æ–¹æœ€ä¼˜;`NEUTRAL:å–å½“å‰ä¹°å–ä¸€ä»·ä¹‹å‡ä»·;`LEASTPASSIVE:å–å½“å‰ä¹°(å–)ä¸€ä»·ä¸ºä¹°(å–)ä»·,å³åœ¨æœ¬æ–¹æœ€ä¼˜ä»·æ ¼ä¸Šæ’é˜Ÿ;`LESSPASSIVE:ä¹°(å–)äºŒä»·;`PASSIVE:ä¹°(å–)ä¸‰ä»·;`MOREPASSIVE:ä¹°(å–)å››ä»·;`MOSTPASSIVE:ä¹°(å–)äº”ä»·.å¯¹æ¥è¿‘æ¶¨è·Œåœçš„ç‰¹æ®Šæƒ…å½¢è¿›è¡Œå…¼å®¹æ€§å¤„ç†(20110428)
+getordpx:{[x;y;z]h:.db.QX[x];if[0=count h`bidQ;:getordpx1[x;y;z]];if[0=count h`price;:0n];if[null h`price;h[`price]:avg h`bid`ask];o5:max h[`askQ;4],o4:max h[`askQ;3],o3:max h[`askQ;2],o2:max h[`askQ;1],o1:max h`ask`bid;mp:avg (h`ask`bid) except 0f;b5:min (h[`bidQ;enlist 4] except 0f),b4:min (h[`bidQ;enlist 3] except 0f),b3:min (h[`bidQ;enlist 2] except 0f),b2:min (h[`bidQ;enlist 1] except 0f),b1:min (h`bid`ask) except 0f;p:$[y=.enum[`BUY];$[`MOSTAGGRESSIVE=z;o5;`MOREAGGRESSIVE=z;o4;`AGGRESSIVE=z;o3;`LESSAGGRESSIVE=z;o2;`LEASTAGGRESSIVE=z;o1;`NEUTRAL=z;mp;`LEASTPASSIVE=z;b1;`LESSPASSIVE=z;b2;`PASSIVE=z;b3;`MOREPASSIVE=z;b4;`MOSTPASSIVE=z;b5;h`price];$[`MOSTAGGRESSIVE=z;b5;`MOREAGGRESSIVE=z;b4;`AGGRESSIVE=z;b3;`LESSAGGRESSIVE=z;b2;`LEASTAGGRESSIVE=z;b1;`NEUTRAL=z;mp;`LEASTPASSIVE=z;o1;`LESSPASSIVE=z;o2;`PASSIVE=z;o3;`MOREPASSIVE=z;o4;`MOSTPASSIVE=z;o5;h`price]];p:$[(p<pxunit[x])|(p=0w);h`price;p];roundpx[x;y;p]}; //[fsym;side;style] È¡ºÏÊÊµÄÎ¯ÍĞ¼Û¸ñ:`MOSTAGGRESSIVE:È¡µ±Ç°Âô(Âò)Îå¼ÛÎªÂò(Âô)¼Û,¼´Á¦Çó¼´¿Ì³É½»;`MOREAGGRESSIVE:Âô(Âò)ËÄ¼Û;`AGGRESSIVE:Âô(Âò)Èı¼Û;`LESSAGGRESSIVE:Âô(Âò)¶ş¼Û;`LEASTAGGRESSIVE:Âô(Âò)Ò»¼Û,¼´¶Ô·½×îÓÅ;`NEUTRAL:È¡µ±Ç°ÂòÂôÒ»¼ÛÖ®¾ù¼Û;`LEASTPASSIVE:È¡µ±Ç°Âò(Âô)Ò»¼ÛÎªÂò(Âô)¼Û,¼´ÔÚ±¾·½×îÓÅ¼Û¸ñÉÏÅÅ¶Ó;`LESSPASSIVE:Âò(Âô)¶ş¼Û;`PASSIVE:Âò(Âô)Èı¼Û;`MOREPASSIVE:Âò(Âô)ËÄ¼Û;`MOSTPASSIVE:Âò(Âô)Îå¼Û.¶Ô½Ó½üÕÇµøÍ£µÄÌØÊâÇéĞÎ½øĞĞ¼æÈİĞÔ´¦Àí(20110428)
 getbuypx:getordpx[;.enum[`BUY];];getsellpx:getordpx[;.enum[`SELL];];
 
-ishidden:{[x;y;z]h:.db.QX[x];$[y~.enum`BUY;z<h`bid;z>h`ask]}; /[sym;side;px] åˆ¤æ–­ä»·æ ¼æ˜¯å¦ä½äºä¹°ä¸€ä»·æ ¼(ä¹°å…¥æ–¹å‘)æˆ–é«˜äºå–ä¸€ä»·æ ¼(å–å‡ºæ–¹å‘)
-pxcmp:{$[x=.enum`BUY;1;-1]*signum y-z}; /[side;p0;p1]p0åŠ£äº/ç­‰äº/ä¼˜äºp1è¿”å›1/0/-1
+ishidden:{[x;y;z]h:.db.QX[x];$[y~.enum`BUY;z<h`bid;z>h`ask]}; /[sym;side;px] ÅĞ¶Ï¼Û¸ñÊÇ·ñµÍÓÚÂòÒ»¼Û¸ñ(ÂòÈë·½Ïò)»ò¸ßÓÚÂôÒ»¼Û¸ñ(Âô³ö·½Ïò)
+pxcmp:{$[x=.enum`BUY;1;-1]*signum y-z}; /[side;p0;p1]p0ÁÓÓÚ/µÈÓÚ/ÓÅÓÚp1·µ»Ø1/0/-1
 
-uproundqty_kcb:{[x;y]$[y<=0f;0f;y<=200f;200f;`float$ceiling y-1e-2]}; //[(ä»£ç ;æ–¹å‘);æ•°é‡]å¯¹ç§‘åˆ›æ¿å§”æ‰˜æ•°é‡æŒ‰å§”æ‰˜å•ä½è¿›è¡Œå‘ä¸Šå–æ•´,200è‚¡èµ·,1è‚¡é€’å¢
-uproundqty:{[x;y]if[x[0] like "688*.XSHG";:uproundqty_kcb[x;y]];qm:getqtymin[x];qm*ceiling (y-1e-2)%qm}; //[(ä»£ç ;æ–¹å‘);æ•°é‡]å¯¹å§”æ‰˜æ•°é‡æŒ‰å§”æ‰˜å•ä½è¿›è¡Œå‘ä¸Šå–æ•´
+uproundqty_kcb:{[x;y]$[y<=0f;0f;y<=200f;200f;`float$ceiling y-1e-2]}; //[(´úÂë;·½Ïò);ÊıÁ¿]¶Ô¿Æ´´°åÎ¯ÍĞÊıÁ¿°´Î¯ÍĞµ¥Î»½øĞĞÏòÉÏÈ¡Õû,200¹ÉÆğ,1¹ÉµİÔö
+uproundqty:{[x;y]if[x[0] like "688*.XSHG";:uproundqty_kcb[x;y]];qm:getqtymin[x];qm*ceiling (y-1e-2)%qm}; //[(´úÂë;·½Ïò);ÊıÁ¿]¶ÔÎ¯ÍĞÊıÁ¿°´Î¯ÍĞµ¥Î»½øĞĞÏòÉÏÈ¡Õû
 
-roundqty_kcb:{[x;y]$[y<200f;0f;`float$floor y+1e-2]}; //[(ä»£ç ;æ–¹å‘);æ•°é‡]å¯¹ç§‘åˆ›æ¿å§”æ‰˜æ•°é‡æŒ‰å§”æ‰˜å•ä½è¿›è¡Œå‘ä¸‹å–æ•´,200è‚¡èµ·,1è‚¡é€’å¢
-roundqty:{[x;y]if[x[0] like "688*.XSHG";:roundqty_kcb[x;y]];qm:getqtymin[x];qm*floor (y+1e-2)%qm}; //[(ä»£ç ;æ–¹å‘);æ•°é‡]å¯¹å§”æ‰˜æ•°é‡æŒ‰å§”æ‰˜å•ä½è¿›è¡Œå‘ä¸‹å–æ•´
+roundqty_kcb:{[x;y]$[y<200f;0f;`float$floor y+1e-2]}; //[(´úÂë;·½Ïò);ÊıÁ¿]¶Ô¿Æ´´°åÎ¯ÍĞÊıÁ¿°´Î¯ÍĞµ¥Î»½øĞĞÏòÏÂÈ¡Õû,200¹ÉÆğ,1¹ÉµİÔö
+roundqty:{[x;y]if[x[0] like "688*.XSHG";:roundqty_kcb[x;y]];qm:getqtymin[x];qm*floor (y+1e-2)%qm}; //[(´úÂë;·½Ïò);ÊıÁ¿]¶ÔÎ¯ÍĞÊıÁ¿°´Î¯ÍĞµ¥Î»½øĞĞÏòÏÂÈ¡Õû
 
-roundv1:{[x;y]n:count y;i:0;do[n-1;q:roundqty[x] y[i];y[i+1]+:y[i]-q;y[i]:q;i+:1];y};        //[(ä»£ç ;æ–¹å‘);æ•°é‡æ•°ç»„]å¯¹æ•°é‡æ•°ç»„è¿›è¡Œå‘ä¸‹å–æ•´åŠ å°¾å¤„ç†
-roundv:{[x;y]qm:getqtymin[x];"f"$qm*deltas "i"$(sums y)%qm};        //[(ä»£ç ;æ–¹å‘);æ•°é‡æ•°ç»„]å¯¹æ•°é‡æ•°ç»„è¿›è¡Œå››èˆäº”å…¥å–æ•´å¤„ç†
-nonneg:{[x]n:count x;i:n-1;do[n-1;if[0>v:x[i];x[i-1]+:v;x[i]:0f];i-:1];x}; /[æ•°é‡æ•°ç»„]å¯¹æ•°é‡æ•°ç»„ä»å°¾éƒ¨è¿›è¡Œéè´ŸåŒ–
+roundv1:{[x;y]n:count y;i:0;do[n-1;q:roundqty[x] y[i];y[i+1]+:y[i]-q;y[i]:q;i+:1];y};        //[(´úÂë;·½Ïò);ÊıÁ¿Êı×é]¶ÔÊıÁ¿Êı×é½øĞĞÏòÏÂÈ¡Õû¼ÓÎ²´¦Àí
+roundv:{[x;y]qm:getqtymin[x];"f"$qm*deltas "i"$(sums y)%qm};        //[(´úÂë;·½Ïò);ÊıÁ¿Êı×é]¶ÔÊıÁ¿Êı×é½øĞĞËÄÉáÎåÈëÈ¡Õû´¦Àí
+nonneg:{[x]n:count x;i:n-1;do[n-1;if[0>v:x[i];x[i-1]+:v;x[i]:0f];i-:1];x}; /[ÊıÁ¿Êı×é]¶ÔÊıÁ¿Êı×é´ÓÎ²²¿½øĞĞ·Ç¸º»¯
 
-ordexptime:{[x;y]z:.conf.EX fs2e y;`timestamp$(`date$now[])+{[x;y]$[(x>y`closeAM)&(x<y`openPM);x+(y`openPM)-y`closeAM;x]}[;z]((z`openAM)|`time$now[])+`time$x}; /[offset;fsym] è®¡ç®—å§”æ‰˜è¿‡æœŸæ—¶åˆ»
+ordexptime:{[x;y]z:.conf.EX fs2e y;`timestamp$(`date$now[])+{[x;y]$[(x>y`closeAM)&(x<y`openPM);x+(y`openPM)-y`closeAM;x]}[;z]((z`openAM)|`time$now[])+`time$x}; /[offset;fsym] ¼ÆËãÎ¯ÍĞ¹ıÆÚÊ±¿Ì
 
 roundpxhk:{[x;y]z:.conf.hkticks;z $[x=.enum`BUY;binr;bin][z;y+$[x=.enum`BUY;-1e-10;1e-10]]}; /[BS;px]
 
@@ -150,7 +150,6 @@ fok_buy:xlimit_buy[``tif!(::;.enum.FILL_OR_KILL)];fok_sell:xlimit_sell[``tif!(::
 realbarsyms:{[x;y]$[11h<>abs type sl:.db.Ts[x;`barsyms];`symbol$();0=count sl;`symbol$();y inter sl]}; /[tsid;syms]
 .upd.bar:{[x]if[1b~.conf.keepbar;bar,:update dsttime:.z.P from x];sl:exec distinct sym from x;{[tid;sl;t]z:realbarsyms[tid;sl];if[count z;{[tid;t].[{(x)[y;z]};(.db.Ts[tid;`event;`bar];tid;t);()]}[tid] each select from t where sym in z];}[;sl;x] each tsl[];};
 
-
 chkerrfix:{[x]r:.db.O k:x`oid;if[(0=r`avgpx)&(r[`cumqty]=x`cumqty)&(0<p:x`avgpx);.db.O[k;`avgpx`cumamt]:p,p*getmultiple[r`sym]*r`cumqty];if[0<n:count m:x`msg;if[not m~neg[n]#r`msg;.db.O[k;`msg],:$[count r`msg;"=>";""],m]];}; //(x[`typ]=.enum`CORRECT)&ºãÉú²¿³É²¿³·×´Ì¬¸üÕı
 setcs:{[x]r:.db.O k:x`oid;s:x`status;if[.enum[`CANCELED]=s;.db.O[k;`cstatus]:s;if[null r`ctime;.db.O[k;`ctime]:now[]]];if[r[`cstatus]<>.enum`PENDING_CANCEL;:()];.db.O[k;`cfeoid`cordid`cexchid]:x`cfeoid`cordid`cexchid;if[s in .enum`REJECTED`FILLED`DONE_FOR_DAY;.db.O[k;`cstatus]:.enum`REJECTED];if[(x[`typ]=.enum`CORRECT)&(x[`cstatus]=.enum`NULL);.db.O[k;`cstatus]:.enum`NULL];};
 
@@ -160,51 +159,51 @@ execrej:{[k;x].db.O[k;`reason`msg]:x`reason`msg;frzqty[k;neg .db.O[k;`qty]];@[ri
 
 newmatch:{[k;q;p]r:.db.O[k];.db.M[k1:newid[];`sym`price`qty`mtime`maker]:(r`sym;p;q;now[];k);if[not (t:r[`ts]^r`tsexec) in key .db.Ts;:()];if[99h<>type .db.Ts[t;`event];:()];.[{(x)[y;z]};(.db.Ts[t;`event;`match];t;k1);()];};
 
-getmultiple:{[x]1f|.db.QX[x;`multiplier]}; /å–åˆçº¦ä¹˜æ•°,ç‰¹æ®Šæƒ…å†µä¸ºæ¸¯è‚¡æƒè¯ä¹˜æ•°ä¸€èˆ¬ä¸º0.1,ä½†ä¸é€‚ç”¨äºæˆäº¤é‡‘é¢è®¡ç®—,æ•…æ­¤å¤„ç”¨1f|è€Œä¸æ˜¯1f^
+getmultiple:{[x]1f|.db.QX[x;`multiplier]}; /È¡ºÏÔ¼³ËÊı,ÌØÊâÇé¿öÎª¸Û¹ÉÈ¨Ö¤³ËÊıÒ»°ãÎª0.1,µ«²»ÊÊÓÃÓÚ³É½»½ğ¶î¼ÆËã,¹Ê´Ë´¦ÓÃ1f|¶ø²»ÊÇ1f^
 
-getmargincoef:{[x;y]1f^.db.QX[x;$[y=.enum`BUY;`rmarginl;`rmargins]]}; /[fsym,side]ä¿è¯é‡‘æ¯”ä¾‹ /$[isfut[x];0.2;1f]
+getmargincoef:{[x;y]1f^.db.QX[x;$[y=.enum`BUY;`rmarginl;`rmargins]]}; /[fsym,side]±£Ö¤½ğ±ÈÀı /$[isfut[x];0.2;1f]
 
-calcsettledate:{[x;y;z](7*x)+d+mod[;7] 7+y-d-`week$d:`date$z}; /[ç¬¬å‡ ä¸ª(0-3);æ˜ŸæœŸå‡ (0-6);åˆçº¦æœˆä»½]
+calcsettledate:{[x;y;z](7*x)+d+mod[;7] 7+y-d-`week$d:`date$z}; /[µÚ¼¸¸ö(0-3);ĞÇÆÚ¼¸(0-6);ºÏÔ¼ÔÂ·İ]
 
-getsettledate:{[x].db.QX[x;`settledate]}; /[fsym]å–ç»“ç®—æ—¥æœŸ
+getsettledate:{[x].db.QX[x;`settledate]}; /[fsym]È¡½áËãÈÕÆÚ
 
-getsettlepx:{[x].db.QX[x;`settlepx]}; /[fsym]å–ç»“ç®—ä»·
+getsettlepx:{[x].db.QX[x;`settlepx]}; /[fsym]È¡½áËã¼Û
 
-getunderlying:{[x].db.QX[x;`underlying]}; /[fsym]å–æœŸæƒæ ‡çš„
+getunderlying:{[x].db.QX[x;`underlying]}; /[fsym]È¡ÆÚÈ¨±êµÄ
 
-getputcall:{[x]$[x like "IO*";`$(string x) 7;`]^.db.QX[x;`putcall]}; /[fsym]å–æœŸæƒputcall
+getputcall:{[x]$[x like "IO*";`$(string x) 7;`]^.db.QX[x;`putcall]}; /[fsym]È¡ÆÚÈ¨putcall
 
-getstrike:{[x]$[x like "IO*";"F"$(string x) 9+til 4;0n]^.db.QX[x;`strikepx]}; /[fsym]å–æœŸæƒstrike
+getstrike:{[x]$[x like "IO*";"F"$(string x) 9+til 4;0n]^.db.QX[x;`strikepx]}; /[fsym]È¡ÆÚÈ¨strike
 
-ccfxoptmargin:{[r0;r1;mp;pc;sp;px;up](px*mp)+(r0*$[`C=pc;up;sp]*mp*r1)|(up*mp*r1)-0|mp*$[`C=pc;1;-1]*sp-up}; /[æœ€ä½ä¿éšœç³»æ•°;ä¿è¯é‡‘æ¯”ä¾‹;åˆçº¦ä¹˜æ•°;putcall;strike;æœŸæƒç»“ç®—ä»·;æ ‡çš„ç»“ç®—ä»·]
+ccfxoptmargin:{[r0;r1;mp;pc;sp;px;up](px*mp)+(r0*$[`C=pc;up;sp]*mp*r1)|(up*mp*r1)-0|mp*$[`C=pc;1;-1]*sp-up}; /[×îµÍ±£ÕÏÏµÊı;±£Ö¤½ğ±ÈÀı;ºÏÔ¼³ËÊı;putcall;strike;ÆÚÈ¨½áËã¼Û;±êµÄ½áËã¼Û]
 
 getccfxoptmargin:{[x]y:x[0];px:abs x[4]%x[3]*getmultiple[y];abs x[3]*ccfxoptmargin[0.667;0.15;getmultiple[y];getputcall[y];getstrike[y];px;get_last_price[getunderlying[y]]]};
 
-getccfxeodoptmargin:{[x]ccfxoptmargin[0.667;0.15;getmultiple[x];getputcall[x];getstrike[x];getsettlepx[x];getsettlepx[getunderlying[x]]]}; /[fsym]è®¡ç®—å•å¼ æœŸæƒåˆçº¦æ—¥ç»ˆç»“ç®—ä¿è¯é‡‘
+getccfxeodoptmargin:{[x]ccfxoptmargin[0.667;0.15;getmultiple[x];getputcall[x];getstrike[x];getsettlepx[x];getsettlepx[getunderlying[x]]]}; /[fsym]¼ÆËãµ¥ÕÅÆÚÈ¨ºÏÔ¼ÈÕÖÕ½áËã±£Ö¤½ğ
 
 geteodoptmargin:{[x]getccfxeodoptmargin[x]};
 
 getoptmargin:{[x]getccfxoptmargin[x]};
 
-getfutmargin:{[s;f]getmargincoef[f;s]*getmultiple[f]*getsettlepx[f]}; /[(s)ide;(f)sym]è®¡ç®—æœŸè´§ä¸€æ‰‹ä¿è¯é‡‘
+getfutmargin:{[s;f]getmargincoef[f;s]*getmultiple[f]*getsettlepx[f]}; /[(s)ide;(f)sym]¼ÆËãÆÚ»õÒ»ÊÖ±£Ö¤½ğ
 
 getfutmarginl:getfutmargin[.enum`BUY];getfutmargins:getfutmargin[.enum`SELL];
 
-getmargin:{[x]y:x[0];0f^$[x[2]<>.enum`OPEN;0f;`US=.db.QX[y;`margintype];x[3]*.db.QX[y;`rmarginmq];($[(x[1]=.enum`BUY)|isfut[x[0]];abs;neg] x[4]*getmargincoef[x[0];x[1]])+$[(x[1]=.enum`SELL)&isopt[x[0]];getoptmargin[x];0f]]}; /[(è¯åˆ¸ä»£ç ;ä¹°å–æ–¹å‘;å¼€å¹³æ ‡å¿—;æˆäº¤æ•°é‡;æˆäº¤é‡‘é¢[ä¹°-å–+])]äº¤æ˜“ä¿è¯é‡‘è®¡ç®—(æœŸè´§äº¤æ˜“å’Œä¹°å…¥ç°è´§/æœŸæƒä¸ºæ­£å€¼ï¼Œèåˆ¸å–å‡ºå’ŒæœŸæƒå–å‡ºä¸ºè´Ÿå€¼)+è¡Œæƒä¿è¯é‡‘(æ’æ­£)
+getmargin:{[x]y:x[0];0f^$[x[2]<>.enum`OPEN;0f;`US=.db.QX[y;`margintype];x[3]*.db.QX[y;`rmarginmq];($[(x[1]=.enum`BUY)|isfut[x[0]];abs;neg] x[4]*getmargincoef[x[0];x[1]])+$[(x[1]=.enum`SELL)&isopt[x[0]];getoptmargin[x];0f]]}; /[(Ö¤È¯´úÂë;ÂòÂô·½Ïò;¿ªÆ½±êÖ¾;³É½»ÊıÁ¿;³É½»½ğ¶î[Âò-Âô+])]½»Ò×±£Ö¤½ğ¼ÆËã(ÆÚ»õ½»Ò×ºÍÂòÈëÏÖ»õ/ÆÚÈ¨ÎªÕıÖµ£¬ÈÚÈ¯Âô³öºÍÆÚÈ¨Âô³öÎª¸ºÖµ)+ĞĞÈ¨±£Ö¤½ğ(ºãÕı)
 
-getfee:{[x]r:.db.QX s:x[0];oc:x[2];qty:x[3];amt:x[4];ex:fs2e s;neg (0f^r $[oc=.enum`OPEN;`rfeetaxom;oc=.enum`CLOSE;`rfeetaxcm;`rfeetaxctm])|abs[qty*0f^r $[oc=.enum`OPEN;`rfeetaxoq;oc=.enum`CLOSE;`rfeetaxcq;`rfeetaxcqt]]+abs[amt*$[ex in `XHKG;3.1e-3;0f]^r $[oc=.enum`OPEN;`rfeetaxoa;oc=.enum`CLOSE;`rfeetaxca;`rfeetaxcat]]}; /[(è¯åˆ¸ä»£ç ;ä¹°å–æ–¹å‘;å¼€å¹³æ ‡å¿—;æˆäº¤æ•°é‡;æˆäº¤é‡‘é¢)]åˆ†ç¬”äº¤æ˜“æ‰‹ç»­è´¹è®¡ç®—(è´Ÿå€¼) 
+getfee:{[x]r:.db.QX s:x[0];oc:x[2];qty:x[3];amt:x[4];ex:fs2e s;neg (0f^r $[oc=.enum`OPEN;`rfeetaxom;oc=.enum`CLOSE;`rfeetaxcm;`rfeetaxctm])|abs[qty*0f^r $[oc=.enum`OPEN;`rfeetaxoq;oc=.enum`CLOSE;`rfeetaxcq;`rfeetaxcqt]]+abs[amt*$[ex in `XHKG;3.1e-3;0f]^r $[oc=.enum`OPEN;`rfeetaxoa;oc=.enum`CLOSE;`rfeetaxca;`rfeetaxcat]]}; /[(Ö¤È¯´úÂë;ÂòÂô·½Ïò;¿ªÆ½±êÖ¾;³É½»ÊıÁ¿;³É½»½ğ¶î)]·Ö±Ê½»Ò×ÊÖĞø·Ñ¼ÆËã(¸ºÖµ) 
 
-getfrozen:{[x]$[x[2]<>.enum`OPEN;0f;getfee[x]]-getmargin[x]}; /[è¯åˆ¸ä»£ç ;ä¹°å–æ–¹å‘;å¼€å¹³æ ‡å¿—;æˆäº¤æ•°é‡;æˆäº¤é‡‘é¢]äº¤æ˜“å†»ç»“èµ„é‡‘è®¡ç®—(è´Ÿå€¼)
+getfrozen:{[x]$[x[2]<>.enum`OPEN;0f;getfee[x]]-getmargin[x]}; /[Ö¤È¯´úÂë;ÂòÂô·½Ïò;¿ªÆ½±êÖ¾;³É½»ÊıÁ¿;³É½»½ğ¶î]½»Ò×¶³½á×Ê½ğ¼ÆËã(¸ºÖµ)
 
-frozenfund:{[x;y]exec sum {[x;z;w;u;v] `float$getfrozen each flip (x;z;w;u;v*getmultiple each x)}[sym;side;posefct;qty-0f^cumqty;price*0f^qty-cumqty] from .db.O where acc=y,ts=x,posefct=.enum[`OPEN],not end}; /[ts;acc]é€»è¾‘è´¦æˆ·å†»ç»“ä¿è¯é‡‘è®¡ç®—
+frozenfund:{[x;y]exec sum {[x;z;w;u;v] `float$getfrozen each flip (x;z;w;u;v*getmultiple each x)}[sym;side;posefct;qty-0f^cumqty;price*0f^qty-cumqty] from .db.O where acc=y,ts=x,posefct=.enum[`OPEN],not end}; /[ts;acc]Âß¼­ÕË»§¶³½á±£Ö¤½ğ¼ÆËã
 
-frozensymfund:{[x]exec sum {[x;z;w;u;v] `float$getfrozen each flip (x;z;w;u;v*getmultiple each x)}[sym;side;posefct;qty-0f^cumqty;price*0f^qty-cumqty] from .db.O where ts=(x 0),acc=(x 1),sym=(x 2),posefct=.enum[`OPEN],not end}; /[(ts;acc;sym)]é€»è¾‘è´¦æˆ·æŸå“ç§å†»ç»“ä¿è¯é‡‘è®¡ç®—
+frozensymfund:{[x]exec sum {[x;z;w;u;v] `float$getfrozen each flip (x;z;w;u;v*getmultiple each x)}[sym;side;posefct;qty-0f^cumqty;price*0f^qty-cumqty] from .db.O where ts=(x 0),acc=(x 1),sym=(x 2),posefct=.enum[`OPEN],not end}; /[(ts;acc;sym)]Âß¼­ÕË»§Ä³Æ·ÖÖ¶³½á±£Ö¤½ğ¼ÆËã
 
-availfund:{[x]0|((sum 0f^ffill each .db.Ts[x;`fundavl`pnlavl])*$[null .db.Ts[x;`stop];1;0])+frozenfund[x;.db.Ts[x;`acc]]}; /[ts]é€»è¾‘è´¦æˆ·å¯ç”¨ä¿è¯é‡‘è®¡ç®—
+availfund:{[x]0|((sum 0f^ffill each .db.Ts[x;`fundavl`pnlavl])*$[null .db.Ts[x;`stop];1;0])+frozenfund[x;.db.Ts[x;`acc]]}; /[ts]Âß¼­ÕË»§¿ÉÓÃ±£Ö¤½ğ¼ÆËã
 
-settleord:{[k;q;a]r:.db.O k;f:getfee[r[`sym`side`posefct],(q;a)];.db.O[k;`cumamt`cumfee]:(0f^r`cumamt`cumfee)+a,f;pk:r`ts`acc`sym;isb:.enum[`BUY]=r`side;sqty:q*qsign:$[isb;1;-1];iso:r[`posefct] in .enum`OPEN`MARGIN_OPEN;isl:(isb&iso)|((not isb)&(not iso));nq1:sqty+nq0:(0f^.db.P[pk;$[isl;`lqty;`sqty]]);.db.P[pk;$[isl;`lqty;`sqty]]:nq1;$[iso;$[sqty>0;.db.P[pk;`lqty0]:(0f^.db.P[pk;`lqty0])+sqty;.db.P[pk;`sqty0]:(0f^.db.P[pk;`sqty0])+sqty];$[r[`posefct]=.enum`CLOSETODAY;$[sqty<0;.db.P[pk;`lqty0]:0|(0f^.db.P[pk;`lqty0])+sqty;.db.P[pk;`sqty0]:0&(0f^.db.P[pk;`sqty0])+sqty];$[(sqty<0)&(.db.P[pk;`lqty0]>.db.P[pk;`lqty]);.db.P[pk;`lqty0]:.db.P[pk;`lqty];(sqty>0)&(.db.P[pk;`sqty0]<.db.P[pk;`sqty]);.db.P[pk;`sqty0]:.db.P[pk;`sqty];()]]];}; /[OID;lastshares;lastamt] æ–°å¢æˆäº¤æ¸…ç®—
+settleord:{[k;q;a]r:.db.O k;f:getfee[r[`sym`side`posefct],(q;a)];.db.O[k;`cumamt`cumfee]:(0f^r`cumamt`cumfee)+a,f;pk:r`ts`acc`sym;isb:.enum[`BUY]=r`side;sqty:q*qsign:$[isb;1;-1];iso:r[`posefct] in .enum`OPEN`MARGIN_OPEN;isl:(isb&iso)|((not isb)&(not iso));nq1:sqty+nq0:(0f^.db.P[pk;$[isl;`lqty;`sqty]]);.db.P[pk;$[isl;`lqty;`sqty]]:nq1;$[iso;$[sqty>0;.db.P[pk;`lqty0]:(0f^.db.P[pk;`lqty0])+sqty;.db.P[pk;`sqty0]:(0f^.db.P[pk;`sqty0])+sqty];$[r[`posefct]=.enum`CLOSETODAY;$[sqty<0;.db.P[pk;`lqty0]:0|(0f^.db.P[pk;`lqty0])+sqty;.db.P[pk;`sqty0]:0&(0f^.db.P[pk;`sqty0])+sqty];$[(sqty<0)&(.db.P[pk;`lqty0]>.db.P[pk;`lqty]);.db.P[pk;`lqty0]:.db.P[pk;`lqty];(sqty>0)&(.db.P[pk;`sqty0]<.db.P[pk;`sqty]);.db.P[pk;`sqty0]:.db.P[pk;`sqty];()]]];}; /[OID;lastshares;lastamt] ĞÂÔö³É½»ÇåËã
 
-ordexerpt:{[k]r:.db.O[k];;if[not (t:r[`ts]^r`tsexec) in key .db.Ts;:()];if[99h<>type .db.Ts[t;`event];:()];.[{(x)[y;z]};(.db.Ts[t;`event;`exerpt];t;k);()];}; /[oid]è§¦å‘ç­–ç•¥çš„å§”æ‰˜å›è°ƒ
+ordexerpt:{[k]r:.db.O[k];;if[not (t:r[`ts]^r`tsexec) in key .db.Ts;:()];if[99h<>type .db.Ts[t;`event];:()];.[{(x)[y;z]};(.db.Ts[t;`event;`exerpt];t;k);()];}; /[oid]´¥·¢²ßÂÔµÄÎ¯ÍĞ»Øµ÷
 
 .upd.exerpt:.ft.exerpt:{[x].temp.x:x;r:.db.O k:x`oid;if[`COMB~r`special;:.upd.comback[x]];s:x`status;sy:r`sym;if[(null sy)|((s=.enum`PENDING_NEW)&(s<>r`status)&(r[`status]<>.enum`NULL));:()];if[(r[`end])&(x[`cumqty]<=r`cumqty);chkerrfix[x];:()];if[null x`cumqty;x[`cumqty]:0f];if[null x`avgpx;x[`avgpx]:0f];if[(x`cumqty)<r`cumqty;lwarn[`cumqty_decrease;(k;r`cumqty;x`cumqty;x`src;x`seq)];:()];if[(x[`cumqty]~r`qty)&(s<>.enum`FILLED);s:.enum`FILLED];.db.O[k;`status`end`rtime`feoid`ordid`exchid`rptopt]:(s;s in .enum`REJECTED`FILLED`DONE_FOR_DAY`CANCELED`REPLACED`EXPIRED;now[];x`feoid;x`ordid;x`exchid;x`rptopt);if[.db.O[k;`end];.db.pO:.db.pO except k];if[count m:x`msg;.db.O[k;`msg],:$[count r`msg;"=>";""],m];setcs[x];$[s=.enum`NEW;();s=.enum`REJECTED;execrej[k;x];[lq:(0f^x`cumqty)-0f^r`cumqty;la:(prd 0f^x`cumqty`avgpx)-prd 0f^r`cumqty`avgpx;lp:0f^la% lq;if[0>lq;lwarn[`neg_lastshares;(k;r`cumqty;x`cumqty;lq;x`src;x`seq)];:()];if[0<lq;settleord[k;lq;la*$[.enum[`BUY]=r`side;-1;1]*getmultiple[sy]];.db.O[k;`ftime]:now[];newmatch[k;lq;lp]];if[0f<lq;frzqty[k;neg lq]];.db.O[k;`cumqty`lastqty`lastpx]:(x`cumqty;lq;lp);if[(0>=r`avgpx)|(0<x`avgpx);if[s in .enum`CANCELED`EXPIRED;frzqty[k;neg r[`qty]-0f^x`cumqty]];.db.O[k;`avgpx]:x`avgpx]]];ordexerpt[k];}'; /`t1`f2`f3 ,.db.QX[sy;`extime`bid`ask]
 
@@ -220,24 +219,24 @@ ordexerpt:{[k]r:.db.O[k];;if[not (t:r[`ts]^r`tsexec) in key .db.Ts;:()];if[99h<>
 
 .upd.OrdUpdate:{[x]fe:x`ref;acc:`$x`msg;ordinfo:-9!x`vbin;if[99h<>type .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[not ` in key .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[99h<>type .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];if[not ` in key .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];.temp.AccSnap[acc;`Ord]:ordinfo;};
 
-noeexec:{[sno;fta;s;sd;pe;q;p;m]if[not isvalidnum[p]&isvalidnum[q];:`symbol$()];k:newid[];ft:fta[0];ts:fta[1];$[2<count fta;acc:.db.Ts[ts;`accx][fta[2]];acc:.db.Ts[ts;`acc]];$[(`ft=.conf.feedtype)&(not 1b~.conf[`simnoe]);pub[`exenoe];.upd.exenoe]enlist `sym`typ`oid`ft`ts`acc`acc1`ref`osym`side`posefct`status`cumqty`avgpx`ordid`msg`rptopt!(ft;.enum`NEW;k;ft;ts;acc;`;`$m;s;sd;pe;.enum`FILLED;q;p;sno;"";"");k}; /æäº¤ä¸€ç¬”NOEä¸ŠæŠ¥è®°å½• noeexec[`20200102001;`ftdc4`8508_femm_510390;`510390.XSHG;.enum`SELL;.enum`CLOSE;140600f;4.245;"865577+865585"]
+noeexec:{[sno;fta;s;sd;pe;q;p;m]if[not isvalidnum[p]&isvalidnum[q];:`symbol$()];k:newid[];ft:fta[0];ts:fta[1];$[2<count fta;acc:.db.Ts[ts;`accx][fta[2]];acc:.db.Ts[ts;`acc]];$[(`ft=.conf.feedtype)&(not 1b~.conf[`simnoe]);pub[`exenoe];.upd.exenoe]enlist `sym`typ`oid`ft`ts`acc`acc1`ref`osym`side`posefct`status`cumqty`avgpx`ordid`msg`rptopt!(ft;.enum`NEW;k;ft;ts;acc;`;`$m;s;sd;pe;.enum`FILLED;q;p;sno;"";"");k}; /Ìá½»Ò»±ÊNOEÉÏ±¨¼ÇÂ¼ noeexec[`20200102001;`ftdc4`8508_femm_510390;`510390.XSHG;.enum`SELL;.enum`CLOSE;140600f;4.245;"865577+865585"]
 
-.upd.quoteack:{[x]s:x`status;cs:x`cstatus;if[null k:x`qid;:()];kb:.db.QT[k;`bid];ka:.db.QT[k;`aid];$[s=.enum`NEW;[.db.QT[k;`status`feqid`quoteid`rtime]:(s;x`feqid;x`quoteid;now[])];s=.enum`REJECTED;[.db.QT[k;`status`rtime`reason`msg]:(s;now[];x`reason;x`msg);.db.O[kb;`end`status`rtime`reason`msg]:(1b;s;now[];x`reason;x`msg);frzqty[kb;neg .db.O[kb;`qty]];.db.O[ka;`end`status`rtime`reason`msg]:(1b;s;now[];x`reason;x`msg);frzqty[ka;neg .db.O[ka;`qty]]];s=.enum`PENDING_CANCEL;[.db.QT[k;`rtime`cfeqid`cquoteid]:(now[];x`cfeqid;x`cquoteid)];s=.enum`CANCELED;[.db.QT[k;`status`rtime`cstatus]:(s;now[];s)];[]];if[cs=.enum`REJECTED;.db.QT[k;`cstatus`rtime`reason`msg]:(s;now[];x`reason;x`msg)];}'; /æŠ¥ä»·çŠ¶æ€å›æŠ¥ .db.O[kb;`status`rtime]:(s;now[]);.db.O[ka;`status`rtime]:(s;now[])
+.upd.quoteack:{[x]s:x`status;cs:x`cstatus;if[null k:x`qid;:()];kb:.db.QT[k;`bid];ka:.db.QT[k;`aid];$[s=.enum`NEW;[.db.QT[k;`status`feqid`quoteid`rtime]:(s;x`feqid;x`quoteid;now[])];s=.enum`REJECTED;[.db.QT[k;`status`rtime`reason`msg]:(s;now[];x`reason;x`msg);.db.O[kb;`end`status`rtime`reason`msg]:(1b;s;now[];x`reason;x`msg);frzqty[kb;neg .db.O[kb;`qty]];.db.O[ka;`end`status`rtime`reason`msg]:(1b;s;now[];x`reason;x`msg);frzqty[ka;neg .db.O[ka;`qty]]];s=.enum`PENDING_CANCEL;[.db.QT[k;`rtime`cfeqid`cquoteid]:(now[];x`cfeqid;x`cquoteid)];s=.enum`CANCELED;[.db.QT[k;`status`rtime`cstatus]:(s;now[];s)];[]];if[cs=.enum`REJECTED;.db.QT[k;`cstatus`rtime`reason`msg]:(s;now[];x`reason;x`msg)];}'; /±¨¼Û×´Ì¬»Ø±¨ .db.O[kb;`status`rtime]:(s;now[]);.db.O[ka;`status`rtime]:(s;now[])
 
-reqquote:{[x;y]pub[`reqquote;enlist `sym`qsym`qrid!(getfe[.db.Ts[x;`acc]];y;newid[])];}; /[ts;sym]å‘é€è¯¢ä»·è¯·æ±‚
+reqquote:{[x;y]pub[`reqquote;enlist `sym`qsym`qrid!(getfe[.db.Ts[x;`acc]];y;newid[])];}; /[ts;sym]·¢ËÍÑ¯¼ÛÇëÇó
 
 .upd.quotereq:{[x]quotereq,:x;{[x;y]if[count y;.[{(x)[y;z]};(.db.Ts[x;`event;`quotereq];x;y);()]];}[;x] each tsl[];};
 
-newquote:{[x;y;z;bp;ap;bq;aq;w]if[0b~.db`ftactive;:`];k:newid[];kb:newid[];ka:newid[];ft:.conf.me;acc:.db.Ts[x;`acc];fe:getfe[acc];acc1:sfill .conf.acc[acc;`acc1];bpe:.enum $[bq<=neg availshortpos[(x;acc),z];`CLOSE;`OPEN];ape:.enum $[aq<=availlongpos[(x;acc),z];`CLOSE;`OPEN];.db.O[kb;`special`origid`status`ntime`ft`ts`acc`fe`acc1`ref`sym`side`posefct`qty`typ`price]:(`QT;k;.enum`PENDING_NEW;now[];ft;x;acc;fe;acc1;w;z;.enum`BUY;bpe;bq;.enum`LIMIT;bp);frzqty[kb;.db.O[kb;`qty]];.db.O[ka;`special`origid`status`ntime`ft`ts`acc`fe`acc1`ref`sym`side`posefct`qty`typ`price]:(`QT;k;.enum`PENDING_NEW;now[];ft;x;acc;fe;acc1;w;z;.enum`SELL;ape;aq;.enum`LIMIT;ap);frzqty[ka;.db.O[ka;`qty]];.db.QT[k;`qrid`bid`aid`ft`ts`acc`fe`acc1`ref`sym`bprice`aprice`bqty`aqty`bposefct`aposefct`status`ntime]:(y;kb;ka;ft;x;acc;fe;acc1;w;z;bp;ap;bq;aq;bpe;ape;.enum`PENDING_NEW;now[]);pub[`quotenew;enlist `sym`qid`qrid`ft`ts`acc`acc1`ref`qsym`bid`aid`bprice`aprice`bqty`aqty`bposefct`aposefct!(.db.QT[k;`fe];k),.db.QT[k;`qrid`ft`ts`acc`acc1`ref`sym`bid`aid`bprice`aprice`bqty`aqty`bposefct`aposefct]];k}; /[tid;qrid;sym;bpx;opx;bsz;osz;ref] å‘é€æŠ¥ä»·è¯·æ±‚
+newquote:{[x;y;z;bp;ap;bq;aq;w]if[0b~.db`ftactive;:`];k:newid[];kb:newid[];ka:newid[];ft:.conf.me;acc:.db.Ts[x;`acc];fe:getfe[acc];acc1:sfill .conf.acc[acc;`acc1];bpe:.enum $[bq<=neg availshortpos[(x;acc),z];`CLOSE;`OPEN];ape:.enum $[aq<=availlongpos[(x;acc),z];`CLOSE;`OPEN];.db.O[kb;`special`origid`status`ntime`ft`ts`acc`fe`acc1`ref`sym`side`posefct`qty`typ`price]:(`QT;k;.enum`PENDING_NEW;now[];ft;x;acc;fe;acc1;w;z;.enum`BUY;bpe;bq;.enum`LIMIT;bp);frzqty[kb;.db.O[kb;`qty]];.db.O[ka;`special`origid`status`ntime`ft`ts`acc`fe`acc1`ref`sym`side`posefct`qty`typ`price]:(`QT;k;.enum`PENDING_NEW;now[];ft;x;acc;fe;acc1;w;z;.enum`SELL;ape;aq;.enum`LIMIT;ap);frzqty[ka;.db.O[ka;`qty]];.db.QT[k;`qrid`bid`aid`ft`ts`acc`fe`acc1`ref`sym`bprice`aprice`bqty`aqty`bposefct`aposefct`status`ntime]:(y;kb;ka;ft;x;acc;fe;acc1;w;z;bp;ap;bq;aq;bpe;ape;.enum`PENDING_NEW;now[]);pub[`quotenew;enlist `sym`qid`qrid`ft`ts`acc`acc1`ref`qsym`bid`aid`bprice`aprice`bqty`aqty`bposefct`aposefct!(.db.QT[k;`fe];k),.db.QT[k;`qrid`ft`ts`acc`acc1`ref`sym`bid`aid`bprice`aprice`bqty`aqty`bposefct`aposefct]];k}; /[tid;qrid;sym;bpx;opx;bsz;osz;ref] ·¢ËÍ±¨¼ÛÇëÇó
 
-cxlquote:{[x]if[(null .db.QT[x;`sym])|.db.QT[x;`cn]>=ifill .conf`maxcxlcnt;:()];k:newid[];.db.QT[x;`cid`cstatus`ctime`cn]:(k;.enum`PENDING_CANCEL;now[];1+0^.db.QT[x;`cn]);pub[`quotecxl;enlist `sym`qid`feqid`cid!(.db.QT[x;`fe];x;.db.QT[x;`feqid];.db.QT[x;`cid])];}; /[qid] æŠ¥ä»·æ’¤å•
+cxlquote:{[x]if[(null .db.QT[x;`sym])|.db.QT[x;`cn]>=ifill .conf`maxcxlcnt;:()];k:newid[];.db.QT[x;`cid`cstatus`ctime`cn]:(k;.enum`PENDING_CANCEL;now[];1+0^.db.QT[x;`cn]);pub[`quotecxl;enlist `sym`qid`feqid`cid!(.db.QT[x;`fe];x;.db.QT[x;`feqid];.db.QT[x;`cid])];}; /[qid] ±¨¼Û³·µ¥
 
-/æ”¯æŒä¸­é‡‘æ‰€ç»„åˆæŒä»“é”å®šå’Œè§£é”
-newcomb:{[x;y;sd;pe;q;z]k:newid[];acc:.db.Ts[x;`acc];fe:getfe[acc];acc1:sfill .conf.acc[acc;`acc1];.db.O[k;`special`status`ntime`ft`ts`acc`fe`acc1`ref`sym`side`posefct`qty`ordopt]:(`COMB;.enum`PENDING_NEW;now[];.conf.me;x;acc;fe;acc1;z;y;sd;pe;q;"special=`COMB");pub[`ordnew;enlist `sym`oid`ft`ts`acc`acc1`ref`osym`side`posefct`tif`typ`qty`price`ordopt!(fe;k),.db.O[k;`ft`ts`acc`acc1`ref`sym`side`posefct`tif`typ`qty`price`ordopt]];}; /[tid;sym;side;posefct;qty;ref]å‘é€é”å®š(OPEN)å’Œè§£é”(CLOSE)è¯·æ±‚
+/Ö§³ÖÖĞ½ğËù×éºÏ³Ö²ÖËø¶¨ºÍ½âËø
+newcomb:{[x;y;sd;pe;q;z]k:newid[];acc:.db.Ts[x;`acc];fe:getfe[acc];acc1:sfill .conf.acc[acc;`acc1];.db.O[k;`special`status`ntime`ft`ts`acc`fe`acc1`ref`sym`side`posefct`qty`ordopt]:(`COMB;.enum`PENDING_NEW;now[];.conf.me;x;acc;fe;acc1;z;y;sd;pe;q;"special=`COMB");pub[`ordnew;enlist `sym`oid`ft`ts`acc`acc1`ref`osym`side`posefct`tif`typ`qty`price`ordopt!(fe;k),.db.O[k;`ft`ts`acc`acc1`ref`sym`side`posefct`tif`typ`qty`price`ordopt]];}; /[tid;sym;side;posefct;qty;ref]·¢ËÍËø¶¨(OPEN)ºÍ½âËø(CLOSE)ÇëÇó
 
-.upd.comback:{[x]k:x`oid;st:x`status;if[(null .db.O[k;`sym])|.db.O[k;`end];:()];.db.O[k;`rtime`status`ordid`msg]:(now[];st),x`ordid`msg;if[st in .enum`FILLED`REJECTED;.db.O[k;`end];1b];if[st=.enum`FILLED;combpos . .db.O[k;`ts`acc`sym`side`posefct`qty]];}; /ç»„åˆé”å®šåº”ç­”å¤„ç†
+.upd.comback:{[x]k:x`oid;st:x`status;if[(null .db.O[k;`sym])|.db.O[k;`end];:()];.db.O[k;`rtime`status`ordid`msg]:(now[];st),x`ordid`msg;if[st in .enum`FILLED`REJECTED;.db.O[k;`end];1b];if[st=.enum`FILLED;combpos . .db.O[k;`ts`acc`sym`side`posefct`qty]];}; /×éºÏËø¶¨Ó¦´ğ´¦Àí
 
-combpos:{[x;acc;y;sd;pe;q]fs:fs2s y;ex:fs2e y;z:"&" vs string fs;u:`. sv (`$z[0]),ex;v:`. sv (`$z[1]),ex;s1:$[sd=.enum`BUY;1;-1];s2:s1*$[((u like "*C*")|(`Future=assetclass[u]))&(v like "*P*");-1 -1;1 -1];fy:$[s1>0;`lqty;`sqty];fu:$[s2[0]>0;`lqty;`sqty];fv:$[s2[1]>0;`lqty;`sqty];q*:$[pe=.enum`OPEN;1;-1];q0:0f^.db.P[(x;acc;y);fy];.db.P[(x;acc;y);fy]:$[q0<0;-1;1]*abs[q0]+q;q0:0f^.db.P[(x;acc;u);fu];.db.P[(x;acc;u);fu]:$[q0<0;-1;1]*abs[q0]+neg[q];}; /[tid;sym;side;posefct;qty]å¤„ç†æŒä»“çš„é”å®šå’Œè§£é”,ç»„åˆç±»å‹(0)åŒç©º:æœŸæƒè·¨/å‹’å¼ç»„åˆ(ç©ºC+ç©ºP)æˆ–åˆæˆçœ‹æ¶¨æœŸæƒç©ºå¤´(ç©ºF+ç©ºP),(1)å¤šç©º:å¯¹é”(å¤šF+ç©ºF),å¤‡å…‘çœ‹æ¶¨(å¤šF+ç©ºC),ç‰›å¸‚çœ‹æ¶¨ä»·å·®(å¤šC[S_]+ç©ºC[S^]),ç†Šå¸‚çœ‹æ¶¨ä»·å·®(å¤šC[S^]+ç©ºC[S_]),ç†Šå¸‚çœ‹è·Œä»·å·®(å¤šP[S^]+ç©ºP[S_]),ç‰›å¸‚çœ‹è·Œä»·å·®(å¤šP[S_]+ç©ºP[S^])
+combpos:{[x;acc;y;sd;pe;q]fs:fs2s y;ex:fs2e y;z:"&" vs string fs;u:`. sv (`$z[0]),ex;v:`. sv (`$z[1]),ex;s1:$[sd=.enum`BUY;1;-1];s2:s1*$[((u like "*C*")|(`Future=assetclass[u]))&(v like "*P*");-1 -1;1 -1];fy:$[s1>0;`lqty;`sqty];fu:$[s2[0]>0;`lqty;`sqty];fv:$[s2[1]>0;`lqty;`sqty];q*:$[pe=.enum`OPEN;1;-1];q0:0f^.db.P[(x;acc;y);fy];.db.P[(x;acc;y);fy]:$[q0<0;-1;1]*abs[q0]+q;q0:0f^.db.P[(x;acc;u);fu];.db.P[(x;acc;u);fu]:$[q0<0;-1;1]*abs[q0]+neg[q];}; /[tid;sym;side;posefct;qty]´¦Àí³Ö²ÖµÄËø¶¨ºÍ½âËø,×éºÏÀàĞÍ(0)Ë«¿Õ:ÆÚÈ¨¿ç/ÀÕÊ½×éºÏ(¿ÕC+¿ÕP)»òºÏ³É¿´ÕÇÆÚÈ¨¿ÕÍ·(¿ÕF+¿ÕP),(1)¶à¿Õ:¶ÔËø(¶àF+¿ÕF),±¸¶Ò¿´ÕÇ(¶àF+¿ÕC),Å£ÊĞ¿´ÕÇ¼Û²î(¶àC[S_]+¿ÕC[S^]),ĞÜÊĞ¿´ÕÇ¼Û²î(¶àC[S^]+¿ÕC[S_]),ĞÜÊĞ¿´µø¼Û²î(¶àP[S^]+¿ÕP[S_]),Å£ÊĞ¿´µø¼Û²î(¶àP[S_]+¿ÕP[S^])
 
 saverdb:{[x;y]savedb[];1b};
 
@@ -258,14 +257,14 @@ histrds:{[x;D](select d:trddate ftime,t:`time$ftime,avgpx,side from .hdb.O where
 
 loadetf:{[x;y]{.[`.db;enlist x;:;get ` sv .conf[`tempdb],x];} each `ETF`ETFPF`ETFER;sl:exec sym from .db.ETFPF where not sym in exec sym from .db.QX;if[count sl;{[x].db.QX[x;`ticker]:`} each sl];update `.db.QX$sym from `.db.ETFPF;1b};
 
-//getiopvex:{[x;y]$[.db.ETF[y;`trday]<>.z.D;0n;(.db.ETF[y;`cueu]+exec sum (?[qty<=0;0f;qty]*?[sym like "1*";10;1]*{[x;y;z;u;v;b;a]p:$[x=1;a;x>1;v[;x-1];x=-1;b;x<-1;u[;abs[x]-1];y];?[p>0;p;?[y>0;y;z]]}[x;sym.price;sym.pc;sym.bidQ;sym.askQ;sym.bid;sym.ask]*1f^sym.multiplier)+?[qty>=0;0f;camt] from .db.ETFPF where etfsym=y,sym<>`159900.XSHE)%.db.ETF[y;`cu]]}; /ä¸Šæµ·åŸºé‡‘ä»½é¢å‚è€ƒå‡€å€¼ï¼[âˆ‘(æ›¿ä»£æ ‡å¿—ä¸º0/1/3æˆåˆ†è¯åˆ¸æœ€æ–°æ›¿ä»£é‡‘é¢)+âˆ‘(æ›¿ä»£æ ‡å¿—ä¸º2/4/5/6çš„æˆåˆ†è¯åˆ¸å¯¹åº”èµ„é‡‘)+é¢„ä¼°ç°é‡‘]/æœ€å°ç”³è´­èµå›å•ä½å¯¹åº”çš„ETFä»½æ•°(0-æ²ªå¸‚ä¸å¯è¢«æ›¿ä»£;1-æ²ªå¸‚å¯ä»¥è¢«æ›¿ä»£;2-æ²ªå¸‚å¿…é¡»è¢«æ›¿ä»£;3-æ·±å¸‚é€€è¡¥ç°é‡‘æ›¿ä»£;4-æ·±å¸‚å¿…é¡»ç°é‡‘æ›¿ä»£;5-éæ²ªæ·±å¸‚åœºæˆåˆ†è¯åˆ¸é€€è¡¥ç°é‡‘æ›¿ä»£;6-éæ²ªæ·±å¸‚åœºæˆä»½è¯åˆ¸å¿…é¡»ç°é‡‘æ›¿ä»£),å¯¹å¯è½¬å€ºETF,ç”³èµæ¸…å•ä¸­å€ºåˆ¸å•ä½æ˜¯æ‰‹,éœ€è¦å†ä¹˜10,å¦å¤–è¿˜æ¶‰åŠè¡Œæƒ…å¯èƒ½ä¸ºå‡€ä»·è€Œéå…¨ä»·çš„è¯¯å·®,è¡Œæƒ…ä¸­çš„settlepxæ›´å‡†ç¡®,è¦æ³¨æ„ç‰¹åˆ«å¤„ç†.ä¸ºåŠ å¼ºå¼‚å¸¸å¤„ç†,å»æ‰ .db.QX[y;`settlepx]^
+//getiopvex:{[x;y]$[.db.ETF[y;`trday]<>.z.D;0n;(.db.ETF[y;`cueu]+exec sum (?[qty<=0;0f;qty]*?[sym like "1*";10;1]*{[x;y;z;u;v;b;a]p:$[x=1;a;x>1;v[;x-1];x=-1;b;x<-1;u[;abs[x]-1];y];?[p>0;p;?[y>0;y;z]]}[x;sym.price;sym.pc;sym.bidQ;sym.askQ;sym.bid;sym.ask]*1f^sym.multiplier)+?[qty>=0;0f;camt] from .db.ETFPF where etfsym=y,sym<>`159900.XSHE)%.db.ETF[y;`cu]]}; /ÉÏº£»ù½ğ·İ¶î²Î¿¼¾»Öµ£½[¡Æ(Ìæ´ú±êÖ¾Îª0/1/3³É·ÖÖ¤È¯×îĞÂÌæ´ú½ğ¶î)+¡Æ(Ìæ´ú±êÖ¾Îª2/4/5/6µÄ³É·ÖÖ¤È¯¶ÔÓ¦×Ê½ğ)+Ô¤¹ÀÏÖ½ğ]/×îĞ¡Éê¹ºÊê»Øµ¥Î»¶ÔÓ¦µÄETF·İÊı(0-»¦ÊĞ²»¿É±»Ìæ´ú;1-»¦ÊĞ¿ÉÒÔ±»Ìæ´ú;2-»¦ÊĞ±ØĞë±»Ìæ´ú;3-ÉîÊĞÍË²¹ÏÖ½ğÌæ´ú;4-ÉîÊĞ±ØĞëÏÖ½ğÌæ´ú;5-·Ç»¦ÉîÊĞ³¡³É·ÖÖ¤È¯ÍË²¹ÏÖ½ğÌæ´ú;6-·Ç»¦ÉîÊĞ³¡³É·İÖ¤È¯±ØĞëÏÖ½ğÌæ´ú),¶Ô¿É×ªÕ®ETF,ÉêÊêÇåµ¥ÖĞÕ®È¯µ¥Î»ÊÇÊÖ,ĞèÒªÔÙ³Ë10,ÁíÍâ»¹Éæ¼°ĞĞÇé¿ÉÄÜÎª¾»¼Û¶ø·ÇÈ«¼ÛµÄÎó²î,ĞĞÇéÖĞµÄsettlepx¸ü×¼È·,Òª×¢ÒâÌØ±ğ´¦Àí.Îª¼ÓÇ¿Òì³£´¦Àí,È¥µô .db.QX[y;`settlepx]^
 //getiopv:getiopvex[0];
 
 getiopvex:{[x;y]$[.db.ETF[y;`trday]<>.z.D;0n;(.db.ETF[y;`cueu]+exec sum ?[cctype in "2468";camt;?[cctype in "01357";qty*?[sym like "1*";10;1]*{[x;y;z;u;v;b;a]p:$[x=1;a;x>1;v[;x-1];x=-1;b;x<-1;u[;abs[x]-1];y];?[p>0;p;?[y>0;y;z]]}[x;sym.price;sym.pc;sym.bidQ;sym.askQ;sym.bid;sym.ask]*1f^sym.multiplier;0n]] from .db.ETFPF where etfsym=y,sym<>`159900.XSHE)%.db.ETF[y;`cu]]};
 
 getiopv:getiopvex[0];
 
-//getiopvhkex:{[x;y;z]$[.db.ETF[y;`trday]<>.z.D;0n;(.db.ETF[y;`cueu]+exec sum (z*?[qty<=0;0f;qty]*?[sym like "1*";10;1]*{[x;y;z;u;v;b;a]p:$[x=1;a;x>1;v[;x-1];x=-1;b;x<-1;u[;abs[x]-1];y];?[p>0;p;?[y>0;y;z]]}[x;sym.price;sym.pc;sym.bidQ;sym.askQ;sym.bid;sym.ask]*1f^sym.multiplier)+?[qty>=0;0f;camt] from .db.ETFPF where etfsym=y,sym<>`159900.XSHE)%.db.ETF[y;`cu]]}; /ä¸Šæµ·åŸºé‡‘ä»½é¢å‚è€ƒå‡€å€¼ï¼[âˆ‘(æ›¿ä»£æ ‡å¿—ä¸º0/1/3æˆåˆ†è¯åˆ¸æœ€æ–°æ›¿ä»£é‡‘é¢)+âˆ‘(æ›¿ä»£æ ‡å¿—ä¸º2/4/5/6çš„æˆåˆ†è¯åˆ¸å¯¹åº”èµ„é‡‘)+é¢„ä¼°ç°é‡‘]/æœ€å°ç”³è´­èµå›å•ä½å¯¹åº”çš„ETFä»½æ•°(0-æ²ªå¸‚ä¸å¯è¢«æ›¿ä»£;1-æ²ªå¸‚å¯ä»¥è¢«æ›¿ä»£;2-æ²ªå¸‚å¿…é¡»è¢«æ›¿ä»£;3-æ·±å¸‚é€€è¡¥ç°é‡‘æ›¿ä»£;4-æ·±å¸‚å¿…é¡»ç°é‡‘æ›¿ä»£;5-éæ²ªæ·±å¸‚åœºæˆåˆ†è¯åˆ¸é€€è¡¥ç°é‡‘æ›¿ä»£;6-éæ²ªæ·±å¸‚åœºæˆä»½è¯åˆ¸å¿…é¡»ç°é‡‘æ›¿ä»£),å¯¹å¯è½¬å€ºETF,ç”³èµæ¸…å•ä¸­å€ºåˆ¸å•ä½æ˜¯æ‰‹,éœ€è¦å†ä¹˜10,å¦å¤–è¿˜æ¶‰åŠè¡Œæƒ…å¯èƒ½ä¸ºå‡€ä»·è€Œéå…¨ä»·çš„è¯¯å·®,è¡Œæƒ…ä¸­çš„settlepxæ›´å‡†ç¡®,è¦æ³¨æ„ç‰¹åˆ«å¤„ç†.ä¸ºåŠ å¼ºå¼‚å¸¸å¤„ç†,å»æ‰ .db.QX[y;`settlepx]^
+//getiopvhkex:{[x;y;z]$[.db.ETF[y;`trday]<>.z.D;0n;(.db.ETF[y;`cueu]+exec sum (z*?[qty<=0;0f;qty]*?[sym like "1*";10;1]*{[x;y;z;u;v;b;a]p:$[x=1;a;x>1;v[;x-1];x=-1;b;x<-1;u[;abs[x]-1];y];?[p>0;p;?[y>0;y;z]]}[x;sym.price;sym.pc;sym.bidQ;sym.askQ;sym.bid;sym.ask]*1f^sym.multiplier)+?[qty>=0;0f;camt] from .db.ETFPF where etfsym=y,sym<>`159900.XSHE)%.db.ETF[y;`cu]]}; /ÉÏº£»ù½ğ·İ¶î²Î¿¼¾»Öµ£½[¡Æ(Ìæ´ú±êÖ¾Îª0/1/3³É·ÖÖ¤È¯×îĞÂÌæ´ú½ğ¶î)+¡Æ(Ìæ´ú±êÖ¾Îª2/4/5/6µÄ³É·ÖÖ¤È¯¶ÔÓ¦×Ê½ğ)+Ô¤¹ÀÏÖ½ğ]/×îĞ¡Éê¹ºÊê»Øµ¥Î»¶ÔÓ¦µÄETF·İÊı(0-»¦ÊĞ²»¿É±»Ìæ´ú;1-»¦ÊĞ¿ÉÒÔ±»Ìæ´ú;2-»¦ÊĞ±ØĞë±»Ìæ´ú;3-ÉîÊĞÍË²¹ÏÖ½ğÌæ´ú;4-ÉîÊĞ±ØĞëÏÖ½ğÌæ´ú;5-·Ç»¦ÉîÊĞ³¡³É·ÖÖ¤È¯ÍË²¹ÏÖ½ğÌæ´ú;6-·Ç»¦ÉîÊĞ³¡³É·İÖ¤È¯±ØĞëÏÖ½ğÌæ´ú),¶Ô¿É×ªÕ®ETF,ÉêÊêÇåµ¥ÖĞÕ®È¯µ¥Î»ÊÇÊÖ,ĞèÒªÔÙ³Ë10,ÁíÍâ»¹Éæ¼°ĞĞÇé¿ÉÄÜÎª¾»¼Û¶ø·ÇÈ«¼ÛµÄÎó²î,ĞĞÇéÖĞµÄsettlepx¸ü×¼È·,Òª×¢ÒâÌØ±ğ´¦Àí.Îª¼ÓÇ¿Òì³£´¦Àí,È¥µô .db.QX[y;`settlepx]^
 //getiopvhk:getiopvhkex[0];
 
 getiopvhkex:{[x;y;z]$[.db.ETF[y;`trday]<>.z.D;0n;(.db.ETF[y;`cueu]+exec sum ?[cctype in "2468";camt;z*?[cctype in "01357";qty*?[sym like "1*";10;1]*{[x;y;z;u;v;b;a]p:$[x=1;a;x>1;v[;x-1];x=-1;b;x<-1;u[;abs[x]-1];y];?[p>0;p;?[y>0;y;z]]}[x;sym.price;sym.pc;sym.bidQ;sym.askQ;sym.bid;sym.ask]*1f^sym.multiplier;0n]] from .db.ETFPF where etfsym=y,sym<>`159900.XSHE)%.db.ETF[y;`cu]]};
@@ -280,23 +279,22 @@ qryall:{[x]$[null x;qryord each exec id from .db.O where not end;qryord each exe
 qryrepoacc:{[x;y].temp.AccSnap:.enum.nulldict;qryfund .conf[`repo;`acc];1b};
 dorepotask:{[x;y]s0:`204001.XSHG;s1:`131810.XSHE;h0:.db.QX[s0];h1:.db.QX[s1];amt:.temp.AccSnap[.conf[`repo;`acc];`Fund][0;.conf[`repo;`field]];qu0:1000f;qu1:h1`qtylot;fv:100f;a0:fv*q0:qu0*floor amt%fv*qu0;a1:amt-a0;q1:qu1*floor a1%fv*qu1;if[0<q0;revrepo[.conf[`repo;`ts];s0;q0;last h0`bidQ;`repo1daysh]];if[0<q1;revrepo[.conf[`repo;`ts];s1;q1;last h1`bidQ;`repo1daysz]];1b};  
 
-.roll.ftl2:{[x].db.Lm:.db.Vm:(`u#`long$())!`float$();.db.Bm:.db.Am:()!();.db.Wm:(`u#`long$())!();.db.Tm:(`u#`long$())!();.db.L2seq:1;}; /Vm(å§”æ‰˜åºå·->å§”æ‰˜ä»·æ ¼),Lm:(å§”æ‰˜åºå·->å‰©ä½™æ•°é‡),Wm(å§”æ‰˜åºå·->æœªå¤„ç†æˆäº¤åˆ—è¡¨),Tm(æœªå¤„ç†æˆäº¤è¡¨)
+.roll.ftl2:{[x].db.Lm:.db.Vm:(`u#`long$())!`float$();.db.Bm:.db.Am:()!();.db.Wm:(`u#`long$())!();.db.Tm:(`u#`long$())!();.db.L2seq:1;}; /Vm(Î¯ÍĞĞòºÅ->Î¯ÍĞ¼Û¸ñ),Lm:(Î¯ÍĞĞòºÅ->Ê£ÓàÊıÁ¿),Wm(Î¯ÍĞĞòºÅ->Î´´¦Àí³É½»ÁĞ±í),Tm(Î´´¦Àí³É½»±í)
 .upd.l2quote:.upd.quote;
 newl2seq:{[]:.db.L2seq+:1};
 
-imptradex:{[t;x]e:fs2e y:x`sym;if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];q:x`qty;if[0<u:x`aid;u:x[`gid]+10000*u];if[0<v:x`bid;v:x[`gid]+10000*v];z:newl2seq[];wu:(u>0)&null .db.Vm[u];wv:(v>0)&null .db.Vm[v];if[$[`XSHG=e;wu&wv;wu|wv];if[not t;.db.Tm[z]:x;if[wu;.db.Wm[u],:z];if[wv;.db.Wm[v],:z]];:()];if[(0<u)&(0<=p:.db.Vm[u]);.db.Lm[u]-:q;if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p];if[count .db.Wm[u];.db.Wm[u]:.db.Wm[u] except z;if[0=count .db.Wm[u];.db.Wm _:u]]];if[(0<v)&(0<=p:.db.Vm[v]);.db.Lm[v]-:q;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[count .db.Wm[v];.db.Wm[v]:.db.Wm[v] except z;if[0=count .db.Wm[v];.db.Wm _:v]]];if[t;.db.Tm _:z];}; /é€ç¬”æˆäº¤å¤„ç†.wu(æˆäº¤å…ˆäºå–å•å§”æ‰˜),wv(æˆäº¤å…ˆäºä¹°å•å§”æ‰˜) if[(0<u)&0>=.db.Lm[u];.db.Lm _:u;.db.Vm _:u];if[(0<v)&0>=.db.Lm[v];.db.Lm _:v;.db.Vm _:v]; `$(string u),"_",(string v)
+imptradex:{[t;x]e:fs2e y:x`sym;if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];q:x`qty;if[0<u:x`aid;u:x[`gid]+10000*u];if[0<v:x`bid;v:x[`gid]+10000*v];z:newl2seq[];wu:(u>0)&null .db.Vm[u];wv:(v>0)&null .db.Vm[v];if[$[`XSHG=e;wu&wv;wu|wv];if[not t;.db.Tm[z]:x;if[wu;.db.Wm[u],:z];if[wv;.db.Wm[v],:z]];:()];if[(0<u)&(0<=p:.db.Vm[u]);.db.Lm[u]-:q;if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p];if[count .db.Wm[u];.db.Wm[u]:.db.Wm[u] except z;if[0=count .db.Wm[u];.db.Wm _:u]]];if[(0<v)&(0<=p:.db.Vm[v]);.db.Lm[v]-:q;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[count .db.Wm[v];.db.Wm[v]:.db.Wm[v] except z;if[0=count .db.Wm[v];.db.Wm _:v]]];if[t;.db.Tm _:z];}; /Öğ±Ê³É½»´¦Àí.wu(³É½»ÏÈÓÚÂôµ¥Î¯ÍĞ),wv(³É½»ÏÈÓÚÂòµ¥Î¯ÍĞ) if[(0<u)&0>=.db.Lm[u];.db.Lm _:u;.db.Vm _:u];if[(0<v)&0>=.db.Lm[v];.db.Lm _:v;.db.Vm _:v]; `$(string u),"_",(string v)
 
 imptrade:imptradex[0b];impoldtrade:imptradex[1b];
 
-impshcxl:{[x]y:x`sym;q:x`qty;u:x[`gid]+10000*x`origid;if[0<=p:.db.Vm[u];.db.Lm[u]-:q;$["B"=x`side;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p]]];}; /ä¸Šæµ·æ’¤å•å§”æ‰˜å¤„ç†
+impshcxl:{[x]y:x`sym;q:x`qty;u:x[`gid]+10000*x`origid;if[0<=p:.db.Vm[u];.db.Lm[u]-:q;$["B"=x`side;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p]]];}; /ÉÏº£³·µ¥Î¯ÍĞ´¦Àí
 
-// å¯¹äºtypä¸º1æˆ–Uçš„è®¢å•ï¼ˆå¸‚ä»·å•å’Œæœ¬æ–¹æœ€ä¼˜è®¢å•ï¼‰ï¼Œå°†ä»·æ ¼æ”¹ä¸º0
-.upd.l2order:{[x].temp.x3:x;e:fs2e y:x`sym;if["D"=x`typ;impshcxl x;:()];z:x[`gid]+10000*x`origid;if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];w:x`side;p:x`price;q:x`qty;if[x[`typ] in "1U";p:0f];.db.Vm[z]:p;.db.Lm[z]:q;$[w in "1B";[.db.Bm[y;p]:q+0f^.db.Bm[y;p]];w in "2S";[.db.Am[y;p]:q+0f^.db.Am[y;p]];[]];if[count r:.db.Wm[z];impoldtrade each .db.Tm r];}'; /é€ç¬”å§”æ‰˜å¤„ç†
+.upd.l2order:{[x].temp.x3:x;e:fs2e y:x`sym;if["D"=x`typ;impshcxl x;:()];z:x[`gid]+10000*x`origid;if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];w:x`side;p:x`price;q:x`qty;.db.Vm[z]:p;.db.Lm[z]:q;$[w in "1B";[.db.Bm[y;p]:q+0f^.db.Bm[y;p]];w in "2S";[.db.Am[y;p]:q+0f^.db.Am[y;p]];[]];if[count r:.db.Wm[z];impoldtrade each .db.Tm r];}'; /Öğ±ÊÎ¯ÍĞ´¦Àí
 
 .upd.l2match:{[x].temp.x4:x;imptrade each x;};
 
 .upd.l2queue:{[x]s:x`side;y:x`sym;if[x[`extime]<.db.QX[y;`extime];:()];.db.QX[y;$[s="B";`bid`bsize`bnum`bqtyQ;`ask`asize`anum`aqtyQ]]:x`price`size`num`qtyQ;}';
-getcbbo:{[x]bq:.db.Bm[x] bp:first desc (key .db.Bm[x]) except 0f;oq:.db.Am[x] op:first asc (key .db.Am[x]) except 0f;(bp;bq;op;oq)}; /[sym]å–è®¡ç®—å‡ºçš„æœ€æ–°æœ€ä¼˜ç›˜å£
+getcbbo:{[x]bq:.db.Bm[x] bp:first desc (key .db.Bm[x]) except 0f;oq:.db.Am[x] op:first asc (key .db.Am[x]) except 0f;(bp;bq;op;oq)}; /[sym]È¡¼ÆËã³öµÄ×îĞÂ×îÓÅÅÌ¿Ú
 
 \
 .db.TASK[`LOADETF;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:10;1D;0;4;`loadetf);
@@ -306,5 +304,4 @@ getcbbo:{[x]bq:.db.Bm[x] bp:first desc (key .db.Bm[x]) except 0f;oq:.db.Am[x] op
 
 //----ChangeLog----
 //2023.04.27:setcsºÍ.upd.exerptÔö¼Ó¶ÔexchidºÍcexchidµÄÖ§³Ö
-//2023.03.20:.upd.l2orderå‡½æ•°ä¸­ç»Ÿä¸€ä½¿ç”¨`origid,æ·±å¸‚ä¸å†åŒºåˆ«ä½¿ç”¨`oid
-
+//2023.03.20:.upd.l2orderº¯ÊıÖĞÍ³Ò»Ê¹ÓÃ`origid,ÉîÊĞ²»ÔÙÇø±ğÊ¹ÓÃ`oid
