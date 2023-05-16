@@ -89,7 +89,7 @@ chkmodstatus:{[x]if[not .z.T within 08:58 15:00;:()];{[x]lerr[`modoffline;enlist
 
 chkfestatus:{[x]if[not .z.T within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`feufx;`h];:()];if[not 1b~h (`.ctrl.ufx;`login);lerr[`ufxloginfail;()]];}; /check ufx login
 
-chkfqstatus:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`rdb;`h];:()];r:h ({[x]exec `time$last time by src from quote};());{[r;t;x]if[r[x]<t-00:00:02;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each enlist `fqctp;if[t<09:30;:()];{[r;t;x]if[r[x]<t-00:00:10;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each .conf.ha.ha.fq except `fqbar;}; /check fqsrc quote timestamp
+chkfqstatus:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`rdb;`h];:()];r:h ({[x](exec `time$last time by src from quote),(exec `time$last time by src from l2quote)};());{[r;t;x]if[r[x]<t-00:00:02;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each enlist `fqctp;if[t<09:30;:()];{[r;t;x]if[r[x]<t-00:00:10;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each .conf.ha.ha.fq except `fqbar;}; /check fqsrc quote timestamp
 
 chktpzw:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`tp;`h];:()];if[.conf.maxzwlen<n:h ({sum sum each .z.W};());lwarn[`tpzwfull;(t;n)]];};
 
@@ -105,7 +105,7 @@ chk300idx:{[x;y]r:.ctrl.H[`ft] ({x!{-1+(%/).db.QX[x;`price`pc]} each x};`000300.
 
 chkonline1:{[x;y]startmod each exec id from .ctrl.MOD where h<0,id in .conf.modules;1b};
 
-chkonline:{[x;y] {if[(1b~.conf[x;`chkonline])&(not .z.D in .conf.holiday);$[any .z.T within/:.conf[x;`onlinetime];if[0>.ctrl.H[x];startmod x];if[0<.ctrl.H[x];stopmod x]]]} each .conf.modules;1b};
+chkonline:{[x;y] {if[(1b~.conf[x;`chkonline])&(not .z.D in .conf.holiday);$[any .z.T within/:.conf[x;`onlinetime];if[0>.ctrl.H[x];startmod x];if[0<.ctrl.H[x];stopmod x]]]} each .conf.modules;if[.ctrl.MOD[`rdb;`starttime]<.ctrl.MOD[`tp;`starttime];stopmod `rdb];1b};
 
 freerdb:{[x;y].ctrl.H[`rdb] ({[] {set[x;0#get x]} each tables[];.Q.gc[]};());1b};
 

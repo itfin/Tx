@@ -13,13 +13,13 @@ qidfe2ft:{[x]exec first id from .db.QT where feqid=x};
 
 .timer.fe:{[x]if[.db.sysdate<.z.D;.upd.BeginOfDay[enlist[`msg]!enlist string .z.D]];};
 
-rejordnew:{[ft;x;y;z]pub[`exerpt;enlist `sym`typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`corderid`reason`msg`rptopt!(ft;.enum`NEW;x;.enum`REJECTED;0f;0f;`;`;.enum`NULL;`;`;y;z;"")];}; /[ft;oid;reason;msg]
+rejordnew:{[ft;x;y;z]pub[`exerpt;enlist `sym`typ`oid`status`cumqty`avgpx`feoid`ordid`exchid`cstatus`cfeoid`corderid`cexchid`reason`msg`rptopt!(ft;.enum`NEW;x;.enum`REJECTED;0f;0f;`;`;`;.enum`NULL;`;`;`;y;z;"")];}; /[ft;oid;reason;msg]
 
-rejectord:{[x;y;z]if[null .db.O[x;`ft];:()];.db.O[x;`rtime`status`reason`msg]:(.z.P;.enum`REJECTED;y;z);riskstatrej[x];pub[`exerpt;enlist `sym`typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`corderid`reason`msg`rptopt!(.db.O[x;`ft];.enum`NEW;x;.enum`REJECTED;0f;0f;`;`;.enum`NULL;`;`;y;z;"")];}; /[oid;reason;msg]
+rejectord:{[x;y;z]if[null .db.O[x;`ft];:()];.db.O[x;`rtime`status`reason`msg]:(.z.P;.enum`REJECTED;y;z);riskstatrej[x];pub[`exerpt;enlist `sym`typ`oid`status`cumqty`avgpx`feoid`ordid`exchid`cstatus`cfeoid`corderid`cexchid`reason`msg`rptopt!(.db.O[x;`ft];.enum`NEW;x;.enum`REJECTED;0f;0f;`;`;`;.enum`NULL;`;`;`;y;z;"")];}; /[oid;reason;msg]
 
 rejectcxlrpl:{[src;oid;cid;reason;msg;isrpl]pub[`cxlrej;enlist `sym`oid`cid`cstatus`cordid`reason`msg`isrpl!(src;oid;cid;.enum`REJECTED;newid[];reason;msg;isrpl)];};rejectcxl:rejectcxlrpl[;;;;;0b];rejectrpl:rejectcxlrpl[;;;;;1b];
 
-execrpt:{[k]r:.db.O[k];if[null x:r`ft;:()];riskstatexe[k];pub[`exerpt;enlist `sym`typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt!(x;.enum`NEW;k),r[`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason],(cfill r`msg;cfill r`rptopt)];};
+execrpt:{[k]r:.db.O[k];if[null x:r`ft;:()];riskstatexe[k];pub[`exerpt;enlist `sym`typ`oid`status`cumqty`avgpx`feoid`ordid`exchid`cstatus`cfeoid`cordid`cexchid`reason`msg`rptopt!(x;.enum`NEW;k),r[`status`cumqty`avgpx`feoid`ordid`exchid`cstatus`cfeoid`cordid`cexchid`reason],(cfill r`msg;cfill r`rptopt)];};
 
 ackquote:{[k]r:.db.QT[k];if[null r`sym;:()];pub[`quoteack;enlist `sym`typ`qid`status`bcumqty`acumqty`bavgpx`aavgpx`feqid`quoteid`cid`cstatus`cfeqid`cquoteid`reason`msg`rptopt!(r`ft;.enum`NEW;k),r[`status`bcumqty`acumqty`bavgpx`aavgpx`feqid`quoteid`cid`cstatus`cfeqid`cquoteid`reason],(cfill r`msg;cfill r`rptopt)];};
 
@@ -32,4 +32,5 @@ riskstatrej:{[x];}; /风控检查委托拒绝默认处理函数
 riskstatexe:{[x];}; /风控检查委托回报默认处理函数
 
 //----ChangeLog----
+//2023.04.27:rejordnew/rejectord和execrpt增加对exchid和cexchid的支持
 //2022.10.13:在.roll.fe函数增加savedb操作

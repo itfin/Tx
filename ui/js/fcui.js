@@ -92,7 +92,7 @@ dispres=function(x,y){
 };
 
 //行情信息
-quotereq=function(){wscall('raze {update node:.ctrl.MOD[x;`node] from .ctrl.MOD[x;`h] "0!select string `time$last time,n:count i by src from quote"} each exec id from .ctrl.MOD where mtyp=`rdb,h>0',quoteres,{target:'grid'});}
+quotereq=function(){wscall('raze {update node:.ctrl.MOD[x;`node] from .ctrl.MOD[x;`h] "0!(select string `time$last time,n:count i by src from quote),select string `time$last time,n:count i by src from l2quote"} each exec id from .ctrl.MOD where mtyp=`rdb,h>0',quoteres,{target:'grid'});}
 quoteres=function(x,y){
     $('#'+x.target).html('<div id=quotelst>');
     $('#quotelst').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'src',title:'行情源模块',width:80,sortable:true},{field:'time',title:'最后更新时间',width:200,sortable:true},{field:'n',title:'记录条数',width:200,sortable:true},{field:'node',title:'节点ID',width:60,sortable:true}]]});

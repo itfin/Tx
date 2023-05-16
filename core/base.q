@@ -1,4 +1,4 @@
-.module.base:2022.10.11;
+.module.base:2023.04.27;
 
 txload:{[x]@[system;"l Tx/",x,".q";@[system;"l Tx/",x,".q_";`$"txload_",x]];};
 cfload:{[x]txload "conf/",x;};
@@ -34,7 +34,7 @@ QX:([`u#sym:`symbol$()] ex:`symbol$(); esym:`symbol$(); name:`symbol$(); ticker:
 
 LOG:([]sym:`symbol$();typ:`symbol$();msg:0#enlist "";logtime:`timestamp$());
 
-O:([`u#id:`symbol$()] ft:`symbol$(); ts:`symbol$(); acc:`symbol$(); fe:`symbol$(); acc1:`symbol$(); ref:`symbol$(); sym:`symbol$(); side:`char$(); posefct:`char$(); tif:`char$(); typ:`char$(); qty:`float$(); price:`float$(); end:`boolean$(); status:`char$(); cumqty:`float$(); avgpx:`float$(); lastqty:`float$(); lastpx:`float$(); feoid:`symbol$(); ordid:`symbol$(); cstatus:`char$(); cn:`int$(); ntime:`timestamp$(); ctime:`timestamp$(); msg:(); cumamt:`float$(); cumfee:`float$(); qtime:`timestamp$(); jtime:`timestamp$(); ftime:`timestamp$(); rtime:`timestamp$(); reason:`int$(); ordopt:(); rptopt:(); cid:`symbol$(); cfeoid:`symbol$(); cordid:`symbol$(); qn:`int$(); special:`symbol$(); origid:`symbol$(); ex:`symbol$(); esym:`symbol$(); tsexec:`symbol$(); upid:`symbol$(); slot:`long$(); previd:`symbol$(); pending:`boolean$();style:`symbol$(); expiretime:`timestamp$(); t0:`timestamp$(); t1:`timestamp$(); s0:`symbol$(); s1:`symbol$(); s2:`symbol$(); s3:`symbol$(); j0:`long$(); j1:`long$(); j2:`long$();  j3:`long$(); f0:`float$(); f1:`float$(); f2:`float$(); f3:`float$(); x0:(); x1:(); x2:(); x3:()); /Order
+O:([`u#id:`symbol$()] ft:`symbol$(); ts:`symbol$(); acc:`symbol$(); fe:`symbol$(); acc1:`symbol$(); ref:`symbol$(); sym:`symbol$(); side:`char$(); posefct:`char$(); tif:`char$(); typ:`char$(); qty:`float$(); price:`float$(); end:`boolean$(); status:`char$(); cumqty:`float$(); avgpx:`float$(); lastqty:`float$(); lastpx:`float$(); feoid:`symbol$(); ordid:`symbol$(); exchid:`symbol$(); cstatus:`char$(); cn:`int$(); ntime:`timestamp$(); ctime:`timestamp$(); msg:(); cumamt:`float$(); cumfee:`float$(); qtime:`timestamp$(); jtime:`timestamp$(); ftime:`timestamp$(); rtime:`timestamp$(); reason:`int$(); ordopt:(); rptopt:(); cid:`symbol$(); cfeoid:`symbol$(); cordid:`symbol$(); cexchid:`symbol$(); qn:`int$(); special:`symbol$(); origid:`symbol$(); ex:`symbol$(); esym:`symbol$(); tsexec:`symbol$(); upid:`symbol$(); slot:`long$(); previd:`symbol$(); pending:`boolean$();style:`symbol$(); expiretime:`timestamp$(); t0:`timestamp$(); t1:`timestamp$(); s0:`symbol$(); s1:`symbol$(); s2:`symbol$(); s3:`symbol$(); j0:`long$(); j1:`long$(); j2:`long$();  j3:`long$(); f0:`float$(); f1:`float$(); f2:`float$(); f3:`float$(); x0:(); x1:(); x2:(); x3:()); /Order
 
 M:([`u#id:`symbol$()] sym:`symbol$(); price:`float$(); qty:`float$(); mtime:`timestamp$(); maker:`symbol$(); taker:`symbol$()); /Match
 
@@ -113,4 +113,5 @@ cleartemptask:{[x;y]cleartemp[];.Q.gc[];1b};
 if[not `boot in key `.ctrl;.base.boot[]];
 
 //----ChangeLog----
+//2023.04.27:O表新增exchid和cexchid两列
 //2022.10.11:{nextworkday} add support for multiple exchanges. should add .conf.holidayexlist to cfbase.q  

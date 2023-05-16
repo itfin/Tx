@@ -1,5 +1,5 @@
 \l math.q
-\l qffi.q
+\l ffi.q
 \l qml.q
 \l qr.q
 \l qj.q
