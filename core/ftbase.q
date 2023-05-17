@@ -11,7 +11,7 @@ txload "core/rcbase";
 
 istrading:{[t;s]if[not (z:fs2e s) in tkey .conf.ex;:0b];any t within/:.conf.ex[z;`session]+\: -00:01 00:01};
 
-.timer.ftsim:{[x]if[not .conf.feedtype=`ftsim;:()];t:`time$t0:x;{[t0;t;k]x:.db.O[k];s:x`sym;if[not istrading[t;s];:()];if[null .db.O[k;`rtime];.db.O[k;`rtime]:.z.P];p:0f;n:0;$[.enum[`PENDING_CANCEL]=x`cstatus;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt!(.enum`NEW;k;.enum[`CANCELED];x`cumqty;x`avgpx;`;`;.enum[`CANCELED];`;`;0;"";"")];[r:.db.QX[s];if[0>=r`price;r[`price]:avg r`bid`ask];if[($[1b~.conf`fillwith0qty;0n;0]>=r`cumqty)&(not fs2e[s] in `FOREX`METAL)&(not s like "SP*")&(not 1b~.conf[`fillauction]);:()];p0:x`price;p1:r`price;$[(1b~.conf[`filldelay])&.db.QX[s;`extime]=x`qtime;();((.enum[`BUY]=x`side)&p0>=$[0<r`ask;r`ask;0w])|((.enum[`SELL]=x`side)&p0<=r`bid)|(x[`typ]=.enum`MARKET);[px:$[.enum[`BUY]=x`side;p0&p1|r`ask;p0|p1&r`bid];lqty:(x`qty)-0f^x`cumqty;fqty:lqty&$[1b~.conf[`fillfull];0w;r $[.enum[`BUY]=x`side;`asize;`bsize]];cq:fqty+0f^x`cumqty;ap:0f^(prd[x`cumqty`avgpx]+fqty*px)%cq;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt!(.enum`NEW;k;.enum $[cq=x`qty;`FILLED;`PARTIALLY_FILLED];cq;ap;`;`;x`cstatus;`;`;0;"";"")]];x[`tif]=.enum.IMMEDIATE_OR_CANCEL;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt!(.enum`NEW;k;.enum[`CANCELED];x`cumqty;x`avgpx;`;`;.enum[`CANCELED];`;`;0;"";"")];()]]];}[t0;t] each exec id from .db.O where not end,status in .enum`PENDING_NEW`NEW`PARTIALLY_FILLED;}; /(r`price)| (r`price)&
+.timer.ftsim:{[x]if[not .conf.feedtype=`ftsim;:()];t:`time$t0:x;{[t0;t;k]x:.db.O[k];s:x`sym;if[not istrading[t;s];:()];if[null .db.O[k;`rtime];.db.O[k;`rtime]:.z.P];p:0f;n:0;$[.enum[`PENDING_CANCEL]=x`cstatus;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt!(.enum`NEW;k;.enum[`CANCELED];x`cumqty;x`avgpx;`;`;.enum[`CANCELED];`;`;0;"";"")];[r:.db.QX[s];if[0>=r`price;r[`price]:avg r`bid`ask];if[($[1b~.conf`fillwith0qty;0n;0]>=r`cumqty)&(not fs2e[s] in `FOREX`METAL)&(not s like "SP*")&(not s like "IPS*")&(not 1b~.conf[`fillauction]);:()];p0:x`price;p1:r`price;$[(1b~.conf[`filldelay])&.db.QX[s;`extime]=x`qtime;();((.enum[`BUY]=x`side)&p0>=$[0<r`ask;r`ask;0w])|((.enum[`SELL]=x`side)&p0<=r`bid)|(x[`typ]=.enum`MARKET);[px:$[.enum[`BUY]=x`side;p0&p1|r`ask;p0|p1&r`bid];lqty:(x`qty)-0f^x`cumqty;fqty:lqty&$[1b~.conf[`fillfull];0w;r $[.enum[`BUY]=x`side;`asize;`bsize]];cq:fqty+0f^x`cumqty;ap:0f^(prd[x`cumqty`avgpx]+fqty*px)%cq;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt!(.enum`NEW;k;.enum $[cq=x`qty;`FILLED;`PARTIALLY_FILLED];cq;ap;`;`;x`cstatus;`;`;0;"";"")]];x[`tif]=.enum.IMMEDIATE_OR_CANCEL;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt!(.enum`NEW;k;.enum[`CANCELED];x`cumqty;x`avgpx;`;`;.enum[`CANCELED];`;`;0;"";"")];()]]];}[t0;t] each exec id from .db.O where not end,status in .enum`PENDING_NEW`NEW`PARTIALLY_FILLED;}; /(r`price)| (r`price)&
 
 .roll.ft:{[x]if[1b~.conf[`waithdb];while[.z.D>d:.ctrl.conn.hdb.h ({last date};());system "sleep 10"];.ctrl[`hdbdate`hdbtime]:(d;.z.P)];{[x;y].[{(x)[y;z]};(.db.Ts[x;`event;`dayroll];x;y);()];}[;x] each tsl[];.[.conf.histdb;(.conf.me;`M);,;.db.M];delete from `.db.M;gtc:.enum`GOOD_TILL_CANCEL;.[.conf.histdb;(.conf.me;`O);,;select from .db.O where end|tif<>gtc];delete from `.db.O where end|tif<>gtc;delete from `.db.QT;{update `u#id from x;} each `.db.O`.db.M`.db.QT;delete from `.db.P where 1e-10>=abs[0f^lqty]+abs[0f^sqty];update flqty:0f,fsqty:0f,lqty0:0f,sqty0:0f,flqty0:0f,fsqty0:0f from `.db.P;.[.conf.histdb;(.conf.me;`P);,;update today:.z.D from 0!.db.P];n:count[.db.QX];update pc:(0.5*(0f^bid)+0f^(ask))^price,price:0n,bid:0n,ask:0n,bsize:0n,asize:0n,cumqty:0f,bidQ:n#enlist `float$(),askQ:n#enlist `float$(),bsizeQ:n#enlist `float$(),asizeQ:n#enlist `float$() from `.db.QX;.db.pO:0#.db.pO;if[1b~.conf[`autoloadhdb];loadhdb[]];if[not 1b~.conf[`checkfqtime];:()];resetfqstate[];};
 
@@ -134,7 +134,7 @@ fok_buy:xlimit_buy[``tif!(::;.enum.FILL_OR_KILL)];fok_sell:xlimit_sell[``tif!(::
 
 //.upd.quote:{[x]y:update recvtime:.z.P from select by sym from x;ljt:.conf[`quoteljtime];.db.QX:.db.QX lj y;{[x;y]z:realsyms[x;y];if[count z;.[{(x)[y;z]};(.db.Ts[x;`event;`quote];x;z);()]];}[;exec sym from y] each tsl[];};
 
-.upd.quote:{[x]$[0=count .db.QX;.db.QX:.db.QX uj y;{[x;y].db.QX[y`sym;x]:y x}[.enum.quotefields] each update dsttime:.z.P from x];{[x;y]z:realsyms[x;y];if[count z;.[{(x)[y;z]};(.db.Ts[x;`event;`quote];x;z);()]];}[;exec sym from x] each tsl[];};
+.upd.quote:{[x]$[0=count .db.QX;.db.QX:.db.QX uj x;{[x;y].db.QX[y`sym;x]:y x}[.enum.quotefields] each update dsttime:.z.P from x];{[x;y]z:realsyms[x;y];if[count z;.[{(x)[y;z]};(.db.Ts[x;`event;`quote];x;z);()]];}[;exec sym from x] each tsl[];};
 
 .upd.quoteref:{[x].db.QX[x`sym;`pc`open`sup`inf]:x`pc`open`sup`inf;}'; //.upd.quoteref:{[x].db.QX:.db.QX uj select by sym from x;}; /VERY SLOW
 
@@ -289,7 +289,7 @@ imptrade:imptradex[0b];impoldtrade:imptradex[1b];
 
 impshcxl:{[x]y:x`sym;q:x`qty;u:x[`gid]+10000*x`origid;if[0<=p:.db.Vm[u];.db.Lm[u]-:q;$["B"=x`side;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p]]];}; /上海撤单委托处理
 
-.upd.l2order:{[x].temp.x3:x;e:fs2e y:x`sym;if["D"=x`typ;impshcxl x;:()];z:x[`gid]+10000*x`origid;if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];w:x`side;p:x`price;q:x`qty;.db.Vm[z]:p;.db.Lm[z]:q;$[w in "1B";[.db.Bm[y;p]:q+0f^.db.Bm[y;p]];w in "2S";[.db.Am[y;p]:q+0f^.db.Am[y;p]];[]];if[count r:.db.Wm[z];impoldtrade each .db.Tm r];}'; /逐笔委托处理
+.upd.l2order:{[x].temp.x3:x;e:fs2e y:x`sym;if["D"=x`typ;impshcxl x;:()];z:x[`gid]+10000*x`origid;if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];w:x`side;p:x`price;q:x`qty;if[x[`typ] in "1U";p:0f];.db.Vm[z]:p;.db.Lm[z]:q;$[w in "1B";[.db.Bm[y;p]:q+0f^.db.Bm[y;p]];w in "2S";[.db.Am[y;p]:q+0f^.db.Am[y;p]];[]];if[count r:.db.Wm[z];impoldtrade each .db.Tm r];}'; /逐笔委托处理
 
 .upd.l2match:{[x].temp.x4:x;imptrade each x;};
 
@@ -303,5 +303,6 @@ getcbbo:{[x]bq:.db.Bm[x] bp:first desc (key .db.Bm[x]) except 0f;oq:.db.Am[x] op
 .db.TASK[`DOREPOTASK;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+14:58:30;1D;0;4;`dorepotask);
 
 //----ChangeLog----
+//2023.05.17:.upd.l2order增加对市价单置p=0,.timer.ftsim增加对IPS单过滤
 //2023.04.27:setcs和.upd.exerpt增加对exchid和cexchid的支持
 //2023.03.20:.upd.l2order函数中统一使用`origid,深市不再区别使用`oid
