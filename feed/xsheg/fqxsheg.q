@@ -1,0 +1,148 @@
+.module.fqxsheg:2023.06.29;
+
+//深交所(V1.12,2022.05m):http://www.szse.cn/marketServices/technicalservice/interface/P020220523530959450444.pdf
+//上交所(V0.56,2022.04.13):http://www.sse.com.cn/services/tradingtech/data/c/IS120_MDGW_BINSSARY_CV0.56_20220413.pdf
+
+txload "core/fqbase";
+txload "lib/extutil";
+txload "feed/socket";
+
+.temp.L:();.temp.B:"";
+
+crc:{`char$0x0 vs `int$mod[;256] sum x};packcrc:{[x]x,crc[x]};
+
+tobe:{[x]`char$raze 0x0 vs/: x}; /int to big endian
+
+logonmsg:$[`XSHG~.conf`market;packcrc["S001",tobe["J"$except[;".:T"] string[.z.Z]],tobe[1],tobe[74i],pad[32;string .conf.selfid],pad[32;string .conf.peerid],tobe[`short$.conf.hbint],pad[8;string .conf.verid]];packcrc[tobe[1 92i],pad[20;string .conf.selfid],pad[20;string .conf.peerid],tobe[`int$.conf.hbint],pad[16;string .conf.passwd],pad[32;string .conf.verid]]];
+hbmsg:$[`XSHG~.conf`market;"";packcrc[tobe[3 0i]]];
+
+onsockconn:{[x].ctrl.tcpconn[x;`status`selftime`peertime`logontime]:(`Connected;0Np;0Np;0Np);};
+
+mdgw_logon:{[]x:.conf.mdgwid;if[(0<h:.ctrl.tcpconn[x;`h])&.ctrl.tcpconn[x;`status]=`Connected;.ctrl.tcpconn[x;`status]:`LogonHalf;smtcp[x;logonmsg]];};
+
+mdgw_hb:{[x];};
+
+/XSHE
+BIN:()!();
+BIN[1i]:{[x]x:.conf.mdgwid;if[.ctrl.tcpconn[x;`status]=`LogonHalf;.ctrl.tcpconn[x;`status`logontime]:(`Logon;.z.P)];}; /Logon
+BIN[2i]:{[x]lwarn[`MDGW_Logout;first each (4 200;"is") 1: x];if[0<h:.ctrl.tcpconn[.conf.mdgwid;`h];hclose[h]];}; /Logout
+BIN[3i]:{[x].ctrl.tcpconn[.conf.mdgwid;`peertime]:.z.P;}; /HeatBeat
+BIN[8i]:{[x];}; /BusiRej
+
+BIN[390095i]:{[x];}; /频道心跳
+BIN[390094i]:{[x];}; /重传消息
+BIN[390093i]:{[x];}; /用户报告
+BIN[390090i]:{[x];}; /频道统计
+
+BIN[390019i]:{[x];}; /市场状态
+BIN[390013i]:{[x];}; /证券状态
+BIN[390012i]:{[x];}; /公告
+
+snapshot:{[x]h:first each (8 2 3 8 4 8 8 8 8 8;"jhssssjjjj") 1: 65#x;if[not h[2] in `010`020`030`040`060`061`370`630`900`910`920;:`];dt:"DT"$'0 8 cut string h[0];z:` sv h[3],$[h[4]=`102;`XSHE;`XHKE];h[6 7 8 9]*:1e-4 1 1e-2 1e-4;.db.QX[z;`recvtime`extime`nticks`vwap`mode`pc`cumqty`cumamt]:(.z.P;dt[0]+`timespan$dt[1];1+0^.db.QX[z;`nticks];h[9]%h[8]),h[5 6 8 9];z}; /快照头,单一代码
+
+BIN[300111i]:{[x].temp.X1:x;if[null z:snapshot[x];:()];n:`long$0x0 sv `byte$x[65+til 4];.db.QX[z;`bidQ`askQ`bsizeQ`asizeQ]:4#enlist `float$();{[z;x]r:first each (2 8 8 2 8 4;"sjjhji") 1:x;t:r[0];r[1 2]*:1e-6 1e-2;l:r[3];$[t in `0`1;[if[l=1;.db.QX[z;((`0`1;`1`1)!(`bid`bsize;`ask`asize))t,`$string l]:r[1 2]];k:$[t=`0;`bidQ;`askQ];if[l>count d:.db.QX[z;k];.db.QX[z;k]:padf[l;d]];.db.QX[z;k;l-1]:r[1];k:$[t=`0;`bsizeQ;`asizeQ];if[l>count d:.db.QX[z;k];.db.QX[z;k]:padf[l;d]];.db.QX[z;k;l-1]:r[2]];t in `2`4`7`8`9`x7`x8`xe`xf`xg;.db.QX[z;(`2`4`7`8`9`x7`x8`xe`xf`xg!`price`open`high`low`vwap`openint`settlepx`sup`inf`openint) t]:r[1];()]}[z] each (n,32)#69_x;}; /竞价快照(Level-1 32byte定长记录,Level-2不适用)t:买卖,r[3]档位 
+
+BIN[306311i]:{[x].temp.X2:x;if[null z:snapshot[x];:()];if[null .db.QX[z;`assetclass];.db.QX[z;`assetclass]:`SGT];n1:`long$0x0 sv `byte$x[65+til 4];{[z;x]r:first each (2 8 8 2;"sjjh") 1:x;t:r[0];r[1 2]*:1e-6 1e-2;$[t in `0`1;.db.QX[z;((`0`1;`1`1;`0`2;`1`2)!(`bid`bsize;`ask`asize;`rfeetaxoa`rfeetaxoq;`rfeetaxca`rfeetaxcq))t,`$string r[3]]:r[1 2];t in `2`7`8`xh`xe`xf`xi`xr`xs`xt`xu;.db.QX[z;(`2`7`8`xh`xe`xf`xi`xr`xs`xt`xu!`price`high`low`settlepx`sup`inf`openint`qtyminl`qtymins`qtymaxl`qtymaxs) t]:r[1];()]}[z] each (n1,20)#69_x;n2:0x0 sv `byte$x[69+(20*n1)+til 4];if[n2;.db.QX[z;`tradephase`notice]:(`VCM;"-" sv string first each (8 8;"jj") 1: x[69+(20*n1)+4+til 16])];}; /港股快照
+
+BIN[309011i]:{[x].temp.X3:x;if[null z:snapshot[x];:()];n:`long$0x0 sv `byte$x[65+til 4];{[z;x]r:first each (2 8;"sj") 1:x;t:r[0];r[1]*:1e-6;$[t in `3`xa`xb`xc`xd;.db.QX[z;(`3`xa`xb`xc`xd!`price`pc`open`high`low) t]:r[1];()]}[z] each (n,10)#69_x;}; /指数快照
+
+BIN[300611i]:{[x];}; /盘后定价大宗快照
+BIN[303711i]:{[x];}; /盘后定价快照
+BIN[309111i]:{[x];}; /成交量统计快照
+
+BIN[300192i]:{[x];}; /竞价逐笔委托
+BIN[300592i]:{[x];}; /协议逐笔委托
+BIN[300792i]:{[x];}; /融券逐笔委托
+
+BIN[300191i]:{[x];}; /竞价逐笔成交
+BIN[300591i]:{[x];}; /协议逐笔成交
+BIN[300791i]:{[x];}; /融券逐笔成交
+
+BIN[300211i]:{[x];}; /债券快照
+BIN[300291i]:{[x];}; /债券逐笔成交
+BIN[300292i]:{[x];}; /债券逐笔委托
+BIN[300391i]:{[x];}; /债券匹配逐笔成交
+BIN[300392i]:{[x];}; /债券匹配逐笔委托
+BIN[300491i]:{[x];}; /债券竞买逐笔成交
+BIN[300492i]:{[x];}; /债券竞买逐笔委托
+
+
+//h(msgtype;bodylen:8)b(...:n)t(crc:4)
+decodeszv5binstream:{[x]l:0;y:x;while[1;if[8>m:count y;:l];h:(4 4;"ii") 1: 8#y;if[(0>=(t:h[0;0])|n:h[1;0]);:-1];if[not t in key BIN;lerr[`xshemtype;(t;n)];:-2];if[m<n2:4+n1:8+n;:l];z:n1#y;y:n1 _y;c:4#y;if[not c~crc[z];:-3];y:4_y;l+:n2;z:8_z;if[.conf.dumpmsg;.temp.L,:enlist (.z.P;t;z)];@[BIN[t];z;{[x;y;z]linfo[`bin;(x;y;z)]}[t;z]]];}; /n2:完整消息长度,l:已成功解析字节数,y:剩余待解析字节流
+onsockmsgsz:{[x;y].temp.X:(x;y);if[.conf.dumpmsg;.temp.B,:y];w:x`w;b:$[null w;"";.ctrl.tcpconn[w;`rbuf]],y;r:decodeszv5binstream b;if[not null w;$[0>r;[lerr[`fqxshe_decode;(r;sublist[1000]b)];if[0<r1:first ss[b] `char$0x0 vs  300111i;lerr[`fqxshe_cutmsg;r1#b];(` sv .conf.tempdb,.conf.me,`$"msg_",ssr[;":";"_"] string .z.Z) set r1#b;.ctrl.tcpconn[w;`rbuf]:r1 _b]];.ctrl.tcpconn[w;`rbuf]:r _b]];}; /hclose[.ctrl.tcpconn[w;`h]];.ctrl.tcpconn[w;`h`status`rbuf`sbuf]:(-1;`Disconnected;"";"")
+
+getreffile:{[t;x]$[t;xmlparse;::] read0 ` sv .conf.refpath,`$string[x],"_",((string .z.D) except "."),$[t;".xml";".txt"]}; /t:0(txt),1(xml) 
+getrefxml:getreffile[1];getreftxt:getreffile[0];
+
+get_securityswitch:{[x]d:getrefxml[`securityswitch];t:raze @[{[x]y:` sv (`$x[0;1]),$[`102=`$x[1;1];`XSHE;`XHKE];`sym xcols update sym:y from flip `switch`status!flip `$x[2;1;;1;;1]};;()] each d[0;1;;1];select notice: `$"|" sv switch {[x;y] (string x),"=",(string y)}' status  by sym from t}; /证券业务开关信息
+
+get_cashauctionparams:{[x]d:getrefxml[`cashauctionparams];1!`sym xcols update sym: sv[`] each (,\:)[sym;`XSHE],qtylot:qtyminl  from flip `sym`qtymaxl`qtymaxs`qtyminl`qtymins`pxunit!"SFFFFF"$'flip d[0;1;;1;0 2 3 4 5 6;1]}; /现货集中竞价交易业务参考信息 
+
+get_securities:{[x]d:getrefxml[`securities];1!`sym`ex xcols update sym: sv[`] each (,\:)[sym;`XSHE],ex:`XSHE from flip `sym`name`isin`underlying`opendate`sectype`currency`tradetype`pc`totalshares`outstanding`facevalue!"SSSSDSSSFFFF"$'flip d[0;1;;1;0 3 4 5 7 8 9 11 12 14 15 16;1]}
+
+get_hkexreff04:{[x]d:(" SSS SSSSSFF FDFFS";"|") 0: getreftxt[`hkexreff04];1!`sym`ex xcols update sym: sv[`] each (,\:)[sym;`XHKE],ex:`XHKE from flip `sym`isin`name`ticker`underlying`secclass`sectype`currency`scale`facevalue`accuvalue`opendate`qtylot`pc`remark!d};
+
+getrdsz:{[](get_securityswitch[] uj get_cashauctionparams[] uj get_securities[]) uj @[get_hkexreff04;();()]};
+
+/XSHG
+BINSS:()!();
+BINSS[`S001]:{[x]x:.conf.mdgwid;if[.ctrl.tcpconn[x;`status]=`LogonHalf;.ctrl.tcpconn[x;`status`logontime]:(`Logon;.z.P)];}; /Logon
+BINSS[`S002]:{[x]lwarn[`MDGW_Logout;first each (4 200;"is") 1: x];if[0<h:.ctrl.tcpconn[.conf.mdgwid;`h];hclose[h]];}; /Logout
+BINSS[`S003]:{[x].ctrl.tcpconn[.conf.mdgwid;`peertime]:.z.P;}; /HeatBeat
+
+BINSS[`M101]:{[x].temp.X2:x;d:first each (1 1 8 4;"xxsi") 1:x;}; /市场状态
+
+snapshotss:{[x]h:first each (1 1 4 4 5 8 8 8 8 8 8 8;"xxiisssjjjjs") 1: 71#x;if[not h[4] in `MD001`MD002`MD004`MD301`MD201;:`];dt:"DT"$'(::;"0"^-9$)@'string h[2 3];z:` sv h[5],`XSHG;h[7 8 9 10]*:1e-5 1. 1. 1e-2;.db.QX[z;`recvtime`extime`nticks`vwap`mode`pc`cumqty`openint`cumamt]:(.z.P;dt[0]+`timespan$dt[1];1+0^.db.QX[z;`nticks];h[10]%h[8]),h[11 7 8 9 10];(z;h)}; /快照头,单一代码
+
+BINSS[`M102]:{[x].temp.X1:x;zh:snapshotss[x];if[null z:first zh;:()];n:`long$0x0 sv `byte$x[71+til 2];.db.QX[z;`bidQ`askQ`bsizeQ`asizeQ]:4#enlist `float$();ii:zh[1;4] in `MD001;{[ii;z;x]r:first each $[ii;(2 8;"sj");(2 8 8 1;"sjjx")] 1:x;t:r[0];r[1]*:1e-5;if[not ii;r[2]*:1.];$[t in `0`1;[l:`long$r[3];if[l=0;.db.QX[z;((`0`0;`1`0)!(`bid`bsize;`ask`asize))t,`$string l]:r[1 2]];k:$[t=`0;`bidQ;`askQ];if[l>=count d:.db.QX[z;k];.db.QX[z;k]:padf[l+1;d]];.db.QX[z;k;l]:r[1];k:$[t=`0;`bsizeQ;`asizeQ];if[l>=count d:.db.QX[z;k];.db.QX[z;k]:padf[l+1;d]];.db.QX[z;k;l]:r[2]];t in `2`3`4`6`7`8`v;.db.QX[z;(`2`3`4`6`7`8`v!`price`price`open`settlepx`high`low`settlepx) t]:r[1];t=`z2;.db.QX[z;`openint]:r[2];()]}[ii;z] each (n,$[ii;10;19])#73_x;}; /竞价快照(Level-1 10[指数]/19[股票]byte定长记录,Level-2不适用)ii:isindex,t:买卖,r[3]档位 
+
+decodexshgbinstream:{[x]l:0;y:x;while[1;if[24>m:count y;:l];h:(4 8 8 4;"sjji") 1: 24#y;if[(null t:h[0;0])|(0>n:h[3;0]);:-1];if[not t in key BINSS;lerr[`xshgmtype;(t;n)];:-2];if[m<n2:4+n1:24+n;:l];z:n1#y;y:n1 _y;c:4#y;if[not c~crc[z];:-3];y:4_y;l+:n2;z:24_z;if[.conf.dumpmsg;.temp.L,:enlist (.z.P;t;z)];@[BINSS[t];z;{[x;y;z]linfo[`bin;(x;y;z)]}[t;z]]];}; /n2:完整消息长度,l:已成功解析字节数,y:剩余待解析字节流
+
+onsockmsgss:{[x;y].temp.X:(x;y);if[.conf.dumpmsg;.temp.B,:y];w:x`w;b:$[null w;"";.ctrl.tcpconn[w;`rbuf]],y;r:decodexshgbinstream b;if[not null w;$[0>r;[lerr[`fqxshg_decode;(r;sublist[1000]b)];if[0<r1:first ss[b] "M102";lerr[`fqxshg_cutmsg;r1#b];(` sv .conf.tempdb,.conf.me,`$"msg_",ssr[;":";"_"] string .z.Z) set r1#b;.ctrl.tcpconn[w;`rbuf]:r1 _b]];.ctrl.tcpconn[w;`rbuf]:r _b]];}; 
+
+readssxx:{[x]f:`$ssr[string .conf.ssxxtxt;"MMDD";(string x)[5 6 8 9]];if[()~key f;lwarn[`readssxx;(x;f)]];`sym xcols delete financetype1 from update date1:.z.D,sym:{`$(string x),".XSHG"} each esym,ex:`XSHG,sup:sup,inf:inf,pc:pc,financetype:?[financetype=`T;?[financetype1=`T;`All;`Cash];?[financetype1=`T;`Stock;`]],outstanding:listshares+outstanding,totalshares:listshares+outstanding+totalshares,pxlimitrule:(`N`R`S!``NoLimit`RepoType)pxlimitrule,secclass:{$["N"=x[0];`Open;"D"=x[1];$["R"=x[2];`SplitDiv;`Split];$["R"=x[2];`Divend;`]]} each string secclass,secstatus:{$["S"=x[3];`ST;"P"=x[3];`PT;`]} each string secclass,assetclass:(``ES`EU`D!``Stock`Fund`Bond)cficode from flip `esym`isin`time1`name`ticker`underlying`ex1`cficode`sectype`currency`listshares`outstanding`totalshares`opendate`state`qtyminl`qtymins`qtylot`qtymax`pc`pxunit`pxlimitrule`sup`inf`sharebonus`bonus`financetype`financetype1`secclass`remark!("SST",(7#"S"),(3#"F"),"DS",(6#"F"),"S",(4#"F"),4#"S";"|") 0: f};
+
+getrdss:{[]1!readssxx[.z.D]};
+
+/common
+onsockmsg:$[`XSHG~.conf`market;onsockmsgss;onsockmsgsz];
+
+getrd:$[`XSHG~.conf`market;getrdss;getrdsz];
+
+.timer.fqxsheg:{[x]if[not .z.T within .conf.onlinetime;:()];mdgw_logon[x];mdgw_hb[x];batchpub[];};
+
+qxsnap:{[]1!select sym,ex,esym,name,ticker,assetclass,product,multiplier,currency,strikepx,putcall,sectype,pxunit,qtylot,qtymax,qtymaxm,qtymaxl,qtymaxs,margintype,rmarginl,rmargins,rmarginoq,rmarginmq,rfeetaxoa,rfeetaxoq,rfeetaxca,rfeetaxcq,rfeetaxcat,rfeetaxcqt,rfeetaxom,rfeetaxcm,rfeetaxctm,settledate,opendate,createdate,lifephase,sec_key,underlying,isin,ex1,cficode,notice,remark from .db.QX where (not null name)|not null pxunit};
+
+batchpub:{[]if[.db.fqopendate<d0:.db.sysdate;.db.fqopendate:d0;.temp.L:.temp.Last:.temp.LastRef:();.db.QX:0#.db.QX;d:@[getrd;::;()];if[count d;.db.QX:.db.QX uj d;(path:` sv .conf.tempdb,.conf.me,`RD) set qxsnap[];pubm[`ALL;`RDUpdate;`xsheg;string path]];.[updetf;(`;`);()]];n:count d:(select sym,bid,ask,bsize,asize,price,high,low,vwap,cumqty,openint,settlepx,mode,extime,bidQ,askQ,bsizeQ,asizeQ from .db.QX where not null sym,0<nticks) except .temp.Last;if[n;.temp.Last:$[0=count .temp.Last;d;0!(1!.temp.Last),1!d];pub[`quote;update bidQ:?[0=count each bidQ;n#enlist `float$();bidQ],askQ:?[0=count each askQ;n#enlist `float$();askQ],bsizeQ:?[0=count each bsizeQ;n#enlist `float$();bsizeQ],asizeQ:?[0=count each asizeQ;n#enlist `float$();asizeQ],quoopt:n#enlist "" from d]];d2:(select sym,pc,open,0w^sup,0f^inf from .db.QX where not null sym,0<nticks) except .temp.LastRef;if[n:count d2;.temp.LastRef:$[0=count .temp.LastRef;d2;0!(1!.temp.LastRef),1!d2];pub[`quoteref;update refopt:n#enlist"" from d2]];update nticks:0 from `.db.QX;};
+
+.disp.fqxsheg:{.ctrl.tcpconn};
+
+/ETF
+//`Version`SecurityID`SecurityIDSource`Symbol`FundManagementCompany`UnderlyingSecurityID`UnderlyingSecurityIDSource`CreationRedemptionUnit`EstimateCashComponent`MaxCashRatio`Publish`Creation`Redemption`RecordNum`TotalRecordNum`TradingDay`PreTradingDay`CashComponent`NAVperCU`NAV`DividendPerCU`CreationLimit`RedemptionLimit`CreationLimitPerUser`RedemptionLimitPerUser`NetCreationLimit`NetRedemptionLimit`NetCreationLimitPerUser`NetRedemptionLimitPerUser
+//`UnderlyingSecurityID`UnderlyingSecurityIDSource`UnderlyingSymbol`ComponentShare`SubstituteFlag`PremiumRatio`CreationCashSubstitute`RedemptionCashSubstitute
+
+loadpcfsz:{[x]m:@[getrefxml;f:`$"pcf_",string fs2s x;()];if[0=count[m];lwarn[`loadpcfsz;(x;f)];:()];r:(!/)flip m[0;1];d:"D"$r`TradingDay;idsrc:`$r`UnderlyingSecurityIDSource;.db.ETF[x;`trday`cu`cueu`cutc`cunv`cudv`nav`ctmax`rdmax`cashrmax`pubok`ctok`rdok`cashct`pfnumlocal`pfnum`pretrday`underlying`etftype`name`companyname`version]:(d;"F"$r`CreationRedemptionUnit;"F"$r`EstimateCashComponent;0n;"F"$r`NAVperCU;"F"$r`DividendPerCU;"F"$r`NAV;"F"$r`CreationLimit;"F"$r`RedemptionLimit;"F"$r`MaxCashRatio;"B"$r`Publish;"B"$r`Creation;"B"$r`Redemption;0b;"J"$r`RecordNum;"J"$r`TotalRecordNum;"D"$r`PreTradingDay;sv[`;(`$r`UnderlyingSecurityID),`XSHE];`1;`;`;`$r`Version);.db.ETF[x;`crsym]:x;delete from `.db.ETFPF where etfsym=x;.db.ETFPF,:select etfsym:x,sym:UnderlyingSecurityID {[x;y]y:`$y;`$x,$[y=`103;".XHKE";x like "m*";".XDCE";x like "[acnpsz]*";".XSGE";x like "6*";".XSHG";".XSHE"]}' UnderlyingSecurityIDSource,qty:"F"$ComponentShare,cctype:first each SubstituteFlag,ccprem:"F"$PremiumRatio,camt:"F"$CreationCashSubstitute,ramt:"F"$RedemptionCashSubstitute,trday:d from {`DiscountRatio _(!/) flip x[1]} each r`Components;};
+
+loadpcfsh:{[x]y:fs2se[x];c:`char$@[read1;f:` sv (.conf.refpathsh),`$(string y[0]),(-4#(string .z.D) except "."),".etf";()];if[0=count[c];linfo[`loadpcfsh;(x;f)];:loadpcfsh2[x]];i0:1+c?"\n";i1:first c ss "TAGTAG";i2:first c ss "ENDENDEND";c:(i0,i1,i2)_c;h:(!/)"S=\n" 0: ssr [;"maxCashratio";"MaxCashRatio"] ssr [;"Estimatecashcomponent";"EstimateCashComponent"] ssr[;"Recordnum";"RecordNum"] c[0] except "\r";.db.ETF[x;`trday`cu`cueu`cutc`cunv`cudv`nav`ctmax`rdmax`cashrmax`pubok`cashct`pfnumlocal`pfnum`pretrday`underlying`etftype`name`companyname`version]:"DFFFFFFFFFBBIIDSSSSS"$' h[`TradingDay`CreationRedemptionUnit`EstimateCashComponent`CashComponent`NAVperCU`DividendPerCU`NAV`CreationLimit`RedemptionLimit`MaxCashRatio`Publish`CashCreation`RecordNum`TotalRecordNum`PreTradingDay`UnderlyingIndex`Type`FundName`FundManagementCompany`Version];.db.ETF[x;`crsym`ctok`rdok]:(`$h[`Fundid1],".XSHG";first[h[`CreationRedemption]] in "12";first[h[`CreationRedemption]] in "13");delete from `.db.ETFPF where etfsym=x;.db.ETFPF,:`etfsym xcols update etfsym:x,sym:{[x]se2fs x,$[5>=count[string x];`XHKG;(x like "6*")|(x like "11[03]*")|(x like "13*");`XSHG;`XSHE]} each sym,ramt:camt^ramt,trday:.db.ETF[x;`trday] from flip `sym`qty`cctype`ccprem`camt`ramt!("S FCFFF";"|") 0: (8_c[1]);};
+
+loadpcfsh2:{[x]y:fs2se[x];c:`char$@[read1;f:` sv (.conf.refpathsh),`$(string y[0]),(-4#(string .z.D) except "."),"2.etf";()];if[0=count[c];lwarn[`loadpcfsh2;(x;f)];:()];i0:0;i1:first c ss "TAGTAG";i2:first c ss "ENDENDEND";c:(i0,i1,i2)_c;h:(!/)"S=\n" 0: ssr [;"maxCashratio";"MaxCashRatio"] ssr [;"Estimatecashcomponent";"EstimateCashComponent"] ssr[;"Recordnum";"RecordNum"] c[0] except "\r";.db.ETF[x;`trday`cu`cueu`cutc`cunv`cudv`nav`ctmax`rdmax`cashrmax`pubok`cashct`pfnumlocal`pfnum`pretrday`underlying`etftype`name`companyname`version]:"DFFFFFFFFFBBIIDSSSSS"$' h[`TradingDay`CreationRedemptionUnit`EstimateCashComponent`CashComponent`NAVperCU`DividendPerCU`NAV`CreationLimit`RedemptionLimit`MaxCashRatio`Publish`CashCreation`RecordNum`TotalRecordNum`PreTradingDay`UnderlyingIndex`Type`FundName`FundManagementCompany`Version];.db.ETF[x;`crsym`ctok`rdok]:(`$h[`Fundid1],".XSHG";first[h[`CreationRedemption]] in "12";first[h[`CreationRedemption]] in "13");delete from `.db.ETFPF where etfsym=x;.db.ETFPF,:`etfsym xcols update etfsym:x,sym:{[x]se2fs x,$[5>=count[string x];`XHKG;(x like "6*")|(x like "11[03]*")|(x like "13*");`XSHG;`XSHE]} each sym,ramt:camt,trday:.db.ETF[x;`trday] from flip `sym`qty`cctype`ccprem`camt!("S FCF F   ";"|") 0: (8_c[1]);};
+
+loadpcf:{[x]e:fs2e x;$[e=`XSHE;loadpcfsz;loadpcfsh] x;};
+
+loadpcfer:{[]m:@[getrefxml;f:`imcexchangerate;()];if[0=count[m];lwarn[`loadpcfer;(x;f)];:()];r:update trday:.z.D   from 2!`fc`tc`bid`ask`midpx xcol {"SSFFF"$'(!/)flip x[1]}  each  m[0;1];.db.ETFER:.db.ETFER uj r;};
+
+updetf:{[x;y]@[loadpcf;;()] each .conf.etflist;@[loadpcfer;();()];{set[` sv .conf[`tempdb],x;.db[x]];} each `ETF`ETFPF`ETFER;1b};
+
+
+\
+d:flip `sym`isin`name`name1`name2`underlying`block`stype`currency`scale`facevalue`facecurr`interest`listdate`qtylot`pc`remark!(" ",(9#"S"),"FF","SFDFFS";"|") 0: read0 `:hkexreff04_20170621.txt
+
+52 3#6_first flip ("SS",160#"F";"|") 0: read0 `:hkexzxjc_20170621.txt
+
+.db.ETF:([`u#sym:`symbol$()]trday:`date$();cu:`float$();cueu:`float$();cutc:`float$();cunv:`float$();cudv:`float$();nav:`float$();ctmax:`float$();rdmax:`float$();cashrmax:`float$();pubok:`boolean$();ctok:`boolean$();rdok:`boolean$();cashct:`boolean$();pfnumlocal:`long$();pfnum:`long$();pretrday:`date$();underlying:`symbol$();etftype:`symbol$();name:`symbol$();companyname:`symbol$();version:`symbol$();crsym:`symbol$()); /ETF Meta
+
+.db.ETFPF:([etfsym:`symbol$();sym:`symbol$()]qty:`float$();cctype:`char$();ccprem:`float$();camt:`float$();ramt:`float$();trday:`date$()); /ETF Portfolio
+
+.db.ETFER:([fc:`symbol$();tc:`symbol$()]trday:`date$();bid:`float$();ask:`float$();midpx:`float$()); /ETF ExchangeRate
+
+.db.TASK[`UPDETF;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:05;1D;0;4;`updetf);

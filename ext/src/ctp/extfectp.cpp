@@ -113,7 +113,7 @@ public:
 
   virtual void OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     O("OnRspError:\n"); 
-    if(null!=pRspInfo) O("ErrorCode=[%d], ErrorMsg=[%s]\n", pRspInfo->ErrorID, pRspInfo->ErrorMsg); 
+    if(NULL!=pRspInfo) O("ErrorCode=[%d], ErrorMsg=[%s]\n", pRspInfo->ErrorID, pRspInfo->ErrorMsg); 
     O("RequestID=[%d], Chain=[%d]\n", nRequestID, bIsLast); 
   }
  
@@ -221,7 +221,7 @@ public:
 
 
   ///查询最大报单数量响应
-  virtual void OnRspQueryMaxOrderVolume(CThostFtdcQueryMaxOrderVolumeField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  virtual void OnRspQueryMaxOrderVolume(CThostFtdcQryMaxOrderVolumeField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("QueryMaxOrderVolume:%d\n",p); 
     RETURNONERR;
     CTPPUB("QueryMaxOrderVolume",knk(7,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kc(p->Direction),kc(p->OffsetFlag),kc(p->HedgeFlag),ki(p->MaxVolume)));
@@ -700,7 +700,7 @@ extern "C"{
   K2(qryMaxOrderVolume){
     if(!run) R ki(-1);
 
-    CThostFtdcQueryMaxOrderVolumeField req;
+    CThostFtdcQryMaxOrderVolumeField req;
     memset(&req,0,sizeof(req));
     strcpy(req.BrokerID,kK(y)[0]->s);
     strcpy(req.InvestorID,kK(y)[1]->s);
@@ -709,7 +709,7 @@ extern "C"{
     req.OffsetFlag=kK(y)[4]->g;
     req.HedgeFlag=kK(y)[5]->g;
 
-    R ki(pTradeApi->ReqQueryMaxOrderVolume(&req,xi));
+    R ki(pTradeApi->ReqQryMaxOrderVolume(&req,xi));
   }
 
   K2(qryInstrument){

@@ -1,7 +1,7 @@
 /恒生柜台交易接口程序(T2SDK)
 //**注意不同ufx实例需要采用不同的seq0base以保证不同实例的feoid字段(8位)互不重复！！！
 
-.module.feufx:2023.04.27;
+.module.feufx:2023.07.20;
 
 txload "core/febase";
 
@@ -19,11 +19,11 @@ callsync:t2call[;;0i];callasync:t2call[;;1i];
 .ctrl.tcpconn[.conf.ufx.t2name]:.enum.nulldict;
 .ctrl.tcpconn[.conf.ufx.subname]:.enum.nulldict;
 
-.temp.L1:.temp.C:.temp.L:();
+.temp.L1:.temp.E:.temp.C:.temp.L:();
 
 .temp.MSG:([id:`int$()]funcid:`symbol$();senttime:`timestamp$();recvtime:`timestamp$();src:`symbol$();req:();sentfill:`boolean$();sentcode:`int$();sentspan:`timespan$();senttry:`int$();msgid:();corrid:();peertime:`datetime$();recvfill:`boolean$();recvcode:`int$();recvspan:`timespan$();recvtry:`int$();ans:();src:`symbol$();oid:`symbol$();internal:`boolean$()); /ufx Msg
 
-onhst2:{[x].temp.L,:(enlist .z.T),/:x;{.upd[x[0]][x[1]]} each x;};
+onhst2:{[x].temp.L,:(enlist .z.T),/:x;@[{.upd[x[0]][x[1]]};;{.temp.E,:enlist (.z.P;x);}] each x;};
 
 .init.feufx:{[x].ctrl.ufx.Run:initt2[];}
 .exit.feufx:{[x]freet2[];};
@@ -91,12 +91,14 @@ errmsg:{[r]r[0;0;`ErrorMsg]};
 .upd.OnRegister:{.ctrl.ufx[`Registered]:1b;};
 .upd.OnClose:{.ctrl.tcpconn[$[x;`sub;`t2];`h`status`disctime]:(-1;`Disconnected;.z.P);};
 
-.upd.OnReceivedBiz:{[x]k:x[0];y:x[1];r:x[2];.temp.MSG[k;`ans`recvtime]:(enlist r;now[]);if[(0h=type r)&(0<count r);.upd[.temp.MSG[k;`funcid];`src`oid`res!(.temp.MSG[k;`src];.temp.MSG[k;`oid];r)];if[not errcode[r] in 0 0N;lwarn[`HST2Res;(x;r)]]];};
+.upd.OnReceivedBiz:{[x];k:x[0];y:x[1];r:x[2];.temp.MSG[k;`ans`recvtime]:(enlist r;now[]);if[(0h=type r)&(0<count r);.upd[.temp.MSG[k;`funcid];`src`oid`res!(.temp.MSG[k;`src];.temp.MSG[k;`oid];r)];if[not errcode[r] in 0 0N;lwarn[`HST2Res;(x;r)]]];};
 
 cxlrej:{[k]rejcxl[k;.db.O[k;`reason];.db.O[k;`msg]];};
 ordrej:{[k]rejectord[k;.db.O[k;`reason];.db.O[k;`msg]];};
 
-.upd.SubRecv:{[x].temp.x10:x;y:x[1;0;0];z:`$string y`batch_no;u:`$string y`entrust_no;v:`${$[10h=type x;x;string x]}y`cancel_entrust_no;w:.enum.hssidemap first y`entrust_direction;a:`$string y`extsystem_id;k:exec first id from .db.O where ordid in (u,v) except `;if[null k;k:exec first id from .db.O where feoid=a];if[null k;:()];if[null .db.O[k;`ordid];.db.O[k;`ordid]:u];se:fs2se fs:.db.O[k;`sym];se[1]:.enum.ex2hs se[1];st:sectype[se[0];se[1]];hs:`$y`msgtype;.db.O[k;`rptopt],:"-",string[hs];$[hs in `a`b`d;[if[hs=`b;.db.O[k;`exchid]:`$y`confirm_no];execrpt[k]];hs=`c;[.db.O[k;`status`reason`msg]:(.enum`REJECTED;-1i;y`revoke_cause);ordrej[k]];hs=`f;[.db.O[k;`cstatus`reason`msg]:(.enum`REJECTED;-1i;y`revoke_cause);cxlrej[k]];[$[hs=`e;[cq:`float$y`cancel_amount;.db.O[k;`status`cumqty]:(.enum`CANCELED;.db.O[k;`qty]-cq)];[cq:`float$y`total_deal_amount;ca:`float$y`total_deal_balance;.db.O[k;`status`cumqty`avgpx]:(.enum$[cq=.db.O[k;`qty];`FILLED;`PARTIALLY_FILLED];cq;ca%cq*$[st in `FUT`OPT`FUTSP;1f^.db.QX[fs;`multiplier];1f])]];execrpt[k]]];}; /a委托下达b委托确认g委托成交c委托拒绝d委托撤单e委托撤成f委托撤废
+//.upd.SubRecv:{[x].temp.x10:x;y:x[1;0;0];z:`$string y`batch_no;u:`$string y`entrust_no;v:`${$[10h=type x;x;string x]}y`cancel_entrust_no;w:.enum.hssidemap first y`entrust_direction;a:`$string y`extsystem_id;k:exec first id from .db.O where ordid in (u,v) except `;if[null k;k:exec first id from .db.O where null ordid,feoid=a];if[null k;:()];if[null .db.O[k;`ordid];.db.O[k;`ordid]:u];se:fs2se fs:.db.O[k;`sym];se[1]:.enum.ex2hs se[1];st:sectype[se[0];se[1]];hs:`$y`msgtype;.db.O[k;`rptopt],:"-",string[hs];$[hs in `a`b`d;[if[hs=`b;.db.O[k;`exchid]:`$y`confirm_no];execrpt[k]];hs=`c;[.db.O[k;`status`reason`msg]:(.enum`REJECTED;-1i;y`revoke_cause);ordrej[k]];hs=`f;[.db.O[k;`cstatus`reason`msg]:(.enum`REJECTED;-1i;y`revoke_cause);cxlrej[k]];[$[hs=`e;[cq:`float$y`cancel_amount;.db.O[k;`status`cumqty]:(.enum`CANCELED;.db.O[k;`qty]-cq)];[cq:`float$y`total_deal_amount;ca:`float$y`total_deal_balance;.db.O[k;`status`cumqty`avgpx]:(.enum$[cq=.db.O[k;`qty];`FILLED;`PARTIALLY_FILLED];cq;ca%cq*$[st in `FUT`OPT`FUTSP;1f^.db.QX[fs;`multiplier];1f])]];execrpt[k]]];}
+
+.upd.SubRecv:{[x].temp.x10:x;y:x[1;0;0];z:`$string y`batch_no;u:`$string y`entrust_no;v:`${$[10h=type x;x;string x]}y`cancel_entrust_no;w:.enum.hssidemap first y`entrust_direction;a:`$string y`extsystem_id;t:`$y`third_reff;L:vs[`]t;if[4>count L;:()];oid:sv[`] -2#L;if[null k:exec first id from .db.O where (id=oid)&(ordid in (u,v) except `)|((null ordid)&(feoid=a));:()];if[null .db.O[k;`ordid];.db.O[k;`ordid]:u];se:fs2se fs:.db.O[k;`sym];se[1]:.enum.ex2hs se[1];st:sectype[se[0];se[1]];hs:`$y`msgtype;.db.O[k;`rptopt],:"-",string[hs];$[hs in `a`b`d;[if[hs=`b;.db.O[k;`exchid]:`$y`confirm_no];execrpt[k]];hs=`c;[.db.O[k;`status`reason`msg]:(.enum`REJECTED;-1i;y`revoke_cause);ordrej[k]];hs=`f;[.db.O[k;`cstatus`reason`msg]:(.enum`REJECTED;-1i;y`revoke_cause);cxlrej[k]];[$[hs=`e;[cq:`float$y`cancel_amount;.db.O[k;`status`cumqty]:(.enum`CANCELED;.db.O[k;`qty]-cq)];[cq:`float$y`total_deal_amount;ca:`float$y`total_deal_balance;.db.O[k;`status`cumqty`avgpx]:(.enum$[cq=.db.O[k;`qty];`FILLED;`PARTIALLY_FILLED];cq;ca%cq*$[st in `FUT`OPT`FUTSP;1f^.db.QX[fs;`multiplier];1f])]];execrpt[k]]];}; /a委托下达b委托确认g委托成交c委托拒绝d委托撤单e委托撤成f委托撤废
 
 .timer.feufx:{[x]s:.ctrl.tcpconn[.conf.ufx.t2name];if[0>=h:ifill s`h;connHS[`;`]];if[0<h;if[(1b~.ctrl.ufx[`Registered])&(not 1b~.ctrl.ufx[`login])&not 1b~.ctrl.ufx[`loginfail];.ctrl.ufx[`loginfail]:1b;.upd.Login[]];if[((s[`hbsent]+`timespan$`second$s[`hbint])<x)&1b~.ctrl.ufx[`login];.upd.Hello[()];.ctrl.tcpconn[.conf.ufx.t2name;`hbsent]:now[]]];s:.ctrl.tcpconn[.conf.ufx.subname];if[0>=h:ifill s`h;connHSsub[`;`]];}; 
 
@@ -117,9 +119,9 @@ hsfunc:{[x;y].temp.X:(x;y);fid:`$string x;req:y`req;$[`SYNC~.conf.ufx.mode;[k:ne
 
 .upd[`33108]:.upd[`33104]:.upd[`33103]:.upd[`33109]:.upd[`33101]:{[x].temp.x88:x;k:x`oid;r:x`res;z:errcode[r];if[(not z in 0 0N)|(1>=count[r]);:()];if[1b;if[0>=n:count r[1];:()];.temp.HMHS,:select ft:first each vs[`] each `$third_reff,ts:@[;1] each vs[`] each `$third_reff,id:sv[`] each @[;2 3] each vs[`] each `$third_reff,acc1:(`$account_code){sv[`]x,y}'`$combi_no,sym:(`$stock_code)  {sv[`]x,y}' .enum.hsexmap `$market_no,side:.enum.hssidemap first each entrust_direction,price:deal_price,qty:deal_amount,amt: deal_balance,fee:total_fee,feoid:`$string extsystem_id,ordid:`$string entrust_no,mtime:("D"$string deal_date)+"T"$padx["0";-6] each string  deal_time,matid:`$deal_no,`$position_str from r[1];if[n>=.conf.ufx.reqnum;qryallhismatex[x`src;last[.temp.HMHS]`position_str;last[.temp.HMHS]`acc1;"D"$string k]];:()];}; /hismatqry
 
-.upd[`30010]:{.temp.x6:x;d:1!`sym xcols update sym:esym {sv[`]x,y}' ex,product:{[x]y:string x;`$first[ss[y;"[0-9]"]]#y} each esym from select ex:.enum.hsexmap `$market_no,esym:`$stock_code,name:`$stock_name,secclass:`$future_kind_name,multiplier:multiple,settledate:"D"$string last_trade_date,time1:"T"$string last_trade_time,date1:"D"$string settlement_date,pxunit:price_interval from x[`res;1];.db.QX:.db.QX uj d;.ctrl.ufx[`qryres]+:1;.ctrl.ufx[`numfut]:count[d];if[1<=.ctrl.ufx[`qryres];(path:` sv .conf.tempdb,.conf.me,`RDFut) set d;pubm[`ALL;`RDUpdate;`ctp;string path]];}; /futqry
+.upd[`30010]:{.temp.x6:x;d:1!`sym xcols update sym:esym {sv[`]x,y}' ex,product:{[x]y:string x;`$first[ss[y;"[0-9]"]]#y} each esym from select ex:.enum.hsexmap `$market_no,esym:`$stock_code,name:`$stock_name,secclass:`$future_kind_name,multiplier:multiple,settledate:"D"$string last_trade_date,time1:"T"$string last_trade_time,date1:"D"$string settlement_date,pxunit:price_interval from x[`res;1];.db.QX:.db.QX uj d;.ctrl.ufx[`qryres]+:1;.ctrl.ufx[`numfut]:count[d];if[1<=.ctrl.ufx[`qryres];(path:` sv .conf.tempdb,.conf.me,`RDFut) set d;pubm[`ALL;`RDUpdate;`ufx;string path]];}; /futqry
 
-.upd[`30012]:{.temp.x7:x;d:1!`sym xcols update sym:esym {sv[`]x,y}' ex,product:secclass from select ex:.enum.hsexmap `$market_no,esym:`$stock_code,name:`$stock_name,secclass:`$target_type,multiplier:multiple,settledate:"D"$string last_trade_date,date1:"D"$string exercise_date,isin:`$optcontract_id,putcall:`$option_type,strikepx:exercise_price,optexec:(`1`2`3!`E`A`B) `$apply_style,tradetype:`$contract_version,tradephase:`$compact_status from d0:x[`res;1];.db.QX:.db.QX uj d;n:count[d];$[null x`oid;[.ctrl.ufx[`numopt]:n;.temp.dopt:d];[.ctrl.ufx[`numopt]+:n;.temp.dopt,:d]];if[n>=.conf.ufx.reqnum;qryfutoptex[`$last[d0]`position_str;1;()];:()];.ctrl.ufx[`qryresopt]+:1;if[1<=.ctrl.ufx[`qryresopt];(path:` sv .conf.tempdb,.conf.me,`RDOpt) set .temp.dopt;pubm[`ALL;`RDUpdate;`ctp;string path]];}; /optqry
+.upd[`30012]:{.temp.x7:x;d:1!`sym xcols update sym:esym {sv[`]x,y}' ex,product:secclass from select ex:.enum.hsexmap `$market_no,esym:`$stock_code,name:`$stock_name,secclass:`$target_type,multiplier:multiple,settledate:"D"$string last_trade_date,date1:"D"$string exercise_date,isin:`$optcontract_id,putcall:`$option_type,strikepx:exercise_price,optexec:(`1`2`3!`E`A`B) `$apply_style,tradetype:`$contract_version,tradephase:`$compact_status from d0:x[`res;1];.db.QX:.db.QX uj d;n:count[d];$[null x`oid;[.ctrl.ufx[`numopt]:n;.temp.dopt:d];[.ctrl.ufx[`numopt]+:n;.temp.dopt,:d]];if[n>=.conf.ufx.reqnum;qryfutoptex[`$last[d0]`position_str;1;()];:()];.ctrl.ufx[`qryresopt]+:1;if[1<=.ctrl.ufx[`qryresopt];(path:` sv .conf.tempdb,.conf.me,`RDOpt) set .temp.dopt;pubm[`ALL;`RDUpdate;`ufx;string path]];}; /optqry
 
 .upd[`31001]:{[x].temp.x11:x;.temp.P,:1!select from (select sym:(`$stock_code) {sv[`]x,y}'.enum.hsexmap `$market_no,lqty:current_amount,sqty:0f,aqty:enable_amount from .temp.x11[`res;1]) where lqty>0;.temp.nQPack+:1;if[(not null x`src)&(.temp.nQPack>=2);pubmx[x`src;`PosUpdate;.conf.me;string x`oid;-8!.temp.P]];};
 .upd[`31003]:{[x].temp.x12:x;if[1<count[.temp.x12[`res]];.temp.P,:(1!select from (select sym:(`$stock_code) {sv[`]x,y}'.enum.hsexmap `$market_no,lqty:current_amount,sqty:0f,aqty:0f from .temp.x12[`res;1] where `1=`$position_flag) where lqty>0) uj (1!select from (select sym:(`$stock_code) {sv[`]x,y}'.enum.hsexmap `$market_no,lqty:0f,sqty:neg current_amount from .temp.x12[`res;1] where `2=`$position_flag) where sqty<0)];.temp.nQPack+:1;if[(not null x`src)&(.temp.nQPack>=2);pubmx[x`src;`PosUpdate;.conf.me;string x`oid;-8!.temp.P]];};
@@ -184,6 +186,7 @@ LOOPEND
 e "hscxlord each select from .temp.OHS where not status in .enum`FILLED`CANCELED`REJECTED";
 //应急处理结束.
 
+K:group `$@[;`msgtype] each d:first each @[;1] each @[;2] each L where L[;1]=`SubRecv;a:raze d[K]`a
 
 
 connHS[`;`];

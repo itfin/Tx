@@ -1,5 +1,5 @@
 //Tx主控台管理界面
-//version:2019.06.10
+//version:2013.06.27
 
 Functional.install();
 
@@ -92,7 +92,7 @@ dispres=function(x,y){
 };
 
 //行情信息
-quotereq=function(){wscall('raze {update node:.ctrl.MOD[x;`node] from .ctrl.MOD[x;`h] "0!(select string `time$last time,n:count i by src from quote),select string `time$last time,n:count i by src from l2quote"} each exec id from .ctrl.MOD where mtyp=`rdb,h>0',quoteres,{target:'grid'});}
+quotereq=function(){wscall('raze {update node:.ctrl.MOD[x;`node] from .ctrl.MOD[x;`h] "0!(select string `time$last time,n:count i by src from quote),select string `time$last time,n:count i by src from l2quote"} each exec id from .ctrl.MOD where (1b|node=.conf.ha.node),mtyp=`rdb,h>0',quoteres,{target:'grid'});}
 quoteres=function(x,y){
     $('#'+x.target).html('<div id=quotelst>');
     $('#quotelst').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'src',title:'行情源模块',width:80,sortable:true},{field:'time',title:'最后更新时间',width:200,sortable:true},{field:'n',title:'记录条数',width:200,sortable:true},{field:'node',title:'节点ID',width:60,sortable:true}]]});
@@ -100,7 +100,7 @@ quoteres=function(x,y){
 };
 
 //交易信息
-tradereq=function(){wscall('raze {update node:.ctrl.MOD[x;`node] from .ctrl.MOD[x;`h] "0!((select no:count i,lo:string `time$last time by fe:sym from ordnew) lj (select nc:count i,lc:string `time$last time by fe:sym from ordcxl)) lj select nr:count i,lr:string `time$last time by fe:src from exerpt"} each exec id from .ctrl.MOD where mtyp=`rdb,h>0',traderes,{target:'grid'});}
+tradereq=function(){wscall('raze {update node:.ctrl.MOD[x;`node] from .ctrl.MOD[x;`h] "0!((select no:count i,lo:string `time$last time by fe:sym from ordnew) lj (select nc:count i,lc:string `time$last time by fe:sym from ordcxl)) lj select nr:count i,lr:string `time$last time by fe:src from exerpt"} each exec id from .ctrl.MOD where node=.conf.ha.node,mtyp=`rdb,h>0',traderes,{target:'grid'});}
 traderes=function(x,y){
     $('#'+x.target).html('<div id=tradelst>');
     $('#tradelst').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'fe',title:'执行模块',width:80,sortable:true},{field:'no',title:'委托笔数',width:60,sortable:true},{field:'lo',title:'末笔委托时间',width:200,sortable:true},{field:'nc',title:'撤单笔数',width:60,sortable:true},{field:'lc',title:'末笔撤单时间',width:200,sortable:true},{field:'nr',title:'回报条数',width:60,sortable:true},{field:'lr',title:'末笔回报时间',width:200,sortable:true},{field:'node',title:'节点ID',width:80,sortable:true}]]});
@@ -108,7 +108,7 @@ traderes=function(x,y){
 };
 
 //
-sysmsgreq=function(){wscall('raze {update node:.ctrl.MOD[x;`node] from .ctrl.MOD[x;`h] "select string `time$time,sym,typ,ref,msg,src,string srctime,srcseq from sysmsg where 0=count each vbin"} each exec id from .ctrl.MOD where mtyp=`rdb,h>0',sysmsgres,{target:'grid'});}
+sysmsgreq=function(){wscall('raze {update node:.ctrl.MOD[x;`node] from .ctrl.MOD[x;`h] "select string `time$time,sym,typ,ref,msg,src,string srctime,srcseq from sysmsg where 0=count each vbin"} each exec id from .ctrl.MOD where node=.conf.ha.node,mtyp=`rdb,h>0',sysmsgres,{target:'grid'});}
 sysmsgres=function(x,y){
     $('#'+x.target).html('<div id=msglst>');
     $('#msglst').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'time',title:'时间',width:80,sortable:true},{field:'sym',title:'接收者',width:80,sortable:true},{field:'typ',title:'类别',width:80,sortable:true},{field:'ref',title:'关联项',width:80,sortable:true},{field:'src',title:'发送者',width:80,sortable:true},{field:'srctime',title:'发送时间',width:180,sortable:true},{field:'srcseq',title:'发送序号',width:80,sortable:true},{field:'msg',title:'信息',width:480,sortable:true},{field:'node',title:'所在节点',width:80,sortable:true}]]});

@@ -110,19 +110,25 @@ public:
   virtual void OnDepthMarketData(XTPMD *p, int64_t bid1_qty[], int32_t bid1_count, int32_t max_bid1_count, int64_t ask1_qty[], int32_t ask1_count, int32_t max_ask1_count){
     K bp=ktn(KF,10),bq=ktn(KF,10),ap=ktn(KF,10),aq=ktn(KF,10),b1=ktn(KJ,bid1_count),a1=ktn(KJ,ask1_count);
     
-    DO(10,kF(bp)[i]=p->bid[i])
-      DO(10,kF(ap)[i]=p->ask[i])
-      DO(10,kF(bq)[i]=p->bid_qty[i])
-      DO(10,kF(aq)[i]=p->ask_qty[i])
-      DO(bid1_count,kJ(b1)[i]=bid1_qty[i])
-      DO(ask1_count,kJ(a1)[i]=ask1_qty[i])
+    DO(10,kF(bp)[i]=p->bid[i]);
+    DO(10,kF(ap)[i]=p->ask[i]);
+    DO(10,kF(bq)[i]=p->bid_qty[i]);
+    DO(10,kF(aq)[i]=p->ask_qty[i]);
+    DO(bid1_count,kJ(b1)[i]=bid1_qty[i]);
+    DO(ask1_count,kJ(a1)[i]=ask1_qty[i]);
       
-      
-      if(XTP_MARKETDATA_ACTUAL==p->data_type){  
-	mpub(knk(2,ks("DepthMD"),knk(61,ki((I)p->data_type),ki((I)p->exchange_id),kp(p->ticker),kf(p->last_price),kf(p->pre_close_price),kf(p->open_price),kf(p->high_price),kf(p->low_price),kf(p->close_price),kf(p->pre_total_long_positon),ki(p->total_long_positon),kf(p->pre_settl_price),kf(p->settl_price),kf(p->upper_limit_price),kf(p->lower_limit_price),kf(p->pre_delta),kf(p->curr_delta),kj(p->data_time),kj(p->qty),kf(p->turnover),kf(p->avg_price),bp,ap,bq,aq,b1,a1,ki(max_bid1_count),ki(max_ask1_count),kj(p->trades_count),kp(p->ticker_status),kj(p->stk.total_bid_qty),kj(p->stk.total_ask_qty),kf(p->stk.ma_bid_price),kf(p->stk.ma_ask_price),kf(p->stk.ma_bond_bid_price),kf(p->stk.ma_bond_ask_price),kf(p->stk.yield_to_maturity),kf(p->stk.iopv),ki(p->stk.etf_buy_count),ki(p->stk.etf_sell_count),kf(p->stk.etf_buy_qty),kf(p->stk.etf_buy_money),kf(p->stk.etf_sell_qty),kf(p->stk.etf_sell_money),kf(p->stk.total_warrant_exec_qty),kf(p->stk.warrant_lower_price),kf(p->stk.warrant_upper_price),ki(p->stk.cancel_buy_count),ki(p->stk.cancel_sell_count),kf(p->stk.cancel_buy_qty),kf(p->stk.cancel_sell_qty),kf(p->stk.cancel_buy_money),kf(p->stk.cancel_sell_money),kj(p->stk.total_buy_count),kj(p->stk.total_sell_count),ki(p->stk.duration_after_buy),kf(p->stk.duration_after_sell),ki(p->stk.num_bid_orders),ki(p->stk.num_ask_orders),kf(p->stk.pre_iopv))));
-      }else if(XTP_MARKETDATA_OPTION==p->data_type){
-	mpub(knk(2,ks("DepthMD"),knk(34,ki((I)p->data_type),ki((I)p->exchange_id),kp(p->ticker),kf(p->last_price),kf(p->pre_close_price),kf(p->open_price),kf(p->high_price),kf(p->low_price),kf(p->close_price),kf(p->pre_total_long_positon),ki(p->total_long_positon),kf(p->pre_settl_price),kf(p->settl_price),kf(p->upper_limit_price),kf(p->lower_limit_price),kf(p->pre_delta),kf(p->curr_delta),kj(p->data_time),kj(p->qty),kf(p->turnover),kf(p->avg_price),bp,ap,bq,aq,b1,a1,ki(max_bid1_count),ki(max_ask1_count),kj(p->trades_count),kp(p->ticker_status),kf(p->opt.auction_price),kj(p->opt.auction_qty),kj(p->opt.last_enquiry_time))));	
-      }else{}
+    I dt=p->data_type_v2;  
+    if(XTP_MARKETDATA_V2_ACTUAL==dt){  
+      mpub(knk(2,ks("DepthMD"),knk(63,ki((I)p->data_type_v2),ki((I)p->exchange_id),kp(p->ticker),kf(p->last_price),kf(p->pre_close_price),kf(p->open_price),kf(p->high_price),kf(p->low_price),kf(p->close_price),kf(p->pre_total_long_positon),ki(p->total_long_positon),kf(p->pre_settl_price),kf(p->settl_price),kf(p->upper_limit_price),kf(p->lower_limit_price),kf(p->pre_delta),kf(p->curr_delta),kj(p->data_time),kj(p->qty),kf(p->turnover),kf(p->avg_price),bp,ap,bq,aq,b1,a1,ki(max_bid1_count),ki(max_ask1_count),kj(p->trades_count),kp(p->ticker_status),kj(p->stk.total_bid_qty),kj(p->stk.total_ask_qty),kf(p->stk.ma_bid_price),kf(p->stk.ma_ask_price),kf(p->stk.ma_bond_bid_price),kf(p->stk.ma_bond_ask_price),kf(p->stk.yield_to_maturity),kf(p->stk.iopv),ki(p->stk.etf_buy_count),ki(p->stk.etf_sell_count),kf(p->stk.etf_buy_qty),kf(p->stk.etf_buy_money),kf(p->stk.etf_sell_qty),kf(p->stk.etf_sell_money),kf(p->stk.total_warrant_exec_qty),kf(p->stk.warrant_lower_price),kf(p->stk.warrant_upper_price),ki(p->stk.cancel_buy_count),ki(p->stk.cancel_sell_count),kf(p->stk.cancel_buy_qty),kf(p->stk.cancel_sell_qty),kf(p->stk.cancel_buy_money),kf(p->stk.cancel_sell_money),kj(p->stk.total_buy_count),kj(p->stk.total_sell_count),ki(p->stk.duration_after_buy),kf(p->stk.duration_after_sell),ki(p->stk.num_bid_orders),ki(p->stk.num_ask_orders),kf(p->stk.pre_iopv),kj(p->stk.r1),kj(p->stk.r2))));
+      }else if(XTP_MARKETDATA_V2_OPTION==dt){
+	mpub(knk(2,ks("DepthMDOpt"),knk(34,ki((I)p->data_type_v2),ki((I)p->exchange_id),kp(p->ticker),kf(p->last_price),kf(p->pre_close_price),kf(p->open_price),kf(p->high_price),kf(p->low_price),kf(p->close_price),kf(p->pre_total_long_positon),ki(p->total_long_positon),kf(p->pre_settl_price),kf(p->settl_price),kf(p->upper_limit_price),kf(p->lower_limit_price),kf(p->pre_delta),kf(p->curr_delta),kj(p->data_time),kj(p->qty),kf(p->turnover),kf(p->avg_price),bp,ap,bq,aq,b1,a1,ki(max_bid1_count),ki(max_ask1_count),kj(p->trades_count),kp(p->ticker_status),kf(p->opt.auction_price),kj(p->opt.auction_qty),kj(p->opt.last_enquiry_time))));	
+    }else if(XTP_MARKETDATA_V2_INDEX==dt){
+
+    }else if(XTP_MARKETDATA_V2_BOND==dt){
+
+    }else{
+
+    }
   }
 
   virtual void OnOrderBook(XTPOB *p){
@@ -137,8 +143,10 @@ public:
   virtual void OnTickByTick(XTPTBT *p){
     if(XTP_TBT_ENTRUST==p->type){
       mpub(knk(2,ks("TickOrder"),knk(12,ki(p->type),ki(p->exchange_id),kp(p->ticker),kj(p->seq),kj(p->data_time),ki(p->entrust.channel_no),kj(p->entrust.seq),kf(p->entrust.price),kj(p->entrust.qty),kc(p->entrust.side),kc(p->entrust.ord_type),kj(p->entrust.order_no))));
-    }else{
+    }else if(XTP_TBT_TRADE==p->type){
       mpub(knk(2,ks("TickMatch"),knk(13,ki(p->type),ki(p->exchange_id),kp(p->ticker),kj(p->seq),kj(p->data_time),ki(p->trade.channel_no),kj(p->trade.seq),kf(p->trade.price),kj(p->trade.qty),kf(p->trade.money),kj(p->trade.bid_no),kj(p->trade.ask_no),kc(p->trade.trade_flag))));      
+    }else{
+      mpub(knk(2,ks("TickState"),knk(8,ki(p->type),ki(p->exchange_id),kp(p->ticker),kj(p->seq),kj(p->data_time),ki(p->state.channel_no),kj(p->state.seq),kp(p->state.flag))));
     }
   }
   

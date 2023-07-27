@@ -110,7 +110,7 @@ d:flip `sym`isin`name`name1`name2`underlying`block`stype`currency`scale`facevalu
 
 52 3#6_first flip ("SS",160#"F";"|") 0: read0 `:hkexzxjc_20170621.txt
 
-.db.ETF:([`u#sym:`symbol$()]trday:`date$();cu:`float$();cueu:`float$();cutc:`float$();cunv:`float$();cudv:`float$();nav:`float$();ctmax:`float$();rdmax:`float$();cashrmax:`float$();pubok:`boolean$();ctok:`boolean$();rdok:`boolean$();cashct:`boolean$();pfnumlocal:`long$();pfnum:`long$();pretrday:`date$();underlying:`symbol$();etftype:`symbol$();name:`symbol$();companyname:`symbol$();version:`symbol$()); /ETF Meta
+.db.ETF:([`u#sym:`symbol$()]trday:`date$();cu:`float$();cueu:`float$();cutc:`float$();cunv:`float$();cudv:`float$();nav:`float$();ctmax:`float$();rdmax:`float$();cashrmax:`float$();pubok:`boolean$();ctok:`boolean$();rdok:`boolean$();cashct:`boolean$();pfnumlocal:`long$();pfnum:`long$();pretrday:`date$();underlying:`symbol$();etftype:`symbol$();name:`symbol$();companyname:`symbol$();version:`symbol$();crsym:`symbol$()); /ETF Meta
 
 .db.ETFPF:([etfsym:`symbol$();sym:`symbol$()]qty:`float$();cctype:`char$();ccprem:`float$();camt:`float$();ramt:`float$();trday:`date$()); /ETF Portfolio
 

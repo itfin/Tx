@@ -507,6 +507,25 @@ namespace XTP {
 			///@param session_id 资金账户对应的session_id，登录时得到
 			///@remark 需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 			virtual void OnStrategySymbolStateReport(XTPStrategySymbolStateReport* strategy_symbol_state, uint64_t session_id) {};
+
+			///algo业务中报送母单创建时的推送消息(包括其他客户端创建的母单)
+			///@param strategy_info 策略具体信息
+			///@param strategy_param 此策略中包含的参数
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@remark 需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
+			virtual void OnNewStrategyCreateReport(XTPStrategyInfoStruct* strategy_info, char* strategy_param, uint64_t session_id) {};
+
+			///algo业务中算法推荐的响应
+			///@param basket_flag 是否将满足条件的推荐结果打包成母单篮的标志，与请求一致，如果此参数为true，那么请以返回的strategy_param为准
+			///@param recommendation_info 推荐算法的具体信息，当basket_flag=true时，此结构体中的market和ticker将没有意义，此时请以strategy_param为准
+			///@param strategy_param 算法参数，可直接用来创建母单，如果error_info.error_id为0时，有意义
+			///@param error_info 请求推荐算法发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
+			///@param request_id 此消息响应函数对应的请求ID
+			///@param is_last 此消息响应函数是否为request_id这条请求所对应的最后一个响应，当为最后一个的时候为true，如果为false，表示还有其他后续消息响应
+			///@param session_id 资金账户对应的session_id，登录时得到
+			///@remark 需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
+			virtual void OnStrategyRecommendation(bool basket_flag, XTPStrategyRecommendationInfo* recommendation_info, char* strategy_param, XTPRI *error_info, int32_t request_id, bool is_last, uint64_t session_id) {};
+
 		};
 	}
 }
@@ -1098,6 +1117,15 @@ namespace XTP {
 			///@param order_client_id 算法单对应的自定义ID，不可随意填写
 			///@remark 返回为0表示，不是算法单，如果传入的参数不对的话，可能会得不到正确结果，此函数调用不依赖于是否登录
 			virtual uint64_t GetAlgorithmIDByOrder(uint64_t order_xtp_id, uint32_t order_client_id) = 0;
+
+			///algo业务中请求推荐算法
+			///@return 请求发送是否成功，“0”表示成功，非“0”表示出错，此时用户可以调用GetApiLastError()来获取错误代码
+			///@param basket_flag 是否将满足条件的推荐结果打包成母单篮的标志，true-打包
+			///@param basket_param 需要算法推荐的证券列表，为json字串，具体格式参考说明文档或咨询运营人员
+			///@param session_id 资金账户对应的session_id,登录时得到
+			///@param request_id 用于用户定位查询响应的ID，由用户自定义
+			///@remark 此条请求可能对应多条回应消息，此功能上线时间视服务器后台支持情况而定，具体以运营通知时间为准
+			virtual int StrategyRecommendation(bool basket_flag, char* basket_param, uint64_t session_id, int32_t request_id) = 0;
 
 		protected:
 			~TraderApi() {};

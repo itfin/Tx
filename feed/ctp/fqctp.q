@@ -3,9 +3,7 @@
 txload "core/fqbase";
 txload "feed/ctp/ctpbase";
 
-sopath:`:extfqctp;
-
-`initctpq`freectpq`ctpqrun`userLoginQ`subscribe{[f;x;y]x set f 2:(x;y);}[sopath]' 2 1 1 2 2;
+`initctpq`freectpq`ctpqrun`userLoginQ`subscribe{[x;y]x set $[1b~.conf.ctp`testmode;`extfqctp_test;`extfqctp] 2:(x;y);}' 2 1 1 2 2;
 
 .enum.CTPMDKey:`TradingDay`InstrumentID`ExchangeID`ExchangeInstID`LastPrice`PreSettlementPrice`PreClosePrice`PreOpenInterest`OpenPrice`HighestPrice`LowestPrice`Volume`Turnover`OpenInterest`ClosePrice`SettlementPrice`UpperLimitPrice`LowerLimitPrice`PreDelta`CurrDelta`UpdateTime`UpdateMillisec`BidPrice1`BidVolume1`AskPrice1`AskVolume1`BidPrice2`BidVolume2`AskPrice2`AskVolume2`BidPrice3`BidVolume3`AskPrice3`AskVolume3`BidPrice4`BidVolume4`AskPrice4`AskVolume4`BidPrice5`BidVolume5`AskPrice5`AskVolume5`AveragePrice;
 .enum.CTPQRKey:`TradingDay`InstrumentID`ForQuoteSysID`ForQuoteTime`ActionDay;

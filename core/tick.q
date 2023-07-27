@@ -1,7 +1,7 @@
 / q tick.q sym . -p 5001 </dev/null >foo 2>&1 &
 
 /2017.02.13 add chainsub to support tp cross sub
-/2017.01.29 minor modified for Tx use.Change endofday[] to benginofday[x] to support skip weekends and holidays,change tick[] to load newest log file.Add .u.h(peertp's handle) and .u.ph(peer tp's sub handle),change .u.end to prevent send .u.end to chained tp.  
+/2017.01.29 minor modified for Tx use.Change endofday[] to beginofday[x] to support skip weekends and holidays,change tick[] to load newest log file.Add .u.h(peertp's handle) and .u.ph(peer tp's sub handle),change .u.end to prevent send .u.end to chained tp.  
 
 /2014.03.12 remove license check
 /2013.09.05 warn on corrupt log

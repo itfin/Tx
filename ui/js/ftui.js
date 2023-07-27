@@ -37,9 +37,9 @@ mkmenu=function(x,y){
 	    {text:'告警日志',attributes:{func:'logreq(x)'}},
 	    {text:'异常委托',attributes:{func:'errordreq(x)'}}, 
 	    {text:'行情信息',attributes:{func:'quotereq(x)'}},
-	    {text:'数据上传',attributes:{func:'go(x)',url:'http://'+host+':8020/q/perl/upload.pl'}},
-	    {text:'上传目录',attributes:{func:'go(x)',url:'http://'+host+':8020/upload/'}},
-	    {text:'下载目录',attributes:{func:'go(x)',url:'http://'+host+':8020/download/'}},
+	    {text:'数据上传',attributes:{func:'go(x)',url:'http://'+host+':7020/q/perl/upload.pl'}},
+	    {text:'上传目录',attributes:{func:'go(x)',url:'http://'+host+':7020/upload/'}},
+	    {text:'下载目录',attributes:{func:'go(x)',url:'http://'+host+':7020/download/'}},
 	    {text:'NOE复核',attributes:{func:'noereq(x)'}},
 	    {text:'NOE强推日志',attributes:{func:'noefreq(x)'}},	    
 	    {text:'组合加载',attributes:{func:'pfloadreq(x)'}},
@@ -47,7 +47,7 @@ mkmenu=function(x,y){
 	    {text:'基差监控',attributes:{func:'basismonreq(x)'}},		
 	    {text:'对冲监控',attributes:{func:'hedgesnapreq(x)'}},
 	]}, 
-	(app=='com')?{text:'做市监控',children:[ 
+	(true || app=='comgj')?{text:'做市监控',children:[ 
 	    {text:'做市策略',attributes:{func:'etfmonmmreq(x)'}},
 	    {text:'做市指标',attributes:{func:'etfmonsumreq(x)'}},
 	    {text:'对冲策略',attributes:{func:'etfmonfureq(x)'}},
@@ -284,7 +284,7 @@ csvviewres=function(x,y){
 };
 
 //对冲误差
-otchedgereq=function(x,y){wscall(['{[x]y:.db.Ts[x;`UDL];z:otc_hedgemap[x];g:(1_ key z)!1_ (deltas value z)*(key z)%(deltas key z)*100;traderlst:x;q:$[1b~.db.Ts[x;`BasketUDL];otc_hedgepospf[x];0f^exec sum ((0f^lqty)+0f^sqty) from .db.P where ts in traderlst,sym=y];p:otc_hedgepx[x];m:1f^.db.QX[y;`multiplier];fq:exec sum ((0f^lqty)+0f^sqty) from .db.P where ts in traderlst,sym<>y;bias:q-z[p];e:0.01*til 11;md:0<count z1:.db.Ts[x;`HedgeMapList];if[md;z0:map_hedgeoffset[x];z1:{`s#(x+key y)!value y}[z0] z1];`p`t`ON`X`Y`Y0`fardelta`delta`gamma`ddelta`pos`bias`udl`active`neggamma`mode`md`dL`warn!(p;z[p];exec sum cumqty from .db.O where sym like ((2#string y),"*"),posefct=.enum`OPEN;.math.r2 1e-4*abs bias*m*p;.math.r2 1e-4*1e6|abs[0.1*(q+fq)*m*p]|abs g[p]*p*2*m;`q`fq`m`p`g!(q;fq;m;p;g[p]);fq;flip (key z;value z);flip (key g;value g);flip (1e2*e;{p:key x;avg (p where (p<=y*1+0.5*z)&(p>=y*1-0.5*z))#x}[z;p] each e);enlist (`float$$[0>=p;.db.QX[y;`pc];p];0f)^p,q;.math.r2 bias;y;.db.Ts[x;`active];isneggamma[x];.db.Ts[x;`mode];md;$[md;(key z1),\'/:flip value z1;()];$[1b~.db.Ts[x;`BasketUDL];`$"Basket,STOP@",sv[","] string exec sym from ((select from .db.ETFPF where etfsym=y) lj select last price by sym from .db.QX) where price<=0;`])}',x],otchedgeres,{'target':'plot'});} //r2 (`float$$[0>=p:QX[y;`price];QX[y;`pc];p])^P[(x;T[x;`account];y);`price]
+otchedgereq=function(x,y){wscall(['{[x]y:.db.Ts[x;`UDL];z:otc_hedgemap[x];g:(1_ key z)!1_ (deltas value z)*(key z)%(deltas key z)*100;traderlst:x;q:$[1b~.db.Ts[x;`BasketUDL];otc_hedgepospf[x];0f^exec sum ((0f^lqty)+0f^sqty) from .db.P where ts in traderlst,sym=y];p:otc_hedgepx[x];m:1f^.db.QX[y;`multiplier];fq:exec sum ((0f^lqty)+0f^sqty) from .db.P where ts in traderlst,sym<>y;bias:q-z[p];e:0.01*til 11;md:0<count z1:.db.Ts[x;`HedgeMapList];if[md;z0:map_hedgeoffset[x];z1:{`s#(x+key y)!value y}[z0] z1];`p`t`ON`X`Y`Y0`fardelta`delta`gamma`ddelta`pos`bias`udl`active`neggamma`mode`md`dL`warn`data!(p;z[p];exec sum cumqty from .db.O where sym like ((2#string y),"*"),posefct=.enum`OPEN;.math.r2 1e-4*abs bias*m*p;.math.r2 1e-4*1e6|abs[0.1*(q+fq)*m*p]|abs g[p]*p*2*m;`q`fq`m`p`g!(q;fq;m;p;g[p]);fq;flip (key z;value z);flip (key g;value g);flip (1e2*e;{p:key x;avg (p where (p<=y*1+0.5*z)&(p>=y*1-0.5*z))#x}[z;p] each e);enlist (`float$$[0>=p;.db.QX[y;`pc];p];0f)^p,q;.math.r2 bias;y;.db.Ts[x;`active];isneggamma[x];.db.Ts[x;`mode];md;$[md;(key z1),\'/:flip value z1;()];$[1b~.db.Ts[x;`BasketUDL];`$"Basket,STOP@",sv[","] string exec sym from ((select from .db.ETFPF where etfsym=y) lj select last price by sym from .db.QX) where price<=0;`];flip `price`pos`gamma!(key g;1_value z;value g))}',x],otchedgeres,{'target':'plot'});} //r2 (`float$$[0>=p:QX[y;`price];QX[y;`pc];p])^P[(x;T[x;`account];y);`price]
 
 otchedgeres=function(x,y){
     $('#'+x.target).html('<div id=otcinfo></div><br><table><tr><td><div id=flotarea style="width:600px;height:300px"></div></td><td><div id=flotarea1 style="width:400px;height:300px"></div></td></tr></table>');
@@ -295,6 +295,11 @@ otchedgeres=function(x,y){
 	$.plot("#flotarea",[{data:y.gamma,yaxis:2,lines:{show:true,lineWidth:1},label:'Gamma'},{data:y.delta,lines:{show:true,lineWidth:1},label:'UDL:'+y.udl+'('+(y.active?'Enable':'Disable')+',Gamma<=0:'+(y.neggamma?'True':'False')+',Mode:'+y.mode+')'},{data:y.pos,points:{show:true,fill:true,fillColor:'red',radius:3},label:'bias:'+y.bias}],{legend:{position:'nw',noColumns:3},yaxes:[{},{position:'right'}]}); //min:-100,max:100,autoscaleMargin:0.05
     }
     $.plot("#flotarea1",[{data:y.ddelta,lines:{show:true,lineWidth:1},label:'Delta'}],{xaxis:{tickFormatter:function(x,y){return x+'%';}}});
+
+    $('#grid').html('<div id=flotgrid>');
+ $('#flotgrid').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'price',title:'价格',width:80,sortable:true},{field:'pos',title:'delta',width:80,sortable:true},{field:'gamma',title:'gamma',width:80,sortable:true}]]});
+    $('#flotgrid').datagrid('loadData',{total:y.data.length,rows:y.data});
+    
 };
 
 //JUMP估计
@@ -1182,7 +1187,7 @@ etfmonmmreq=function(x,y){wscall(['{[x]`UDL`s`D!(update string settleday,string 
 etfmonfureq=function(x,y){wscall(['{[x]update string askpx,string asksz,string bidpx,string bidsz,0^POSMAX,0^POSMIN,0^BULK,0^POS from 0!.db.Ts[x;`t]}','`8508_fehg_au'],etfmonfures,{target:'grid'});}
 etfmontsreq=function(x,y){wscall(['{[x]update string tm,tdvalrt:(tdmktval%sum tdmktval where (not null tm)&tdmktval>0),ydvalrt:(ydmktval%sum ydmktval where (not null tm)&ydmktval>0) from delete trd from 0!stat_now[`;x;`]}','`dc2'],etfmontsres,{target:'grid'});}
 etfmonsumreq=function(x,y){wscall(['{[x]y:0!.db.Ts[x;`DETAIL];`S`t`b`v1`v2`lag`cumqty1s`xiopv!({flip `k`v!(key x;(-3!) each value x)} .db.Ts[x;`Stat];string y`tm;y`ob;y`spread;y`mktsp;`float$y`lag;y`cumqty1s;y`xiopv)}','`8508_femm_518880'],etfmonsumres,{});}
-etfmonrlreq=function(x,y){wscall('0!.db.RL',etfmonrlres,{});}
+etfmonrlreq=function(x,y){wscall(['{[x]`rl`rs`rn!(0!.db.RL;0!.db.RS;0!-1^.db.RN)}',''],etfmonrlres,{});}
 
 //`sym`divid`movpos`settleday`n`sup`inf`ask`bid`px`extime`d`d0`djump   `n`m`px`realpx`qty`leavesqty`id`time
 
@@ -1230,8 +1235,15 @@ etfmonsumres=function(x,y){
 etfmonrlres=function(x,y){
     $('#grid').html('<div id=etfrl style="align:center;width:'+dw+'px;height:'+dh+'px">');
     $('#etfrl').datagrid({fit:false,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'ts',title:'ts',width:60,sortable:true},{field:'acc',title:'acc',width:60,sortable:true},{field:'sym',title:'sym',width:160,sortable:true},{field:'maxno1s',title:'maxno1s',width:160,sortable:true},{field:'maxno5s',title:'maxno5s',width:160,sortable:true},{field:'maxno20s',title:'maxno20s',width:160,sortable:true},{field:'maxno1m',title:'maxno1m',width:160,sortable:true},{field:'maxnc1s',title:'maxnc1s',width:160,sortable:true},{field:'maxnc5s',title:'maxnc5s',width:160,sortable:true},{field:'maxnc20s',title:'maxnc20s',width:160,sortable:true},{field:'maxnc1m',title:'maxnc1m',width:160,sortable:true},{field:'maxnord',title:'maxnord',width:160,sortable:true},{field:'maxncxl',title:'maxncxl',width:160,sortable:true},{field:'maxnrej',title:'maxnrej',width:160,sortable:true}]]});
-    $('#etfrl').datagrid('loadData',{total:y.length,rows:y});
-}
+    $('#etfrl').datagrid('loadData',{total:y.rl.length,rows:y.rl});
+
+    $('#plot').html('<table><tr><td><div id=etfrn style="align:center;width:800px;height:400px"></td><td><div id=etfrs style="align:center;width:800px;height:400px"></td></tr></table>');
+    $('#etfrn').datagrid({fit:false,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'ts',title:'ts',width:60,sortable:true},{field:'acc',title:'acc',width:60,sortable:true},{field:'sym',title:'sym',width:160,sortable:true},{field:'nord',title:'nord',width:60,sortable:true},{field:'ncxl',title:'ncxl',width:60,sortable:true},{field:'nrej',title:'nrej',width:60,sortable:true}]]});
+    $('#etfrn').datagrid('loadData',{total:y.rn.length,rows:y.rn});
+
+    $('#etfrs').datagrid({fit:false,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'ts',title:'ts',width:60,sortable:true},{field:'acc',title:'acc',width:60,sortable:true},{field:'sym',title:'sym',width:160,sortable:true},{field:'no1s',title:'no1s',width:60,sortable:true},{field:'no5s',title:'no5s',width:60,sortable:true},{field:'no20s',title:'no20s',width:60,sortable:true},{field:'no1m',title:'no1m',width:60,sortable:true},{field:'nc1s',title:'nc1s',width:60,sortable:true},{field:'nc5s',title:'nc5s',width:60,sortable:true},{field:'nc20s',title:'nc20s',width:60,sortable:true},{field:'nc1m',title:'nc1m',width:60,sortable:true}]]});
+    $('#etfrs').datagrid('loadData',{total:y.rs.length,rows:y.rs});
+    }
 
 //超级图表
 axshowreq=function(x,y){$('#ctrl').html('');$('#plot').html('');maxgrid();$('#grid').html('<iframe style="width:100%;height:100%;frameborder:0;border:0;" src="http://172.17.65.140:8090/ax">');;wscall(['{[x]h:hopen 8080;h ".gg.cheat.sheet[]"}',''],axshowres,{target:'grid'});}

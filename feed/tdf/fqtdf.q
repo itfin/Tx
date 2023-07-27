@@ -1,4 +1,4 @@
-.module.fqtdf:2022.05.27;
+.module.fqtdf:2023.06.09;
 
 txload "core/fqbase";
 
@@ -17,7 +17,7 @@ exmap:(`$("HK-2-0";"HKF-1-0";"SGE-1-0";"CF-2-0";"SHF-1-0";"SH-2-0";"SZ-2-0"))!$[
 L2M:L2O:L2Q:QREF:QUEUE:L18:L17:L16:L15:L14:L13:L12:L11:L10:L:C:();TKSub:BKSub:MDSub:()!();
 \d .
 
-quotetbl:$[1b~.conf[`usel2quote];`l2quote;`quote];
+isl2:1b~.conf[`usel2quote];quotetbl:$[isl2;`l2quote;`quote];
 
 .ctrl.tdf:.enum.nulldict;
 
@@ -60,7 +60,7 @@ imphkbroker:{[]`:/kdb/HKBRKR set  `num xcols ungroup update `$utf82gbk each stri
 
 .upd.SYS_SINGLE_CODETABLE_RESULT:{[x]lwarn[`tdf_single_codetable;x];};
 
-.upd.DATA_MARKET:{[x].temp.x11:x;y:flip .enum.SnapshotKey!flip x;if[.conf.tdf.debug;.temp.L11,:y];d0:"D"$string y[0;`ActionDay];if[not `fqopendate in key .db;.db.fqopendate:0Nd];if[.db.fqopendate<d0;pubm[`ALL;`MarketOpen;.conf.me;string d0];.db.fqopendate:d0];d:update extime:d0+time from select sym:.db.CodeMap `$WindCode,time:"T"$pad0[-9] each string Time,price:1e-4*Match,cumqty:`float$Volume,vwap:Turnover%Volume,high:1e-4*High,low:1e-4*Low,bid:1e-4*first each BidPrice,ask:1e-4*first each AskPrice,bsize:`float$first each BidVol,asize:`float$first each AskVol,bidQ:1e-4*{10#x,10#0n} each BidPrice,askQ:1e-4*{10#x,10#0n} each AskPrice,bsizeQ:`float${10#x,10#0n} each BidVol,asizeQ:`float${10#x,10#0n} each AskVol,openint:`float$NumTrades,settlepx:1e-4*IOPV,open:1e-4*Open,pc:1e-4*PreClose,sup:1e-4*HighLimited,inf:1e-6*LowLimited,mode:`$Prefix,recvtime:.z.P from y;d:delete from d where (0>cumqty);if[count d;if[.conf.tdf.debug;.temp.L10,:d];d1:select sym,pc,open,sup,inf from d;if[n:count d2:d1 except .temp.QREF;pub[`quoteref;update refopt:n#enlist"" from d2];.temp.QREF,:d2];d:delete open,pc,sup,inf from d;n:count d;d2:select sym,bid,ask,bsize,asize,price,high,low,vwap,cumqty,openint,settlepx,mode,extime,bidQ,askQ,bsizeQ,asizeQ,quoopt:n#enlist "" from d;$[1b~.conf.batchpub;enqueue[d2];pub[quotetbl;d2]]];};
+.upd.DATA_MARKET:{[x].temp.x11:x;y:flip .enum.SnapshotKey!flip x;if[.conf.tdf.debug;.temp.L11,:y];d0:"D"$string y[0;`ActionDay];if[not `fqopendate in key .db;.db.fqopendate:0Nd];if[.db.fqopendate<d0;pubm[`ALL;`MarketOpen;.conf.me;string d0];.db.fqopendate:d0];d:update extime:d0+time from select sym:.db.CodeMap `$WindCode,time:"T"$pad0[-9] each string Time,price:1e-4*Match,cumqty:`float$Volume,vwap:Turnover%Volume,high:1e-4*High,low:1e-4*Low,bid:1e-4*first each BidPrice,ask:1e-4*first each AskPrice,bsize:`float$first each BidVol,asize:`float$first each AskVol,bidQ:1e-4*{10#x,10#0n} each BidPrice,askQ:1e-4*{10#x,10#0n} each AskPrice,bsizeQ:`float${10#x,10#0n} each BidVol,asizeQ:`float${10#x,10#0n} each AskVol,openint:`float$NumTrades,settlepx:1e-4*IOPV,open:1e-4*Open,pc:1e-4*PreClose,sup:1e-4*HighLimited,inf:1e-6*LowLimited,mode:`$Prefix,recvtime:.z.P from y;d:delete from d where (0>cumqty);if[count d;if[.conf.tdf.debug;.temp.L10,:d];d1:select sym,pc,open,sup,inf from d;if[n:count d2:d1 except .temp.QREF;pub[`quoteref;update refopt:n#enlist"" from d2];.temp.QREF,:d2];d:delete open,pc,sup,inf from d;n:count d;.temp.d2:d2:select sym,bid,ask,bsize,asize,price,high,low,vwap,cumqty,openint,settlepx,mode,extime,bidQ,askQ,bsizeQ,asizeQ,quoopt:n#enlist "" from d;if[isl2;.temp.nd2:d2:update tnum:0N,b0num:0N,b0qtyQ:{`float$()} each i,bnum:0N,bqty:0n,bwap:0n,bcnum:0N,bcqty:0n,bcamt:0n,bpnum:0N,bwtime:0Nt,a0num:0N,a0qtyQ:{`float$()} each i,anum:0N,aqty:0n,awap:0n,acnum:0N,acqty:0n,acamt:0n,apnum:0N,awtime:0Nt,ebnum:0N,ebqty:0n,ebamt:0n,esnum:0N,esqty:0n,esamt:0n,yield:0n,execqty:0n,winf:0n,wsup:0n,bbwap:0n,bawap:0n,flag:` from d2];$[1b~.conf.batchpub;enqueue[d2];pub[quotetbl;d2]]];};
 
 .upd.DATA_FUTURE:{[x].temp.x12:x;y:flip .enum.FutureSnapshotKey!flip x;if[.conf.tdf.debug;.temp.L12,:y];.upd.DATA_MARKET flip value flip .enum.SnapshotKey#/:y,\:`NumTrades`TotalBidVol`TotalAskVol`WeightedAvgBidPrice`WeightedAvgAskPrice`IOPV`YieldToMaturity`Prefix`Syl1`Syl2`SD2`TradeFlag`AfterPrice`AfterVolume`AfterTurnover`AfterMatchItems!(0Ni;0N;0N;0N;0N;0Ni;0Ni;`char$4#0;0Ni;0Ni;0Ni;0Ni;0N;0Ni;0N;0Ni);}; //(.enum.SnapshotKey except .enum.FutureSnapshotKey)#first 0#.temp.L11
 
@@ -68,9 +68,9 @@ imphkbroker:{[]`:/kdb/HKBRKR set  `num xcols ungroup update `$utf82gbk each stri
 
 .upd.DATA_ORDERQUEUE:{[x].temp.x15:x;y:flip `WindCode`Code`ActionDay`Time`Side`Price`Orders`ABItems`ABVolume!flip x;if[.conf.tdf.debug;.temp.L15,:y];d:select sym:.db.CodeMap `$WindCode,side:`char$Side,price:1e-4*Price,size:0n,num:`long$Orders,qtyQ:`float$ABItems#'ABVolume,extime:("D"$string ActionDay)+"T"$pad0[-9] each string Time from y;$[1b~.conf.batchpubl2;enqueuel2q[d];pub[`l2queue;d]];};
 
-.upd.DATA_ORDER:{[x].temp.x16:x;y:flip `WindCode`Code`ActionDay`Time`Order`Price`Volume`OrderKind`FunctionCode`Channel`OrderOriNo`BizIndex!flip x;if[.conf.tdf.debug;.temp.L16,:y];d:select sym:.db.CodeMap `$WindCode,side:FunctionCode,typ:OrderKind,price:1e-4*Price,qty:`float$Volume,gid:Channel,oid:`long$Order,origid:OrderOriNo,bizidx:BizIndex,extime:("D"$string ActionDay)+"T"$pad0[-9] each string Time from y;$[1b~.conf.batchpubl2;enqueuel2o[d];pub[`l2order;d]];};
+.upd.DATA_ORDER:{[x].temp.x16:x;y:flip `WindCode`Code`ActionDay`Time`Order`Price`Volume`OrderKind`FunctionCode`Channel`OrderOriNo`BizIndex!flip x;if[.conf.tdf.debug;.temp.L16,:y];d:select sym:.db.CodeMap `$WindCode,side:FunctionCode,typ:OrderKind,price:1e-4*Price,qty:`float$Volume,gid:Channel,oid:`long$Order,origid:OrderOriNo,bizidx:BizIndex,extime:("D"$string ActionDay)+"T"$pad0[-9] each string Time,flag:` from y;$[1b~.conf.batchpubl2;enqueuel2o[d];pub[`l2order;d]];};
 
-.upd.DATA_TRANSACTION:{[x].temp.x14:x;y:flip `WindCode`Code`ActionDay`Time`Index`Price`Volume`Turnover`BSFlag`OrderKind`FunctionCode`AskOrder`BidOrder`Channel`BizIndex!flip x;if[.conf.tdf.debug;.temp.L14,:y];d:select sym:.db.CodeMap `$WindCode,side:`char$BSFlag,typ:OrderKind,price:1e-4*Price,qty:`float$Volume,amt:`float$Turnover,gid:Channel,mid:`long$Index,bid:`long$BidOrder,aid:`long$AskOrder,bizidx:BizIndex,extime:("D"$string ActionDay)+"T"$pad0[-9] each string Time from y;$[1b~.conf.batchpubl2;enqueuel2m[d];pub[`l2match;d]];};
+.upd.DATA_TRANSACTION:{[x].temp.x14:x;y:flip `WindCode`Code`ActionDay`Time`Index`Price`Volume`Turnover`BSFlag`OrderKind`FunctionCode`AskOrder`BidOrder`Channel`BizIndex!flip x;if[.conf.tdf.debug;.temp.L14,:y];d:select sym:.db.CodeMap `$WindCode,side:`char$BSFlag,typ:OrderKind,price:1e-4*Price,qty:`float$Volume,amt:`float$Turnover,gid:Channel,mid:`long$Index,bid:`long$BidOrder,aid:`long$AskOrder,bizidx:BizIndex,extime:("D"$string ActionDay)+"T"$pad0[-9] each string Time,flag:` from y;$[1b~.conf.batchpubl2;enqueuel2m[d];pub[`l2match;d]];};
 
 .upd.DATA_BROKERQUEUE:{[x].temp.x17:x;y:flip `WindCode`Code`ActionDay`AskTime`BidTime`AskBrokers`BidBrokers`AskBroker`BidBroker!flip x;if[.conf.tdf.debug;.temp.L17,:y];d:(select sym:.db.CodeMap `$WindCode,side:"B",price:0n,size:0n,num:`long$BidBrokers,qtyQ:`float$BidBroker,extime:("D"$string ActionDay)+"T"$pad0[-9] each string BidTime from select from y where 0<BidTime),select sym:.db.CodeMap `$WindCode,side:"S",price:0n,size:0n,num:`long$AskBrokers,qtyQ:`float$AskBroker,extime:("D"$string ActionDay)+"T"$pad0[-9] each string AskTime from select from y where 0<AskTime;$[1b~.conf.batchpubl2;enqueuel2q[d];pub[`l2queue;d]];};
 
@@ -80,3 +80,6 @@ imphkbroker:{[]`:/kdb/HKBRKR set  `num xcols ungroup update `$utf82gbk each stri
 .upd.ReSubAdd:{[x] if[count sl:(distinct .db.SubMap -9!x`vbin) except `;sub[(`$sv[";"] string sl;.enum.SUBSCRIPTION_ADD)]]};
 //.upd.ReSubDel:{[x]sub[(`$x`msg;.enum.SUBSCRIPTION_DEL)];};
 //.upd.ReSubFull:{[x]sub[(`$x`msg;.enum.SUBSCRIPTION_FULL)];};
+
+//----ChangeLog----
+//2023.06.09:.upd.DATA_ORDER和.upd.DATA_TRANSACTION增加对flag列初始化,.upd.DATA_MARKET增加对l2quote扩充列初始化

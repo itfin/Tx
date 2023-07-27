@@ -437,9 +437,11 @@ struct XTPQueryStkPositionRsp
 	
 	///持仓市值（此字段目前只有期权账户有值，其他类型账户为0）
 	double				market_value;
+	///义务仓占用保证金（目前暂未启用，此字段目前只有期权账户有值，其他类型账户为0）
+	double               margin;
 
     ///(保留字段)
-    uint64_t unknown[50 - 10];
+    uint64_t unknown[50 - 11];
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -818,7 +820,9 @@ struct XTPQueryOptCombPositionRsp {
 
     XTPOptCombPlugin        opt_comb_info;                              ///< 期权组合策略信息
 
-    uint64_t                reserved[50];                               ///< 保留字段
+	double					secu_comb_margin;							///< 组合占用保证金（公司）（目前暂未启用）
+
+    uint64_t                reserved[50 - 1];                           ///< 保留字段
 };
 
 /// 查询期权合约行权信息的响应
@@ -1048,7 +1052,15 @@ typedef struct XTPCreditDebtExtendNotice XTPCreditDebtExtendAck;
 typedef struct XTPCrdFundExtraInfo
 {
     double    mf_rs_avl_used;  ///<当前资金账户购买货币基金使用的融券卖出所得资金占用
-    char      reserve[64];     ///<预留空间
+	///证券市值
+	double security_capital;
+	///融资负债
+	double financing_debts;
+	///融券负债
+	double short_sell_debts;
+	///授信总额度
+	double contract_debts_load;
+    char      reserve[64-32];     ///<预留空间
 }XTPCrdFundExtraInfo;
 
 //////////////////////////////////////////////////////////////////////////

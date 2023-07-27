@@ -19,8 +19,8 @@ fq.fqctp.maxhalt:00:00:02;
 fq.fqxshe.session:(09:20:00 09:25:00;09:30:05 11:30:00;13:00:05 15:00:00);
 fq.fqxshe.maxhalt:00:00:10;
 
-fq.fqxshg.session:(09:20:00 09:25:00;09:30:05 11:30:00;13:00:05 15:00:00);
-fq.fqxshg.maxhalt:00:00:10;
+fq.fqxshgtxt.session:(09:20:00 09:25:00;09:30:05 11:30:00;13:00:05 15:00:00);
+fq.fqxshgtxt.maxhalt:00:00:10;
 
 fq.fqtdf.session:(09:30:00 11:30:00;13:00:05 15:00:00);
 fq.fqtdf.maxhalt:00:00:10;

@@ -3,7 +3,7 @@
 txload "core/febase";
 txload "feed/ctp/ctpbase";
 
-`initctpt`freectpt`ctptrun`ctpsysinfo`userAuthT`userLoginT`qrySettlementInfoConfirm`settlementInfoConfirm`orderInsert`orderAction`qryMaxOrderVolume`qryInstrument`qryTradingAccount`qryInvestorPosition`qryOrder`qryTrade`qryInvestor`qryTradingCode`qryInstrumentCommissionRate`qryInstrumentMarginRate`qryExchange`qryInvestorPositionDetail`qryNotice`qryInvestorPositionCombineDetail`qryEWarrantOffset`qryTransferSerial`qryTradingNotice`qryBrokerTradingParams`qryBrokerTradingAlgos`forQuoteInsert`quoteInsert`quoteAction`combActionInsert`qryCombInstrumentGuard`qryCombAction {x set `extfectp 2:(x;y);}' 3 1 1,32#2;
+`initctpt`freectpt`ctptrun`ctpsysinfo`userAuthT`userLoginT`qrySettlementInfoConfirm`settlementInfoConfirm`orderInsert`orderAction`qryMaxOrderVolume`qryInstrument`qryTradingAccount`qryInvestorPosition`qryOrder`qryTrade`qryInvestor`qryTradingCode`qryInstrumentCommissionRate`qryInstrumentMarginRate`qryExchange`qryInvestorPositionDetail`qryNotice`qryInvestorPositionCombineDetail`qryEWarrantOffset`qryTransferSerial`qryTradingNotice`qryBrokerTradingParams`qryBrokerTradingAlgos`forQuoteInsert`quoteInsert`quoteAction`combActionInsert`qryCombInstrumentGuard`qryCombAction {x set $[1b~.conf.ctp`testmode;`extfectp_test;`extfectp] 2:(x;y);}' 3 1 1,32#2;
 
 .ctrl.O:$[`ft=.conf.feedtype;`O1;`O];
 
@@ -159,7 +159,7 @@ updaterd:{[](path:` sv .conf.tempdb,.conf.me,`RD) set 1!select sym,ex,esym,name,
 .upd.QryTradingCode:{[x].temp.IL,:x};
 .upd.QryExchange:{[x]};
 
-.upd.CTPError:{[x].temp.X:x;if[x[2;0] in 75 15907i;.ctrl.ctp[`PassErr]:1b];};
+.upd.CTPError:{[x].temp.X:x;if[x[2;0] in 63 75 15907 4060i;.ctrl.ctp[`PassErr]:1b];};
 
 
 pushqx:{[x;y].ctrl.conn[`fq;`h] (set;`.db.QX;.db.QX);1b};
