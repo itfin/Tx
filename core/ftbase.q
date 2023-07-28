@@ -299,7 +299,8 @@ imptradex:{[t;x]e:fs2e y:x`sym;.db.Pm[y]:x`extime;if[not y in key .db.Am;.db.Am[
 
 imptrade:imptradex[0b];impoldtrade:imptradex[1b];
 
-impshcxl:{[x]y:x`sym;q:x`qty;u:x[`gid]+10000*x`origid;if[0<=p:.db.Vm[u];.db.Lm[u]-:q;$["B"=x`side;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p]]];}; /上海撤单委托处理
+//impshcxl:{[x]y:x`sym;q:x`qty;u:x[`gid]+10000*x`origid;if[0<=p:.db.Vm[u];.db.Lm[u]-:q;$["B"=x`side;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p]]];}; /上海撤单委托处理
+impshcxl:{[x]y:x`sym;q:x`qty;u:x[`gid]+10000*x`origid;if[0<=p:.db.Vm[u];.db.Lm[u]-:q;$[x[`side] in "1B";if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p]]];}; /上海撤单委托处理
 
 //.upd.l2order:{[x].temp.x3:x;e:fs2e y:x`sym;if["D"=x`typ;impshcxl x;:()];z:x[`gid]+10000*x`origid;if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];w:x`side;p:x`price;q:x`qty;if[x[`typ] in "1U";p:0f];.db.Vm[z]:p;.db.Lm[z]:q;$[w in "1B";[.db.Bm[y;p]:q+0f^.db.Bm[y;p]];w in "2S";[.db.Am[y;p]:q+0f^.db.Am[y;p]];[]];if[count r:.db.Wm[z];impoldtrade each .db.Tm r];}'; /逐笔委托处理
 .upd.l2order:{[x].temp.x3:x;e:fs2e y:x`sym;.db.Pm[y]:x`extime;if["D"=x`typ;impshcxl x;:()];z:x[`gid]+10000*x`origid;if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];w:x`side;p:x`price;q:x`qty;if[x[`typ] in "1U";p:0f];.db.Vm[z]:p;.db.Lm[z]:q;$[w in "1B";[.db.Bm[y;p]:q+0f^.db.Bm[y;p]];w in "2S";[.db.Am[y;p]:q+0f^.db.Am[y;p]];[]];if[count r:.db.Wm[z];impoldtrade each .db.Tm r];}'; /逐笔委托处理
