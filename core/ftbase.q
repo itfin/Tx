@@ -283,33 +283,33 @@ getiopvhk:getiopvhkex[0];
 qryordtask:{[x;y]qryord each exec id from .db.O where not end,cn>1;1b};
 
 cxlall:{[x]n:.conf.maxcxlcnt;.conf.maxcxlcnt:0W;$[null x;cxlord each exec id from .db.O where not end;cxlord each exec id from .db.O where not end,ts=x];.conf.maxcxlcnt:n;};
+
 qryall:{[x]$[null x;qryord each exec id from .db.O where not end;qryord each exec id from .db.O where not end,ts=x];};
 
 qryrepoacc:{[x;y].temp.AccSnap:.enum.nulldict;qryfund .conf[`repo;`acc];1b};
+
 dorepotask:{[x;y]s0:`204001.XSHG;s1:`131810.XSHE;h0:.db.QX[s0];h1:.db.QX[s1];amt:.temp.AccSnap[.conf[`repo;`acc];`Fund][0;.conf[`repo;`field]];qu0:1000f;qu1:h1`qtylot;fv:100f;a0:fv*q0:qu0*floor amt%fv*qu0;a1:amt-a0;q1:qu1*floor a1%fv*qu1;if[0<q0;revrepo[.conf[`repo;`ts];s0;q0;last h0`bidQ;`repo1daysh]];if[0<q1;revrepo[.conf[`repo;`ts];s1;q1;last h1`bidQ;`repo1daysz]];1b};  
 
-//.roll.ftl2:{[x].db.Lm:.db.Vm:(`u#`long$())!`float$();.db.Bm:.db.Am:()!();.db.Wm:(`u#`long$())!();.db.Tm:(`u#`long$())!();.db.L2seq:1;}; /Vm(委托序号->委托价格),Lm:(委托序号->剩余数量),Wm(委托序号->未处理成交列表),Tm(未处理成交表)
-.roll.ftl2:{[x].db.Lm:.db.Vm:(`u#`long$())!`float$();.db.Bm:.db.Am:()!();.db.Wm:(`u#`long$())!();.db.Tm:(`u#`long$())!();.db.Pm:(`u#`symbol$())!`timestamp$();.db.L2seq:1;}; /Vm(委托序号->委托价格),Lm(委托序号->剩余数量),Wm(委托序号->未处理成交列表),Tm(未处理成交表),Pm(代码->交易所时间戳)
+.roll.ftl2:{[x].db.Lm:.db.Vm:(`u#`long$())!`float$();.db.Bm:.db.Am:()!();.db.Wm:(`u#`long$())!();.db.Tm:(`u#`long$())!();.db.Pm:(`u#`symbol$())!`timestamp$();.db.CBBO:([`u#sym:`symbol$()] extime:`timestamp$();bp:`float$();bq:`float$();op:`float$();oq:`float$());.db.L2seq:1;};   /Vm(委托序号->委托价格),Lm(委托序号->剩余数量),Wm(委托序号->未处理成交列表),Tm(未处理成交表),Pm(代码->交易所时间戳)
 
 .upd.l2quote:.upd.quote;
+
 newl2seq:{[]:.db.L2seq+:1};
 
-//imptradex:{[t;x]e:fs2e y:x`sym;if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];q:x`qty;if[0<u:x`aid;u:x[`gid]+10000*u];if[0<v:x`bid;v:x[`gid]+10000*v];z:newl2seq[];wu:(u>0)&null .db.Vm[u];wv:(v>0)&null .db.Vm[v];if[$[`XSHG=e;wu&wv;wu|wv];if[not t;.db.Tm[z]:x;if[wu;.db.Wm[u],:z];if[wv;.db.Wm[v],:z]];:()];if[(0<u)&(0<=p:.db.Vm[u]);.db.Lm[u]-:q;if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p];if[count .db.Wm[u];.db.Wm[u]:.db.Wm[u] except z;if[0=count .db.Wm[u];.db.Wm _:u]]];if[(0<v)&(0<=p:.db.Vm[v]);.db.Lm[v]-:q;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[count .db.Wm[v];.db.Wm[v]:.db.Wm[v] except z;if[0=count .db.Wm[v];.db.Wm _:v]]];if[t;.db.Tm _:z];}; /逐笔成交处理.wu(成交先于卖单委托),wv(成交先于买单委托) if[(0<u)&0>=.db.Lm[u];.db.Lm _:u;.db.Vm _:u];if[(0<v)&0>=.db.Lm[v];.db.Lm _:v;.db.Vm _:v]; `$(string u),"_",(string v)
-imptradex:{[t;x]e:fs2e y:x`sym;.db.Pm[y]:x`extime;if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];q:x`qty;if[0<u:x`aid;u:x[`gid]+10000*u];if[0<v:x`bid;v:x[`gid]+10000*v];z:newl2seq[];wu:(u>0)&null .db.Vm[u];wv:(v>0)&null .db.Vm[v];if[$[`XSHG=e;wu&wv;wu|wv];if[not t;.db.Tm[z]:x;if[wu;.db.Wm[u],:z];if[wv;.db.Wm[v],:z]];:()];if[(0<u)&(0<=p:.db.Vm[u]);.db.Lm[u]-:q;if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p];if[count .db.Wm[u];.db.Wm[u]:.db.Wm[u] except z;if[0=count .db.Wm[u];.db.Wm _:u]]];if[(0<v)&(0<=p:.db.Vm[v]);.db.Lm[v]-:q;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[count .db.Wm[v];.db.Wm[v]:.db.Wm[v] except z;if[0=count .db.Wm[v];.db.Wm _:v]]];if[t;.db.Tm _:z];}; /逐笔成交处理.wu(成交先于卖单委托),wv(成交先于买单委托) if[(0<u)&0>=.db.Lm[u];.db.Lm _:u;.db.Vm _:u];if[(0<v)&0>=.db.Lm[v];.db.Lm _:v;.db.Vm _:v]; `$(string u),"_",(string v)
+imptradex:{[t;x]e:fs2e y:x`sym;if[.db.Pm[y]<x`extime;.db.Pm[y]:x`extime];if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];q:x`qty;if[0<u:x`aid;u:x[`gid]+100000j*u];if[0<v:x`bid;v:x[`gid]+100000j*v];z:newl2seq[];wu:(u>0)&null .db.Vm[u];wv:(v>0)&null .db.Vm[v];if[$[`XSHG=e;wu&wv;wu|wv];if[not t;.db.Tm[z]:x;if[wu;.db.Wm[u],:z];if[wv;.db.Wm[v],:z]];:()];if[(0<u)&(0<=p:.db.Vm[u]);.db.Lm[u]-:q;if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p];if[count .db.Wm[u];.db.Wm[u]:.db.Wm[u] except z;if[0=count .db.Wm[u];.db.Wm _:u]]];if[(0<v)&(0<=p:.db.Vm[v]);.db.Lm[v]-:q;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[count .db.Wm[v];.db.Wm[v]:.db.Wm[v] except z;if[0=count .db.Wm[v];.db.Wm _:v]]];};   /逐笔成交处理.wu(成交先于卖单委托),wv(成交先于买单委托) if[(0<u)&0>=.db.Lm[u];.db.Lm _:u;.db.Vm _:u];if[(0<v)&0>=.db.Lm[v];.db.Lm _:v;.db.Vm _:v]; `$(string u),"_",(string v)
 
 imptrade:imptradex[0b];impoldtrade:imptradex[1b];
 
-impshcxl:{[x]y:x`sym;q:x`qty;u:x[`gid]+10000*x`origid;if[0<=p:.db.Vm[u];.db.Lm[u]-:q;$["B"=x`side;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p]]];}; /上海撤单委托处理
+impshcxl:{[x]y:x`sym;q:x`qty;u:x[`gid]+100000j*x`oid;if[0<=p:.db.Vm[u];.db.Lm[u]-:q;$[x[`side] in "1B";if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p]]];};  /上海撤单委托处理
 
-//.upd.l2order:{[x].temp.x3:x;e:fs2e y:x`sym;if["D"=x`typ;impshcxl x;:()];z:x[`gid]+10000*x`origid;if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];w:x`side;p:x`price;q:x`qty;if[x[`typ] in "1U";p:0f];.db.Vm[z]:p;.db.Lm[z]:q;$[w in "1B";[.db.Bm[y;p]:q+0f^.db.Bm[y;p]];w in "2S";[.db.Am[y;p]:q+0f^.db.Am[y;p]];[]];if[count r:.db.Wm[z];impoldtrade each .db.Tm r];}'; /逐笔委托处理
-.upd.l2order:{[x].temp.x3:x;e:fs2e y:x`sym;.db.Pm[y]:x`extime;if["D"=x`typ;impshcxl x;:()];z:x[`gid]+10000*x`origid;if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];w:x`side;p:x`price;q:x`qty;if[x[`typ] in "1U";p:0f];.db.Vm[z]:p;.db.Lm[z]:q;$[w in "1B";[.db.Bm[y;p]:q+0f^.db.Bm[y;p]];w in "2S";[.db.Am[y;p]:q+0f^.db.Am[y;p]];[]];if[count r:.db.Wm[z];impoldtrade each .db.Tm r];}'; /逐笔委托处理
+.upd.l2order:{[x].temp.x3:x; e:fs2e y:x`sym;if[.db.Pm[y]<x`extime;.db.Pm[y]:x`extime];if["D"=x`typ;impshcxl x;:()];z:x[`gid]+100000j*x`oid;if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];w:x`side;p:x`price;q:x`qty;if[x[`typ] in "1U";p:0f];.db.Vm[z]:p;.db.Lm[z]:q;$[w in "1B";[.db.Bm[y;p]:q+0f^.db.Bm[y;p]];w in "2S";[.db.Am[y;p]:q+0f^.db.Am[y;p]];[]];if[count r:.db.Wm[z];impoldtrade each .db.Tm r];}'; /逐笔委托处理 
 
 .upd.l2match:{[x].temp.x4:x;imptrade each x;};
 
 .upd.l2queue:{[x]s:x`side;y:x`sym;if[x[`extime]<.db.QX[y;`extime];:()];.db.QX[y;$[s="B";`bid`bsize`bnum`bqtyQ;`ask`asize`anum`aqtyQ]]:x`price`size`num`qtyQ;}';
 
-//getcbbo:{[x]bq:.db.Bm[x] bp:first desc (key .db.Bm[x]) except 0f;oq:.db.Am[x] op:first asc (key .db.Am[x]) except 0f;(bp;bq;op;oq)}; /[sym]取计算出的最新最优盘口
-getcbbo:{[x]bq:.db.Bm[x] bp:first desc (key .db.Bm[x]) except 0f;oq:.db.Am[x] op:first asc (key .db.Am[x]) except 0f;(.db.Pm[x];bp;bq;op;oq)}; /[sym]取交易所时间戳和计算出的最新最优盘口
+getcbbo:{[x]if[.db.CBBO[x;`extime]>=y:.db.Pm[x];:.db.CBBO[x;`extime`bp`bq`op`oq]];bq:.db.Bm[x] bp:first desc (key .db.Bm[x]) except 0f;oq:.db.Am[x] op:first asc  (key .db.Am[x]) except 0f;:.db.CBBO[x;`extime`bp`bq`op`oq]:(y;bp;bq;op;oq);}; /[sym]取交易所时间戳和计算出的最新最优盘口
+
 
 \
 .db.TASK[`LOADETF;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:10;1D;0;4;`loadetf);
