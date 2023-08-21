@@ -1,4 +1,4 @@
-.module.ftbase:2023.07.27;
+.module.ftbase:2023.08.06;
 
 txload "core/rcbase";
 
@@ -253,6 +253,8 @@ recoverdb:{[]r:.ctrl.conn.rdb.h;delete from `.db.O;delete from `.db.M;{[x].db.O[
 
 recoverfill:{[x]r:.db.O[x];.upd.exerpt enlist `time`sym`typ`oid`status`cumqty`avgpx`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt`src`srctime`srcseq`dsttime!(0Nn;.conf.me;.enum`NEW;x;.enum`FILLED;r`qty;r`price),r[`feoid`ordid`cstatus`cfeoid`cordid`reason`msg`rptopt],(.conf.me;0Np;0N;0Np);};
 
+simfill:{[k]r:.db.O[k];.upd.exerpt enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`exchid`cstatus`cfeoid`cordid`cexchid`reason`msg`rptopt!(.enum`NEW;k;.enum`FILLED;r`qty;r`price;newid[];newid[];`paper;.enum.NULL;`;`;`;0;"";"");};
+
 cpos:{[x;y]exec sum cumqty*?[side=.enum`BUY;1;-1] from (select from .hdb.O where cumqty>0,ts=x,sym=y),(select from .db.O where cumqty>0,ts=x,sym=y)}; /[tid;sym] calulated pos from .db.O to verify with .db.P
 
 hisbars:{[typ;x;D;f]($[typ in `D`W`N;daybars;minbars])[typ;x;D;f]}; /[sym;d0.d1;bartype(`M|`D|`W|`N);barfreq]gen hist bars from tick quote
@@ -311,6 +313,9 @@ impshcxl:{[x]y:x`sym;q:x`qty;u:x[`gid]+10000*x`origid;if[0<=p:.db.Vm[u];.db.Lm[u
 //getcbbo:{[x]bq:.db.Bm[x] bp:first desc (key .db.Bm[x]) except 0f;oq:.db.Am[x] op:first asc (key .db.Am[x]) except 0f;(bp;bq;op;oq)}; /[sym]取计算出的最新最优盘口
 getcbbo:{[x]bq:.db.Bm[x] bp:first desc (key .db.Bm[x]) except 0f;oq:.db.Am[x] op:first asc (key .db.Am[x]) except 0f;(.db.Pm[x];bp;bq;op;oq)}; /[sym]取交易所时间戳和计算出的最新最优盘口
 
+ems_algordex:{[sd;x;y;q;p;m;a;h]pe:.enum $[sd=.enum`BUY;`OPEN;`CLOSE];h:``algo`algotype`algopara!(`;1b;a;h);newordex[sd;pe;x;y;q;p;m;h]};
+ems_algord:{[sd;x;y;q;p;m;a;t]ems_algordex[sd;x;y;q;p;m;a;`start_time`end_time!`second$.z.T+0,t]};ems_algobuy:ems_algord[.enum`BUY];ems_algosell:ems_algord[.enum`SELL];
+
 \
 .db.TASK[`LOADETF;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:10;1D;0;4;`loadetf);
 .db.TASK[`QRYORD;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:10;0D00:00:30;0;4;`qryordtask);
@@ -318,6 +323,7 @@ getcbbo:{[x]bq:.db.Bm[x] bp:first desc (key .db.Bm[x]) except 0f;oq:.db.Am[x] op
 .db.TASK[`DOREPOTASK;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+14:58:30;1D;0;4;`dorepotask);
 
 //----ChangeLog----
+//2023.08.06:新增ems_algordex/ems_algord/ems_algobuy/ems_algosell函数以支持下卖方算法单
 //2023.07.27:cxlordex修正用k不正确的替换x的bug
 //2023.07.11:增加qryfundpeer和.upd.FundPeerUpdate函数;增加allocfund和.upd.FundAllocUpdate函数
 //2023.07.05:增加qrymat和.upd.MatUpdate函数

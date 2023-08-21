@@ -55,7 +55,9 @@ RN:([ts:`symbol$();acc:`symbol$();sym:`symbol$()]nord:`long$();ncxl:`long$();nre
 .db.R[``,/:`maxspeed`maxcxlspeed`maxordcnt`maxcxlcnt`maxrejcnt;`active]:1b;
 
 .db.RL[```;`maxno1s`maxno5s`maxno20s`maxno1m`maxnc1s`maxnc5s`maxnc20s`maxnc1m`maxnord`maxncxl`maxnrej]:100 500 2000 6000 300 1500 6000 18000 1000000 3000000 100000; /production
-.db.RL[``,`$"*[XC]?[^HK][EX]";`maxncxl]:460; /production
+.db.RL[```;`maxno1s`maxno5s`maxno20s`maxno1m`maxnc1s`maxnc5s`maxnc20s`maxnc1m`maxnord`maxncxl`maxnrej]:50 250 1000 3000 150 750 3000 6000 1000000 3000000 100000; /production
+.db.RL[``,`$"*X?[^HK]E";`maxncxl]:240; /production
+.db.RL[``,`$"*CCFX";`maxncxl]:180; /production
 
 //.db.RL[```;`maxno1s`maxno5s`maxno20s`maxno1m`maxnc1s`maxnc5s`maxnc20s`maxnc1m`maxnord`maxncxl`maxnrej]:2 2 2 2 2 2 2 2 5 2 1; /test-min
 

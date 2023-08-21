@@ -1,4 +1,4 @@
-.module.api:2023.06.09;
+.module.api:2023.08.17;
 
 /对于行情类消息sym为证券代码,对于日志消息sym为日志级别,对于其他类消息sym为接收方id(`ALL为全系统广播)
 tailcols:`src`srctime`srcseq`dsttime;
@@ -15,7 +15,7 @@ ordcxl:([]time:`timespan$(); sym:`symbol$(); oid:`symbol$(); feoid:`symbol$(); c
 
 exerpt:([]time:`timespan$(); sym:`symbol$(); typ:`char$(); oid:`symbol$(); status:`char$(); cumqty:`float$(); avgpx:`float$(); feoid:`symbol$(); ordid:`symbol$(); exchid:`symbol$(); cstatus:`char$(); cfeoid:`symbol$(); cordid:`symbol$(); cexchid:`symbol$(); reason:`long$(); msg:(); rptopt:(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$()); /执行报告
 
-exenoe:([]time:`timespan$(); sym:`symbol$(); typ:`char$(); oid:`symbol$(); ft:`symbol$(); ts:`symbol$(); acc:`symbol$(); acc1:`symbol$(); ref:`symbol$(); osym:`symbol$(); side:`char$(); posefct:`char$(); status:`char$(); cumqty:`float$(); avgpx:`float$(); ordid:`symbol$(); msg:(); rptopt:(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$()); /NOE执行报告
+exenoe:([]time:`timespan$(); sym:`symbol$(); typ:`char$(); oid:`symbol$(); ft:`symbol$(); ts:`symbol$(); acc:`symbol$(); acc1:`symbol$(); ref:`symbol$(); osym:`symbol$(); side:`char$(); posefct:`char$(); status:`char$(); cumqty:`float$(); avgpx:`float$(); ordid:`symbol$(); exchid:`symbol$();  msg:(); rptopt:(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$()); /NOE执行报告
 
 cxlrej:([]time:`timespan$(); sym:`symbol$(); oid:`symbol$(); cid:`symbol$(); cstatus:`char$(); cordid:`symbol$(); reason:`long$(); msg:(); isrpl:`boolean$(); src:`symbol$(); srctime:`timestamp$(); srcseq:`long$(); dsttime:`timestamp$()); /撤单拒绝 
 
@@ -45,6 +45,7 @@ l2order:([]time:`timespan$();sym:`symbol$();side:`char$();typ:`char$();price:`fl
 l2match:([]time:`timespan$();sym:`symbol$();side:`char$();typ:`char$();price:`float$();qty:`float$();amt:`float$();gid:`int$();mid:`long$();bid:`long$();aid:`long$();bizidx:`long$();extime:`timestamp$();flag:`symbol$();src:`symbol$();srctime:`timestamp$();srcseq:`long$();dsttime:`timestamp$()); /Level-2 逐笔成交
 
 //----ChangeLog----
+//2023.08.17:exenoe表新增exchid列
 //2023.04.27:exerpt表新增exchid和cexchid两列
 //2023.06.07:l2order/l2match新增flag列,l2quote在quote表基础上新加从tnum到flag的一系列列
 //2023.06.09:调整l2quote的列序以解决不能正常pub的bug

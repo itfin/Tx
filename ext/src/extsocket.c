@@ -281,7 +281,8 @@ K1(sockopen){
   t=xz->i;
   S lip=NULL;
   if(!((-KS)==xx->t)&&((-KI)==xy->t)&&((-KI)==xz->t))R ki(-1234);
-  if(4==x->n)if((-KS)==xw->t){lip=xw->s;}else if((-KI)==xw->t){n=xw->i;}else{} 
+  if(4<=x->n)if((-KS)==xw->t){lip=xw->s;}else if((-KI)==xw->t){n=xw->i;}else{}
+  if(5<=x->n)n=xK[4]->i;
   s=opensock(xx->s,xy->i,xz->i,n,lip);
   if(0<s){
     if(2==t){

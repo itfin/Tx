@@ -57,7 +57,7 @@ connmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];p:(y:.conf[x])`
 
 stopmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"stopping ",string[x],"...";if[(0=count .ctrl.H[x])|-1~.ctrl.H[x];connmod[x]];if[0<h:.ctrl.H[x];@[h;"exit 0";()];.ctrl.H[x]:-1;.ctrl.MOD[x;`h`stoptime]:(-1;.z.P)];0N!"done.\n";};
 
-startmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"starting ",string[x],"...";system modstartcmd x;system "sleep 0.25";connmod[x];if[0<h:.ctrl.H[x];.ctrl.MOD[x;`starttime]:.z.P];0N!$[0<h;"Done.";"Failed."];};
+startmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"starting ",string[x],"...";system modstartcmd x;system "sleep ",string 1f^ffill .conf`connwait;connmod[x];if[0<h:.ctrl.H[x];.ctrl.MOD[x;`starttime]:.z.P];0N!$[0<h;"Done.";"Failed."];};
 
 modstartcmd:{[x]p:(y:.conf[x])`port;z:string x;r:not (a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip],$[(::)~b:.conf.ha[.conf.ha.node;`ipx];`symbol$();b];:.ctrl.Cmd[x]:$[r;"ssh ",string[`root^sfill .conf[`ruser]],"@",(string a)," '";""],"sh -c cd ",.conf.wd," && ",cfill[y`env],$[`bsd~.conf[`ostype];" cpuset -l ";" taskset -c "],("," sv string raze mod[;$[r;1000;.ctrl.NOD[.conf.ha.node;`cpucores]]] y`cpu)," nohup ",.conf.qbin," ",($[r;ssr[;"'";"'\"'\"'"];::] cfill y[`args]),$[1<count y`qclfull;y`qclfull;.conf.qcl,(cfill y[`qcl])]," -p ",$[1b~y`bindip;string[a],":";1b~.conf[`bindlocal];"127.0.0.1:";""],(string p)," </dev/null >>/tmp/",z,".",(string .conf.app)," 2>&1&",$[r;"'&";""]};
 
@@ -81,7 +81,7 @@ doshutdown:{[]if[null .ctrl.shutdowntime;.ctrl.shutdowntime:.z.P];stopnode .conf
 
 checkpower:{[x;y].ctrl.powerchkbegin:.z.P;z:pingok .conf.powerchkip;.ctrl[`powerchkend`powerchkres]:(.z.P;z);$[count z;if[1b~.ctrl[`poweroff];.ctrl[`poweroff`poweroffbegin]:(0b;0Np)];$[0b~.ctrl[`poweroff];.ctrl[`poweroff`poweroffbegin]:(1b;.z.P);if[.z.P>.ctrl.poweroffbegin+.conf.powertmout;doshutdown[]]]];1b};
 
-rmoldapifiles:{[x;y]{[x]y:"D"$-10#string x;if[y<.z.D-10;system "rm -f ",1_string sv[`;.conf.tickdb,x]]} each (key .conf.tickdb) except `api;1b};
+rmoldapifiles:{[x;y]{[x]y:"D"$-10#string x;if[y<.z.D-10^jfill .conf`keepapilogdays;system "rm -f ",1_string sv[`;.conf.tickdb,x]]} each (key .conf.tickdb) except `api;1b};
 
 comparedb:{[x;y]if[not (~/) .ctrl.H[`ft`ft1] @\: `.db.P;alert["system error!";"pos diff!"];:0b];1b};
 
@@ -89,7 +89,7 @@ chkmodstatus:{[x]if[not .z.T within 08:58 15:00;:()];{[x]lerr[`modoffline;enlist
 
 chkfestatus:{[x]if[not .z.T within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`feufx;`h];:()];if[not 1b~h (`.ctrl.ufx;`login);lerr[`ufxloginfail;()]];}; /check ufx login
 
-chkfqstatus:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`rdb;`h];:()];r:h ({[x](exec `time$last time by src from quote),(exec `time$last time by src from l2quote)};());{[r;t;x]if[r[x]<t-00:00:02;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each enlist `fqctp;if[t<09:30;:()];{[r;t;x]if[r[x]<t-00:00:10;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each .conf.ha.ha.fq except `fqbar;}; /check fqsrc quote timestamp
+chkfqstatus:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`rdb;`h];:()];r:h ({[x](exec `time$last time by src from quote),(exec `time$last time by src from l2quote)};());{[r;t;x]if[r[x]<t-00:00:02;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each enlist `fqctp;if[t<09:30;:()];{[r;t;x]if[r[x]<t-00:00:10;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each .conf.ha.ha.fq except `fqbar,.conf`qschkskip;}; /check fqsrc quote timestamp
 
 chktpzw:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`tp;`h];:()];if[.conf.maxzwlen<n:h ({sum sum each .z.W};());lwarn[`tpzwfull;(t;n)]];};
 

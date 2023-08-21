@@ -1,4 +1,4 @@
-.module.fqhsnsq:2023.06.26;
+.module.fqhsnsq:2023.08.11;
 
 txload "core/fqbase";
 txload "lib/handy";
@@ -27,7 +27,7 @@ RefKey:`ExchangeID`InstrumentID`InstrumentName`SecurityType`PreClosePrice`UpperL
 
 onhsnsq:{[x]if[.conf.hsnsq.debug;.temp.L,:(enlist .z.P),/:x];@[{.upd[x[0]][x[1]]};;()] each x;};
 
-hsnsqconn:{[x;y]if[not any .z.T within/: .conf.hsnsq.openrange;:()];if[1i~.ctrl.nsq[`runQ];:()];.ctrl.nsq[`conntimeQ`H5Version]:(.z.P;nsqver[]);.ctrl.nsq[`runQ]:r:initnsq[`;.conf.hsnsq`logdir`cfgfile];1b};
+hsnsqconn:{[x;y]if[not any .z.T within/: .conf.hsnsq.openrange;:()];if[1i~.ctrl.nsq[`runQ];:()];.ctrl.nsq[`conntimeQ`H5Version]:(.z.P;nsqver[]);.ctrl.nsq[`runQ]:r:initnsq[`;.conf.hsnsq`logdir`cfgfile`ngroup`igroup];1b};
 
 hsnsqdisc:{[x;y]if[any .z.T within/: .conf.hsnsq.openrange;:()];if[1i~.ctrl.nsq[`runQ];:()];.ctrl.nsq[`runQ]:freensq[];if[((.z.D>d0)|(.z.T>.conf.hsnsq.mktclosetime)&(.z.D=d0))&(.db.fqclosedate<d0:.db.fqopendate);pubm[`ALL;`MarketClose;.conf.me;string d0];.db.fqclosedate:d0];1b};
 
@@ -50,9 +50,13 @@ nsqcall:{[x;y]k:newseq[];.temp.C,:enlist (.z.P;k;x;y);((value x)[k;y,$[0=type y;
 
 .upd.DepthMD:{[x].temp.x0:x;z:enlist y:.enum.MDKey!x;if[1b~.conf.hsnsq.debug;.temp.L10,:z];.temp.d:d:select sym:{[x;y]`$x,'".",/:string y}[InstrumentID;.enum.exnsq `$ExchangeID],bid:first each pb,ask:first each pa,bsize:`float$first each qb,asize:`float$first each qa,price:LastPrice,high:HighPrice,low:LowPrice,vwap:AveragePrice,cumqty:`float$TradeVolume,openint:PreClosePrice,settlepx:IOPV,mode:`$string InstrumentTradeStatus,extime:("D"$string TradeDate)+"T"$pad0[-9] each string UpdateTime,bidQ:pb,askQ:pa,bsizeQ:`float$qb,asizeQ:`float$qa,quoopt:{""} each i,tnum:TradesNum,b0num:MaxBid1Count,b0qtyQ:`float$vb,bnum:TotalBuyNum,bqty:`float$TotalBidVolume,bwap:MaBidPrice,bcnum:CancelBuyNum,bcqty:`float$CancelBuyVolume,bcamt:CancelBuyValue,bpnum:BidOrdersNum,bwtime:`time$DurationAfterBuy,a0num:MaxAsk1Count,a0qtyQ:`float$va,anum:TotalSellNum,aqty:`float$TotalAskVolume,awap:MaAskPrice,acnum:CancelSellNum,acqty:`float$CancelSellVolume,acamt:CancelSellValue,apnum:AskOrdersNum,awtime:`time$DurationAfterSell,ebnum:`long$EtfBuycount,ebqty:`float$EtfBuyVolume,ebamt:EtfBuyBalance,esnum:`long$EtfSellCount,esqty:`float$EtfSellVolume,esamt:EtfSellBalance,yield:YieldToMaturity,execqty:`float$TotalWarrantExecVolume,winf:WarrantLowerPrice,wsup:WarrantUpperPrice,bbwap:MaBondBidPrice,bawap:MaBondAskPrice,flag:` from z;if[count d;$[1b~.conf.batchpub;enqueue[d];pub[quotetbl;d]]];d1:select sym:{[x;y]`$x,'".",/:string y}[InstrumentID;.enum.exnsq `$ExchangeID],pc:PreClosePrice,open:OpenPrice,sup:UpperLimitPrice,inf:LowerLimitPrice from z;if[(1b~.conf.hsnsq`pushref)&n:count d2:d1 except .temp.QREF;pub[`quoteref;update refopt:n#enlist"" from d2];.temp.QREF,:d2];};
 
-upd.DepthMDATP:{[x].temp.x1:x;z:enlist y:.enum.MDATPKey!x;if[1b~.conf.hsnsq.debug;.temp.L11,:z];};
+.upd.DepthMDATP:{[x].temp.x1:x;z:enlist y:.enum.MDATPKey!x;if[1b~.conf.hsnsq.debug;.temp.L11,:z];};
 
-.upd.TransactionEntrust:{[x].temp.x2:x;z:enlist y:.enum.OrderKey!x;if[1b~.conf.hsnsq.debug;.temp.L12,:z];d:select sym:{[x;y]`$x,'".",/:string y}[InstrumentID;.enum.exnsq `$ExchangeID],side:OrdSide,typ:OrdType,price:OrdPrice,qty:`float$OrdVolume,gid:ChannelNo,oid:SeqNo,origid:OrdNo,bizidx:BizIndex,extime:("D"$string TradeDate)+"T"$pad0[-9] each string TransactTime,flag:` from z;$[1b~.conf.batchpubl2;enqueuel2o[d];pub[`l2order;d]];};
+.upd.TransactionEntrust_sh:{[x].temp.x2:x;z:enlist y:.enum.OrderKey!x;if[1b~.conf.hsnsq.debug;.temp.L12,:z];d:select sym:{[x;y]`$x,'".",/:string y}[InstrumentID;.enum.exnsq `$ExchangeID],side:OrdSide,typ:OrdType,price:OrdPrice,qty:`float$OrdVolume,gid:ChannelNo,oid:OrdNo,origid:SeqNo,bizidx:BizIndex,extime:("D"$string TradeDate)+"T"$pad0[-9] each string TransactTime,flag:` from z;$[1b~.conf.batchpubl2;enqueuel2o[d];pub[`l2order;d]];};
+
+.upd.TransactionEntrust_sz:{[x].temp.x2:x;z:enlist y:.enum.OrderKey!x;if[1b~.conf.hsnsq.debug;.temp.L12,:z];m:.conf.hsnsq.mkt;d:select sym:{[x;y]`$x,'".",/:string y}[InstrumentID;.enum.exnsq `$ExchangeID],side:OrdSide,typ:OrdType,price:OrdPrice,qty:`float$OrdVolume,gid:ChannelNo,oid:SeqNo,origid:OrdNo,bizidx:BizIndex,extime:("D"$string TradeDate)+"T"$pad0[-9] each string TransactTime,flag:` from z;$[1b~.conf.batchpubl2;enqueuel2o[d];pub[`l2order;d]];};
+
+.upd.TransactionEntrust:$[`1~.conf.hsnsq.mkt;.upd.TransactionEntrust_sh;.upd.TransactionEntrust_sz];
 
 nsqmatch:{[t;z]select sym:{[x;y]`$x,'".",/:string y}[InstrumentID;.enum.exnsq `$ExchangeID],side:.enum.NULL,typ:TrdBSFlag,price:TrdPrice,qty:`float$TrdVolume,amt:TrdMoney,gid:ChannelNo,mid:SeqNo,bid:TrdBuyNo,aid:TrdSellNo,bizidx:BizIndex,extime:("D"$string TradeDate)+"T"$pad0[-9] each string TransactTime,flag:t from z};
 
@@ -65,7 +69,8 @@ nsqmatch:{[t;z]select sym:{[x;y]`$x,'".",/:string y}[InstrumentID;.enum.exnsq `$
 
 .upd.RspQrySecuInstruments:{[x].temp.x7:x;z:enlist y:.enum[`RefKey]!x;.temp.d7:d:select sym:{[x;y]`$x,'".",/:string y}[InstrumentID;.enum.exnsq `$ExchangeID],name:`$InstrumentName,sectype:`$string SecurityType,pc:PreClosePrice,inf:LowerLimitPrice,sup:UpperLimitPrice,pxunit:PriceTick,qtyminl:`float$BuyVolumeUnit,qtymins:`float$SellVolumeUnit,date:"D"$string TradeDate from z;.db.QX:.db.QX uj 1!d;};
 
-
 //----ChangeLog----
+//2023.08.11:增加.conf.hsnsq.ngroup和.conf.hsnsq.igroup以支持单市场多实例按通道号余数水平分拆
+//2023.07.31:.upd.TransactionEntrust分成.upd.TransactionEntrust_sz和.upd.TransactionEntrust_sz以统一和逐笔成交关联
 //2023.06.26:.upd.DepthMD增加对.conf.hsnsq`pushref的判断以兼容上海行情涨跌停价为0的问题
 //2023.06.14:初始版本

@@ -271,8 +271,9 @@ extern "C"{
     INITLOCK;
     sd1(p[0],onmq);
 
-    TDF_SetEnv(TDF_ENVIRON_DISTRIBUTION, 0);
     TDF_SetLogPath(kK(y)[5]->s);
+    O("Logpath:%s!\n",kK(y)[5]->s);
+    TDF_SetEnv(TDF_ENVIRON_DISTRIBUTION, 0);
     
     memset(&settings, 0, sizeof(settings));
     settings.nServerNum = kK(x)[0]->i; //必须设置： 有效的连接配置个数（当前版本应<=2)
@@ -331,8 +332,9 @@ extern "C"{
 
   K1(codetable){
     K L=knk(0);
+    int r=0;
     TDF_CODE* p1;unsigned int n1;
-    TDF_GetCodeTable(hTDF,xs,&p1, &n1);
+    if(0!=(r=TDF_GetCodeTable(hTDF,xs,&p1, &n1))) R L;
     for(int j=0;j<n1;j++){
       TDF_CODE& c = p1[j];
       jk(&L,knk(9,kp((S)c.szWindCode),kp((S)c.szMarket),kp((S)c.szCode),kp((S)c.szENName),kp((S)c.szCNName),ki(c.nType),kp((S)c.szWindType),ki(c.nRecord),ki(c.nLotSize)));

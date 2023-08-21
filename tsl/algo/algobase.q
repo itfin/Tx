@@ -1,5 +1,5 @@
 //算法交易策略
-.module.tsalgobase:2022.07.05;
+.module.tsalgobase:2023.08.18;
 
 txload "tsl/tslib";
 
@@ -163,7 +163,7 @@ newalgolst:{[x;y;z;t;p;a;u;v].upd[`NewOrderAlgoList][`id`totalsize`algo`para`lis
 
 cxloalst:{[k;t]if[.db.O1[k;`suspend]|.db.O1[k;`pending]|.db.O1[k;`end];:()];.upd[`CancelOrderAlgoList][`clt`id`cid`msg!(.db.O1[k;`clt];.db.O1[k;`cltid];`;t)];};
 
-execstat:{[isrt;x]r:$[isrt;.db.O1;.hdb.O1][x];st:(`time$r`ntime)|{$[null x;-0Wt;`time$x]}"Z"$cfill (r`para)[0;`StartTime];et:(`time$r`ftime)&{$[null x;0Wt;`time$x]}"Z"$cfill (r`para)[0;`EndTime];h:$[isrt;.ctrl.conn.rdb.h ({[x]value exec price,`time$time,cumqty,vwap*cumqty from quote where sym=x};r`sym);.ctrl.conn.hdb.h ({[d;s]value first select price,`time$time,cumqty,cumqty*vwap by sym from quote where date=d,sym=s};`date$r`ntime;r`sym)];lmp:r`price;f:$[0=lmp;0n<=;.enum[`BUY]=r`side;lmp>=;lmp<=];h:value exec t,sums q,sums a from (select p,t,deltas q,deltas a from flip `p`t`q`a!h) where f p;k:where (h 0) within (st,et);h1:0f^h[1 2;-1+k 0];hs:h1 0;ha:h1 1;h:h[;k];vwap:{x[;where x[1]>0]}(`int$`second$vtimex[fs2e r`sym;h 0];(h[2]-ha)%(h[1]-hs);(h[1]-hs)%(last h[1])-hs;h[1]-hs);trade:value exec `int$`second$(fs2e each sym) vtimex'`time$ftime,(sums cumqty*avgpx)%(sums cumqty),(sums cumqty)%sum cumqty from `ftime xasc select from $[isrt;.db.O;.hdb.O] where upid=x,cumqty>0f,ftime<=et;(vwap;trade;r`algo)}; /value first select price,time,cumqty,cumqty*vwap by fsym from HQ where (date=`date$r`ntime),(sym=r`sym)
+execstat:{[isrt;x]r:$[isrt;.db.O1;.hdb.O1][x];st:(`time$r`ntime)|{$[null x;-0Wt;`time$x]}"Z"$cfill (r`para)[0;`StartTime];et:(`time$r`ftime)&{$[null x;0Wt;`time$x]}"Z"$cfill (r`para)[0;`EndTime];h:$[isrt;.ctrl.conn.rdb.h ({[x]value exec price,`time$time,cumqty,0f^vwap*cumqty from quote where sym=x};r`sym);.ctrl.conn.hdb.h ({[d;s]value first select price,`time$time,cumqty,0f^cumqty*vwap by sym from quote where date=d,sym=s};`date$r`ntime;r`sym)];lmp:r`price;f:$[0=lmp;0n<=;.enum[`BUY]=r`side;lmp>=;lmp<=];h:value exec t,sums q,sums a from (select p,t,deltas q,deltas a from flip `p`t`q`a!h) where f p;k:where (h 0) within (st,et);h1:0f^h[1 2;-1+k 0];hs:h1 0;ha:h1 1;h:h[;k];vwap:{x[;where x[1]>0]}(`int$`second$vtimex[fs2e r`sym;h 0];(h[2]-ha)%(h[1]-hs);(h[1]-hs)%(last h[1])-hs;h[1]-hs);trade:value exec `int$`second$(fs2e each sym) vtimex'`time$ftime,(sums cumqty*avgpx)%(sums cumqty),(sums cumqty)%sum cumqty from `ftime xasc select from $[isrt;.db.O;.hdb.O] where upid=x,cumqty>0f,ftime<=et;(vwap;trade;r`algo)}; /value first select price,time,cumqty,cumqty*vwap by fsym from HQ where (date=`date$r`ntime),(sym=r`sym)
 
 mktvwap:{[isrt;x]d:execstat[isrt;x];0f^ffill last d[0;1]};
 mktqty:{[isrt;x]d:execstat[isrt;x];0f^ffill last d[0;3]};
@@ -184,6 +184,10 @@ oastatd:{[x;y;z;s]t:$[x;.db.O1;select from .hdb.O1 where (`date$ntime) within (y
 oaexecd:{[isrt;x;y]d:execstat[isrt;x];pm:last d[0;1];pr:first d[0;1];pa:last d[1;1];bp:$[$[isrt;.db.O1[x;`side];exec first side from .db.O1 where id=x]=.enum`BUY;1e4;-1e4]*-1+pa%pm,pr;`h`t!(`ArrivalPx`MktPx`AlgoPx`Cost0`Cost1!.math.r3 (pr,pm,pa,bp);update t:string `minute$`second$?[t<7200;09:30:00;11:00:00]+t from select from (0!(select .math.r3 last p0,.math.r3 last q0 by t:y xbar t from flip`t`p0`q0`q!d[0]) lj (select .math.r3 last p1,.math.r3 last q1 by t:y xbar t from flip`t`p1`q1!d[1])) where not null p1)};   
 
 oadetaild:{[isrt;x;y]y:`long$y;toa:$[isrt;.db.O1;.hdb.O1];to:$[isrt;.db.O;.hdb.O];d0:`date$toa[x;`ntime];z:toa[x;`sym];tq:$[isrt;.ctrl.conn.rdb.h ({[x]select `time$time,bid,ask,cumqty from quote where sym=x};z);.ctrl.conn.hdb.h ({[d;s]select `time$time,bid,ask,cumqty from quote where date=d,sym=s};d0;z)];(update date:d0+`time$date from 0!select last bid,last ask,sum qty by date:y xbar `second$vtimex[`XSHG] time from (select time,bid,ask,qty:deltas cumqty from tq) where  0<bid&ask),\: update date:d0+`time$date from select cumqty wavg avgpx,sum cumqty by y xbar `second$date from select date:vtimex[`XSHG] `time$ftime,avgpx,cumqty from to where upid=x,cumqty>0,avgpx>0}; 
+
+//----ChangeLog----
+//2023.08.18:修改execstat，修复0n引起的计算错误
+//2022.07.05:初始版本
 
 \
 .db.Ts.algo:.enum.nulldict;

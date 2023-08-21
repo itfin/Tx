@@ -8,7 +8,7 @@ txload "core/febase";
 .ctrl.ldp.usermap:{x!til count x} .conf.ldp.user;
 
 ldpcall:{[i;x;y]k:newseq[];.temp.r:r:(value x)[`int$k,i;y,$[0=type y;();enlist (::)]];.temp.C,:enlist (r;.z.P;i;k;x;y);(r;k;i)};
-onldp:{[x].temp.X:x;if[.conf.ldp.debug;.temp.L,:(enlist .z.P),/:x];{[x](.upd[x[0]])[x[1];x[2]]} each x;};
+onldp:{[x].temp.X:x;if[.conf.ldp.debug;.temp.L,:(enlist .z.P),/:x];@[{[x](.upd[x[0]])[x[1];x[2]]};;()] each x;};
 
 .ctrl.O:$[`ft=.conf.feedtype;`O1;`O];
 

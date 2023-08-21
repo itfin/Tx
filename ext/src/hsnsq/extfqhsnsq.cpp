@@ -32,7 +32,9 @@ Z pthread_mutex_t g_mutex=PTHREAD_MUTEX_INITIALIZER;
 Z std::queue<K> mq;
 Z std::queue<K> fq;
 
-Z int c;
+ZI c;
+ZI NGROUP=0;
+ZI IGROUP=0;
 
 ZK onmq(I i){
   K L=knk(0);
@@ -122,7 +124,7 @@ public:
     K pa=ktn(KF,10),qa=ktn(KJ,10),pb=ktn(KF,10),qb=ktn(KJ,10),vb=ktn(KJ,Bid1Count),va=ktn(KJ,Ask1Count);
     DO(10,kF(pa)[i]=p->AskPrice[i];kJ(qa)[i]=p->AskVolume[i];kF(pb)[i]=p->BidPrice[i];kJ(qb)[i]=p->BidVolume[i];);
     DO(Bid1Count,kJ(vb)[i]=Bid1Volume[i]);DO(Ask1Count,kJ(va)[i]=Ask1Volume[i]);  
-    MPUB("DepthMD",knk(61,kp(p->ExchangeID),kp(p->InstrumentID),kf(p->LastPrice),kf(p->PreClosePrice),kf(p->OpenPrice),kf(p->HighPrice),kf(p->LowPrice),kf(p->ClosePrice),kf(p->UpperLimitPrice),kf(p->LowerLimitPrice),ki(p->TradeDate),ki(p->UpdateTime),kj(p->TradeVolume),kf(p->TradeBalance),kf(p->AveragePrice),pb,pa,qb,qa,kj(p->TradesNum),kc(p->InstrumentTradeStatus),kj(p->TotalBidVolume),kj(p->TotalAskVolume),kf(p->MaBidPrice),kf(p->MaAskPrice),kf(p->MaBondBidPrice),kf(p->MaBondAskPrice),kf(p->YieldToMaturity),kf(p->IOPV),ki(p->EtfBuycount),ki(p->EtfSellCount),kj(p->EtfBuyVolume),kf(p->EtfBuyBalance),kj(p->EtfSellVolume),kf(p->EtfSellBalance),kj(p->TotalWarrantExecVolume),kf(p->WarrantLowerPrice),kf(p->WarrantUpperPrice),kj(p->CancelBuyNum),kj(p->CancelSellNum),kj(p->CancelBuyVolume),kj(p->CancelSellVolume),kf(p->CancelBuyValue),kf(p->CancelSellValue),kj(p->TotalBuyNum),kj(p->TotalSellNum),ki(p->DurationAfterBuy),ki(p->DurationAfterSell),kj(p->BidOrdersNum),kj(p->AskOrdersNum),kf(p->PreIOPV),kj(p->ChannelNo),kf(p->BondLastAuctionPrice),kj(p->BondAuctionVolume),kf(p->BondAuctionBalance),kc(p->BondLastTradeType),kp(p->R1),kj(MaxBid1Count),vb,kj(MaxAsk1Count),va));
+    if((0==NGROUP)||IGROUP==p->ChannelNo%NGROUP)MPUB("DepthMD",knk(61,kp(p->ExchangeID),kp(p->InstrumentID),kf(p->LastPrice),kf(p->PreClosePrice),kf(p->OpenPrice),kf(p->HighPrice),kf(p->LowPrice),kf(p->ClosePrice),kf(p->UpperLimitPrice),kf(p->LowerLimitPrice),ki(p->TradeDate),ki(p->UpdateTime),kj(p->TradeVolume),kf(p->TradeBalance),kf(p->AveragePrice),pb,pa,qb,qa,kj(p->TradesNum),kc(p->InstrumentTradeStatus),kj(p->TotalBidVolume),kj(p->TotalAskVolume),kf(p->MaBidPrice),kf(p->MaAskPrice),kf(p->MaBondBidPrice),kf(p->MaBondAskPrice),kf(p->YieldToMaturity),kf(p->IOPV),ki(p->EtfBuycount),ki(p->EtfSellCount),kj(p->EtfBuyVolume),kf(p->EtfBuyBalance),kj(p->EtfSellVolume),kf(p->EtfSellBalance),kj(p->TotalWarrantExecVolume),kf(p->WarrantLowerPrice),kf(p->WarrantUpperPrice),kj(p->CancelBuyNum),kj(p->CancelSellNum),kj(p->CancelBuyVolume),kj(p->CancelSellVolume),kf(p->CancelBuyValue),kf(p->CancelSellValue),kj(p->TotalBuyNum),kj(p->TotalSellNum),ki(p->DurationAfterBuy),ki(p->DurationAfterSell),kj(p->BidOrdersNum),kj(p->AskOrdersNum),kf(p->PreIOPV),kj(p->ChannelNo),kf(p->BondLastAuctionPrice),kj(p->BondAuctionVolume),kf(p->BondAuctionBalance),kc(p->BondLastTradeType),kp(p->R1),kj(MaxBid1Count),vb,kj(MaxAsk1Count),va));
   }
 
   /// Description: 主推-现货盘后定价快照行情
@@ -132,7 +134,7 @@ public:
    DBG("OnRtnSecuDepthMarketData:%d\n",p);
    K vb=ktn(KJ,Bid1Count),va=ktn(KJ,Ask1Count);
    DO(Bid1Count,kJ(vb)[i]=Bid1Volume[i]);DO(Ask1Count,kJ(va)[i]=Ask1Volume[i]);  
-   MPUB("DepthMDATP",knk(26,kp(p->ExchangeID),kp(p->InstrumentID),kf(p->PreClosePrice),kf(p->ClosePrice),ki(p->TradeDate),ki(p->UpdateTime),kc(p->InstrumentTradeStatus),kj(p->TradeVolume),kf(p->TradeBalance),kj(p->TradesNum),kj(p->TotalBidVolume),kj(p->TotalAskVolume),kj(p->CancelBuyNum),kj(p->CancelSellNum),kj(p->CancelBuyVolume),kj(p->CancelSellVolume),kf(p->BidPrice1),kf(p->AskPrice1),kj(p->BidVolume1),kj(p->AskVolume1),kj(p->ChannelNo),kp(p->R1),kj(MaxBid1Count),vb,kj(MaxAsk1Count),va));
+   if((0==NGROUP)||IGROUP==p->ChannelNo%NGROUP)MPUB("DepthMDATP",knk(26,kp(p->ExchangeID),kp(p->InstrumentID),kf(p->PreClosePrice),kf(p->ClosePrice),ki(p->TradeDate),ki(p->UpdateTime),kc(p->InstrumentTradeStatus),kj(p->TradeVolume),kf(p->TradeBalance),kj(p->TradesNum),kj(p->TotalBidVolume),kj(p->TotalAskVolume),kj(p->CancelBuyNum),kj(p->CancelSellNum),kj(p->CancelBuyVolume),kj(p->CancelSellVolume),kf(p->BidPrice1),kf(p->AskPrice1),kj(p->BidVolume1),kj(p->AskVolume1),kj(p->ChannelNo),kp(p->R1),kj(MaxBid1Count),vb,kj(MaxAsk1Count),va));
   }
 
   /// Description: 订阅-现货逐笔行情应答
@@ -152,19 +154,19 @@ public:
   /// Description: 主推-现货逐笔成交行情
   virtual void OnRtnSecuTransactionTradeData(CHSNsqSecuTransactionTradeDataField *p){
    DBG("OnRtnSecuTransactionTradeData:%d\n",p);
-   MPUB("TransactionTrade",knk(14,kp(p->ExchangeID),kp(p->InstrumentID),ki(p->TransFlag),kj(p->SeqNo),ki(p->ChannelNo),ki(p->TradeDate),ki(p->TransactTime),kf(p->TrdPrice),kj(p->TrdVolume),kf(p->TrdMoney),kj(p->TrdBuyNo),kj(p->TrdSellNo),kc(p->TrdBSFlag),kj(p->BizIndex)));
+   if((0==NGROUP)||IGROUP==p->ChannelNo%NGROUP)MPUB("TransactionTrade",knk(14,kp(p->ExchangeID),kp(p->InstrumentID),ki(p->TransFlag),kj(p->SeqNo),ki(p->ChannelNo),ki(p->TradeDate),ki(p->TransactTime),kf(p->TrdPrice),kj(p->TrdVolume),kf(p->TrdMoney),kj(p->TrdBuyNo),kj(p->TrdSellNo),kc(p->TrdBSFlag),kj(p->BizIndex)));
   }
 
   /// Description: 主推-现货逐笔委托行情
   virtual void OnRtnSecuTransactionEntrustData(CHSNsqSecuTransactionEntrustDataField *p){
    DBG("OnRtnSecuTransactionEntrustData:%d\n",p);
-   MPUB("TransactionEntrust",knk(14,kp(p->ExchangeID),kp(p->InstrumentID),ki(p->TransFlag),kj(p->SeqNo),ki(p->ChannelNo),ki(p->TradeDate),ki(p->TransactTime),kf(p->OrdPrice),kj(p->OrdVolume),kc(p->OrdSide),kc(p->OrdType),kj(p->OrdNo),kj(p->BizIndex),kj(p->TrdVolume)));
+   if((0==NGROUP)||IGROUP==p->ChannelNo%NGROUP)MPUB("TransactionEntrust",knk(14,kp(p->ExchangeID),kp(p->InstrumentID),ki(p->TransFlag),kj(p->SeqNo),ki(p->ChannelNo),ki(p->TradeDate),ki(p->TransactTime),kf(p->OrdPrice),kj(p->OrdVolume),kc(p->OrdSide),kc(p->OrdType),kj(p->OrdNo),kj(p->BizIndex),kj(p->TrdVolume)));
   }
 
   /// Description: 主推-现货盘后固定逐笔成交行情
   virtual void OnRtnSecuATPTransactionTradeData(CHSNsqSecuTransactionTradeDataField *p){
    DBG("OnRtnSecuATPTransactionTradeData:%d\n",p);
-   MPUB("TransactionTradeATP",knk(14,kp(p->ExchangeID),kp(p->InstrumentID),ki(p->TransFlag),kj(p->SeqNo),ki(p->ChannelNo),ki(p->TradeDate),ki(p->TransactTime),kf(p->TrdPrice),kj(p->TrdVolume),kf(p->TrdMoney),kj(p->TrdBuyNo),kj(p->TrdSellNo),kc(p->TrdBSFlag),kj(p->BizIndex)));
+   if((0==NGROUP)||IGROUP==p->ChannelNo%NGROUP)MPUB("TransactionTradeATP",knk(14,kp(p->ExchangeID),kp(p->InstrumentID),ki(p->TransFlag),kj(p->SeqNo),ki(p->ChannelNo),ki(p->TradeDate),ki(p->TransactTime),kf(p->TrdPrice),kj(p->TrdVolume),kf(p->TrdMoney),kj(p->TrdBuyNo),kj(p->TrdSellNo),kc(p->TrdBSFlag),kj(p->BizIndex)));
   }
 
 
@@ -195,7 +197,7 @@ public:
     K pa=ktn(KF,10),qa=ktn(KJ,10),pb=ktn(KF,10),qb=ktn(KJ,10);
     DO(10,kF(pa)[i]=p->AskPrice[i];kJ(qa)[i]=p->AskVolume[i];kF(pb)[i]=p->BidPrice[i];kJ(qb)[i]=p->BidVolume[i];);
 
-    MPUB("DepthMDOpt",knk(34,kp(p->ExchangeID),kp(p->InstrumentID),kf(p->LastPrice),kf(p->PreClosePrice),kf(p->OpenPrice),kf(p->HighPrice),kf(p->LowPrice),kf(p->ClosePrice),kj(p->PreOpenInterest),kj(p->OpenInterest),kf(p->PreSettlementPrice),kf(p->SettlementPrice),kf(p->UpperLimitPrice),kf(p->LowerLimitPrice),kf(p->PreDelta),kf(p->CurDelta),ki(p->TradeDate),ki(p->UpdateTime),kj(p->TradeVolume),kf(p->TradeBalance),kf(p->AveragePrice),pb,pa,qb,qa,kj(p->TradesNum),kc(p->InstrumentTradeStatus),kp(p->OpenRestriction),kf(p->AuctionPrice),kj(p->AuctionVolume),ki(p->LastEnquiryTime),kj(p->LeaveQty),ki(p->ChannelNo),kp(p->R1)));
+    if((0==NGROUP)||IGROUP==p->ChannelNo%NGROUP)MPUB("DepthMDOpt",knk(34,kp(p->ExchangeID),kp(p->InstrumentID),kf(p->LastPrice),kf(p->PreClosePrice),kf(p->OpenPrice),kf(p->HighPrice),kf(p->LowPrice),kf(p->ClosePrice),kj(p->PreOpenInterest),kj(p->OpenInterest),kf(p->PreSettlementPrice),kf(p->SettlementPrice),kf(p->UpperLimitPrice),kf(p->LowerLimitPrice),kf(p->PreDelta),kf(p->CurDelta),ki(p->TradeDate),ki(p->UpdateTime),kj(p->TradeVolume),kf(p->TradeBalance),kf(p->AveragePrice),pb,pa,qb,qa,kj(p->TradesNum),kc(p->InstrumentTradeStatus),kp(p->OpenRestriction),kf(p->AuctionPrice),kj(p->AuctionVolume),ki(p->LastEnquiryTime),kj(p->LeaveQty),ki(p->ChannelNo),kp(p->R1)));
   }
 
   /// Description: 获取当前交易日合约应答
@@ -255,13 +257,13 @@ public:
   /// Description: 主推-深证债券逐笔成交行情
   virtual void OnRtnBondTransactionTradeData(CHSNsqBondTransactionTradeDataField* p){
    DBG("OnRtnBondTransactionTradeData:%d\n",p);
-   MPUB("TransactionTradeBond",knk(15,kp(p->ExchangeID),kp(p->InstrumentID),ki(p->TransFlag),kj(p->SeqNo),ki(p->ChannelNo),ki(p->TradeDate),ki(p->TransactTime),kf(p->TrdPrice),kj(p->TrdVolume),kj(p->TrdBuyNo),kj(p->TrdSellNo),kc(p->TrdBSFlag),kc(p->TradeType),kh(p->SettlPeriod),kh(p->SettlType)));
+   if((0==NGROUP)||IGROUP==p->ChannelNo%NGROUP)MPUB("TransactionTradeBond",knk(15,kp(p->ExchangeID),kp(p->InstrumentID),ki(p->TransFlag),kj(p->SeqNo),ki(p->ChannelNo),ki(p->TradeDate),ki(p->TransactTime),kf(p->TrdPrice),kj(p->TrdVolume),kj(p->TrdBuyNo),kj(p->TrdSellNo),kc(p->TrdBSFlag),kc(p->TradeType),kh(p->SettlPeriod),kh(p->SettlType)));
   }
 
   /// Description: 主推-深证债券逐笔委托行情
   virtual void OnRtnBondTransactionEntrustData(CHSNsqBondTransactionEntrustDataField* p){
    DBG("OnRtnSecuTransactionEntrustData:%d\n",p);
-   MPUB("TransactionEntrustBond",knk(19,kp(p->ExchangeID),kp(p->InstrumentID),ki(p->TransFlag),kj(p->SeqNo),ki(p->ChannelNo),ki(p->TradeDate),ki(p->TransactTime),kf(p->OrdPrice),kj(p->OrdVolume),kc(p->OrdSide),kc(p->OrdType),kc(p->TradeType),kh(p->SettlPeriod),kh(p->SettlType),kp(p->QuoteID),kp(p->MemberID),kp(p->InvestorType),kp(p->InvestorID),kp(p->TraderCode)));
+   if((0==NGROUP)||IGROUP==p->ChannelNo%NGROUP)MPUB("TransactionEntrustBond",knk(19,kp(p->ExchangeID),kp(p->InstrumentID),ki(p->TransFlag),kj(p->SeqNo),ki(p->ChannelNo),ki(p->TradeDate),ki(p->TransactTime),kf(p->OrdPrice),kj(p->OrdVolume),kc(p->OrdSide),kc(p->OrdType),kc(p->TradeType),kh(p->SettlPeriod),kh(p->SettlType),kp(p->QuoteID),kp(p->MemberID),kp(p->InvestorType),kp(p->InvestorID),kp(p->TraderCode)));
   }
 
   ////以下是港股通接口
@@ -279,7 +281,7 @@ public:
     K pa=ktn(KF,10),qa=ktn(KJ,10),pb=ktn(KF,10),qb=ktn(KJ,10);
     DO(10,kF(pa)[i]=p->AskPrice[i];kJ(qa)[i]=p->AskVolume[i];kF(pb)[i]=p->BidPrice[i];kJ(qb)[i]=p->BidVolume[i];);
 
-    MPUB("DepthMDHkt",knk(22,kp(p->ExchangeID),kp(p->InstrumentID),kf(p->LastPrice),kf(p->PreClosePrice),kf(p->HighPrice),kf(p->LowPrice),kf(p->NomianlPrice),ki(p->TradeDate),ki(p->UpdateTime),kj(p->TradeVolume),kf(p->TradeBalance),pb,pa,qb,qa,kc(p->InstrumentTradeStatus),kc(p->BoardLotOrderBidLimit),kc(p->BoardLotOrderAskLimit),kc(p->OddLotOrderBidLimit),kc(p->OddLotOrderAskLimit),ki(p->ChannelNo),kp(p->R1)));
+    if((0==NGROUP)||IGROUP==p->ChannelNo%NGROUP)MPUB("DepthMDHkt",knk(22,kp(p->ExchangeID),kp(p->InstrumentID),kf(p->LastPrice),kf(p->PreClosePrice),kf(p->HighPrice),kf(p->LowPrice),kf(p->NomianlPrice),ki(p->TradeDate),ki(p->UpdateTime),kj(p->TradeVolume),kf(p->TradeBalance),pb,pa,qb,qa,kc(p->InstrumentTradeStatus),kc(p->BoardLotOrderBidLimit),kc(p->BoardLotOrderAskLimit),kc(p->OddLotOrderBidLimit),kc(p->OddLotOrderAskLimit),ki(p->ChannelNo),kp(p->R1)));
   }
 
   ////以下是现货快照Plus接口
@@ -304,7 +306,7 @@ public:
     K pa=ktn(KF,10),qa=ktn(KJ,10),pb=ktn(KF,10),qb=ktn(KJ,10);
     DO(10,kF(pa)[i]=p->AskPrice[i];kJ(qa)[i]=p->AskVolume[i];kF(pb)[i]=p->BidPrice[i];kJ(qb)[i]=p->BidVolume[i];);
 
-    MPUB("DepthMDPlus",knk(18,ki(p->ChannelNo),kp(p->ExchangeID),kp(p->InstrumentID),kf(p->LastPrice),kf(p->OpenPrice),kf(p->HighPrice),kf(p->LowPrice),ki(p->TradeDate),ki(p->UpdateTime),kj(p->TradeVolume),kf(p->TradeBalance),kj(p->TotalBidVolume),kj(p->TotalAskVolume),kj(p->TradesNum),pb,qb,pa,qa));
+    if((0==NGROUP)||IGROUP==p->ChannelNo%NGROUP)MPUB("DepthMDPlus",knk(18,ki(p->ChannelNo),kp(p->ExchangeID),kp(p->InstrumentID),kf(p->LastPrice),kf(p->OpenPrice),kf(p->HighPrice),kf(p->LowPrice),ki(p->TradeDate),ki(p->UpdateTime),kj(p->TradeVolume),kf(p->TradeBalance),kj(p->TotalBidVolume),kj(p->TotalAskVolume),kj(p->TradesNum),pb,qb,pa,qa));
   }
 
   /// Description: 主推-现货快照Plus行情停止通知
@@ -351,14 +353,15 @@ extern "C"{
     run++;
     INITLOCK;
     sd1(p[0],onmq);
-    pQuoteApi = NewNsqApiExt(kS(y)[0],kS(y)[1]);
+    pQuoteApi = NewNsqApiExt(kK(y)[0]->s,kK(y)[1]->s);
     pQuoteSpi = new CQuoteHandler(pQuoteApi);
     pQuoteApi->RegisterSpi(pQuoteSpi);
 
     //pQuoteApi->RegisterFront(xs);
     n=pQuoteApi->Init(xs);
     if(0!=n){O("init fail:iRet %d, error: %s\n",n,pQuoteApi->GetApiErrorMsg(n));R ki(-4);}
-    
+    NGROUP=kK(y)[2]->i;
+    IGROUP=kK(y)[3]->i;
     R ki(run);
   }
 
@@ -482,7 +485,6 @@ extern "C"{
     strcpy(req[0].ExchangeID,kK(y)[1]->s); 
     R ki(pQuoteApi->ReqQrySecuDepthMarketData(req,n,xi));
   }
-
 
   K2(subopt){ 
     if(!run) R ki(-1);
