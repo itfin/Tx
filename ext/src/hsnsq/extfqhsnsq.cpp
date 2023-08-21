@@ -31,8 +31,8 @@ ZK onmq(I i){
   K L=knk(0);
   //DBG("onmq:%d\n",0);
   read(i,&b,PIPE_CAPACITY);
-  K k;
-  while (mq.try_dequeue(ctok,k)){jk(&L,k);}
+  K x;
+  while (mq.try_dequeue(ctok,x)){jk(&L,x);}
   k(0,"onhsnsq",L,(K)0);
   R ki(0);
 }
