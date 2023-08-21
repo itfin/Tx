@@ -1,9 +1,10 @@
 #include "kcomm.h"
-#include <queue>
+#include "concurrentqueue.h"
 
 #include <HSNsqApi.h>
 
 #define PIPE_CAPACITY 65536
+#define QUEUE_SIZE 65536
 #define b9 
 #define d9 
 
@@ -16,21 +17,11 @@ ZI dwBytes;
 #define read(x,y,z) ReadFile((HANDLE)x,y,z,(LPDWORD)&dwBytes,NULL) 
 #define write(x,y,z) WriteFile((HANDLE)x,y,z,(LPDWORD)&dwBytes,NULL); 
 #define close(x) CloseHandle((HANDLE)x)
-Z CRITICAL_SECTION g_CS;
-#define INITLOCK InitializeCriticalSection(&g_CS)
-#define FREELOCK DeleteCriticalSection(&g_CS)
-#define LOCK EnterCriticalSection(&g_CS)
-#define UNLOCK LeaveCriticalSection(&g_CS)
-#else
-Z pthread_mutex_t g_mutex=PTHREAD_MUTEX_INITIALIZER;
-#define INITLOCK 
-#define FREELOCK 
-#define LOCK pthread_mutex_lock(&g_mutex)
-#define UNLOCK pthread_mutex_unlock(&g_mutex)
 #endif
 
-Z std::queue<K> mq;
-Z std::queue<K> fq;
+Z moodycamel::ConcurrentQueue<K> mq(QUEUE_SIZE);
+Z moodycamel::ProducerToken ptok(mq);
+Z moodycamel::ConsumerToken ctok(mq);
 
 ZI c;
 ZI NGROUP=0;
@@ -39,37 +30,15 @@ ZI IGROUP=0;
 ZK onmq(I i){
   K L=knk(0);
   //DBG("onmq:%d\n",0);
-
   read(i,&b,PIPE_CAPACITY);
-
-  LOCK;
-  while (!mq.empty()){
-    jk(&L,d9(mq.front()));
-
-    /*
-      fq.push(mq.front());
-    */
-
-    mq.pop();
-  }
-  UNLOCK;    
+  K k;
+  while (mq.try_dequeue(ctok,k)){jk(&L,k);}
   k(0,"onhsnsq",L,(K)0);
   R ki(0);
 }
 
 Z V mpub(K x){
-
-  LOCK;
-  mq.push(b9(1,x));
-
-  /*
-    while (!fq.empty()){
-    r0(fq.front());
-    fq.pop();
-    }
-  */
-  //k(-c,"onl2hr",x,(K)0);
-  UNLOCK;    
+  mq.enqueue(ptok,x);
   write(p[1],&b,1);
 };
 
@@ -351,7 +320,6 @@ extern "C"{
 #endif
 
     run++;
-    INITLOCK;
     sd1(p[0],onmq);
     pQuoteApi = NewNsqApiExt(kK(y)[0]->s,kK(y)[1]->s);
     pQuoteSpi = new CQuoteHandler(pQuoteApi);
@@ -376,7 +344,6 @@ extern "C"{
 
     sd0(p[0]);
     close(p[0]);close(p[1]);
-    FREELOCK;
 
     run--;
     R ki(run);
