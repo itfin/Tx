@@ -1,11 +1,12 @@
 #include "kcomm.h"
-#include <queue>
+#include "concurrentqueue.h"
 
 #include "TDFAPI.h"
 #include "NonMDMsgDecoder.h"
 #include "TDFAPIInner.h"
 
 #define PIPE_CAPACITY 65536
+#define QUEUE_SIZE 65536
 #define b9
 #define d9
 
@@ -18,21 +19,11 @@ ZI dwBytes;
 #define read(x,y,z) ReadFile((HANDLE)x,y,z,(LPDWORD)&dwBytes,NULL) 
 #define write(x,y,z) WriteFile((HANDLE)x,y,z,(LPDWORD)&dwBytes,NULL); 
 #define close(x) CloseHandle((HANDLE)x)
-Z CRITICAL_SECTION g_CS;
-#define INITLOCK InitializeCriticalSection(&g_CS)
-#define FREELOCK DeleteCriticalSection(&g_CS)
-#define LOCK EnterCriticalSection(&g_CS)
-#define UNLOCK LeaveCriticalSection(&g_CS)
-#else
-Z pthread_mutex_t g_mutex=PTHREAD_MUTEX_INITIALIZER;
-#define INITLOCK 
-#define FREELOCK 
-#define LOCK pthread_mutex_lock(&g_mutex)
-#define UNLOCK pthread_mutex_unlock(&g_mutex)
 #endif
 
-Z std::queue<K> mq;
-Z std::queue<K> fq;
+Z moodycamel::ConcurrentQueue<K> mq(QUEUE_SIZE);
+Z moodycamel::ProducerToken ptok(mq);
+Z moodycamel::ConsumerToken ctok(mq);
 
 //extern "C" K2(userLoginQ); 
 //extern "C" K1(subscribeMarketData); 
@@ -41,37 +32,15 @@ Z int c;
 ZK onmq(I i){
   K L=knk(0);
   //O("onmq:%d\n",0);
-
   read(i,&b,PIPE_CAPACITY);
-
-  LOCK;
-  while (!mq.empty()){
-    jk(&L,d9(mq.front()));
-
-    /*
-      fq.push(mq.front());
-    */
-
-    mq.pop();
-  }
-  UNLOCK;    
+  K x;
+  while (mq.try_dequeue(ctok,x)){jk(&L,x);}
   k(0,"ontdf",L,(K)0);
   R ki(0);
 }
 
 Z V mpub(K x){
-
-  LOCK;
-  mq.push(b9(1,x));
-
-  /*
-    while (!fq.empty()){
-    r0(fq.front());
-    fq.pop();
-    }
-  */
-  //k(-c,"ontdf",x,(K)0);
-  UNLOCK;    
+  mq.enqueue(ptok,x);
   write(p[1],&b,1);
 };
 
@@ -268,7 +237,7 @@ extern "C"{
 #endif
 
     run++;
-    INITLOCK;
+
     sd1(p[0],onmq);
 
     TDF_SetLogPath(kK(y)[5]->s);
@@ -276,7 +245,7 @@ extern "C"{
     TDF_SetEnv(TDF_ENVIRON_DISTRIBUTION, 0);
     
     memset(&settings, 0, sizeof(settings));
-    settings.nServerNum = kK(x)[0]->i; //±ØĞëÉèÖÃ£º ÓĞĞ§µÄÁ¬½ÓÅäÖÃ¸öÊı£¨µ±Ç°°æ±¾Ó¦<=2)
+    settings.nServerNum = kK(x)[0]->i; //å¿…é¡»è®¾ç½®ï¼š æœ‰æ•ˆçš„è¿æ¥é…ç½®ä¸ªæ•°ï¼ˆå½“å‰ç‰ˆæœ¬åº”<=2)
     strncpy(settings.siServer[0].szIp, kK(x)[1]->s, sizeof(settings.siServer[0].szIp)-1);
     sprintf(settings.siServer[0].szPort, "%d",kK(x)[2]->i);
     strncpy(settings.siServer[0].szUser, kK(x)[3]->s, sizeof(settings.siServer[0].szUser)-1);
@@ -288,13 +257,13 @@ extern "C"{
       strncpy(settings.siServer[1].szPwd,  kK(x)[8]->s, sizeof(settings.siServer[1].szPwd)-1);      
     }
     
-    settings.pfnMsgHandler = RecvData; //ÉèÖÃÊı¾İÏûÏ¢»Øµ÷º¯Êı
-    settings.pfnSysMsgNotify = RecvSys;//ÉèÖÃÏµÍ³ÏûÏ¢»Øµ÷º¯Êı
+    settings.pfnMsgHandler = RecvData; //è®¾ç½®æ•°æ®æ¶ˆæ¯å›è°ƒå‡½æ•°
+    settings.pfnSysMsgNotify = RecvSys;//è®¾ç½®ç³»ç»Ÿæ¶ˆæ¯å›è°ƒå‡½æ•°
 	      
-    settings.szMarkets =kK(y)[0]->s;    //ĞèÒª¶©ÔÄµÄÊĞ³¡ÁĞ±í
-    settings.szSubScriptions = kK(y)[1]->s; //"600030.SH"; //600030.SH;104174.SH;103493.SH";    //ĞèÒª¶©ÔÄµÄ¹ÉÆ±,Îª¿ÕÔò¶©ÔÄÈ«ÊĞ³¡
-    settings.nTime = kK(y)[2]->i;//ÇëÇóµÄÊ±¼ä£¬¸ñÊ½HHMMSS£¬Îª0ÔòÇëÇóÊµÊ±ĞĞÇé£¬Îª0xffffffff´ÓÍ·ÇëÇó
-    settings.nTypeFlags = kK(y)[3]->g; //ÇëÇóµÄÆ·ÖÖ
+    settings.szMarkets =kK(y)[0]->s;    //éœ€è¦è®¢é˜…çš„å¸‚åœºåˆ—è¡¨
+    settings.szSubScriptions = kK(y)[1]->s; //"600030.SH"; //600030.SH;104174.SH;103493.SH";    //éœ€è¦è®¢é˜…çš„è‚¡ç¥¨,ä¸ºç©ºåˆ™è®¢é˜…å…¨å¸‚åœº
+    settings.nTime = kK(y)[2]->i;//è¯·æ±‚çš„æ—¶é—´ï¼Œæ ¼å¼HHMMSSï¼Œä¸º0åˆ™è¯·æ±‚å®æ—¶è¡Œæƒ…ï¼Œä¸º0xffffffffä»å¤´è¯·æ±‚
+    settings.nTypeFlags = kK(y)[3]->g; //è¯·æ±‚çš„å“ç§
     settings.nCodeTypeFlags = kK(y)[4]->g;
 
     if(NULL==(hTDF = TDF_OpenExt(&settings, &nErr))) R ki(nErr);    
@@ -309,7 +278,6 @@ extern "C"{
 
     sd0(p[0]);
     close(p[0]);close(p[1]);
-    FREELOCK;
 
     run--;
     R ki(run);
