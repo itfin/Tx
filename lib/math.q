@@ -1,14 +1,14 @@
 .module.math:2016.12.29;
 
 \d .math
-fixop:{tc:{x[{(y[x;y])[z]}[x;y]]};tc[x;tc]}; /²»¶¯µãËã×Ó,tc:´«µİĞÔ±Õ°ü
+fixop:{tc:{x[{(y[x;y])[z]}[x;y]]};tc[x;tc]}; /ä¸åŠ¨ç‚¹ç®—å­,tc:ä¼ é€’æ€§é—­åŒ…
 
-//ÊıÑ§³£Êı
+//æ•°å­¦å¸¸æ•°
 e: exp 1;
 pi:acos -1; 
 oz:31.10348;
 
-//³õµÈº¯Êı
+//åˆç­‰å‡½æ•°
 sinh: {0.5 * (exp x) - exp neg x};
 cosh: {0.5 * (exp x) + exp neg x};
 tanh: {(e - 1) % (e: exp 2 * x) + 1};
@@ -24,7 +24,7 @@ cvm:{(x+flip(not n=\:n)*x:(n#'0.0),'(x$/:'(n:til count x)_\:x)%count first x)-a*
 crm:{cvm[x]%u*/:u:dev each x}; / correlation matrix
 
 //Milan Ondrus:http://homepage.hispeed.ch/milano
-k) combn:{(*/1f*y#|!1+x)%*/1f+!y}; /[n;i]×éºÏÊıC[n;i]
+k) combn:{(*/1f*y#|!1+x)%*/1f+!y}; /[n;i]ç»„åˆæ•°C[n;i]
 g:{abs (neg x>0f)+(1f%sqrt 2f*pi)*(exp -0.5*x*x)*t*0.31938153+t*-0.356563782+t*1.781477937+t*-1.821255978+1.330274429*t:1f%1f+0.2316419*abs x}; /N(0,1) cdf 
 gi:{[x]l:r[i:where b:.1764>r:q*q:-.5+x:raze "f"$x];
  x[i]:(q[i]*2.50662823884+l*-18.61500062529+l*41.39119773534+l*-25.44106049637)%(1.0+l*-8.47351093090+l*23.08336743743+l*-21.06224101826+l*3.13082909833);
@@ -47,7 +47,7 @@ regrp:{u:x+1;r:sum each w:(enlist (count y)#1f),prds (2*x)#enlist 1f*y;b:u {1 ro
 
 //BlackScholes
 optBS:{[S;X;rf;rd;t;s]d1:((log S%X)+t*((s*s*0.5)+rd-rf))%a:s*sqrt t;(S*(exp neg rf*t)*g d1)-X*(exp neg rd*t)*g d1-a}; /rd=domestic yield(cc),rf=foreign yield(cc),s=implied volatility(s>0:put,s<0:call);call:optBS[50;50;0.1;0;1;0.5],put:neg optBS[50;50;0.1;0;1;-0.5]
-bs1:{[x;s;v;t;r;c]vt:v*sqrt t;d1:((log s%x)+t*r+v*v%2.)%vt;d2:d1-vt;?[c=`call;(s*cnd d1)-x*(exp neg r*t)*cnd d2;(x*(exp neg r*t)*cnd neg d2)-s*cnd neg d1]}; /[ĞĞÈ¨¼Û;Õı¹É¼Û;²¨¶¯ÂÊ;ÎŞ·çÏÕÀûÂÊ;Àà±ğ]Black-Scholes
+bs1:{[x;s;v;t;r;c]vt:v*sqrt t;d1:((log s%x)+t*r+v*v%2.)%vt;d2:d1-vt;?[c=`call;(s*cnd d1)-x*(exp neg r*t)*cnd d2;(x*(exp neg r*t)*cnd neg d2)-s*cnd neg d1]}; /[è¡Œæƒä»·;æ­£è‚¡ä»·;æ³¢åŠ¨ç‡;æ— é£é™©åˆ©ç‡;ç±»åˆ«]Black-Scholes
 
 CDF:PDF:()!();
 PDF[`cauchy]:{reciprocal pi * 1 + x * x};
@@ -76,29 +76,31 @@ randn:{-6+sum each 0N 12#(12*x)?1f}; /normal random N(0,1)
 empdf:{{(count y) % x}[count x] each group (((max x) - min x) % sqrt count x) xbar asc x}; /Empirical probability distribution function, returning a dictionary of probability keyed on bound.
 runstest:{n:count x;f:n-t:count where x;r:count where differ x;p:2f*t*f;e:1+p%n;d:sqrt(p*p-n)%n*n*n-1;`N`runs`mu`z!(n;r;e;(r-e)%d)}; /http://en.wikipedia.org/wiki/Wald-Wolfowitz_runs_test
 
-KMpredict:{[x;pv](first x;pv+last x)}; /[(ÉÏÆÚºóÑé¹À¼Æ;ÉÏÆÚÎó²îĞ­·½²îºóÑé¹À¼Æ);¹ı³ÌÔëÉù·½²î³£Êı]->(±¾ÆÚÏÈÑé¹À¼Æ;±¾ÆÚÎó²îĞ­·½²îÏÈÑé¹À¼Æ)
-KMcorrect:{[x;y;mv]k:lxh%mv+lxh:last x;(fxh+k*y-fxh:first x;(1-k)*lxh)}; /[(±¾ÆÚÏÈÑé¹À¼Æ;±¾ÆÚÎó²îĞ­·½²îÏÈÑé¹À¼Æ);µ±ÆÚ¹Û²âÖµ;¹Û²âÔëÉù·½²î³£Êı]->(±¾ÆÚºóÑé¹À¼Æ;±¾ÆÚÎó²îĞ­·½²îºóÑé¹À¼Æ)
-KMfilter:{[x;y]x:`float$x;mv:var x;xh:enlist (first x;mv);i:1;do[-1+count x;xh,:enlist KMcorrect[KMpredict[last xh;y];x[i];mv];i+:1];xh}; /[¹Û²âĞòÁĞ;¹ı³ÌÔëÉù·½²î³£Êı]kalmanÂË²¨,http://www.cs.unc.edu/~welch/kalman/media/pdf/kalman_intro_chinese.pdf
+KMpredict:{[x;pv](first x;pv+last x)}; /[(ä¸ŠæœŸåéªŒä¼°è®¡;ä¸ŠæœŸè¯¯å·®åæ–¹å·®åéªŒä¼°è®¡);è¿‡ç¨‹å™ªå£°æ–¹å·®å¸¸æ•°]->(æœ¬æœŸå…ˆéªŒä¼°è®¡;æœ¬æœŸè¯¯å·®åæ–¹å·®å…ˆéªŒä¼°è®¡)
+KMcorrect:{[x;y;mv]k:lxh%mv+lxh:last x;(fxh+k*y-fxh:first x;(1-k)*lxh)}; /[(æœ¬æœŸå…ˆéªŒä¼°è®¡;æœ¬æœŸè¯¯å·®åæ–¹å·®å…ˆéªŒä¼°è®¡);å½“æœŸè§‚æµ‹å€¼;è§‚æµ‹å™ªå£°æ–¹å·®å¸¸æ•°]->(æœ¬æœŸåéªŒä¼°è®¡;æœ¬æœŸè¯¯å·®åæ–¹å·®åéªŒä¼°è®¡)
+KMfilter:{[x;y]x:`float$x;mv:var x;xh:enlist (first x;mv);i:1;do[-1+count x;xh,:enlist KMcorrect[KMpredict[last xh;y];x[i];mv];i+:1];xh}; /[è§‚æµ‹åºåˆ—;è¿‡ç¨‹å™ªå£°æ–¹å·®å¸¸æ•°]kalmanæ»¤æ³¢,http://www.cs.unc.edu/~welch/kalman/media/pdf/kalman_intro_chinese.pdf
+
+csaps:{[x;y;xi;s] f:.[{(0.5*(x|y)*(x&y) xexp 2)-(1%6)*(x&y) xexp 3}];K:(n;n:count x)#f flip x cross x;m1:((K mmu flip K)+K*(1-s)%s),'K mmu Q:1f,'x;m2:((flip Q) mmu flip K),'(flip Q) mmu Q;:((flip (n;count xi)#f flip x cross xi),'1f,'xi) mmu (inv m1,m2) mmu (K,flip Q) mmu y;}; / smoothing cubic spline; x:must satisfy the condition: x0<x1<x2<x3<...xn; y:value to fit; xi:target x,must satisfy the condition: xi0<xi1<xi2<xi3<...xin; s:smoothing factor, must satisfy the condition: 0<s<=1
 
 //
-k)diag:{(2##x)#,/x,'(2##x)#0f}; //[x:¶Ô½ÇÏßÏòÁ¿]Éú³É¶Ô½Ç¾ØÕó
-wlsq:{p:flip pt:1f,'x;w:diag z;c:(inv p mmu w mmu pt) mmu p mmu w mmu y}; //[x;y;w]¼ÓÈ¨×îĞ¡¶ş³ËÄâºÏ
-r2:{1e-2*floor 0.5+1e2*x};r3:{1e-3*floor 0.5+1e3*x};r4:{1e-4*floor 0.5+1e4*x};r5:{1e-5*floor 0.5+1e5*x};f2:{1e-2*floor 1e2*x};f3:{1e-3*floor 1e3*x}; //È¡Õû´¦Àí:100,1000,0.01,0.001
+k)diag:{(2##x)#,/x,'(2##x)#0f}; //[x:å¯¹è§’çº¿å‘é‡]ç”Ÿæˆå¯¹è§’çŸ©é˜µ
+wlsq:{p:flip pt:1f,'x;w:diag z;c:(inv p mmu w mmu pt) mmu p mmu w mmu y}; //[x;y;w]åŠ æƒæœ€å°äºŒä¹˜æ‹Ÿåˆ
+r2:{1e-2*floor 0.5+1e2*x};r3:{1e-3*floor 0.5+1e3*x};r4:{1e-4*floor 0.5+1e4*x};r5:{1e-5*floor 0.5+1e5*x};f2:{1e-2*floor 1e2*x};f3:{1e-3*floor 1e3*x}; //å–æ•´å¤„ç†:100,1000,0.01,0.001
 cnd:{t:reciprocal 1+.2316419*abs x;s:t*.31938153+t*-.356563782+t*1.781477937+t*-1.821255978+1.330274429*t;abs(neg x>0)+(1% sqrt 2*pi)*(exp -.5*x*x)*s}; //[x]c.d.f of N(0,1)
-scale:{[x;y]m:x 0;M:x 1;ym:min y;yM:max y;m+(M-m)*(y-ym)%(yM-ym)}; //[(min;max);x]½«xÉìËõ±ä»»ÖÁ[min,max]Çø¼ä
-qth:{[x;y;z]$[()~z;0n;min z where y=x xrank z]}; //[×Ü¼¶Êı;·ÖÎ»Êı;Êı¾İ]È¡Êı¾İµÄÄ³¸ö·ÖÎ»
-qnth:{x:asc 0^x;1_value asc x min each group y xrank x};q200:qnth[;200];q100:qnth[;100];q4:qnth[;4];q5:qnth[;5];q10:qnth[;10];q20:qnth[;20]; //[Êı¾İ;·Ö¼¶Êı]È¡Êı¾İ¸÷·ÖÎ»Êı×é
-predls:{[x]x:`float$x;n:count x;coef:x lsq (n#1f;`float$til n);coef mmu 1f,`float$n}; //×îĞ¡¶ş³ËÄâºÏºóÍâÍÆÒ»²½Ô¤²â
+scale:{[x;y]m:x 0;M:x 1;ym:min y;yM:max y;m+(M-m)*(y-ym)%(yM-ym)}; //[(min;max);x]å°†xä¼¸ç¼©å˜æ¢è‡³[min,max]åŒºé—´
+qth:{[x;y;z]$[()~z;0n;min z where y=x xrank z]}; //[æ€»çº§æ•°;åˆ†ä½æ•°;æ•°æ®]å–æ•°æ®çš„æŸä¸ªåˆ†ä½
+qnth:{x:asc 0^x;1_value asc x min each group y xrank x};q200:qnth[;200];q100:qnth[;100];q4:qnth[;4];q5:qnth[;5];q10:qnth[;10];q20:qnth[;20]; //[æ•°æ®;åˆ†çº§æ•°]å–æ•°æ®å„åˆ†ä½æ•°ç»„
+predls:{[x]x:`float$x;n:count x;coef:x lsq (n#1f;`float$til n);coef mmu 1f,`float$n}; //æœ€å°äºŒä¹˜æ‹Ÿåˆåå¤–æ¨ä¸€æ­¥é¢„æµ‹
 
-pldist:{[x;y]k:y 0;((x 1)-(y 1)+k*(x 0))%sqrt 1+k*k}; /µãµ½Ö±Ïß¾àÀëx:(t,p),y:(k,b)->d
-GSR:0.5*-1+sqrt 5;gsr:GSR xexp;GSR1:GSR;GSR2:gsr 2;GSRn1:gsr -1;GSRn2:gsr -2;   /golden section ratio ¼°ÆäÃİ
+pldist:{[x;y]k:y 0;((x 1)-(y 1)+k*(x 0))%sqrt 1+k*k}; /ç‚¹åˆ°ç›´çº¿è·ç¦»x:(t,p),y:(k,b)->d
+GSR:0.5*-1+sqrt 5;gsr:GSR xexp;GSR1:GSR;GSR2:gsr 2;GSRn1:gsr -1;GSRn2:gsr -2;   /golden section ratio åŠå…¶å¹‚
 
-incometax:{[x]1e-2*floor 0.5+sum 3 10 20 25 30 35 45*deltas 1500 4500 9000 35000 55000 80000 0w&0|x-3500}; /[ÔÂÊÕÈë]¸öÈËËùµÃË°
+incometax:{[x]1e-2*floor 0.5+sum 3 10 20 25 30 35 45*deltas 1500 4500 9000 35000 55000 80000 0w&0|x-3500}; /[æœˆæ”¶å…¥]ä¸ªäººæ‰€å¾—ç¨
 
-loadea:{y:`int$y*12;z%:12;y#x%sum 1%(1+z) xexp 1+til y}; /[´û¿î¶î;»¹¿îÄêÊı;ÄêÀûÂÊ]·¿´û(µÈ¶î»¹¿î)Ã¿ÔÂ»¹¿î¶îĞòÁĞ
-loadep:{y:`int$y*12;z%:12;p:y#x%y;p+z*(x-sums 0,-1_p)}; /[´û¿î¶î;»¹¿îÄêÊı;ÄêÀûÂÊ]·¿´û(µÈ±¾»¹¿î)Ã¿ÔÂ»¹¿î¶îĞòÁĞ
+loadea:{y:`int$y*12;z%:12;y#x%sum 1%(1+z) xexp 1+til y}; /[è´·æ¬¾é¢;è¿˜æ¬¾å¹´æ•°;å¹´åˆ©ç‡]æˆ¿è´·(ç­‰é¢è¿˜æ¬¾)æ¯æœˆè¿˜æ¬¾é¢åºåˆ—
+loadep:{y:`int$y*12;z%:12;p:y#x%y;p+z*(x-sums 0,-1_p)}; /[è´·æ¬¾é¢;è¿˜æ¬¾å¹´æ•°;å¹´åˆ©ç‡]æˆ¿è´·(ç­‰æœ¬è¿˜æ¬¾)æ¯æœˆè¿˜æ¬¾é¢åºåˆ—
 
-mdd:{-1+min x %maxs x}; mdds:{neg -1+max x%mins x}; mloss:{-1+(min x)%first x}; //[ÊĞÖµĞòÁĞ]mdd:·åÖµ×î´ó»Ø³·;mloss:×î´ó±¾½ğËğÊ§
+mdd:{-1+min x %maxs x}; mdds:{neg -1+max x%mins x}; mloss:{-1+(min x)%first x}; //[å¸‚å€¼åºåˆ—]mdd:å³°å€¼æœ€å¤§å›æ’¤;mloss:æœ€å¤§æœ¬é‡‘æŸå¤±
 mcov:{mavg[x;y*z] - mavg[x;y] * mavg[x;z]}; /
 mcor:{mcov[x;y;z]%mdev[x;y]*mdev[x;z]};     /[k4] Mcor & mcov
 
@@ -106,7 +108,7 @@ mcor:{mcov[x;y;z]%mdev[x;y]*mdev[x;z]};     /[k4] Mcor & mcov
 //matlab functions
 meshgrid:{[x]$[0<type x;[y:x];[y:x[1];x:x[0]]];((count y)#enlist x;flip (count x)#enlist y)};
 
-fix:{signum[x]*floor abs x}; /ÏòÔ­µã·½ÏòÈ¡Õû
+fix:{signum[x]*floor abs x}; /å‘åŸç‚¹æ–¹å‘å–æ•´
 
 magic:{[x]$[mod[x;2];[J:first y:meshgrid[1+til x];I:y[1];A:mod[I+J-`int$(x+3)%2;x];B:mod[-2+I+2*J;x];1+B+x*A];mod[x;4];[p2:p*p:`int$x%2;M:.z.s[p];M:(M,'M+2*p2),((M+3*p2),'M+p2);i:til p;k:`int$(x-2)%4;j:(til k),(1+x-k)+til k-1;M[(i,i+p);j]:M[(i+p),i;j];i:k;j:0,i;M[i,i+p;j]:M[(i+p),i;j];M];[J:first y:meshgrid[1+til x];I:y[1];K:where raze fix[mod[I;4]%2]=fix[mod[J;4]%2];M:1+til z:x*x;M[K]:1+z-M[K];x cut M]]};
 
@@ -158,27 +160,27 @@ dist:{[x;y;z]x y-z}; /[normfunc;a;b]
 
 disteucl:dist[norm2]; /Euclidean distance:(')[norm2;-]
 distgeuc:{[x;y;z]dist[normw[x];y;z]}; /Generalized Euclidean
-distmins:{[x;y;z]dist[norm[x];y;z]}; /Minskowki¡¯s distance
+distmins:{[x;y;z]dist[norm[x];y;z]}; /Minskowkiâ€™s distance
 disthell:{[x;y]disteucl[sqrt x;sqrt y]}; /Hellinger distance
 distmaha:{[x;y;z]distgeuc[inv {x cov/:\: x} flip x;y;z]};  /Mahalanobis distance
 distchi2:{[x;y;z]distgeuc[diag reciprocal normalize sum x;normalize y;normalize z]};  /Chi^2 distance
 
 
 entropy:{[x]neg x$log x};
-entropyrel:{[x;y]sum x*log x%y}; /Kullback¨CLeibler divergence,relative entropy
+entropyrel:{[x;y]sum x*log x%y}; /Kullbackâ€“Leibler divergence,relative entropy
 entrenyi:{[x;y](1%1-x)*log sum y xexp x};
 enttsallis:{[x;y](1%x-1)*(1-sum y xexp x)};
 
 newton:{[x;y;z] ({z-(x z)%(y z)}[x;y;]/) z}; /[f;f';x0] Newton 
 
-megis:{[x;y]({condp z*prd each (y%z$x) xexp/: x}[x;y;]/) condp ones count x}; /[N*K¾ØÕóg_k(s);1*KÏòÁ¿a_k]MaxEnt GIS
-meiis:{[x;y]u:sum each x;({[x;y;z;u]x:z*x;condp z*prd each newton[{[x;y;z;u](sum y*x xexp\:/: u)-z}[;x;y;u];{[x;y;u](sum y*u*x xexp\:/: u-1)}[;x;u];ones[count y]] xexp/:x}[x;y;;u]/) condp ones count x}; /[N*K¾ØÕóg_k(s);1*KÏòÁ¿a_k]MaxEnt IIS
+megis:{[x;y]({condp z*prd each (y%z$x) xexp/: x}[x;y;]/) condp ones count x}; /[N*KçŸ©é˜µg_k(s);1*Kå‘é‡a_k]MaxEnt GIS
+meiis:{[x;y]u:sum each x;({[x;y;z;u]x:z*x;condp z*prd each newton[{[x;y;z;u](sum y*x xexp\:/: u)-z}[;x;y;u];{[x;y;u](sum y*u*x xexp\:/: u-1)}[;x;u];ones[count y]] xexp/:x}[x;y;;u]/) condp ones count x}; /[N*KçŸ©é˜µg_k(s);1*Kå‘é‡a_k]MaxEnt IIS
 
 /megis1:{[x;y;z]N:count y;K:count z;p:condp ones N;do[x;p:condp p*prd each (z%p$y) xexp/: y];p};
 
 
 //PSO functions
-psoctrl:{[c;f;L;U]N:c`step;VM:c`VMAX;wM:c`wmax;dw:wM-wm:c`wmin;c1:c`c1;c2:c`c2;eps:c`eps;sT:c`stable;m:c`size;n:count L;X:L+/:(U-L)*/:(m,0N)#(m*n)?1f;V:(m,n)#0f;oG:(0w;());oL:m#enlist (0w;());k:0;s:0;while[(k<=N)&(s<sT);w:wM-dw*k%N;fV:f each X;oL:?[fV<oL[;0];fV {(x;y)}' X;oL];i:imin oL[;0];$[eps>dg:oG[0]-oL[i;0];s+:1;s:0];oG:oL[i];V:(neg VM)|VM&(w*V)+(c1*(rand 1f)*oL[;1]-X)+c2*(rand 1f)*(oG[1]-/:X);X:L|/:U&/:X+V;k+:1];oG,enlist k,N}; /[²ÎÊı;Ä¿±êº¯Êı;¶¨ÒåÓòÏÂ½ç;¶¨ÒåÓòÉÏ½ç]
+psoctrl:{[c;f;L;U]N:c`step;VM:c`VMAX;wM:c`wmax;dw:wM-wm:c`wmin;c1:c`c1;c2:c`c2;eps:c`eps;sT:c`stable;m:c`size;n:count L;X:L+/:(U-L)*/:(m,0N)#(m*n)?1f;V:(m,n)#0f;oG:(0w;());oL:m#enlist (0w;());k:0;s:0;while[(k<=N)&(s<sT);w:wM-dw*k%N;fV:f each X;oL:?[fV<oL[;0];fV {(x;y)}' X;oL];i:imin oL[;0];$[eps>dg:oG[0]-oL[i;0];s+:1;s:0];oG:oL[i];V:(neg VM)|VM&(w*V)+(c1*(rand 1f)*oL[;1]-X)+c2*(rand 1f)*(oG[1]-/:X);X:L|/:U&/:X+V;k+:1];oG,enlist k,N}; /[å‚æ•°;ç›®æ ‡å‡½æ•°;å®šä¹‰åŸŸä¸‹ç•Œ;å®šä¹‰åŸŸä¸Šç•Œ]
 pso:psoctrl[`size`step`VMAX`w`wmax`wmin`c1`c2`eps!(50;1000;1000f;0.729;0.9;0.4;1.49445;1.49445;1e-10)];
 
 infogain:{(log count x)-entropy x};
@@ -187,22 +189,22 @@ randp:{condp $[1<count x;reshape[x;(prd x)?1f];x?1f]};
 
 ent:('[;]/) (entropy;filter[0<];condp);
 
-ffset:{[x;y;z]if[type y<>0h;y:y x];(x*not y)+y*z x}; /[Ô­Êı×é;¹ıÂËº¯Êı»òmaskÊı×é;±ä»»º¯Êı]
+ffset:{[x;y;z]if[type y<>0h;y:y x];(x*not y)+y*z x}; /[åŸæ•°ç»„;è¿‡æ»¤å‡½æ•°æˆ–maskæ•°ç»„;å˜æ¢å‡½æ•°]
 
-knn:{[x;y]K:x`K;N:count y[0];m0:m:(K#avg y)+(K,N)#1e-3*randn K*N;i:0;ct:1b;while[(i<x`maxit)&ct;g:avg each y group C:imin each d:y disteucl/:\: m;if[(count g)<count m;m0:m0[key g]];m:value g;if[(x`tol)>e:sum m disteucl' m0;ct:0b];m0:m;i+:1];D:d@'C;(C;m;D;i;sum D)}; /[`K`maxit`tol!...;data]->(Àà±êÇ©;ÀàÖĞĞÄ;µü´ú´ÎÊı;ÄâºÏÎó²î) m0:m:(neg K)?y;
+knn:{[x;y]K:x`K;N:count y[0];m0:m:(K#avg y)+(K,N)#1e-3*randn K*N;i:0;ct:1b;while[(i<x`maxit)&ct;g:avg each y group C:imin each d:y disteucl/:\: m;if[(count g)<count m;m0:m0[key g]];m:value g;if[(x`tol)>e:sum m disteucl' m0;ct:0b];m0:m;i+:1];D:d@'C;(C;m;D;i;sum D)}; /[`K`maxit`tol!...;data]->(ç±»æ ‡ç­¾;ç±»ä¸­å¿ƒ;è¿­ä»£æ¬¡æ•°;æ‹Ÿåˆè¯¯å·®) m0:m:(neg K)?y;
 
 
-fnnd2u:{[x](')[condp;xexp[;-2%x-1]]}; /[Ä£ºıÖ¸Êı]Á¥Êô¶È¾ÛÀàº¯Êı
-clufun:{[x;y;z]u:fnnd2u[x] d:y disteucl/:\: z;sum (u xexp x)$' d xexp 2}; /[Ä£ºıÖ¸Êı;Ñù±¾¼¯;¾ÛÀàÖĞĞÄ¼¯]¾ÛÀà×îĞ¡»¯Ä¿±êº¯Êı
-cluent:{[x]n:count x;k:count x[0];(sum entropy each x%n)-(sum entropy each (condp flip x)%k)}; /[N*KÁ¥Êô¶È¾ØÕó]¾ÛÀàìØ,ÖµÔ½Ğ¡ËµÃ÷¾ÛÀàĞ§¹ûÔ½ºÃ.N:Ñù±¾Êı,K:¾ÛÀàÊı
+fnnd2u:{[x](')[condp;xexp[;-2%x-1]]}; /[æ¨¡ç³ŠæŒ‡æ•°]éš¶å±åº¦èšç±»å‡½æ•°
+clufun:{[x;y;z]u:fnnd2u[x] d:y disteucl/:\: z;sum (u xexp x)$' d xexp 2}; /[æ¨¡ç³ŠæŒ‡æ•°;æ ·æœ¬é›†;èšç±»ä¸­å¿ƒé›†]èšç±»æœ€å°åŒ–ç›®æ ‡å‡½æ•°
+cluent:{[x]n:count x;k:count x[0];(sum entropy each x%n)-(sum entropy each (condp flip x)%k)}; /[N*Kéš¶å±åº¦çŸ©é˜µ]èšç±»ç†µ,å€¼è¶Šå°è¯´æ˜èšç±»æ•ˆæœè¶Šå¥½.N:æ ·æœ¬æ•°,K:èšç±»æ•°
 
 fnn:{[x;y]K:x`K;b:x`b;N:count y[0];m0:m:(K#avg y)+(K,N)#1e-3*randn K*N;i:0;ct:1b;while[(i<x`maxit)&ct;P:(fnnd2u[b] d:y disteucl/:\: m) xexp b;m:(sum P  */:\:' y)%sum P;if[(x`tol)>e:sum m disteucl' m0;ct:0b];m0:m;i+:1];C:imin each d;D:d@'C;(C;m;D;i;sum D)}; /[`b`K`maxit`tol!...;data]b within 1.01 1.1
 
 pnn:{[x;y]K:x`K;b:x`b;eps:x`eps;psoctrl[x;;raze K#enlist min y;raze K#enlist max y] ('[;]/)(clufun[b;y];(K,0N)#)};
 
-acna:{[x]y:sqrt count i:where 0<first each x[0];m:1;k:2;while[(m<k)&(m<y);m+:1;z:flip x[1][(neg m)#i];z%:norm2 each z;w:imax each abs z;g:count each group (signum z@'w)*1+w;k:count where g>y];m}; /[Æ×Í¼¾ØÕó]->×îÓÅ¾ÛÀàÊı.»ùÓÚÆ×Í¼·Ö¸îµÄ×Ô¶¯È·¶¨¾ÛÀàÊıµÄ¾ÛÀàËã·¨:journal.shouxi.net/upload/pdf/21/1922/105504_2954.pdf
-optkclu:{[x;y](key y) imax 1_deltas (value y) xexp neg x}; /[ÅĞ±ğÖ¸ÊıÈç2;¾ÛÀàÊı!¾ÛÀàÎó²î]×îÓÅ¾ÛÀàÊı
-clucost:{[x;y;z]g:group z;(sum y disteucl/:avg x)+(sum/) (x value g) disteucl/:' y key g}; /[Ñù±¾¼¯N*P;ÀàÖĞĞÄ¼¯K*P;ÀàË÷ÒıN*1]
+acna:{[x]y:sqrt count i:where 0<first each x[0];m:1;k:2;while[(m<k)&(m<y);m+:1;z:flip x[1][(neg m)#i];z%:norm2 each z;w:imax each abs z;g:count each group (signum z@'w)*1+w;k:count where g>y];m}; /[è°±å›¾çŸ©é˜µ]->æœ€ä¼˜èšç±»æ•°.åŸºäºè°±å›¾åˆ†å‰²çš„è‡ªåŠ¨ç¡®å®šèšç±»æ•°çš„èšç±»ç®—æ³•:journal.shouxi.net/upload/pdf/21/1922/105504_2954.pdf
+optkclu:{[x;y](key y) imax 1_deltas (value y) xexp neg x}; /[åˆ¤åˆ«æŒ‡æ•°å¦‚2;èšç±»æ•°!èšç±»è¯¯å·®]æœ€ä¼˜èšç±»æ•°
+clucost:{[x;y;z]g:group z;(sum y disteucl/:avg x)+(sum/) (x value g) disteucl/:' y key g}; /[æ ·æœ¬é›†N*P;ç±»ä¸­å¿ƒé›†K*P;ç±»ç´¢å¼•N*1]
 
 //HMM functions
 hmmfilter:{[x;y]p:x`p;T:x`T;E:x`E;alpha:p*E[;y[0]];(enlist alpha),{[x;y;T;E]E[;y]*x$T}[;;T;E]\[alpha;1_y]}; /[hmm;obs]hmm forward(alpha) to do filter:P(h_T|v_{1:T}) 
@@ -214,18 +216,18 @@ hmmsmooth:{[x;y]hmmsmoothab[hmmfilter[x;y];hmmbeta[x;y]]}; /[hmm;obs]hmm smoothi
 
 hmmgamma:{[x;y]alpha:hmmfilter[x;y];gamma:normalize last alpha;reverse (enlist gamma),{[x;y;T]x$(normalize each flip T*y)}[;;x`T]\[gamma;1_ reverse alpha]}; /hmmgamma~hmmsmooth
 
-hmmmaxlik:{[x;y]p:x`p;T:x`T;E:x`E;mu:ones[count p];mu:reverse (enlist mu),{[x;y;T;E]max (E[;y]*x)*flip T}[;;T;E]\[mu;reverse 1_y];z:E[;y[0]]*p*mu[0];lik:max z;h:z?lik;(h,{[x;y;z;T;E]imax E[;z]*T[x]*y}[;;;T;E]\[h;1_mu;1_y];lik)}; /[hmm;obs]->(×î¿ÉÄÜ×´Ì¬ĞòÁĞ;×î¿ÉÄÜ×´Ì¬ĞòÁĞËÆÈ»Öµ)viterbiËã·¨Çó×î¿ÉÄÜÒş±äÁ¿ĞòÁĞ 
+hmmmaxlik:{[x;y]p:x`p;T:x`T;E:x`E;mu:ones[count p];mu:reverse (enlist mu),{[x;y;T;E]max (E[;y]*x)*flip T}[;;T;E]\[mu;reverse 1_y];z:E[;y[0]]*p*mu[0];lik:max z;h:z?lik;(h,{[x;y;z;T;E]imax E[;z]*T[x]*y}[;;;T;E]\[h;1_mu;1_y];lik)}; /[hmm;obs]->(æœ€å¯èƒ½çŠ¶æ€åºåˆ—;æœ€å¯èƒ½çŠ¶æ€åºåˆ—ä¼¼ç„¶å€¼)viterbiç®—æ³•æ±‚æœ€å¯èƒ½éšå˜é‡åºåˆ— 
 
-hmmpredict:{[x;y]alpha:last hmmfilter[x;y];normalize sum (alpha*x`T)$x`E}; /[hmm;obs]->ÏÂÒ»¸ö¹Û²âÖµÌõ¼ş·Ö²¼
+hmmpredict:{[x;y]alpha:last hmmfilter[x;y];normalize sum (alpha*x`T)$x`E}; /[hmm;obs]->ä¸‹ä¸€ä¸ªè§‚æµ‹å€¼æ¡ä»¶åˆ†å¸ƒ
 
-viterbi:{[x;y]s:key count p:x`p;T:x`T;E:x`E;p*:E[;y[0]];Z:p ,' (enlist each enlist each s) ,' p;i:1;do[-1+count y;d:(flip Z[;0 2])*\:(E[;y[i]]*) each T;v:max d[1];t:sum d[0];k:(flip d[1])?'v;Z:t,'(enlist each Z[k;1],'s),'v;i+:1];v:max d:Z[;2];(Z[d?v;1];v;sum Z[;0])}; /viterbi~hmmmaxlik[hmm;obs]->(Ö¤¾İËÆÈ»Öµ;×î¿ÉÄÜ×´Ì¬ĞòÁĞ;×î¿ÉÄÜ×´Ì¬ĞòÁĞËÆÈ»Öµ)Z_t:(µ±Ç°ÖÕµã×´Ì¬ÎªiµÄÖ¤¾İËÆÈ»Öµ;µ±Ç°ÖÕµã×´Ì¬ÎªiµÄ×îÓÅÂ·¾¶;µ±Ç°ÖÕµã×´Ì¬ÎªiµÄ×îÓÅÂ·¾¶Ìõ¼ş¸ÅÂÊ)
+viterbi:{[x;y]s:key count p:x`p;T:x`T;E:x`E;p*:E[;y[0]];Z:p ,' (enlist each enlist each s) ,' p;i:1;do[-1+count y;d:(flip Z[;0 2])*\:(E[;y[i]]*) each T;v:max d[1];t:sum d[0];k:(flip d[1])?'v;Z:t,'(enlist each Z[k;1],'s),'v;i+:1];v:max d:Z[;2];(Z[d?v;1];v;sum Z[;0])}; /viterbi~hmmmaxlik[hmm;obs]->(è¯æ®ä¼¼ç„¶å€¼;æœ€å¯èƒ½çŠ¶æ€åºåˆ—;æœ€å¯èƒ½çŠ¶æ€åºåˆ—ä¼¼ç„¶å€¼)Z_t:(å½“å‰ç»ˆç‚¹çŠ¶æ€ä¸ºiçš„è¯æ®ä¼¼ç„¶å€¼;å½“å‰ç»ˆç‚¹çŠ¶æ€ä¸ºiçš„æœ€ä¼˜è·¯å¾„;å½“å‰ç»ˆç‚¹çŠ¶æ€ä¸ºiçš„æœ€ä¼˜è·¯å¾„æ¡ä»¶æ¦‚ç‡)
 
 hmmsmjointab:{[x;y;a;b]T:x`T;E:x`E;normalize each (-1_a)*flip each ((1_b)* flip E[;1_y])*\:flip T}; 
 hmmsmjoint:{[x;y]hmmsmjointab[x;y;hmmfilter[x;y];hmmbeta[x;y]]}; /[hmm;obs] hmm joint smoothing P(h_t,h_{t+1}|v_{1:T})
 
-hmmem:{[x;y;z]N:count z;H:y[0];V:y[1];p:randp[H];T:randp[H,H];E:randp[H,V];do[x`maxit;m:`p`T`E!(p;T;E);c:zeros[H];A:zeros[H,H];B:zeros[H,V];i:0;do[N;o:z[i];a:hmmfilter[m;o];b:hmmbeta[m;o];s:hmmsmjointab[m;o;a;b];r:hmmsmoothab[a;b];c+:first r;A+:sum s;j:0;do[count o;B[;o[j]]+:r[j];j+:1];i+:1];p:condp[c];T:condp[A];E:condp[B]];(p;T;E)}; /[¿ØÖÆ½á¹¹;(Òş±äÁ¿×´Ì¬Êı;¹Û²â±äÁ¿×´Ì¬Êı);¹Û²âÊı¾İ¼¯]hmm²ÎÊıÑ§Ï°
+hmmem:{[x;y;z]N:count z;H:y[0];V:y[1];p:randp[H];T:randp[H,H];E:randp[H,V];do[x`maxit;m:`p`T`E!(p;T;E);c:zeros[H];A:zeros[H,H];B:zeros[H,V];i:0;do[N;o:z[i];a:hmmfilter[m;o];b:hmmbeta[m;o];s:hmmsmjointab[m;o;a;b];r:hmmsmoothab[a;b];c+:first r;A+:sum s;j:0;do[count o;B[;o[j]]+:r[j];j+:1];i+:1];p:condp[c];T:condp[A];E:condp[B]];(p;T;E)}; /[æ§åˆ¶ç»“æ„;(éšå˜é‡çŠ¶æ€æ•°;è§‚æµ‹å˜é‡çŠ¶æ€æ•°);è§‚æµ‹æ•°æ®é›†]hmmå‚æ•°å­¦ä¹ 
 
-mapreduce:{[x;y;z]y peach `k xgroup raze x peach z}; /[map fun;reduce fun;input]ÊäÈë/ÖĞ¼ä½á¹û/Êä³ö¶¼ÊÇ2ÁĞ±í,ÁĞÃûÎªk,v
+mapreduce:{[x;y;z]y peach `k xgroup raze x peach z}; /[map fun;reduce fun;input]è¾“å…¥/ä¸­é—´ç»“æœ/è¾“å‡ºéƒ½æ˜¯2åˆ—è¡¨,åˆ—åä¸ºk,v
 
 //J Functional
 left:{[x;y]x};
@@ -246,38 +248,38 @@ trainm:{[x]z:last x;x:-1_x;$[1=mod[;2] count x;[y:hookm[first x];x:1_x];[y:(::)]
 traind:{[x]z:last x;x:-1_x;$[1=mod[;2] count x;[y:hookd[first x];x:1_x];[y:(::)]];y {forkd[z;y;x]}/[z;first w;last w:flip 0N 2#reverse x]}; /dyad train x (f g h i j k) y <=> x (f (g h (i j k))) y
 
 
-//ÊıÖµ»ı·Ö
+//æ•°å€¼ç§¯åˆ†
 romberg1:{[x;y;z]h:z[1]-a:z[0];t0:t:enlist h*0.5*sum y z;e:0W;i:0;while[(i<x`N)&(e>x`T);u:0.5*(first t)+h*sum y a+h*0.5+til "i"$2 xexp i;t:u,{((z*x)-y)%(z-1)}\[u;t;4 xexp 1+til count t];h%:2;i+:1;e:abs (last t)-last t0;t0:t];(last t;i;e)}; /[`N`T!..;func;x0,x1]
 
 romberg:{[x;y;z]last first $[-6h=type x;x;at[x<;last]] {v:last t:first x;u:0.5*(first t)+h*sum y z+(h:x[1])*0.5+til "i"$2 xexp i:x[2];t:u,{((z*x)-y)%(z-1)}\[u;t;4 xexp 1+til count t];(t;h%2;i+1;abs v-last t)}[;y;a]/ (enlist h*0.5*sum y z;h:z[1]-a:z[0];0;0w)}; /[(N|T);func;x0,x1]
 
 l2innprd:at[romberg[15;;0 1f];forkm[;*;]];
 
-//ÑùÌõÄâºÏ
+//æ ·æ¡æ‹Ÿåˆ
 steps:{x[0]+(x[1]-x[0])*(0,1+til y)%y};
 linfun:{(')[x[1]+;x[0]*]};
 polyfun:{[c;x]sum c*x xexp til count c};
 fdot:{{sum (0f^y@\:x)*0f^z@\:x}[;x;y]};
 xprior:{y[(x _z);(neg x) _ z]}; /[delta;f;y]
 
-knots:{(y#0f),((til x+2)%x+1),y#1f}; /[ÄÚ²¿¿ØÖÆµãÊı;¶àÏîÊ½´ÎÊı]
-bsplinebasis:{[x;y]if[0>type x;x:knots[x;y]];b:{{(x>=y[0])&$[z=y[1];<=;<][x;y[1]]}[;x;y]}[;last x]each xprior[-1;,';x];i:1;do[y;t:xprior[i;-;x];i+:1;b:((linfun each ((1,/:neg (neg i)_x)%-1_t)) {(x;y)}' (linfun each (-1,/:(i _x))%1_t)) fdot' xprior[-1;,';b]];b}; /[ÄÚ²¿¿ØÖÆµãÊı»òknots;degree(·Ö¶Î¶àÏîÊ½´ÎÊı)]BÑùÌõ»ùº¯Êı:http://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-basis.html
+knots:{(y#0f),((til x+2)%x+1),y#1f}; /[å†…éƒ¨æ§åˆ¶ç‚¹æ•°;å¤šé¡¹å¼æ¬¡æ•°]
+bsplinebasis:{[x;y]if[0>type x;x:knots[x;y]];b:{{(x>=y[0])&$[z=y[1];<=;<][x;y[1]]}[;x;y]}[;last x]each xprior[-1;,';x];i:1;do[y;t:xprior[i;-;x];i+:1;b:((linfun each ((1,/:neg (neg i)_x)%-1_t)) {(x;y)}' (linfun each (-1,/:(i _x))%1_t)) fdot' xprior[-1;,';b]];b}; /[å†…éƒ¨æ§åˆ¶ç‚¹æ•°æˆ–knots;degree(åˆ†æ®µå¤šé¡¹å¼æ¬¡æ•°)]Bæ ·æ¡åŸºå‡½æ•°:http://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-basis.html
 
-Dbspline:{[x;y;z](z*1_deltas x)*0f^xprior[z;-;-1_1_y]}; /[È¨ÏòÁ¿;knots;degree]
+Dbspline:{[x;y;z](z*1_deltas x)*0f^xprior[z;-;-1_1_y]}; /[æƒå‘é‡;knots;degree]
 
-polybasis:{{xexp[;x]} each $[0<type x;x;til 1+x]}; /[deg]¶àÏîÊ½»ùº¯Êı,×î´ó´ÎÊıdeg,1,x,x^2,...x^deg
+polybasis:{{xexp[;x]} each $[0<type x;x;til 1+x]}; /[deg]å¤šé¡¹å¼åŸºå‡½æ•°,æœ€å¤§æ¬¡æ•°deg,1,x,x^2,...x^deg
 
-fourierbasis:{[x;y] (enlist xexp[;0]),raze {((')[sin;(x*y)*];(')[cos;(x*y)*])}[x] each 1+til y}; /[w;m]Fourier»ùº¯Êı1,sin(wt),cos(wt),sin(2wt),cos(2wt),...,sin(mwt),cos(mwt)
+fourierbasis:{[x;y] (enlist xexp[;0]),raze {((')[sin;(x*y)*];(')[cos;(x*y)*])}[x] each 1+til y}; /[w;m]FourieråŸºå‡½æ•°1,sin(wt),cos(wt),sin(2wt),cos(2wt),...,sin(mwt),cos(mwt)
 
-expbasis:{{(')[exp;x*]} each $[0<type x;x;til 1+x]}; /[m]Ö¸Êı»ùº¯Êı,1,e^t,e^2t,...e^mt
+expbasis:{{(')[exp;x*]} each $[0<type x;x;til 1+x]}; /[m]æŒ‡æ•°åŸºå‡½æ•°,1,e^t,e^2t,...e^mt
 
-basisfit:{(enlist z) lsq x@\:y}; /[»ùº¯ÊıB;²ÉÑùµãt;²ÉÑùÖµf]ÔÚ»ùº¯ÊıĞòÁĞBÕÅ³ÉµÄ×Ó¿Õ¼ä½øĞĞº¯ÊıÄâºÏ. 
+basisfit:{(enlist z) lsq x@\:y}; /[åŸºå‡½æ•°B;é‡‡æ ·ç‚¹t;é‡‡æ ·å€¼f]åœ¨åŸºå‡½æ•°åºåˆ—Bå¼ æˆçš„å­ç©ºé—´è¿›è¡Œå‡½æ•°æ‹Ÿåˆ. 
 
-basisfitpen:{[x;y;z;R]b:x@\:y;(inv (b$flip b)+R)$b$z}; /[]¹âË³ÄâºÏ
+basisfitpen:{[x;y;z;R]b:x@\:y;(inv (b$flip b)+R)$b$z}; /[]å…‰é¡ºæ‹Ÿåˆ
 
-//Ê±¼äĞòÁĞ
+//æ—¶é—´åºåˆ—
 //bincode:{[x;y]0<(deltas fix (y-z)%x*z:first y) except 0}; /error
-bincode:{[x;y]k:0b;if[0=type y;t:y[0];y:y[1];k:1b];z:deltas ({[x;y]$[1<=abs z:y-x;x+signum z;x]}\) ({x-first x} $[x>0;log;::] y)%abs x;$[k;[i:where z<>0;(t[i];0<z[i])];0<z except 0]}; /[·Ö±æÂÊ;¼Û¸ñĞòÁĞ|(Ê±¼äĞòÁĞ|¼Û¸ñĞòÁĞ)]ÕÇµøĞòÁĞ¶ş½øÖÆ±àÂë
+bincode:{[x;y]k:0b;if[0=type y;t:y[0];y:y[1];k:1b];z:deltas ({[x;y]$[1<=abs z:y-x;x+signum z;x]}\) ({x-first x} $[x>0;log;::] y)%abs x;$[k;[i:where z<>0;(t[i];0<z[i])];0<z except 0]}; /[åˆ†è¾¨ç‡;ä»·æ ¼åºåˆ—|(æ—¶é—´åºåˆ—|ä»·æ ¼åºåˆ—)]æ¶¨è·Œåºåˆ—äºŒè¿›åˆ¶ç¼–ç 
 pipdist:{abs z[1]-x[1]+(y[1]-x[1])*(z[0]-x[0])%y[0]-x[0]}; /[(t0,p0);(t1;p1);(t,p)]
 piplist:{} /[n;p]
 lzc:{({[x;y]s:x[0];q:x[1],y;c:x[2];if[{$[1>=count x;not y~x;1=count y;not y[0] in x;0=count ss["c"$x;"c"$y]]}[-1_z:s,q;q];s:z;c,:enlist q;q:()];(s;q;c)}/)[(();();());x]};
@@ -295,37 +297,37 @@ f_shubert:{[n;x]prd x {sum y+y*cos x*1+y}\: 1+til n};f_shubert_5:f_shubert[5];
 f_levyno3:{[n;x]y:1+til n;(sum y+y*cos x[0]*-1+y)*(sum y+y*cos x[0]*1+y)};
 f_ackley:{[x]20+e-(20*exp -0.2*sqrt (x$x)% count x)+exp sum cos 2*pi*x};
 
-adjmat:{[x]V:exec id from x;V in/: x[;`pa] each V}; /[gm]ÓÉÓĞÏòÍ¼Ä£ĞÍÉú³É(·´Ïò)ÁÚ½Ó¾ØÕópa(v)->v
-connmat:{[x]n:count x;y:(n,n)#0;z:x;do[n-1;y+:z;z*:x];y>0}; /[adjM]ÓÉÁÚ½Ó¾ØÕóÉú³ÉÁ¬Í¨¾ØÕó
-moral:{[x]x:x .[;;:;1b]/ (,/){{$[2>n:count x;();x comb[n;2]]} where x}each x;x|flip x}; /[(·´Ïò)ÁÚ½Ó¾ØÕó]ÔÚ¸¸½Úµã¼ä¼Ó±ß,ÓĞÏòÍ¼->ÎŞÏòÍ¼ 
+adjmat:{[x]V:exec id from x;V in/: x[;`pa] each V}; /[gm]ç”±æœ‰å‘å›¾æ¨¡å‹ç”Ÿæˆ(åå‘)é‚»æ¥çŸ©é˜µpa(v)->v
+connmat:{[x]n:count x;y:(n,n)#0;z:x;do[n-1;y+:z;z*:x];y>0}; /[adjM]ç”±é‚»æ¥çŸ©é˜µç”Ÿæˆè¿é€šçŸ©é˜µ
+moral:{[x]x:x .[;;:;1b]/ (,/){{$[2>n:count x;();x comb[n;2]]} where x}each x;x|flip x}; /[(åå‘)é‚»æ¥çŸ©é˜µ]åœ¨çˆ¶èŠ‚ç‚¹é—´åŠ è¾¹,æœ‰å‘å›¾->æ— å‘å›¾ 
 
-fillin:{[x;y]I:{$[2>n:count x;();x comb[n;2]]} y;n:count I:I where not x ./:I;(n;x .[;;:;1b]/I,reverse each I)} /[ÎŞÏòÁÚ½Ó¾ØÕó,¶¥µãÁĞ±í]ÔÚ²»ÏàÁÚ¶¥µã¼ä¼Ó±ß,·µ»Ø(¼Ó±ßÊı;¼Ó±ßºóÁÚ½Ó¾ØÕó)      
+fillin:{[x;y]I:{$[2>n:count x;();x comb[n;2]]} y;n:count I:I where not x ./:I;(n;x .[;;:;1b]/I,reverse each I)} /[æ— å‘é‚»æ¥çŸ©é˜µ,é¡¶ç‚¹åˆ—è¡¨]åœ¨ä¸ç›¸é‚»é¡¶ç‚¹é—´åŠ è¾¹,è¿”å›(åŠ è¾¹æ•°;åŠ è¾¹åé‚»æ¥çŸ©é˜µ)      
 
-minfill:{[x;y;z]C:();e:();V:til n:count x;k:0;do[n-1;nb:where each x;fl:fillin[x] each nb;fisize:first each fl;fasize:prd each y V nb,'til count x;i:$[k<count z;V?z[k];first iasc fisize ,' fasize];c:V nb[i],i;if[not any c allin/:C;C,:enlist c];V _:i;x:{x _ y}[;i] each fl[i;1] _ i;k+:1];asc each C}; /[moralizedÁÚ½Ó¾ØÕó;¶¥µã»ùÊı;ÓÅÏÈÏûÔª¶¥µãÁĞ±í]Ê¹ÓÃminfillËã·¨¼ÆËãcliques.x:µ±Ç°Ê£Óà½ÚµãÁ¬½Ó¾ØÕó,nb:ÏàÁÚ½Úµã¼¯,fl:Ä£ÄâÈı½Ç»¯,fisize:Èı½Ç»¯Ğè¼Ó±ßÊı,fasize:family×Ü×´Ì¬Êı,i:Æô·¢Ê½ÏûÔªÏÂ±ê,c:ÏûÔªËùÔÚclique,x:È¥µôÏûÔª½ÚµãµÄÁÚ½Ó¾ØÕó
+minfill:{[x;y;z]C:();e:();V:til n:count x;k:0;do[n-1;nb:where each x;fl:fillin[x] each nb;fisize:first each fl;fasize:prd each y V nb,'til count x;i:$[k<count z;V?z[k];first iasc fisize ,' fasize];c:V nb[i],i;if[not any c allin/:C;C,:enlist c];V _:i;x:{x _ y}[;i] each fl[i;1] _ i;k+:1];asc each C}; /[moralizedé‚»æ¥çŸ©é˜µ;é¡¶ç‚¹åŸºæ•°;ä¼˜å…ˆæ¶ˆå…ƒé¡¶ç‚¹åˆ—è¡¨]ä½¿ç”¨minfillç®—æ³•è®¡ç®—cliques.x:å½“å‰å‰©ä½™èŠ‚ç‚¹è¿æ¥çŸ©é˜µ,nb:ç›¸é‚»èŠ‚ç‚¹é›†,fl:æ¨¡æ‹Ÿä¸‰è§’åŒ–,fisize:ä¸‰è§’åŒ–éœ€åŠ è¾¹æ•°,fasize:familyæ€»çŠ¶æ€æ•°,i:å¯å‘å¼æ¶ˆå…ƒä¸‹æ ‡,c:æ¶ˆå…ƒæ‰€åœ¨clique,x:å»æ‰æ¶ˆå…ƒèŠ‚ç‚¹çš„é‚»æ¥çŸ©é˜µ
 
-mst:{[x;y]z:();f:til x;n:count y;i:0;while[(i<n)&(1<x);if[(<>/) j:f e:y[i];z,:enlist e;f[where f=last j]:first j];i+:1];z}; /[¶¥µãÊı;±ß°´È¨ÖØÉıĞò(½µĞò)]minimal(maximal) spanning tree,·µ»ØÉú³ÉÊ÷±ßÁĞ±í
+mst:{[x;y]z:();f:til x;n:count y;i:0;while[(i<n)&(1<x);if[(<>/) j:f e:y[i];z,:enlist e;f[where f=last j]:first j];i+:1];z}; /[é¡¶ç‚¹æ•°;è¾¹æŒ‰æƒé‡å‡åº(é™åº)]minimal(maximal) spanning tree,è¿”å›ç”Ÿæˆæ ‘è¾¹åˆ—è¡¨
 
 cliquetree:{[x]I:comb[n:count x;2];w:{count (inter/) x} each x I;mst[n;I idesc w]}; /[cliqueset]
 
-axehole:{[x;y]x?((x?last y)#x) except y}; /[ÉıĞò¶¥µã¼¯;ÉıĞò×Ó¼¯]Îª±£Ö¤ÊÆº¯ÊıÕıÈ·Ïà³Ë¶Ô×Ó¼¯ÒªÌî³äµÄÎ¬¶ÈÁĞ±í
+axehole:{[x;y]x?((x?last y)#x) except y}; /[å‡åºé¡¶ç‚¹é›†;å‡åºå­é›†]ä¸ºä¿è¯åŠ¿å‡½æ•°æ­£ç¡®ç›¸ä¹˜å¯¹å­é›†è¦å¡«å……çš„ç»´åº¦åˆ—è¡¨
 
-jtinit:{[x;y;z;u]V:exec id from x;y:V?y;z:V?z;u:V?u;if[(count z)&not any z allin/:y;y:(enlist z),y];m:('[last;fillin])/[moral adjmat x;y];N:count cs:minfill[m;D:exec dim from x;()];cs:cs where 1<count each cs;if[count z;i:first where z allin/:cs;cs:(cs _ i),enlist cs[i]];ct:cliquetree cs;F:$[count ct;(!/)flip ct;()!()];R:(til N)except key F;S:(cs key F) inter' cs F;L:sum each (key F)!not null flip value each (F\) F;PC:ones each D cs;PS:ones each D S[til N];fa:V?exec pa {x,y}'id from x;ci:first each where each fa allin/:\: cs;CPD:x[;`cpd] each V;i:0;do[count ci;if[(not i in u)&not null csi:ci[i];I:axehole[cs[csi];fa[i]];PC[csi]*:filldim/[CPD[i];I,'D cs[csi] I]];i+:1];`C`F`S`L`PC`PS`I`D`V!(cs;F;S;L;PC;PS;ci;D;V)}; /[gm;ÒªÇó°üº¬ÔÚÍ¬Ò»CliqueÀïµÄ¶¥µã¼¯ÁĞ±í;Òªº¬ÔÚjree root½ÚµãÀïµÄ¶¥µã¼¯;unroll¶¥µã¼¯(slice0 for DBN)]junction treeÉú³É,unroll¶¥µã¼¯µÄÌõ¼ş·Ö²¼²»³Ëµ½¶ÔÓ¦CliqueµÄÊÆº¯ÊıÉÏ
+jtinit:{[x;y;z;u]V:exec id from x;y:V?y;z:V?z;u:V?u;if[(count z)&not any z allin/:y;y:(enlist z),y];m:('[last;fillin])/[moral adjmat x;y];N:count cs:minfill[m;D:exec dim from x;()];cs:cs where 1<count each cs;if[count z;i:first where z allin/:cs;cs:(cs _ i),enlist cs[i]];ct:cliquetree cs;F:$[count ct;(!/)flip ct;()!()];R:(til N)except key F;S:(cs key F) inter' cs F;L:sum each (key F)!not null flip value each (F\) F;PC:ones each D cs;PS:ones each D S[til N];fa:V?exec pa {x,y}'id from x;ci:first each where each fa allin/:\: cs;CPD:x[;`cpd] each V;i:0;do[count ci;if[(not i in u)&not null csi:ci[i];I:axehole[cs[csi];fa[i]];PC[csi]*:filldim/[CPD[i];I,'D cs[csi] I]];i+:1];`C`F`S`L`PC`PS`I`D`V!(cs;F;S;L;PC;PS;ci;D;V)}; /[gm;è¦æ±‚åŒ…å«åœ¨åŒä¸€Cliqueé‡Œçš„é¡¶ç‚¹é›†åˆ—è¡¨;è¦å«åœ¨jree rootèŠ‚ç‚¹é‡Œçš„é¡¶ç‚¹é›†;unrollé¡¶ç‚¹é›†(slice0 for DBN)]junction treeç”Ÿæˆ,unrollé¡¶ç‚¹é›†çš„æ¡ä»¶åˆ†å¸ƒä¸ä¹˜åˆ°å¯¹åº”Cliqueçš„åŠ¿å‡½æ•°ä¸Š
 
-propagate:{[x;y]N:count cs:y`C;PC:y`PC;PS:y`PS;S:y`S;F:y`F;D:y`D;I:idesc y`L;i:0;do[N-1;k:I[i];z:PS[k];PS[k]:levelat[count S[k];x/] flipxv[PC[k];cs[k]?S[k]];y:axehole[cs[F[k]];S[k]];PC[F[k]]*:filldim/[0f^PS[k]%z;y,'D cs[F[k]] y];i+:1];i-:1;do[N-1;k:I[i];z:PS[k];PS[k]:levelat[count S[k];x/] flipxv[PC[F[k]];cs[F[k]]?S[k]];y:axehole[cs[k];S[k]];PC[k]*:filldim/[0f^PS[k]%z;y,'D cs[k] y];i-:1];(PC;PS)}; /[´«²¥º¯Êı;Junction tree]ÏûÏ¢´«²¥Ëã·¨:cs(Cliques),PC(potential of CliqueÊ÷µÄ¸÷½Úµã),PS(potential of CliqueÊ÷µÄ¸÷·Ç¸ù½ÚµãÓë¸¸½ÚµãµÄSep),S(CliqueÊ÷µÄ¸÷·Ç¸ù½ÚµãÓë¸¸½ÚµãµÄSep³ÉÔ±),F(CliqueÊ÷µÄ¸÷·Ç¸ù½Úµã¸¸½ÚµãÔÚcsÖĞĞòºÅ),L(CliqueÊ÷µÄ¸÷·Ç¸ù½ÚµãÔÚÊ÷ÖĞÉî¶È),D(Í¼Ä£ĞÍ¸÷¶¥µã×´Ì¬Êı),I(ÏûÏ¢ÉÏ´«Ë³Ğò)
+propagate:{[x;y]N:count cs:y`C;PC:y`PC;PS:y`PS;S:y`S;F:y`F;D:y`D;I:idesc y`L;i:0;do[N-1;k:I[i];z:PS[k];PS[k]:levelat[count S[k];x/] flipxv[PC[k];cs[k]?S[k]];y:axehole[cs[F[k]];S[k]];PC[F[k]]*:filldim/[0f^PS[k]%z;y,'D cs[F[k]] y];i+:1];i-:1;do[N-1;k:I[i];z:PS[k];PS[k]:levelat[count S[k];x/] flipxv[PC[F[k]];cs[F[k]]?S[k]];y:axehole[cs[k];S[k]];PC[k]*:filldim/[0f^PS[k]%z;y,'D cs[k] y];i-:1];(PC;PS)}; /[ä¼ æ’­å‡½æ•°;Junction tree]æ¶ˆæ¯ä¼ æ’­ç®—æ³•:cs(Cliques),PC(potential of Cliqueæ ‘çš„å„èŠ‚ç‚¹),PS(potential of Cliqueæ ‘çš„å„éæ ¹èŠ‚ç‚¹ä¸çˆ¶èŠ‚ç‚¹çš„Sep),S(Cliqueæ ‘çš„å„éæ ¹èŠ‚ç‚¹ä¸çˆ¶èŠ‚ç‚¹çš„Sepæˆå‘˜),F(Cliqueæ ‘çš„å„éæ ¹èŠ‚ç‚¹çˆ¶èŠ‚ç‚¹åœ¨csä¸­åºå·),L(Cliqueæ ‘çš„å„éæ ¹èŠ‚ç‚¹åœ¨æ ‘ä¸­æ·±åº¦),D(å›¾æ¨¡å‹å„é¡¶ç‚¹çŠ¶æ€æ•°),I(æ¶ˆæ¯ä¸Šä¼ é¡ºåº)
 
-margin:{[x;y;z]N:dim x;z:((til N) except y[0])?z;levelat[count z;sum/] flipxv[x . @[N#(::);y[0];:;y[1]];z]} /[ÁªºÏ¸ÅÂÊ;Ö¤¾İ(Ö¤¾İÎ¬;Ö¤¾İÖµ);²éÑ¯Î¬]¼ÆËã±ß¼Ê·Ö²¼»òÖ¤¾İËÆÈ»Öµ
+margin:{[x;y;z]N:dim x;z:((til N) except y[0])?z;levelat[count z;sum/] flipxv[x . @[N#(::);y[0];:;y[1]];z]} /[è”åˆæ¦‚ç‡;è¯æ®(è¯æ®ç»´;è¯æ®å€¼);æŸ¥è¯¢ç»´]è®¡ç®—è¾¹é™…åˆ†å¸ƒæˆ–è¯æ®ä¼¼ç„¶å€¼
 
-jtree:{[J;vq;ev]cs:J`C;PC:J`PC;ci:J`I;D:J`D;qi:vq;ei:key ev;ev:value ev;$[count I:where qi allin/:cs;[i:I[0];k:0;do[count ei;j:ei[k];m:ci[j];lh:@[D[j]#0f;ev[k];:;1f];y:axehole[cs[m];j];PC[m]*:filldim/[lh;y,'D cs[m] y];k+:1];J[`PC]:PC;PC:first propagate[sum;J];margin[PC[i];(();());cs[i]?qi]];()]}; /[BayesNet;²éÑ¯±äÁ¿;Ö¤¾İ±äÁ¿]Ê¹ÓÃJtree·½·¨½øĞĞÍÆÀí,µ±²éÑ¯±äÁ¿Îª¿ÕÊ±Ö¤¾İËÆÈ»Öµ,Ö»Ö§³Ö²éÑ¯±äÁ¿ÁĞ±í°üÔÚÄ³¸öCliqueÀïµÄÇéĞÎ ;(count qi)&count I:where (qi,ei) allin/:cs;[i:I[0];margin[PC[i];(cs[i]?ei;ev);cs[i]?qi]];
+jtree:{[J;vq;ev]cs:J`C;PC:J`PC;ci:J`I;D:J`D;qi:vq;ei:key ev;ev:value ev;$[count I:where qi allin/:cs;[i:I[0];k:0;do[count ei;j:ei[k];m:ci[j];lh:@[D[j]#0f;ev[k];:;1f];y:axehole[cs[m];j];PC[m]*:filldim/[lh;y,'D cs[m] y];k+:1];J[`PC]:PC;PC:first propagate[sum;J];margin[PC[i];(();());cs[i]?qi]];()]}; /[BayesNet;æŸ¥è¯¢å˜é‡;è¯æ®å˜é‡]ä½¿ç”¨Jtreeæ–¹æ³•è¿›è¡Œæ¨ç†,å½“æŸ¥è¯¢å˜é‡ä¸ºç©ºæ—¶è¯æ®ä¼¼ç„¶å€¼,åªæ”¯æŒæŸ¥è¯¢å˜é‡åˆ—è¡¨åŒ…åœ¨æŸä¸ªCliqueé‡Œçš„æƒ…å½¢ ;(count qi)&count I:where (qi,ei) allin/:cs;[i:I[0];margin[PC[i];(cs[i]?ei;ev);cs[i]?qi]];
 
 jtinf:{[bn;vq;ev]J:bn`J;V:J`V;$[count vq;normalize;::] jtree[J;V?vq;(V?key ev)!(value ev)]};
 
-fullpd:{[x]V:exec id from x;D:exec dim from x;prd exec (pa{x,y}'id) {[x;y;V;D]I:axehole[V;x];filldim/[y;I,'D I]}[;;V;D]' cpd from x}; /[gm]ÓÉÍ¼Ä£ĞÍÉú³ÉÁªºÏ·Ö²¼±í.V:¶¥µãÁĞ±í,D:¶¥µã×´Ì¬ÊıÁĞ±í,¶ÔÃ¿¸ö¶¥µã,x:fa(x)=pa(x)U{x},y:CPD,I:ĞèÒªÌî³äµÄÇ°µ¼¶¥µãĞòºÅÁĞ±í.È«¸ÅÂÊP(V)=P(X)P(Y|X)P(Z|X,Y)...°´Ë³ĞòÒÀ´Î¼ÆËãÃ¿¸ö±äÁ¿µÄÀ©Õ¹Ìõ¼ş¸ÅÂÊ±í
+fullpd:{[x]V:exec id from x;D:exec dim from x;prd exec (pa{x,y}'id) {[x;y;V;D]I:axehole[V;x];filldim/[y;I,'D I]}[;;V;D]' cpd from x}; /[gm]ç”±å›¾æ¨¡å‹ç”Ÿæˆè”åˆåˆ†å¸ƒè¡¨.V:é¡¶ç‚¹åˆ—è¡¨,D:é¡¶ç‚¹çŠ¶æ€æ•°åˆ—è¡¨,å¯¹æ¯ä¸ªé¡¶ç‚¹,x:fa(x)=pa(x)U{x},y:CPD,I:éœ€è¦å¡«å……çš„å‰å¯¼é¡¶ç‚¹åºå·åˆ—è¡¨.å…¨æ¦‚ç‡P(V)=P(X)P(Y|X)P(Z|X,Y)...æŒ‰é¡ºåºä¾æ¬¡è®¡ç®—æ¯ä¸ªå˜é‡çš„æ‰©å±•æ¡ä»¶æ¦‚ç‡è¡¨
 
-naive:{[bn;vq;ev]F:bn`F;V:exec id from bn`M;$[count vq;normalize;::] margin[bn`F;(V?key ev;value ev);V?vq]}; /[BayesNet;²éÑ¯±äÁ¿;Ö¤¾İ±äÁ¿]Ê¹ÓÃNaive·½·¨½øĞĞÍÆÀí,µ±²éÑ¯±äÁ¿Îª¿ÕÊ±Ö¤¾İËÆÈ»Öµ
+naive:{[bn;vq;ev]F:bn`F;V:exec id from bn`M;$[count vq;normalize;::] margin[bn`F;(V?key ev;value ev);V?vq]}; /[BayesNet;æŸ¥è¯¢å˜é‡;è¯æ®å˜é‡]ä½¿ç”¨Naiveæ–¹æ³•è¿›è¡Œæ¨ç†,å½“æŸ¥è¯¢å˜é‡ä¸ºç©ºæ—¶è¯æ®ä¼¼ç„¶å€¼
 
 jtinit2:{[x]V:exec id from x;v0:exec id from x where null base;out0:(distinct raze exec pa from x where not null base) inter v0;e0:v0 except out0;J0:jtinit[select from x where null base;();out0;()];out1:exec id from x where base in out0;Jt:jtinit[update pa:(count e0)#() from (update pa:pa except\:e0 from x) where id in e0;(enlist out0);out1;v0];out0:V?out0;out1:V?out1;J0[`OF`OCI]:(out0;first where out0 allin/: J0`C);Jt[`IF`OF`ICI`0CI]:(out0;out1),first each where each (out0;out1) allin/:\:Jt`C;`J0`Jt!(J0;Jt)}; /gm
 
-jtinf2:{[bn;vq;evL]T:-1+count evL;J0:bn[`J2;`J0];Jt:bn[`J2;`Jt];V:Jt`V;D:Jt`D;ev:first evL;if[T=0;:jtree[J0;V?vq;(V?key ev)!(value ev)]];alpha:jtree[J0;J0`OF;(V?key ev)!(value ev)];ics:Jt[`C;Jt`ICI];I:axehole[ics;Jt`IF];ID:I,'D ics I;pci:Jt[`PC;Jt`ICI];i:1;do[T-1;ev:evL[i];Jt[`PC;Jt`ICI]:pci*filldim/[alpha;ID];alpha:jtree[Jt;Jt`OF;(V?key ev)!(value ev)];i+:1];ev:last evL;Jt[`PC;Jt`ICI]:pci*filldim/[alpha;ID];$[count vq;normalize;::] jtree[Jt;V?vq;(V?key ev)!(value ev)]}; /[2TBNĞÍ¶¯Ì¬BayesNet;²éÑ¯±äÁ¿¼¯;¹Û²â±äÁ¿ÀúÊ·]
+jtinf2:{[bn;vq;evL]T:-1+count evL;J0:bn[`J2;`J0];Jt:bn[`J2;`Jt];V:Jt`V;D:Jt`D;ev:first evL;if[T=0;:jtree[J0;V?vq;(V?key ev)!(value ev)]];alpha:jtree[J0;J0`OF;(V?key ev)!(value ev)];ics:Jt[`C;Jt`ICI];I:axehole[ics;Jt`IF];ID:I,'D ics I;pci:Jt[`PC;Jt`ICI];i:1;do[T-1;ev:evL[i];Jt[`PC;Jt`ICI]:pci*filldim/[alpha;ID];alpha:jtree[Jt;Jt`OF;(V?key ev)!(value ev)];i+:1];ev:last evL;Jt[`PC;Jt`ICI]:pci*filldim/[alpha;ID];$[count vq;normalize;::] jtree[Jt;V?vq;(V?key ev)!(value ev)]}; /[2TBNå‹åŠ¨æ€BayesNet;æŸ¥è¯¢å˜é‡é›†;è§‚æµ‹å˜é‡å†å²]
 
 \d .
 //End
@@ -333,7 +335,7 @@ jtinf2:{[bn;vq;evL]T:-1+count evL;J0:bn[`J2;`J0];Jt:bn[`J2;`Jt];V:Jt`V;D:Jt`D;ev
 \
 f:{[n]A:(n,n)#(n*n)?1f;S:A<0.5;t:enlist .z.P;B:(n,n)#@[raze A;where raze S;*;-1f];t,:.z.P;I:raze (til n)(,/:)'where each S;C:.[;;:;]/[A;I;-1f*A ./: I];t,:.z.P;D:ffset[A;0.5>;-1f*];t,:.z.P;((B~C)&(C~D);1e-6*1_deltas t)};
 
-//¾ØÕó·Ö½â
+//çŸ©é˜µåˆ†è§£
 cholesky:{[x]};
 
 //[k4] quantile 
