@@ -1,5 +1,4 @@
 #include "kcomm.h"
-#include "concurrentqueue.h"
 
 #include "TDFAPI.h"
 #include "NonMDMsgDecoder.h"
