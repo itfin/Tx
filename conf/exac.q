@@ -1,32 +1,32 @@
 \d .conf
-ex.XSHG.session:(09:15 09:25;09:30 11:30;13:00 15:00);        /…œΩªÀ˘
-ex.XSHE.session:(09:15 09:25;09:30 11:30;13:00 15:00);        /…ÓΩªÀ˘
-ex.XHKG.session:(09:00 09:25;09:30 12:00;13:00 16:00);        /¡™ΩªÀ˘
-ex.XHKE.session:(09:00 09:25;09:30 12:00;13:00 16:00);        /¡™ΩªÀ˘
-ex.CCFX.session:(09:28 09:29;09:30 11:30;13:00 15:15);        /÷–ΩÀ˘
-ex.XSGE.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /…œ∆⁄À˘
-ex.XINE.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /ƒ‹‘¥À˘
-ex.SGEX.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /ƒ‹‘¥À˘
-ex.XCFE.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /ƒ‹‘¥À˘
-ex.XDCE.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /¥Û…ÃÀ˘
-ex.XZCE.session:(08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 23:30);          /÷£…ÃÀ˘
-ex.XSES.session:(00:00 04:45;09:00 16:30;17:00 24:00);        /–¬º”∆¬A50 
-ex.FX.session:(00:00 05:00;05:15 24:00);                      /Õ‚ª„
-ex.METAL.session:(00:00 05:10;06:00 24:00);                   /œ÷ªıπÛΩ Ù
+ex.XSHG.session:(09:15 09:25;09:30 11:30;13:00 15:00);        /‰∏ä‰∫§ÊâÄ
+ex.XSHE.session:(09:15 09:25;09:30 11:30;13:00 15:00);        /Ê∑±‰∫§ÊâÄ
+ex.XHKG.session:(09:00 09:25;09:30 12:00;13:00 16:00);        /Ê≤™Ê∏ØÈÄö
+ex.XHKE.session:(09:00 09:25;09:30 12:00;13:00 16:00);        /Ê∑±Ê∏ØÈÄö
+ex.CCFX.session:(09:28 09:29;09:30 11:30;13:00 15:15);        /‰∏≠ÈáëÊâÄ
+ex.XSGE.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /‰∏äÊúüÊâÄ
+ex.XINE.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /ËÉΩÊ∫êÊâÄ
+ex.SGEX.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /‰∏äÈáëÊâÄ
+ex.XCFE.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /Â§ñÊ±á‰∏≠ÂøÉ
+ex.XDCE.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /Â§ßÂïÜÊâÄ
+ex.XZCE.session:(08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 23:30);          /ÈÉëÂïÜÊâÄ
+ex.XSES.session:(00:00 04:45;09:00 16:30;17:00 24:00);        /Êñ∞Âä†Âù°A50 
+ex.FX.session:(00:00 05:00;05:15 24:00);                      /Â§ñÊ±á
+ex.METAL.session:(00:00 05:10;06:00 24:00);                   /Áé∞Ë¥ßË¥µÈáëÂ±û
 
 
-ex.XSHG[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`shanghai;`$"…œΩªÀ˘";09:30:00.000;11:30:00.000;13:00:00.000;15:00:00.000;09:15:00.000;09:25:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
-ex.XSHE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`shenshen;`$"…ÓΩªÀ˘";09:30:00.000;11:30:00.000;13:00:00.000;15:00:00.000;09:15:00.000;09:25:00.000;14:57:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
-ex.XHKG[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`hongkong;`$"∏€ΩªÀ˘";09:30:00.000;12:00:00.000;13:00:00.000;16:00:00.000;09:00:00.000;09:20:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
-ex.XHKE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`SGT;`$"…Ó∏€Õ®";09:30:00.000;12:00:00.000;13:00:00.000;16:00:00.000;09:00:00.000;09:20:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
-ex.CCFX[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`zhongjin;`$"÷–ΩÀ˘";09:15:00.000;11:30:00.000;13:00:00.000;15:15:00.000;09:10:00.000;09:14:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
-ex.SGEX[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`shgold;`$"…œΩÀ˘";09:15:00.000;11:30:00.000;13:00:00.000;15:15:00.000;09:10:00.000;09:25:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
-ex.XCFE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`foreign;`$"Õ‚ª„÷––ƒ";09:15:00.000;11:30:00.000;13:00:00.000;15:00:00.000;09:10:00.000;09:25:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
-ex.XSGE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`shfu;`$"…œ∆⁄À˘";09:00:00.000;11:30:00.000;13:30:00.000;15:00:00.000;08:55:00.000;08:59:00.000;0Nt;10:15:00.000;10:30:00.000;21:00:00.000;02:30:00.000;0Nt;0Nt);
-ex.XINE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`shfu;`$"ƒ‹‘¥À˘";09:00:00.000;11:30:00.000;13:30:00.000;15:00:00.000;08:55:00.000;08:59:00.000;0Nt;10:15:00.000;10:30:00.000;21:00:00.000;02:30:00.000;0Nt;0Nt);
-ex.XDCE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`dalian;`$"¥Û…ÃÀ˘";09:00:00.000;11:30:00.000;13:30:00.000;15:00:00.000;08:55:00.000;08:59:00.000;0Nt;10:15:00.000;10:30:00.000;21:00:00.000;02:30:00.000;0Nt;0Nt);
-ex.XZCE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`zhengzhou;`$"÷£…ÃÀ˘";09:00:00.000;11:30:00.000;13:30:00.000;15:00:00.000;08:55:00.000;08:59:00.000;0Nt;10:15:00.000;10:30:00.000;21:00:00.000;23:30:00.000;0Nt;0Nt);
-ex.XSES[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`sgx;`$"–¬ΩªÀ˘";09:00:00.000;12:30:00.000;12:30:00.000;16:35:00.000;08:45:00.000;08:58:00.000;16:30:00.000;0Nt;0Nt;17:15:00.000;02:00:00.000;0Nt;0Nt);
+ex.XSHG[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`shanghai;`$"‰∏ä‰∫§ÊâÄ";09:30:00.000;11:30:00.000;13:00:00.000;15:00:00.000;09:15:00.000;09:25:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
+ex.XSHE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`shenshen;`$"Ê∑±‰∫§ÊâÄ";09:30:00.000;11:30:00.000;13:00:00.000;15:00:00.000;09:15:00.000;09:25:00.000;14:57:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
+ex.XHKG[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`hongkong;`$"Ê≤™Ê∏ØÈÄö";09:30:00.000;12:00:00.000;13:00:00.000;16:00:00.000;09:00:00.000;09:20:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
+ex.XHKE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`SGT;`$"Ê∑±Ê∏ØÈÄö";09:30:00.000;12:00:00.000;13:00:00.000;16:00:00.000;09:00:00.000;09:20:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
+ex.CCFX[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`zhongjin;`$"‰∏≠ÈáëÊâÄ";09:15:00.000;11:30:00.000;13:00:00.000;15:15:00.000;09:10:00.000;09:14:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
+ex.SGEX[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`shgold;`$"‰∏äÈáëÊâÄ";09:15:00.000;11:30:00.000;13:00:00.000;15:15:00.000;09:10:00.000;09:25:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
+ex.XCFE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`foreign;`$"Â§ñÊ±á‰∏≠ÂøÉ";09:15:00.000;11:30:00.000;13:00:00.000;15:00:00.000;09:10:00.000;09:25:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
+ex.XSGE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`shfu;`$"‰∏äÊúüÊâÄ";09:00:00.000;11:30:00.000;13:30:00.000;15:00:00.000;08:55:00.000;08:59:00.000;0Nt;10:15:00.000;10:30:00.000;21:00:00.000;02:30:00.000;0Nt;0Nt);
+ex.XINE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`shfu;`$"ËÉΩÊ∫êÊâÄ";09:00:00.000;11:30:00.000;13:30:00.000;15:00:00.000;08:55:00.000;08:59:00.000;0Nt;10:15:00.000;10:30:00.000;21:00:00.000;02:30:00.000;0Nt;0Nt);
+ex.XDCE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`dalian;`$"Â§ßÂïÜÊâÄ";09:00:00.000;11:30:00.000;13:30:00.000;15:00:00.000;08:55:00.000;08:59:00.000;0Nt;10:15:00.000;10:30:00.000;21:00:00.000;02:30:00.000;0Nt;0Nt);
+ex.XZCE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`zhengzhou;`$"ÈÉëÂïÜÊâÄ";09:00:00.000;11:30:00.000;13:30:00.000;15:00:00.000;08:55:00.000;08:59:00.000;0Nt;10:15:00.000;10:30:00.000;21:00:00.000;23:30:00.000;0Nt;0Nt);
+ex.XSES[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`sgx;`$"Êñ∞‰∫§ÊâÄ";09:00:00.000;12:30:00.000;12:30:00.000;16:35:00.000;08:45:00.000;08:58:00.000;16:30:00.000;0Nt;0Nt;17:15:00.000;02:00:00.000;0Nt;0Nt);
 ex.FX[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`forex;`$"Forex";05:15:00.000;12:30:00.000;12:30:00.000;16:44:59.999;0Nt;0Nt;0Nt;0Nt;0Nt;16:45:00.001;05:00:00.000;0Nt;0Nt);
 ex.METAL[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`metal;`London_Metal;06:00:00.000;12:30:00.000;12:30:00.000;16:44:59.999;0Nt;0Nt;0Nt;0Nt;0Nt;16:45:00.001;05:10:00.000;0Nt;0Nt);
 
