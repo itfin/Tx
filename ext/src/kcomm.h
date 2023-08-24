@@ -1,9 +1,10 @@
+#pragma once
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <errno.h>
-#include "concurrentqueue.h"
 
 #if defined(WIN32)||defined(WIN64) 
 #include <winsock2.h>
