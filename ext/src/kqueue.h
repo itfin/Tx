@@ -48,10 +48,8 @@ Z pthread_mutex_t g_mutex=PTHREAD_MUTEX_INITIALIZER;
 
 #if defined(_USE_LOCKFREE_QUEUE)
 Z moodycamel::ConcurrentQueue<K> mq(QUEUE_SIZE);
-Z moodycamel::ProducerToken ptok(mq);
-Z moodycamel::ConsumerToken ctok(mq);
-#define ONMQ(kcb) ZK onmq(I i){K L=knk(0);read(i,&b,PIPE_CAPACITY);K x; while (mq.try_dequeue(ctok,x)){jk(&L,x);}k(0,kcb,L,(K)0);R ki(0);} ////ZK onmq(I i){K L=knk(0);read(i,&b,PIPE_CAPACITY);K x; while (mq.try_dequeue(ctok,x)){jk(&L,x);}k(0,"onkmq",L,(K)0);R ki(0);}
-Z V mpub(K x){mq.enqueue(ptok,x);write(p[1],&b,1);};
+#define ONMQ(kcb) ZK onmq(I i){K L=knk(0);read(i,&b,PIPE_CAPACITY);K x; while (mq.try_dequeue(x)){jk(&L,x);}k(0,kcb,L,(K)0);R ki(0);} ////ZK onmq(I i){K L=knk(0);read(i,&b,PIPE_CAPACITY);K x; while (mq.try_dequeue(x)){jk(&L,x);}k(0,"onkmq",L,(K)0);R ki(0);}
+Z V mpub(K x){mq.enqueue(x);write(p[1],&b,1);};
 #else
 Z std::queue<K> mq;
 Z std::queue<K> fq;
