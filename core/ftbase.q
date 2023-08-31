@@ -61,8 +61,8 @@ isdrv:{[x]isfut[x]|isopt[x]};     /[sym]
 
 ishk:{[x]y:fs2e x; y in `XHKG`XHKE};
 
-iscnfut:{[x]isfut[x]&QX[x;`margintype]<>`US}; /[sym]
-iscnopt:{[x]isopt[x]&QX[x;`margintype]<>`US}; /[sym]
+iscnfut:{[x]isfut[x]&.db.QX[x;`margintype]<>`US}; /[sym]
+iscnopt:{[x]isopt[x]&.db.QX[x;`margintype]<>`US}; /[sym]
 iscndrv:{[x]iscnfut[x]|iscnopt[x]};     /[sym]
 
 iswarrant:{[x]{(x within 580001 580999)|(x within 30001 39999)} "I"$string fs2s x}; /x:sym
