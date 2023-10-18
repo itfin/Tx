@@ -59,7 +59,7 @@ isfut:{[x]assetclass[x] in `Future`Combination}; /[sym]
 isopt:{[x]`Option=assetclass[x]}; /[sym]
 isdrv:{[x]isfut[x]|isopt[x]};     /[sym]
 
-ishk:{[x]y:fs2e x; y in `XHKG`XHKE};
+ishk:{[x]y:fs2e x; y in `XHKG`XHKE`HKEX`XHKF};
 
 iscnfut:{[x]isfut[x]&QX[x;`margintype]<>`US}; /[sym]
 iscnopt:{[x]isopt[x]&QX[x;`margintype]<>`US}; /[sym]
