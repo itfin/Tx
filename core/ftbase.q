@@ -266,7 +266,7 @@ minbars:{[typ;x;D;f]sess:trdsess[x];delete seq from update v:deltas v,a:deltas a
 histrds:{[x;D](select d:trddate ftime,t:`time$ftime,avgpx,side from .hdb.O where sym=x,cumqty>0,(trddate ftime) within D),$[not .db.sysdate within D;();select d:trddate ftime,t:`time$ftime,avgpx,side from .db.O where sym=x,cumqty>0]};
 
 
-loadetf:{[x;y]{.[`.db;enlist x;:;get ` sv .conf[`tempdb],x];} each `ETF`ETFPF`ETFER;sl:exec sym from .db.ETFPF where not sym in exec sym from .db.QX;if[count sl;{[x].db.QX[x;`ticker]:`} each sl];update `.db.QX$sym from `.db.ETFPF;1b};
+loadetf:{[x;y]{.[`.db;enlist x;:;get ` sv .conf[`tempdb],x];} each `ETF`ETFPF`ETFER;sl:exec sym from .db.ETFPF where not sym in exec sym from .db.QX;if[count sl;{[x].db.QX[x;`ticker]:`} each sl];delete from `.db.ETFPF where trday<>.db.ftdate;update `.db.QX$sym from `.db.ETFPF;1b};
 
 //getiopvex:{[x;y]$[.db.ETF[y;`trday]<>.z.D;0n;(.db.ETF[y;`cueu]+exec sum (?[qty<=0;0f;qty]*?[sym like "1*";10;1]*{[x;y;z;u;v;b;a]p:$[x=1;a;x>1;v[;x-1];x=-1;b;x<-1;u[;abs[x]-1];y];?[p>0;p;?[y>0;y;z]]}[x;sym.price;sym.pc;sym.bidQ;sym.askQ;sym.bid;sym.ask]*1f^sym.multiplier)+?[qty>=0;0f;camt] from .db.ETFPF where etfsym=y,sym<>`159900.XSHE)%.db.ETF[y;`cu]]}; /上海基金份额参考净值＝[∑(替代标志为0/1/3成分证券最新替代金额)+∑(替代标志为2/4/5/6的成分证券对应资金)+预估现金]/最小申购赎回单位对应的ETF份数(0-沪市不可被替代;1-沪市可以被替代;2-沪市必须被替代;3-深市退补现金替代;4-深市必须现金替代;5-非沪深市场成分证券退补现金替代;6-非沪深市场成份证券必须现金替代),对可转债ETF,申赎清单中债券单位是手,需要再乘10,另外还涉及行情可能为净价而非全价的误差,行情中的settlepx更准确,要注意特别处理.为加强异常处理,去掉 .db.QX[y;`settlepx]^
 //getiopv:getiopvex[0];
