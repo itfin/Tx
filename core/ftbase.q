@@ -1,4 +1,4 @@
-.module.ftbase:2023.08.21;
+.module.ftbase:2024.12.11;
 
 txload "core/rcbase";
 
@@ -7,28 +7,30 @@ txload "core/rcbase";
 .init.ft:{[x] {[x].[{(x)[y;z]};(.db.Ts[x;`event;`sysinit];x;());()];} each tsl[];.db.pO:exec id from .db.O where not end;resetfqstate[];if[1b~.conf[`autoloadhdb];loadhdb[]];};
 .exit.ft:{[x] {[x].[{(x)[y;z]};(.db.Ts[x;`event;`sysexit];x;());()];} each tsl[];};
 
-.timer.ft:{[x]if[(.db.ftdate<d)|(.z.T>.conf.dayendtime)&.db.ftdate=d:.z.D;.db.ftdate0:.db.ftdate;.db.ftdate:nextworkday[.db.ftdate];if[.conf.me in $[`rollft in key .conf;.conf[`rollft];`ft`ft1];beginofday[.db.ftdate]]];{[x;y].[{(x)[y;z]};(.db.Ts[x;`event;`timer];x;y);()];}[;x] each tsl[];if[not 1b~.conf[`checkfqtime];:()];checkfqstate[];};
+.timer.ft:{[x]if[(.db.ftdate<d)|(.z.T>.conf.dayendtime)&.db.ftdate=d:.z.D;.db.ftdate0:.db.ftdate;.db.ftdate:nextworkday[.db.ftdate];if[.conf.me in $[`rollft in key .conf;.conf[`rollft];`ft`ft1];beginofday[.db.ftdate]]];{[x;y].[{(x)[y;z]};(.db.Ts[x;`event;`timer];x;y);()];}[;x] each tsl[];if[1b~.conf[`checkfqtime];checkfqstate[]];};
 
-istrading:{[t;s]if[not (z:fs2e s) in tkey .conf.ex;:0b];any t within/:.conf.ex[z;`session]+\: -00:01 00:01};
+istrading:{[t;s]t:`timestamp$t;if[not (z:fs2e s) in tkey .conf.ex;:0b];if[not 2=count first sess:trdsess[s];:0b];any t within/:sess}; /.conf.ex[z;`session] +\: -00:01 00:01
 
-.timer.ftsim:{[x]if[not .conf.feedtype=`ftsim;:()];t:`time$t0:x;{[t0;t;k]x:.db.O[k];s:x`sym;if[not istrading[t;s];:()];if[null .db.O[k;`rtime];.db.O[k;`rtime]:.z.P];p:0f;n:0;$[.enum[`PENDING_CANCEL]=x`cstatus;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`exchid`cstatus`cfeoid`cordid`cexchid`reason`msg`rptopt!(.enum`NEW;k;.enum[`CANCELED];x`cumqty;x`avgpx;`;`;`;.enum[`CANCELED];`;`;`;0;"";"")];[r:.db.QX[s];if[0>=r`price;r[`price]:avg r`bid`ask];if[($[1b~.conf`fillwith0qty;0n;0]>=r`cumqty)&(not fs2e[s] in `FOREX`METAL)&(not s like "SP*")&(not s like "IPS*")&(not 1b~.conf[`fillauction]);:()];p0:x`price;p1:r`price;$[(1b~.conf[`filldelay])&.db.QX[s;`extime]=x`qtime;();((.enum[`BUY]=x`side)&p0>=$[0<r`ask;r`ask;0w])|((.enum[`SELL]=x`side)&p0<=r`bid)|(x[`typ]=.enum`MARKET);[px:$[.enum[`BUY]=x`side;p0&p1|r`ask;p0|p1&r`bid];lqty:(x`qty)-0f^x`cumqty;fqty:lqty&$[1b~.conf[`fillfull];0w;r $[.enum[`BUY]=x`side;`asize;`bsize]];cq:fqty+0f^x`cumqty;ap:0f^(prd[x`cumqty`avgpx]+fqty*px)%cq;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`exchid`cstatus`cfeoid`cordid`cexchid`reason`msg`rptopt!(.enum`NEW;k;.enum $[cq=x`qty;`FILLED;`PARTIALLY_FILLED];cq;ap;newid[];newid[];`paper;x`cstatus;`;`;`;0;"";"")]];x[`tif]=.enum.IMMEDIATE_OR_CANCEL;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`exchid`cstatus`cfeoid`cordid`cexchid`reason`msg`rptopt!(.enum`NEW;k;.enum[`CANCELED];x`cumqty;x`avgpx;`;`;`;.enum[`CANCELED];`;`;`;0;"";"")];()]]];}[t0;t] each exec id from .db.O where not end,status in .enum`PENDING_NEW`NEW`PARTIALLY_FILLED;}; /(r`price)| (r`price)&
+.timer.ftsim:{[x]if[not .conf.feedtype=`ftsim;:()];t:`time$t0:x;{[t0;t;k]x:.db.O[k];s:x`sym;if[not istrading[t0;s];:()];if[null .db.O[k;`rtime];.db.O[k;`rtime]:.z.P];p:0f;n:0;$[.enum[`PENDING_CANCEL]=x`cstatus;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`exchid`cstatus`cfeoid`cordid`cexchid`reason`msg`rptopt!(.enum`NEW;k;.enum[`CANCELED];x`cumqty;x`avgpx;`;`;`;.enum[`CANCELED];`;`;`;0;"";"")];[r:.db.QX[s];if[0>=r`price;r[`price]:avg r`bid`ask];if[($[1b~.conf`fillwith0qty;0n;0]>=r`cumqty)&(not fs2e[s] in `FOREX`METAL)&(not s like "SP*")&(not s like "IPS*")&(not 1b~.conf[`fillauction]);:()];p0:x`price;p1:r`price;$[(1b~.conf[`filldelay])&.db.QX[s;`extime]=x`qtime;();((.enum[`BUY]=x`side)&p0>=$[0<r`ask;r`ask;0w])|((.enum[`SELL]=x`side)&p0<=r`bid)|(x[`typ]=.enum`MARKET);[px:$[.enum[`BUY]=x`side;p0&p1|r`ask;p0|p1&r`bid];lqty:(x`qty)-0f^x`cumqty;fqty:lqty&$[1b~.conf[`fillfull];0w;r $[.enum[`BUY]=x`side;`asize;`bsize]];cq:fqty+0f^x`cumqty;ap:0f^(prd[x`cumqty`avgpx]+fqty*px)%cq;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`exchid`cstatus`cfeoid`cordid`cexchid`reason`msg`rptopt!(.enum`NEW;k;.enum $[cq=x`qty;`FILLED;`PARTIALLY_FILLED];cq;ap;newid[];newid[];`paper;x`cstatus;`;`;`;0;"";"")]];x[`tif]=.enum.IMMEDIATE_OR_CANCEL;.upd.exerpt[enlist `typ`oid`status`cumqty`avgpx`feoid`ordid`exchid`cstatus`cfeoid`cordid`cexchid`reason`msg`rptopt!(.enum`NEW;k;.enum[`CANCELED];x`cumqty;x`avgpx;`;`;`;.enum[`CANCELED];`;`;`;0;"";"")];()]]];}[t0;t] each exec id from .db.O where not end,status in .enum`PENDING_NEW`NEW`PARTIALLY_FILLED;}; /(r`price)| (r`price)&
 
-.roll.ft:{[x]if[1b~.conf[`waithdb];while[.z.D>d:.ctrl.conn.hdb.h ({last date};());system "sleep 10"];.ctrl[`hdbdate`hdbtime]:(d;.z.P)];{[x;y].[{(x)[y;z]};(.db.Ts[x;`event;`dayroll];x;y);()];}[;x] each tsl[];.[.conf.histdb;(.conf.me;`M);,;.db.M];delete from `.db.M;gtc:.enum`GOOD_TILL_CANCEL;.[.conf.histdb;(.conf.me;`O);,;select from .db.O where end|tif<>gtc];delete from `.db.O where end|tif<>gtc;delete from `.db.QT;{update `u#id from x;} each `.db.O`.db.M`.db.QT;delete from `.db.P where 1e-10>=abs[0f^lqty]+abs[0f^sqty];update flqty:0f,fsqty:0f,lqty0:0f,sqty0:0f,flqty0:0f,fsqty0:0f from `.db.P;.[.conf.histdb;(.conf.me;`P);,;update today:.z.D from 0!.db.P];n:count[.db.QX];update pc:(0.5*(0f^bid)+0f^(ask))^price,price:0n,bid:0n,ask:0n,bsize:0n,asize:0n,cumqty:0f,bidQ:n#enlist `float$(),askQ:n#enlist `float$(),bsizeQ:n#enlist `float$(),asizeQ:n#enlist `float$() from `.db.QX;.db.pO:0#.db.pO;if[1b~.conf[`autoloadhdb];loadhdb[]];if[not 1b~.conf[`checkfqtime];:()];resetfqstate[];};
+.roll.ft:{[x]if[1b~.conf[`waithdb];while[.z.D>d:.ctrl.conn.hdb.h ({last date};());system "sleep 10"];.ctrl[`hdbdate`hdbtime]:(d;.z.P)];{[x;y].[{(x)[y;z]};(.db.Ts[x;`event;`dayroll];x;y);()];}[;x] each tsl[];.[.conf.histdb;(.conf.me;`M);,;.db.M];delete from `.db.M;gtc:.enum`GOOD_TILL_CANCEL;.[.conf.histdb;(.conf.me;`O);,;select from .db.O where end|tif<>gtc];delete from `.db.O where end|tif<>gtc;delete from `.db.QT;{update `u#id from x;} each `.db.O`.db.M`.db.QT;delete from `.db.P where 1e-10>=abs[0f^lqty]+abs[0f^sqty];update flqty:0f,fsqty:0f,lqty0:0f,sqty0:0f,flqty0:0f,fsqty0:0f from `.db.P;.[.conf.histdb;(.conf.me;`P);,;update today:.z.D from 0!.db.P];n:count[.db.QX];update pc:(0.5*(0f^bid)+0f^(ask))^price,ps:settlepx,pq:cumqty,py:-1+price%pc,price:0n,bid:0n,ask:0n,bsize:0n,asize:0n,cumqty:0f,bidQ:n#enlist `float$(),askQ:n#enlist `float$(),bsizeQ:n#enlist `float$(),asizeQ:n#enlist `float$() from `.db.QX;.db.pO:0#.db.pO;if[1b~.conf[`autoloadhdb];loadhdb[]];if[not 1b~.conf[`checkfqtime];:()];resetfqstate[];};
 
 resetfqstate:{[x]if[not `fq in key .conf;:()];setstate[;`OK] each tkey .conf.fq;.ctrl.LastFqTime:(`symbol$())!`timestamp$();};
-checkfqstate:{[x]if[not `fq in key .conf;:()];fql:tkey .conf.fq;t1:fql#exec max srctime by src from .db.QX;t0:t1^fql#.ctrl.LastFqTime;{[x;y;z]setstate[z] ?[(y[z]>x[z]+.conf.fq[z;`maxhalt])&(any y[z] within/: .conf.fq[z;`session]);`Halt;`OK]}[t0;fql!count[fql]#.z.P] each fql;.ctrl.LastFqTime:t1;};
+checkfqstate:{[x]if[not `fq in key .conf;:()];fql:tkey .conf.fq;t1:fql#exec max srctime by src from .db.QX;t0:t1^fql#.ctrl.LastFqTime;{[x;y;z] if[not any y[z] within/: .conf.fq[z;`session];:()];setstate[z] ?[y[z]>x[z]+.conf.fq[z;`maxhalt];`Halt;`OK]}[t0;fql!count[fql]#.z.P] each fql;.ctrl.LastFqTime:t1;}; /{[x;y;z]setstate[z] ?[(y[z]>x[z]+.conf.fq[z;`maxhalt])&(any y[z] within/: .conf.fq[z;`session]);`Halt;`OK]}[t0;fql!count[fql]#.z.P] each fql;
+
+.roll.fqstate:{[x] setstate[;`OK] each tkey .conf.fq};
 
 realsyms:{[x;y]$[11h<>abs type sl:.db.Ts[x;`syms];y;0=count sl;y;y inter sl]}; /[tsid;syms]
 tsl:{[]x:.db.enablets inter key .db.Ts;x where {1b~.db.Ts[x;`active]} each x};
 getfe:{[x]$[x in key .conf.acc;.conf.acc[x;`sym];`]};
 
-newordex:{[sd;pe;t;s;q;p;m;x]if[0b~.db`ftactive;:`];$[0>type t;[ts:.db.Ts[t];a:ts`acc];[ts:.db.Ts[t 0];a:ts[`accx;t[1]];t:t[0]]];if[1b~ts`stop;:`];if[null x`tif;x[`tif]:.enum`DAY];if[null x`typ;x[`typ]:.enum $[null p;`MARKET;`LIMIT]];fe:getfe[a];k:newid[];.db.O[k;`ft`ts`acc`fe`acc1`ref`sym`side`posefct`tif`typ`qty`price`ordopt`ntime`qtime`f0`f1`status`cumqty`avgpx`lastqty`lastpx]:(.conf.me;t;a;fe;sfill .conf.acc[a;`acc1];m;s;sd;pe;x`tif;x`typ;q;p;dictstr `tif`typ _x;now[];.db.QX[s;`extime];.db.QX[s;`bid];.db.QX[s;`ask];.enum`PENDING_NEW;0f;0f;0f;0f);{[x;k;y]if[not null z:x[y];.db.O[k;y]:z];}[x;k] each `acc1`tsexec`upid`slot`style`expiretime;if[@[riskassert;k;0b];.db.O[k;`end`status`reason`msg]:(1b;.enum`REJECTED;1i;"Reject_by_Risk_Check");ordexerpt[k];:`];if[(not null fe)&(`ft=.conf.feedtype);pub[`ordnew;enlist `sym`oid`ft`ts`acc`acc1`ref`osym`side`posefct`tif`typ`qty`price`ordopt!(fe;k),.db.O[k;`ft`ts`acc`acc1`ref`sym`side`posefct`tif`typ`qty`price`ordopt]]];frzqty[k;q];.db.pO,:k;k}; /[side;posefct;ts|(ts;acc);sym;qty;price;ref;exdict] if[p<0;x[`tif]:.enum`GOOD_TILL_CANCEL;p:neg[p]];used by tws,error for SP
+newordex:{[sd;pe;t;s;q;p;m;x].temp.x_no:(sd;pe;t;s;q;p;m;x);if[0b~.db`ftactive;:`];$[0>type t;[ts:.db.Ts[t];a:ts`acc];[ts:.db.Ts[t 0];a:ts[`accx;t[1]];t:t[0]]];if[1b~ts`stop;:`];if[null x`tif;x[`tif]:.enum`DAY];if[null x`typ;x[`typ]:.enum $[null p;`MARKET;`LIMIT]];if[not null x`acc;a:x`acc];fe:getfe[a];k:newid[];.db.O[k;`ft`ts`acc`fe`acc1`ref`sym`side`posefct`tif`typ`qty`price`ordopt`ntime`qtime`f0`f1`status`cumqty`avgpx`lastqty`lastpx]:(.conf.me;t;a;fe;sfill .conf.acc[a;`acc1];m;s;sd;pe;x`tif;x`typ;q;p;dictstr `tif`typ _x;now[];.db.QX[s;`extime];.db.QX[s;`bid];.db.QX[s;`ask];.enum`PENDING_NEW;0f;0f;0f;0f);{[x;k;y]if[not null z:x[y];.db.O[k;y]:z];}[x;k] each `acc1`tsexec`upid`slot`style`expiretime;if[@[riskassert;k;0b];.db.O[k;`end`status`reason`msg]:(1b;.enum`REJECTED;1i;"Reject_by_Risk_Check");ordexerpt[k];:`];if[(not null fe)&(`ft=.conf.feedtype);pub[`ordnew;enlist `sym`oid`ft`ts`acc`acc1`ref`osym`side`posefct`tif`typ`qty`price`ordopt!(fe;k),.db.O[k;`ft`ts`acc`acc1`ref`sym`side`posefct`tif`typ`qty`price`ordopt]]];frzqty[k;q];.db.pO,:k;k}; /[side;posefct;ts|(ts;acc);sym;qty;price;ref;exdict] if[p<0;x[`tif]:.enum`GOOD_TILL_CANCEL;p:neg[p]];used by tws,error for SP
 neword:newordex[;;;;;;;.enum.nulldict];
 
 openlong:neword[.enum`BUY;.enum`OPEN];closelong:neword[.enum`SELL;.enum`CLOSE];tcloselong:neword[.enum`SELL;.enum`CLOSETODAY];ycloselong:neword[.enum`SELL;.enum`CLOSEYESTODAY];
 openshort:neword[.enum`SELL;.enum`OPEN];closeshort:neword[.enum`BUY;.enum`CLOSE];tcloseshort:neword[.enum`BUY;.enum`CLOSETODAY];ycloseshort:neword[.enum`BUY;.enum`CLOSEYESTODAY];
 stdrepo:neword[.enum`SELL_SHORT;.enum`OPEN];revrepo:neword[.enum`SELL_SHORT_EXEMPT;.enum`OPEN];
-mopenlong:neword[.enum`BUY;.enum`MARGIN_OPEN];mcloselong:neword[.enum`SELL;.enum`MARGIN_CLOSE]; /margin buy/sell
+mopenlong:neword[.enum`BUY;.enum`MARGIN_OPEN];mcloselong:neword[.enum`SELL;.enum`MARGIN_CLOSE];mopenshort:neword[.enum`SELL;.enum`MARGIN_OPEN];mcloseshort:neword[.enum`BUY;.enum`MARGIN_CLOSE];mrepayshort:neword[.enum`BUY;.enum`MARGIN_REPAY]; /margin buy/sell
 
 fakord:newordex[;;;;;;;``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];
 fokord:newordex[;;;;;;;``tif!(::;.enum.FILL_OR_KILL)];
@@ -36,7 +38,7 @@ fokord:newordex[;;;;;;;``tif!(::;.enum.FILL_OR_KILL)];
 fakopenlong:newordex[.enum`BUY;.enum`OPEN;;;;;;``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];fakcloselong:newordex[.enum`SELL;.enum`CLOSE;;;;;;``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];faktcloselong:newordex[.enum`SELL;.enum`CLOSETODAY;;;;;;``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];fakycloselong:newordex[.enum`SELL;.enum`CLOSEYESTODAY;;;;;;``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];
 fakopenshort:newordex[.enum`SELL;.enum`OPEN;;;;;;``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];fakcloseshort:newordex[.enum`BUY;.enum`CLOSE;;;;;;``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];faktcloseshort:newordex[.enum`BUY;.enum`CLOSETODAY;;;;;;``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];fakycloseshort:newordex[.enum`BUY;.enum`CLOSEYESTODAY;;;;;;``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];
 
-cxlordex:{[x;y;z]r:.db.O[x];if[y<>r`ts;:()];if[(0b~.db`ftactive)|(null r`sym)|(not (null r`cid)|(r[`cn]<ifill .conf`maxcxlcnt))|(r`end)|(r[`tif]=.enum.IMMEDIATE_OR_CANCEL);:()];k:newid[];x0:r`x0;if[not null z;if[0=count x0;x0:(.enum.nulldict;::)];if[101=type x0[0;`cxlref];x0[0;`cxlref]:`symbol$()];x0[0;`cxlref],:z];.db.O[x;`cid`cstatus`ctime`t0`cn`x0`s3]:(k;.enum`PENDING_CANCEL;now[];.db.QX[r`sym;`extime];1i+0i^r`cn;x0;`$"." sv string "i"$0x0 vs .z.a);if[@[riskassertcxl;x;0b];.db.O[x;`cstatus`reason`msg]:(.enum`REJECTED;1i;"Reject_by_Risk_Check");:()];if[(not null r`fe)&`ft=.conf.feedtype;pub[`ordcxl;enlist `sym`oid`feoid`cid`ordopt!(r`fe;x;r`feoid;k;"",r`ordopt)]];}; /[oid;ts;cref]
+cxlordex:{[x;y;z]r:.db.O[x];if[y<>r`ts;:()];.db.O[x;`cn]:1i+0i^r`cn;if[(0b~.db`ftactive)|(null r`sym)|(not (null r`cid)|(r[`cn]<=ifill .conf`maxcxlcnt))|(r`end)|(r[`tif]=.enum.IMMEDIATE_OR_CANCEL);:()];k:newid[];x0:r`x0;if[not null z;if[0=count x0;x0:(.enum.nulldict;::)];if[101=type x0[0;`cxlref];x0[0;`cxlref]:`symbol$()];x0[0;`cxlref],:z];.db.O[x;`cid`cstatus`ctime`x0`s3]:(k;.enum`PENDING_CANCEL;now[];x0;`$"." sv string "i"$0x0 vs .z.a);if[@[riskassertcxl;x;0b];.db.O[x;`cstatus`reason`msg]:(.enum`REJECTED;1i;"Reject_by_Risk_Check");:()];if[(not null r`fe)&`ft=.conf.feedtype;pub[`ordcxl;enlist `sym`oid`feoid`cid`ordopt!(r`fe;x;r`feoid;k;"",r`ordopt)]];}; /[oid;ts;cref]
 
 cxlord:{[x]cxlordex[x;.db.O[x;`ts];`];};cxlordx:{[x;y]cxlordex[x;.db.O[x;`ts];y];};
 
@@ -48,12 +50,14 @@ qryoda:{[x]pubmx[.conf.acc[x;`sym];`QueryOrdAcc;.conf.me;string x;-8!sfill .conf
 qrymat:{[x]pubmx[.conf.acc[x;`sym];`QueryMatAcc;.conf.me;string x;-8!sfill .conf.acc[x;`acc1]];}; /[acc] 返回结果在.upd.MatUpdate处理(acc1为组合|资产单元)
 qryfundpeer:{[x]pubmx[.conf.acc[x;`sym];`QueryFundPeer;.conf.me;string x;-8!sfill .conf.acc[x;`acc2]];}; /[acc]双中心查对方节点资金,返回结果在.upd.FundPeerUpdate处理(acc2为资产单元)
 allocfund:{[x;y]pubmx[.conf.acc[x;`sym];`FundAlloc;.conf.me;string x;-8!(sfill .conf.acc[x;`acc2];y)];}; /[acc;amt]双中心划入对方节点资金,返回结果在.upd.FundAllocUpdate处理(acc2为资产单元)
+qryodahis:{[D;x]pubmx[.conf.acc[x;`sym];`QueryOrdAccHis;.conf.me;string x;-8!(sfill .conf.acc[x;`acc1];D)];}; /[d0,d1;acc] 返回结果在.upd.OrdHisUpdate处理(acc1为组合|资产单元)
+qrymathis:{[D;x]pubmx[.conf.acc[x;`sym];`QueryMatAccHis;.conf.me;string x;-8!(sfill .conf.acc[x;`acc1];D)];}; /[d0,d1;acc] 返回结果在.upd.MatHisUpdate处理(acc1为组合|资产单元)
 
 fe2acc:{[x] first where x=(`_ .conf.acc)[;`sym]}; /[fe]
 assetclass:{[x]e:fs2e x;s:fs2s x;$[e=`XSHE;$[8=count string s;`Option;s like "[03]0*";`AShare;s like "20*";`BshareSZ;s like "1[568]*";`Fund;s like "[02]3*";`Warrant;s like "1[12]*";`BondSZ;s like "13*";`RepoSZ;`AShare];e=`XSHG;$[8=count string s;`Option;s like "60[013]*";`AShare;s like "900*";`BshareSS;s like "5[018]*";`Fund;s like "80*";`Warrant;s like "1*";`BondSS;s like "20[124]*";`RepoSS;`AShare];e=`XHKG;`HShare;`Future^.db.QX[x;`assetclass]]}; /[sym]资产类别`Ashare`Fund`Warrant`BshareSZ`BshareSS`BondSZ`BondSS`RepoSZ`RepoSS`Future
 
-vtime:{[x;y]z:.conf.dayendtime;x:?[x>=z;x-24:00:00;x];y:?[y>=z;y-24:00:00;y];((0|(y&x 7)-x 6)-0|(y&x 9)-x 8)+((0|(y&x 3)-x 2)-0|(y&x 5)-x 4)+(0|(y&x 1)-x 0)}; /将物理时间换算成交易时间
-vtimex:{[x;y]vtime[.conf.ex[x;`openNT`closeNT`openAM`closeAM`openAMrest`closeAMrest`openPM`closePM`openPMrest`closePMrest];`time$y]}; /物理时间换算为逻辑交易时间
+vtime:{[x;y]z:.conf.dayendtime;x:?[x>=z;x-24:00:00;x];y:?[y>=z;y-24:00:00;y];((0|(y&x 7)-x 6)-0|(y&x 9)-x 8)+((0|(y&x 3)-x 2)-0|(y&x 5)-x 4)+(0|(y&x 1)-x 0)}; /[sess;timelist]将物理时间换算成交易时间
+vtimex:{[x;y]vtime[.conf.ex[x;`openNT`closeNT`openAM`closeAM`openAMrest`closeAMrest`openPM`closePM`openPMrest`closePMrest];`time$y]}; /[ex;time list]物理时间换算为逻辑交易时间
 
 isfut:{[x]assetclass[x] in `Future`Combination}; /[sym]
 isopt:{[x]`Option=assetclass[x]}; /[sym]
@@ -72,8 +76,11 @@ isrepo:{[x]e:fs2e x;f:fs2s x;((e=`XSHG)&(f like "204*"))|((e=`XSHE)&(f like "131
 
 ist0:{[x](x in .conf.t0list)|((isfut[x]|isopt[x]|ishk[x])&not .db.QX[x;`product] in .conf.t1list)}; /is T+0?,x:sym
 
-getsess:{[ex;dend;nend]0 -00:00:00.001+/:$[ex=`CCFX;(09:30 11:30;13:00,dend);null nend;(09:00 10:15;10:30 11:30;13:30 15:00);nend>21:00;(09:00 10:15;10:30 11:30;13:30 15:00;21:00,nend);(00:00,nend;09:00 10:15;10:30 11:30;13:30 15:00;21:00 24:00)]}; /[ex;dend;nend]取交易时段列表
-trdsess:{[x]$[isfut[x];.db.PD[.db.QX[x;`product];`sess];.conf.ex[fs2e x;`session]]}; /[sym]取合约交易时段列表 
+getudl:@[{[x].db.OPT[x;`udl]};;`];
+
+getsess:{[ex;dend;nend]0 -00:00:00.001+/:$[ex=`CCFX;(09:25 09:29;09:30 11:30;13:00,dend);null nend;(08:55 08:59;09:00 10:15;10:30 11:30;13:30 15:00);nend>21:00;(08:55 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:55 20:59;21:00,nend);(00:00,nend;08:55 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:55 20:59;21:00 24:00)]}; /[ex;dend;nend]取交易时段列表
+trdsess:{[x]$[isdrv[x];.db.PD[.db.QX[x;`product];`sess];.conf.ex[fs2e x;`session]]}; /[sym]取合约交易时段列表
+trdsess:{[x]$[isfut[x];.db.PD[.db.QX[x;`product];`sess];(isopt[x])&not null u:getudl[x];.db.PD[.db.QX[u;`product];`sess];.conf.ex[fs2e x;`session]]}; /[sym]取合约交易时段列表
 trddate:{[x]w:weekday d:`date$x;t:`time$x;d+?[(t>08:30)&(t<17:30);0;?[t>=17:30;?[w<4;1;3];?[w<5;0;2]]]}; /[time]取交易日期,支持向量入参
 trdtime:{[x;y]t0:.conf.dayendtime;s:trdsess[x];s0:s where s[;0]<t0;s1:s where s[;0]>t0;tn:$[count[s1];sum 00:00:00.001+s1[;1]-s1[;0];00:00:00.000];?[y>t0;$[count s1;sum each 0|(y&\:00:00:00.001+s1[;1])-\:s1[;0];y];tn+sum each 0|(y&\:00:00:00.001+s0[;1])-\:s0[;0]]}; /[sym;timelist]将合约物理时间转换为连续交易的累计时间
 trddatetime:{[x;y]trddate[y]+trdtime[x;y]}; /[sym;timestamp list]将物理时间戳转为逻辑时间戳
@@ -91,13 +98,13 @@ netpos:{[t;s]netposx[t;.db.Ts[t;`acc];s]}; /[tid;sym]
 sumpos:{[t;s]exec sum (0f^lqty)+0f^sqty from .db.P where ts=x,sym=y}; /[tid;acc;sym]
 
 pxunit:{[x]1e-4^.conf.ac[assetclass x;`pxunit]^.db.QX[x;`pxunit]}; /[sym]
-qtyunit:{[x]if[x like "688*.XSHG";:200f];1e2^.db.QX[x;`qtylot]^.conf.ac[assetclass x;`qtylot]}; /[sym]  
+qtyunit:{[x]if[x like "68[89]*.XSHG";:200f];1e2^.db.QX[x;`qtylot]^.conf.ac[assetclass x;`qtylot]}; /[sym]  
 qtyceil:{[x]1e6^.conf.ac[assetclass x;`qtymax]^.db.QX[x;`qtymax]}; /[sym]
 
 getqtymin:{[x]qtyunit[x[0]]}; /[(代码;方向)]
 
 getqtymax:{[x]qtyceil[x[0]]}; /[(代码;方向)]
-roundpx:{[x;y;z]if[(e:fs2e x) in `XHKG`XHKE;:roundpxhk[y;z]];w:pxunit[x];w*$[y=.enum[`BUY];{ceiling x-1e-2};y=.enum[`SELL];{floor x+1e-2};{floor x+0.5}]z%w}; //对委托价格按价格单位进行向对手方取整[sym;BS;px]
+roundpx:{[x;y;z]if[(e:fs2e x) in `XHKG`XHKE;:roundpxhk[x;y;z]];w:pxunit[x];w*$[y=.enum[`BUY];{ceiling x-1e-2};y=.enum[`SELL];{floor x+1e-2};{floor x+0.5}]z%w}; //对委托价格按价格单位进行向对手方取整[sym;BS;px]
 
 get_last_price:{[x]$[0<p:.db.QX[x;`price];p;.db.QX[x;`pc]]}; /x:fsym
 
@@ -110,22 +117,23 @@ ishidden:{[x;y;z]h:.db.QX[x];$[y~.enum`BUY;z<h`bid;z>h`ask]}; /[sym;side;px] 判
 pxcmp:{$[x=.enum`BUY;1;-1]*signum y-z}; /[side;p0;p1]p0劣于/等于/优于p1返回1/0/-1
 
 uproundqty_kcb:{[x;y]$[y<=0f;0f;y<=200f;200f;`float$ceiling y-1e-2]}; //[(代码;方向);数量]对科创板委托数量按委托单位进行向上取整,200股起,1股递增
-uproundqty:{[x;y]if[x[0] like "688*.XSHG";:uproundqty_kcb[x;y]];qm:getqtymin[x];qm*ceiling (y-1e-2)%qm}; //[(代码;方向);数量]对委托数量按委托单位进行向上取整
+uproundqty:{[x;y]if[x[0] like "68[89]*.XSHG";:uproundqty_kcb[x;y]];qm:getqtymin[x];qm*ceiling (y-1e-2)%qm}; //[(代码;方向);数量]对委托数量按委托单位进行向上取整
 
 roundqty_kcb:{[x;y]$[y<200f;0f;`float$floor y+1e-2]}; //[(代码;方向);数量]对科创板委托数量按委托单位进行向下取整,200股起,1股递增
-roundqty:{[x;y]if[x[0] like "688*.XSHG";:roundqty_kcb[x;y]];qm:getqtymin[x];qm*floor (y+1e-2)%qm}; //[(代码;方向);数量]对委托数量按委托单位进行向下取整
+roundqty:{[x;y]if[x[0] like "68[89]*.XSHG";:roundqty_kcb[x;y]];qm:getqtymin[x];qm*floor (y+1e-2)%qm}; //[(代码;方向);数量]对委托数量按委托单位进行向下取整
 
 roundv1:{[x;y]n:count y;i:0;do[n-1;q:roundqty[x] y[i];y[i+1]+:y[i]-q;y[i]:q;i+:1];y};        //[(代码;方向);数量数组]对数量数组进行向下取整加尾处理
-roundv:{[x;y]qm:getqtymin[x];"f"$qm*deltas "i"$(sums y)%qm};        //[(代码;方向);数量数组]对数量数组进行四舍五入取整处理
+roundv0:{[x;y]qm:getqtymin[x];"f"$qm*deltas "i"$(sums y)%qm}; //[(代码;方向);数量数组]对数量数组进行四舍五入取整处理
+roundv:{[x;y]qm:getqtymin[x];z:"f"$qm*deltas floor[1e-10+sum[y]%qm]&"i"$(sums y)%qm;if[0<r:sum[y]-sum[z];z[0^last where z>0]+:r];z};        //[(代码;方向);数量数组]对数量数组进行四舍五入取整处理
 nonneg:{[x]n:count x;i:n-1;do[n-1;if[0>v:x[i];x[i-1]+:v;x[i]:0f];i-:1];x}; /[数量数组]对数量数组从尾部进行非负化
 
 ordexptime:{[x;y]z:.conf.EX fs2e y;`timestamp$(`date$now[])+{[x;y]$[(x>y`closeAM)&(x<y`openPM);x+(y`openPM)-y`closeAM;x]}[;z]((z`openAM)|`time$now[])+`time$x}; /[offset;fsym] 计算委托过期时刻
 
-roundpxhk:{[x;y]z:.conf.hkticks;z $[x=.enum`BUY;binr;bin][z;y+$[x=.enum`BUY;-1e-10;1e-10]]}; /[BS;px]
+roundpxhk:{[x;y;z]$[x in `3053.XHKG`3152.XHKG;[w:0.05;w*$[y=.enum[`BUY];{ceiling x-1e-2};y=.enum[`SELL];{floor x+1e-2};{floor x+0.5}]z%w];[w:.conf.hkticks;w $[y=.enum`BUY;binr;bin][w;z+$[y=.enum`BUY;-1e-10;1e-10]]]]}; /[sym;BS;px]
 
 isvalidnum:{[x]not (`float$x) in 0n -0w 0w};
 
-limit_orderx:{[h;sd;accno;x;y;q;p;m]if[not isvalidnum[p]&isvalidnum[q];:`symbol$()];p:roundpx[y;sd] `float$p;acc:$[null accno;.db.Ts[x;`acc];@[;accno] .db.Ts[x;`accx]];oq:q-cq:q&abs availpos[sd;x,acc,y];ctq:cq&abs availt0pos[sd;x,acc,y];k0:k1:k2:`;pecy:$[(1b~.conf.usecloseyestoday)&(fs2e[y] in .conf.closetodayexlist);"Y";.enum`CLOSE];t:$[null accno;x;(x;accno)];if[0<cq;$[(0<ctq)&(1b~.conf.useclosetoday)&(fs2e[y] in .conf.closetodayexlist);[k0:newordex[sd;.enum`CLOSETODAY;t;y;ctq;p;m;h];if[0<clq:cq-ctq;k1:newordex[sd;pecy;t;y;clq;p;m;h]]];k1:newordex[sd;pecy;t;y;cq;p;m;h]]];if[0<oq;k2:newordex[sd;.enum`OPEN;t;y;oq;p;m;h]];(k0,k1,k2) except `}; /[sided;accno;ts;sym;qty;price;tag]
+limit_orderx:{[h;sd;accno;x;y;q;p;m]if[2=count x;h,:enlist[`tsexec]!enlist x[1];x:x[0]];if[not isvalidnum[p]&isvalidnum[q];:`symbol$()];p:roundpx[y;sd] `float$p;acc:$[null accno;.db.Ts[x;`acc];@[;accno] .db.Ts[x;`accx]];oq:q-cq:q&abs availpos[sd;x,acc,y];ctq:cq&abs availt0pos[sd;x,acc,y];k0:k1:k2:`;pecy:$[(1b~.conf.usecloseyestoday)&(fs2e[y] in .conf.closetodayexlist);"Y";.enum`CLOSE];t:$[null accno;x;(x;accno)];if[0<cq;$[(0<ctq)&(1b~.conf.useclosetoday)&(fs2e[y] in .conf.closetodayexlist);[k0:newordex[sd;.enum`CLOSETODAY;t;y;ctq;p;m;h];if[0<clq:cq-ctq;k1:newordex[sd;pecy;t;y;clq;p;m;h]]];k1:newordex[sd;pecy;t;y;cq;p;m;h]]];if[0<oq;k2:newordex[sd;.enum`OPEN;t;y;oq;p;m;h]];(k0,k1,k2) except `}; /[sided;acc;ts;sym;qty;price;tag] 
 
 limit_order:limit_orderx[.enum`nulldict];
 xlimit_buyx:limit_orderx[;.enum`BUY];xlimit_sellx:limit_orderx[;.enum`SELL];xlimit_buy:xlimit_buyx[;0N];xlimit_sell:xlimit_sellx[;0N];
@@ -133,11 +141,13 @@ limit_buyx:limit_order[.enum`BUY];limit_sellx:limit_order[.enum`SELL];limit_buy:
 fak_buy:xlimit_buy[``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];fak_sell:xlimit_sell[``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];
 fok_buy:xlimit_buy[``tif!(::;.enum.FILL_OR_KILL)];fok_sell:xlimit_sell[``tif!(::;.enum.FILL_OR_KILL)];
 
+limit_orderax:{[h;sd;acc;x;y;q;p;m]accno:$[acc=.db.Ts[x;`acc];0N;.db.Ts[x;`accx]?acc];limit_orderx[h;sd;accno;x;y;q;p;m]};limit_ordera:limit_orderax[.enum`nulldict];limit_buya:limit_ordera[.enum`BUY];limit_sella:limit_ordera[.enum`SELL];
+
 //.upd.quote:{[x]y:update recvtime:.z.P from select by sym from x;ljt:.conf[`quoteljtime];.db.QX:$[17h<>type ljt;uj;.z.T within ljt;lj;uj][.db.QX;y];{[x;y]z:realsyms[x;y];if[count z;.[{(x)[y;z]};(.db.Ts[x;`event;`quote];x;z);()]];}[;exec sym from y] each tsl[];};
 
 //.upd.quote:{[x]y:update recvtime:.z.P from select by sym from x;ljt:.conf[`quoteljtime];.db.QX:.db.QX lj y;{[x;y]z:realsyms[x;y];if[count z;.[{(x)[y;z]};(.db.Ts[x;`event;`quote];x;z);()]];}[;exec sym from y] each tsl[];};
 
-.upd.quote:{[x]$[0=count .db.QX;.db.QX:.db.QX uj x;{[x;y].db.QX[y`sym;x]:y x}[.enum.quotefields] each update dsttime:.z.P from x];{[x;y]z:realsyms[x;y];if[count z;.[{(x)[y;z]};(.db.Ts[x;`event;`quote];x;z);()]];}[;exec sym from x] each tsl[];};
+.upd.quote:{[x]$[0=count .db.QX;.db.QX:.db.QX uj x;{[x;y].db.QX[y`sym;x]:y x}[.enum.quotefields] each update dsttime:.z.P from x];{[x;y]z:realsyms[x;y];if[count z;.[{(x)[y;z]};(.db.Ts[x;`event;`quote];x;z);()]];}[;exec sym from x] each tsl[];if[1b~.conf`pubtoui;pubws[`Monitor;`NewQuote]];};
 
 .upd.quoteref:{[x].db.QX[x`sym;`pc`open`sup`inf]:x`pc`open`sup`inf;}'; //.upd.quoteref:{[x].db.QX:.db.QX uj select by sym from x;}; /VERY SLOW
 
@@ -148,12 +158,13 @@ fok_buy:xlimit_buy[``tif!(::;.enum.FILL_OR_KILL)];fok_sell:xlimit_sell[``tif!(::
 .upd.ordnew:.ft.ordnew:{[x]if[not x[`ft] in .conf.ha.backupft;:()];.ha.ordnew[x];frzqty[k;.db.O[k:x`oid;`qty]];}'; /msg from backupfe
 .upd.ordcxl:.ft.ordcxl:.ha.ordcxl';
 
-.upd.Alarm:{[x]{[x;y].[{(x)[y;z]};(.db.Ts[x;`event;`alarm];x;y);()];}[;x] each tsl[];};
+.upd.Alarm:{[x]if[not .conf.me~x`src;:()];{[x;y].[{(x)[y;z]};(.db.Ts[x;`event;`alarm];x;y);()];}[;x] each tsl[];};
 
 realbarsyms:{[x;y]$[11h<>abs type sl:.db.Ts[x;`barsyms];`symbol$();0=count sl;`symbol$();y inter sl]}; /[tsid;syms]
 .upd.bar:{[x]if[1b~.conf.keepbar;bar,:update dsttime:.z.P from x];sl:exec distinct sym from x;{[tid;sl;t]z:realbarsyms[tid;sl];if[count z;{[tid;t].[{(x)[y;z]};(.db.Ts[tid;`event;`bar];tid;t);()]}[tid] each select from t where sym in z];}[;sl;x] each tsl[];};
 
-chkerrfix:{[x]r:.db.O k:x`oid;if[(0=r`avgpx)&(r[`cumqty]=x`cumqty)&(0<p:x`avgpx);.db.O[k;`avgpx`cumamt]:p,p*getmultiple[r`sym]*r`cumqty];if[0<n:count m:x`msg;if[not m~neg[n]#r`msg;.db.O[k;`msg],:$[count r`msg;"=>";""],m]];}; //(x[`typ]=.enum`CORRECT)&恒生部成部撤状态更正
+chkerrfix:{[x]r:.db.O k:x`oid;if[(0=r`avgpx)&(r[`cumqty]=x`cumqty)&(0<p:x`avgpx);.db.O[k;`avgpx`cumamt]:p,p*getmultiple[r`sym]*r`cumqty];if[0<n:count m:x`msg;if[not m~neg[n]#r`msg;.db.O[k;`msg],:$[count r`msg;"=>";""],m]];if[0<n:count m:x`rptopt;if[not m~r`rptopt;.db.O[k;`rptopt]:m]];h:strdict x`rptopt;if[0>cf:neg abs 0f^ffill h`cumfee;if[cf<>.db.O[k;`cumfee];.db.O[k;`cumfee]:cf]];}; //(x[`typ]=.enum`CORRECT)&恒生部成部撤状态更正
+
 setcs:{[x]r:.db.O k:x`oid;s:x`status;if[.enum[`CANCELED]=s;.db.O[k;`cstatus]:s;if[null r`ctime;.db.O[k;`ctime]:now[]]];if[r[`cstatus]<>.enum`PENDING_CANCEL;:()];.db.O[k;`cfeoid`cordid`cexchid]:x`cfeoid`cordid`cexchid;if[s in .enum`REJECTED`FILLED`DONE_FOR_DAY;.db.O[k;`cstatus]:.enum`REJECTED];if[(x[`typ]=.enum`CORRECT)&(x[`cstatus]=.enum`NULL);.db.O[k;`cstatus]:.enum`NULL];};
 
 frzqty:{[k;q]r:.db.O[k];pe:r`posefct;sd:r`side;tid:r`ts;acc:r`acc;fs:r`sym;sq:$[sd=.enum`SELL;1f;-1f]*q;if[pe in .enum`CLOSE`CLOSETODAY`CLOSEYESTODAY`MARGIN_CLOSE;ff:$[sd=.enum`SELL;`flqty;`fsqty];q1:.db.P[(tid;acc;fs);ff]:sq+q0:0f^.db.P[(tid;acc;fs);ff];ldebug[`frzqty;(k;q;fs;ff;sq;q0;q1)];if[pe=.enum`CLOSETODAY;ff:$[sd=.enum`SELL;`flqty0;`fsqty0];.db.P[(tid;acc;fs);ff]:sq+0f^.db.P[(tid;acc;fs);ff]]];};
@@ -163,6 +174,8 @@ execrej:{[k;x].db.O[k;`reason`msg]:x`reason`msg;frzqty[k;neg .db.O[k;`qty]];@[ri
 newmatch:{[k;q;p]r:.db.O[k];.db.M[k1:newid[];`sym`price`qty`mtime`maker]:(r`sym;p;q;now[];k);if[not (t:r[`ts]^r`tsexec) in key .db.Ts;:()];if[99h<>type .db.Ts[t;`event];:()];.[{(x)[y;z]};(.db.Ts[t;`event;`match];t;k1);()];};
 
 getmultiple:{[x]1f|.db.QX[x;`multiplier]}; /取合约乘数,特殊情况为港股权证乘数一般为0.1,但不适用于成交金额计算,故此处用1f|而不是1f^
+
+getcurrency:{[x]`CNY^.db.QX[x;`currency]}; /取证券币种
 
 getmargincoef:{[x;y]1f^.db.QX[x;$[y=.enum`BUY;`rmarginl;`rmargins]]}; /[fsym,side]保证金比例 /$[isfut[x];0.2;1f]
 
@@ -208,31 +221,29 @@ settleord:{[k;q;a]r:.db.O k;f:getfee[r[`sym`side`posefct],(q;a)];.db.O[k;`cumamt
 
 ordexerpt:{[k]r:.db.O[k];if[not (t:r[`ts]^r`tsexec) in key .db.Ts;:()];if[99h<>type .db.Ts[t;`event];:()];.[{(x)[y;z]};(.db.Ts[t;`event;`exerpt];t;k);()];}; /[oid]触发策略的委托回调
 
-.upd.exerpt:.ft.exerpt:{[x].temp.x:x;r:.db.O k:x`oid;if[`COMB~r`special;:.upd.comback[x]];s:x`status;sy:r`sym;if[(null sy)|((s=.enum`PENDING_NEW)&(s<>r`status)&(r[`status]<>.enum`NULL));:()];if[(r[`end])&(x[`cumqty]<=r`cumqty);chkerrfix[x];:()];if[null x`cumqty;x[`cumqty]:0f];if[null x`avgpx;x[`avgpx]:0f];if[(x`cumqty)<r`cumqty;lwarn[`cumqty_decrease;(k;r`cumqty;x`cumqty;x`src;x`seq)];:()];if[(x[`cumqty]~r`qty)&(s<>.enum`FILLED);s:.enum`FILLED];.db.O[k;`status`end`rtime`feoid`ordid`exchid`rptopt]:(s;s in .enum`REJECTED`FILLED`DONE_FOR_DAY`CANCELED`REPLACED`EXPIRED;now[];x`feoid;x`ordid;x`exchid;x`rptopt);if[.db.O[k;`end];.db.pO:.db.pO except k];if[count m:x`msg;.db.O[k;`msg],:$[count r`msg;"=>";""],m];setcs[x];$[s=.enum`NEW;();s=.enum`REJECTED;execrej[k;x];[lq:(0f^x`cumqty)-0f^r`cumqty;la:(prd 0f^x`cumqty`avgpx)-prd 0f^r`cumqty`avgpx;lp:0f^la% lq;if[0>lq;lwarn[`neg_lastshares;(k;r`cumqty;x`cumqty;lq;x`src;x`seq)];:()];if[0<lq;settleord[k;lq;la*$[.enum[`BUY]=r`side;-1;1]*getmultiple[sy]];.db.O[k;`ftime]:now[];newmatch[k;lq;lp]];if[0f<lq;frzqty[k;neg lq]];.db.O[k;`cumqty`lastqty`lastpx]:(x`cumqty;lq;lp);if[(0>=r`avgpx)|(0<x`avgpx);if[s in .enum`CANCELED`EXPIRED;frzqty[k;neg r[`qty]-0f^x`cumqty]];.db.O[k;`avgpx]:x`avgpx]]];ordexerpt[k];}'; /`t1`f2`f3 ,.db.QX[sy;`extime`bid`ask]
+.upd.exerpt:.ft.exerpt:{[x].temp.x:x;r:.db.O k:x`oid;if[`COMB~r`special;:.upd.comback[x]];if[`LOCK~r`special;:.upd.lockack[x]];s:x`status;sy:r`sym;if[(null sy)|((s=.enum`PENDING_NEW)&(s<>r`status)&(r[`status]<>.enum`NULL));:()];if[(r[`end])&(x[`cumqty]<=r`cumqty);chkerrfix[x];:()];if[null x`cumqty;x[`cumqty]:0f];if[null x`avgpx;x[`avgpx]:0f];if[(x`cumqty)<r`cumqty;lwarn[`cumqty_decrease;(k;r`cumqty;x`cumqty;x`src;x`seq)];:()];if[(x[`cumqty]~r`qty)&(s<>.enum`FILLED);s:.enum`FILLED];.db.O[k;`status`end`rtime`feoid`ordid`exchid`rptopt]:(s;s in .enum`REJECTED`FILLED`DONE_FOR_DAY`CANCELED`REPLACED`EXPIRED;now[];x`feoid;x`ordid;x`exchid;x`rptopt);if[.db.O[k;`end];.db.pO:.db.pO except k];if[count m:x`msg;.db.O[k;`msg],:$[count r`msg;"=>";""],m];setcs[x];$[s=.enum`NEW;();s=.enum`REJECTED;execrej[k;x];[lq:(0f^x`cumqty)-0f^r`cumqty;la:(prd 0f^x`cumqty`avgpx)-prd 0f^r`cumqty`avgpx;lp:0f^la% lq;if[0>lq;lwarn[`neg_lastshares;(k;r`cumqty;x`cumqty;lq;x`src;x`seq)];:()];if[0<lq;settleord[k;lq;la*$[.enum[`BUY]=r`side;-1;1]*getmultiple[sy]];.db.O[k;`ftime]:now[];newmatch[k;lq;lp]];if[0f<lq;frzqty[k;neg lq]];.db.O[k;`cumqty`lastqty`lastpx]:(x`cumqty;lq;lp);if[(0>=r`avgpx)|(0<x`avgpx);if[s in .enum`CANCELED`EXPIRED;frzqty[k;neg r[`qty]-0f^x`cumqty]];.db.O[k;`avgpx]:x`avgpx]]];h:strdict x`rptopt;if[0>cf:neg abs 0f^ffill h`cumfee;if[cf<>.db.O[k;`cumfee];.db.O[k;`cumfee]:cf]];ordexerpt[k];if[1b~.conf`pubtoui;pubws[`Monitor;`ExecRpt]];}'; /`t1`f2`f3 ,.db.QX[sy;`extime`bid`ask]
 
 .upd.exenoe:{[x]r:.db.O k:x`oid;if[not null r`sym;:()];.db.O[k;`special`ntime`status`tif`typ`ft`ts`acc`fe`acc1`ref`sym`side`posefct`qty`price]:(`NOE;now[];.enum`PENDING_NEW;.enum`DAY;.enum`LIMIT),x`ft`ts`acc`src`acc1`ref`osym`side`posefct`cumqty`avgpx;frzqty[k;x`cumqty];x[`feoid`cstatus`cfeoid`cordid`reason]:(`;.enum`NULL;`;`;0N);.upd.exerpt enlist x;}';
 
 .upd.RDUpdate:{[x].db.QX:.db.QX uj get `$x`msg;update `u#sym from `.db.QX;};
 
-.upd.AssetUpdate:{[x]fe:x`ref;acc:fe2acc[fe]^`$x`msg;assetinfo:-9!x`vbin;if[99h<>type .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[not ` in key .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[99h<>type .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];if[not ` in key .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];.temp.AccSnap[acc;`Asset]:assetinfo;};
+chkas:{[x]if[99h<>type .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[not ` in key .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[99h<>type .temp.AccSnap[x];.temp.AccSnap[x]:.enum`nulldict];if[not ` in key .temp.AccSnap[x];.temp.AccSnap[x]:.enum`nulldict];};
 
-.upd.FundUpdate:{[x]fe:x`ref;acc:fe2acc[fe]^`$x`msg;fundinfo:-9!x`vbin;if[99h<>type .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[not ` in key .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[99h<>type .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];if[not ` in key .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];.temp.AccSnap[acc;`Fund]:fundinfo;};
-
-.upd.PosUpdate:{[x]fe:x`ref;acc:`$x`msg;posinfo:-9!x`vbin;if[99h<>type .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[not ` in key .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[99h<>type .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];if[not ` in key .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];.temp.AccSnap[acc;`Pos]:posinfo;};
-
-.upd.OrdUpdate:{[x]fe:x`ref;acc:`$x`msg;ordinfo:-9!x`vbin;if[99h<>type .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[not ` in key .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[99h<>type .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];if[not ` in key .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];.temp.AccSnap[acc;`Ord]:ordinfo;};
-
-.upd.MatUpdate:{[x]fe:x`ref;acc:`$x`msg;matinfo:-9!x`vbin;if[99h<>type .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[not ` in key .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[99h<>type .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];if[not ` in key .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];.temp.AccSnap[acc;`Mat]:matinfo;};
-
-.upd.FundPeerUpdate:{[x]fe:x`ref;acc:fe2acc[fe]^`$x`msg;fundinfo:-9!x`vbin;if[99h<>type .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[not ` in key .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[99h<>type .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];if[not ` in key .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];.temp.AccSnap[acc;`FundPeer]:fundinfo;};
-
-.upd.FundAllocUpdate:{[x]fe:x`ref;acc:fe2acc[fe]^`$x`msg;fundinfo:-9!x`vbin;if[99h<>type .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[not ` in key .temp[`AccSnap];.temp[`AccSnap]:.enum`nulldict];if[99h<>type .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];if[not ` in key .temp.AccSnap[acc];.temp.AccSnap[acc]:.enum`nulldict];.temp.AccSnap[acc;`FundAlloc]:fundinfo;};
+.upd.AssetUpdate:{[x]fe:x`ref;acc:fe2acc[fe]^`$x`msg;assetinfo:-9!x`vbin;chkas[acc];.temp.AccSnap[acc;`Asset]:assetinfo;};
+.upd.FundUpdate:{[x]fe:x`ref;acc:fe2acc[fe]^`$x`msg;fundinfo:-9!x`vbin;chkas[acc];.temp.AccSnap[acc;`Fund]:fundinfo;};
+.upd.PosUpdate:{[x]fe:x`ref;acc:`$x`msg;posinfo:-9!x`vbin;chkas[acc];.temp.AccSnap[acc;`Pos]:posinfo;};
+.upd.OrdUpdate:{[x]fe:x`ref;acc:`$x`msg;ordinfo:-9!x`vbin;chkas[acc];.temp.AccSnap[acc;`Ord]:ordinfo;};
+.upd.MatUpdate:{[x]fe:x`ref;acc:`$x`msg;matinfo:-9!x`vbin;chkas[acc];.temp.AccSnap[acc;`Mat]:matinfo;};
+.upd.FundPeerUpdate:{[x]fe:x`ref;acc:fe2acc[fe]^`$x`msg;fundinfo:-9!x`vbin;chkas[acc];.temp.AccSnap[acc;`FundPeer]:fundinfo;};
+.upd.FundAllocUpdate:{[x]fe:x`ref;acc:fe2acc[fe]^`$x`msg;fundinfo:-9!x`vbin;chkas[acc];.temp.AccSnap[acc;`FundAlloc]:fundinfo;};
+.upd.OrdHisUpdate:{[x]fe:x`ref;acc:`$x`msg;ordinfo:-9!x`vbin;chkas[acc];.temp.AccSnap[acc;`OrdHis]:ordinfo;};
+.upd.MatHisUpdate:{[x]fe:x`ref;acc:`$x`msg;matinfo:-9!x`vbin;chkas[acc];.temp.AccSnap[acc;`MatHis]:matinfo;};
 
 noeexec:{[sno;fta;s;sd;pe;q;p;m]if[not isvalidnum[p]&isvalidnum[q];:`symbol$()];k:newid[];ft:fta[0];ts:fta[1];$[2<count fta;acc:.db.Ts[ts;`accx][fta[2]];acc:.db.Ts[ts;`acc]];$[(`ft=.conf.feedtype)&(not 1b~.conf[`simnoe]);pub[`exenoe];.upd.exenoe]enlist `sym`typ`oid`ft`ts`acc`acc1`ref`osym`side`posefct`status`cumqty`avgpx`ordid`exchid`msg`rptopt!(ft;.enum`NEW;k;ft;ts;acc;`;`$m;s;sd;pe;.enum`FILLED;q;p;sno;sno;"";"");k}; /提交一笔NOE上报记录 noeexec[`20200102001;`ftdc4`8508_femm_510390;`510390.XSHG;.enum`SELL;.enum`CLOSE;140600f;4.245;"865577+865585"]
 
 .upd.quoteack:{[x]s:x`status;cs:x`cstatus;if[null k:x`qid;:()];kb:.db.QT[k;`bid];ka:.db.QT[k;`aid];$[s=.enum`NEW;[.db.QT[k;`status`feqid`quoteid`rtime]:(s;x`feqid;x`quoteid;now[])];s=.enum`REJECTED;[.db.QT[k;`status`rtime`reason`msg]:(s;now[];x`reason;x`msg);.db.O[kb;`end`status`rtime`reason`msg]:(1b;s;now[];x`reason;x`msg);frzqty[kb;neg .db.O[kb;`qty]];.db.O[ka;`end`status`rtime`reason`msg]:(1b;s;now[];x`reason;x`msg);frzqty[ka;neg .db.O[ka;`qty]]];s=.enum`PENDING_CANCEL;[.db.QT[k;`rtime`cfeqid`cquoteid]:(now[];x`cfeqid;x`cquoteid)];s=.enum`CANCELED;[.db.QT[k;`status`rtime`cstatus]:(s;now[];s)];[]];if[cs=.enum`REJECTED;.db.QT[k;`cstatus`rtime`reason`msg]:(s;now[];x`reason;x`msg)];}'; /报价状态回报 .db.O[kb;`status`rtime]:(s;now[]);.db.O[ka;`status`rtime]:(s;now[])
 
-reqquote:{[x;y]pub[`reqquote;enlist `sym`qsym`qrid!(getfe[.db.Ts[x;`acc]];y;newid[])];}; /[ts;sym]发送询价请求
+newreqquote:{[x;y]pub[`reqquote;enlist `sym`qsym`qrid!(getfe[.db.Ts[x;`acc]];y;newid[])];}; /[ts;sym]发送询价请求
 
 .upd.quotereq:{[x]quotereq,:x;{[x;y]if[count y;.[{(x)[y;z]};(.db.Ts[x;`event;`quotereq];x;y);()]];}[;x] each tsl[];};
 
@@ -314,13 +325,71 @@ ems_algordex:{[sd;x;y;q;p;m;a;h]pe:.enum $[sd=.enum`BUY;`OPEN;`CLOSE];h:``algo`a
 
 ems_algord:{[sd;x;y;q;p;m;a;t]ems_algordex[sd;x;y;q;p;m;a;`start_time`end_time!`second$.z.T+0,t]};ems_algobuy:ems_algord[.enum`BUY];ems_algosell:ems_algord[.enum`SELL];
 
-\
-.db.TASK[`LOADETF;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:10;1D;0;4;`loadetf);
-.db.TASK[`QRYORD;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:10;0D00:00:30;0;4;`qryordtask);
-.db.TASK[`QRYREPOACC;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+14:58:00;1D;0;4;`qryrepoacc);
-.db.TASK[`DOREPOTASK;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+14:58:30;1D;0;4;`dorepotask);
+//融券接口
+qrymargin:{[x]pubmx[.conf.acc[x;`sym];`QueryMargin;.conf.me;string x;-8!sfill .conf.acc[x;`acc2]];}; /[acc]返回结果在.upd.MarginUpdate处理(acc2为资产单元)
+.upd.MarginUpdate:{[x]fe:x`ref;acc:fe2acc[fe]^`$x`msg;margininfo:-9!x`vbin;chkas[acc];.temp.AccSnap[acc;`Margin]:margininfo;};
+qrymarginquote:{[x]pubmx[.conf.acc[x;`sym];`QueryMarginQuote;.conf.me;string x;-8!sfill .conf.acc[x;`acc2]];}; /[acc]返回结果在.upd.MarginQuoteUpdate处理(acc2为资产单元)
+.upd.MarginQuoteUpdate:{[x]fe:x`ref;acc:fe2acc[fe]^`$x`msg;mqinfo:-9!x`vbin;chkas[acc];.temp.AccSnap[acc;`Quote]:mqinfo;};
+qrymarginlock:{[x]pubmx[.conf.acc[x;`sym];`QueryMarginLock;.conf.me;string x;-8!sfill .conf.acc[x;`acc2]];}; /[acc]返回结果在.upd.MarginQuoteUpdate处理(acc2为资产单元)
+.upd.MarginLockUpdate:{[x]fe:x`ref;acc:fe2acc[fe]^`$x`msg;mlinfo:-9!x`vbin;chkas[acc];.temp.AccSnap[acc;`Lock]:mlinfo;if[count mlinfo;.db.O:.db.O lj 1!select ordid:`$CompactID,cumqty:LockedVolume,avgpx:BorrowedVolume,lastqty:RepaidVolume,lastpx:EnableBorrowVolume,cumamt:EnableRepayVolume,cumfee:EnableBuyVolume from mlinfo;a:acc;update end:1b,status:.enum.EXPIRED from `.db.O where acc=a,tif=.enum.GOOD_TILL_CANCEL,not ordid in exec `$CompactID from mlinfo];};
+
+newlock:{[x;z;q;q0]acc:.db.Ts[x;`acc];y:sv[`] value exec first  `$StockCode,(`1`2!`XSHG`XSHE) `$first ExchangeID from .temp.AccSnap[acc;`Quote] where z=`$LockStockQuoteID;k:newid[];fe:getfe[acc];acc1:sfill .conf.acc[acc;`acc1];.db.O[k;`special`tif`status`ntime`ft`ts`acc`fe`acc1`ref`sym`side`posefct`qty`price`ordopt]:(`LOCK;.enum`GOOD_TILL_CANCEL;.enum`PENDING_NEW;now[];.conf.me;x;acc;fe;acc1;z;y;.enum.SELL;.enum`OPEN;q;q0;"special=`LOCK");pub[`ordnew;enlist `sym`oid`ft`ts`acc`acc1`ref`osym`side`posefct`tif`typ`qty`price`ordopt!(fe;k),.db.O[k;`ft`ts`acc`acc1`ref`sym`side`posefct`tif`typ`qty`price`ordopt]];k}; /[tid;qty;qtymin;quoteid]发送锁定请求
+cxllock:{[x]r:.db.O[x];if[not (`LOCK~r`special)&.enum.NEW=r`status;:()];k:newid[];.db.O[x;`cid`cstatus`ctime`cn]:(k;.enum`PENDING_CANCEL;now[];1i+0i^r`cn);pub[`ordcxl;enlist `sym`oid`feoid`cid`ordopt!(r`fe;x;r`feoid;k;"",r`ordopt)];}; /发送解锁请求
+rtnlock:{[x;y]r:.db.O[x];if[not (`LOCK~r`special)&.enum.NEW=r`status;:()];k:newid[];.db.O[x;`cid`cstatus`ctime`cn]:(k;.enum`PENDING_REPLACE;now[];1i+0i^r`cn);pub[`ordrpl;enlist `sym`oid`feoid`cid`ordopt`qty`price!(r`fe;x;r`feoid;k;"",r`ordopt;y;0f)];}; /发送直接还券
+
+.upd.lockack:{[x]k:x`oid;st:x`status;if[(null .db.O[k;`sym])|.db.O[k;`end];:()];.db.O[k;`rtime`status`cumqty`avgpx`feoid`ordid`msg]:(now[];st),x`cumqty`avgpx`feoid`ordid`msg;if[st in .enum`FILLED`REJECTED`EXPIRED;.db.O[k;`end]:1b];if[st=.enum`FILLED;()];}; 
+
+chkpos:{[x]y:sfill .conf.acc[x;`ex];(`sym xasc select from (select 0f^sum lqty,0f^sum sqty by sym from select from .db.P where acc=x,not sym in `204001.XSHG`888880.XSHG) where 0<abs[(0f^lqty)+0f^sqty]&lqty|neg[sqty])~`sym xasc select from (select 0f^last lqty,0f^last sqty by sym from .temp.AccSnap[x;`Pos] where not sym in `204001.XSHG`888880.XSHG) where 0<abs[(0f^lqty)+0f^sqty]&lqty|neg[sqty],(null y)|y=fs2e each sym};
+
+chkposhk:{[x]y:sfill .conf.acc[x;`ex];.temp.P1:(`sym xasc 1!select sym,qty:lqty+sqty from (select 0f^sum lqty,0f^sum sqty by sym from select from .db.P where acc=x,not sym in `204001.XSHG`888880.XSHG) where 0<abs[(0f^lqty)+0f^sqty]&lqty|neg[sqty]);.temp.P2:`sym xasc select from (select 0f^last qty by sym from .temp.AccSnap[x;`Pos]) where 0<abs[qty],(null y)|y=fs2e each sym;.temp.PosDiff:select from (.temp.P1 uj `sym`qty1 xcol .temp.P2) where qty<>qty1;0=count .temp.PosDiff};
+
+chkfund:{[x]1b};
+
+qrypostask:{[x;y]if[not `accchked in key .temp;.temp.accchked:`symbol$()];z:first .conf.chkacclst except .temp.accchked;if[not null z;qrypos z;qryfund z;.temp.accchked,:z];1b};
+chkpostask:{[x;y]{[x]if[not (1b~r0:chkpos[x])&1b~r1:chkfund[x];lerr[`chkposfund;x];if[1b~.conf`emailalert;alert["chkposfund(",m,"):",-3!r0,r1;m:string x]]];} each .conf.chkacclst;.temp.accchked:`symbol$();1b};
+
+trdates:{[d0;d1]d:(d0+til 1+d1-d0) except .conf.holiday;d where 5>weekday[d]}; /[d0;d1]内盘期货区间交易日列表
+trdateshk:{[d0;d1]d:(d0+til 1+d1-d0) except .conf.exholiday.xhkg;d where 5>weekday[d]}; /[d0;d1]港股区间交易日列表
+nonight:{[x]y:weekday[x];(x within\:2020.02.03 2020.05.06)|((y>0)&(x-1)in\:.conf.holiday)|((y=0)&(x-3)in\:.conf.holiday)}; /[date list]是否有夜盘数据
+chkfuthis:{[d0;d1]d:trdates[d0;d1];h:.ctrl.conn.hdb.h;hs:h ({[x] select t0:min srctime,t1:max srctime,dmin:distinct `minute$time by date from quote where date within x,src=`fqctp};d0,d1);fullmin:exec `minute$bucketstart from -1_1_select from .temp.HSVP where sym=exec first sym from `amt xdesc select sum amt by sym from .temp.HSVP where sym like "au*";daymin:fullmin where fullmin within 08:00 16:00;((exec date from hs) except d;d except exec date from hs;select date,missmin from (update missmin:((01b!(fullmin;daymin)) nonight date)except'dmin from hs) where 0<count each missmin)}; /[d0;d1]期货历史数据完整性检查,返回(非交易日假数据日期列表;交易日无数据日期列表;交易日数据不齐异常表[(日期);缺失分钟数组])
 
 //----ChangeLog----
+//2024.12.11:cxlordex将cn次数更新提到检测cn次数超限之前,以便于业务逻辑判断是否异常
+//2024.12.04:修复roundv函数向下取整受到浮点计算误差干扰的bug
+//2024.11.19:chkpostask发送email增加结果标志位输出
+//2024.11.14:修正2024.11.04引入的ffill未加0f^处理导致的bug;qrypostask增加资金查询,增加chkfund预留函数并修改chkpostask增加资金比对
+//2024.11.13:重命名函数reqquote为newreqquote以避免与同名总线表名重复
+//2024.11.04:roundpxhk增加香港货币基金代码列表;chkerrfix增加对cumfee的修正检查;.upd.exerpt修正cumfee类型fill错误
+//2024.10.31:新增trdates/trdateshk/nonight/chkfuthis以便于历史数据检查
+//2024.09.30:qtyunit/roundqty/uproundqty增加对科创板号段扩容的支持
+//2024.09.25:新增chkposhk函数用以检查港指期货持仓
+//2024.09.23:.upd.Alarm增加对只收本地消息的过滤,以避免受其它ft的影响
+//2024.09.19:chkpos增加对柜台持仓表为空的兼容处理
+//2024.09.06:cxlordex将对O表t0字段的赋值调整为j3字段,以释放t0字段供策略使用
+//2024.08.27:chkpos增加对ex字段不存在的保护
+//2024.08.01:chkpos增加根据acc的ex字段过滤功能以支持双中心节点混合返回结果
+//2024.07.24:增加getcurrency函数
+//2024.07.23:修改roundpx/roundpxhk支持港股特殊标的(硬编码)的价格单位处理;.upd.exerpt增加对从rptopt提取交易成本数据的支持
+//2024.06.27:istrading增加保护
+//2024.06.20:.roll.ft增加保存pq,py
+//2024.05.15:.roll.ft增加保存ps
+//2024.05.11:修复newlock函数bug
+//2024.05.10:.upd.quote/.upd.exerpt增加pubws处理
+//2024.05.09:新增limit_orderax/limit_ordera/limit_buya/limit_sella函数
+//2024.02.27:更新chkpostask以支持同日内多次定时检查,chkpos以过滤回购持仓
+//2024.02.20:修改qrypostask以用多次触发替换sleep方式，同步修改TASK任务的频率和时段
+//2024.02.19:修改chkpos函数以过滤零持仓,新增qrypostask/chkpostask以便配置物理持仓比对任务 
+//2024.02.02:增加chkpos函数比对物理持仓和逻辑持仓
+//2024.02.01:.upd.MarginLockUpdate增加对.db.O里过期锁券委托的更新标志以便日终清除
+//2024.01.18:newordex增加对x入参字典里acc字段的支持以兼容算法策略拆子单
+//2024.01.15:limit_orderx增加对x的处理以支持通过策略id送tsexec,新增getudl函数并修改trdsess函数以支持无.db.OPT表情形
+//2023.12.18:新增mrepayshort函数用于直接还券
+//2023.12.04:newloc入参去掉股票代码y,改为由.temp.AccSnap[x;`Quote]获取
+//2023.11.28:新增mopenshort/mcloseshort,qrymargin/.upd.MarginUpdate,qrymarginquote/.upd.MarginQuoteUpdate,newlock/cxllock/rtnlock/.upd.lockack,qrymarginlock/.upd.MarginLockUpdate函数,.upd.exerpt增加对`LOCK支持;更新getsess/trdsess和istrading以支持无夜盘期权品种(.db.PD在tslib.q的pdstat函数,由algofuex.q日终algo_updhvpn函数更新)
+//2023.11.21:istrading配合exac.q里集合竞价时段修正去掉时间偏移处理
+//2023.10.18:.timer.ft行情检查的条件加强,要求显式配置,避免多ft行情检查,总线上Alarm消息重复,新增.roll.fqstate函数,修改checkfqstate函数,过滤中间休息时段的处理
+//2023.09.19:新增qryodahis/qrymathis及对应.upd.OrdHisUpdate/.upd.MatHisUpdate函数以支持历史查询,新增chkas函数以合并公共代码
+//2023.08.24:合并王北辰l2逐笔数据代码
 //2023.08.21:更新qtyunit函数以支持算法正常拆单
 //2023.08.06:新增ems_algordex/ems_algord/ems_algobuy/ems_algosell函数以支持下卖方算法单
 //2023.07.27:cxlordex修正用k不正确的替换x的bug
@@ -330,3 +399,16 @@ ems_algord:{[sd;x;y;q;p;m;a;t]ems_algordex[sd;x;y;q;p;m;a;`start_time`end_time!`
 //2023.05.17:.upd.l2order增加对市价单置p=0,.timer.ftsim增加对IPS单过滤
 //2023.04.27:setcs和.upd.exerpt增加对exchid和cexchid的支持
 //2023.03.20:.upd.l2order函数中统一使用`origid,深市不再区别使用`oid
+
+\
+.db.TASK[`LOADETF;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:10;1D;0;4;`loadetf);
+.db.TASK[`QRYORD;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:10;0D00:00:30;0;4;`qryordtask);
+.db.TASK[`QRYREPOACC;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+14:58:00;1D;0;4;`qryrepoacc);
+.db.TASK[`DOREPOTASK;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+14:58:30;1D;0;4;`dorepotask);
+
+.db.TASK[`QRYPOSTASK;`firetime`firefreq`weekmin`weekmax`timemin`timemax`handler]:(`timestamp$.z.D+15:18:30;0D00:00:05;0;4;`time$15:18:25;`time$15:18:55;`qrypostask);
+.db.TASK[`CHKPOSTASK;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+15:19:00;1D;0;4;`chkpostask);
+
+.db.TASK[`QRYPOSTASK_YP;`firetime`firefreq`weekmin`weekmax`timemin`timemax`handler]:(`timestamp$.z.D+08:56:30;0D00:00:05;0;4;`time$08:56:25;`time$08:56:55;`qrypostask);
+.db.TASK[`CHKPOSTASK_YP;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+08:57:00;1D;0;4;`chkpostask);
+

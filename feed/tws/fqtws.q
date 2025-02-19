@@ -15,7 +15,7 @@ histdates:`date$();
 \d .
 .roll.fqtws:{[x]update price:0n,bid:0n,ask:0n,cumqty:0f from `.db.QX;update status:0i from `.db.QX where ex=`SEHK,status<9;};
 
-dosubscribe:{[]if[(not `Logon~.ctrl.tws`status)|(null .ctrl.tws`peertime)|(.z.P<00:00:10+.ctrl.tws`logontime);:()];sl0:value .ctrl.TickerMap;sl1:(exec sym from .db.QX where (not null sym)&((sectype<>`FUT)|settledate>=.z.D)&((null status)&(not ex in `SEHK`SEHKNTL`SEHKSZSE))),exec sym from `status xdesc select from .db.QX where (status>0)&ex=`SEHK;unsubtws each sl0 except sl1;if[(0<n:.conf.tws.rtsubmax-count .ctrl.TickerMap)&count sl:sl1 except sl0;subtwsdata each sublist[n&.conf.tws.batchcnt] sl;.ctrl.tws.subtime:.z.P];subtwsdepth each .conf.tws.depthsyms except value .ctrl.DepthMap;};
+dosubscribe:{[]if[(not `Logon~.ctrl.tws`status)|(null .ctrl.tws`peertime)|(.z.P<00:00:10+.ctrl.tws`logontime);:()];sl0:value .ctrl.TickerMap;sl1:(exec sym from .db.QX where (not null sym)&((not sectype in `FUT`OPT)|settledate>=.z.D)&((null status)&(ex in .conf.tws.autosubex))),exec sym from `status xdesc select from .db.QX where (status>0)&ex=`SEHK;unsubtws each sl0 except sl1;if[(0<n:.conf.tws.rtsubmax-count .ctrl.TickerMap)&count sl:sl1 except sl0;subtwsdata each sublist[n&.conf.tws.batchcnt] sl;.ctrl.tws.subtime:.z.P];subtwsdepth each .conf.tws.depthsyms except value .ctrl.DepthMap;};
 
 cleartemp:{[]};
 
@@ -83,6 +83,9 @@ tws_real_time_bars:{[x]y:.ctrl.BarReqMap "J"$x`reqid;z:unixdate["I"$x`time];d:en
 rtbarsubinit:{[x;y]tws_cancel_real_time_bars each key .ctrl.BarReqMap;.ctrl.BarReqMap:()!();1b};
 rtbarsubloop:{[x;y]if[(not `Logon~.ctrl.tws`status)|(null .ctrl.tws`peertime)|(.z.P<00:00:10+.ctrl.tws`logontime);:()];sl0:value .ctrl.BarReqMap;sl1:(exec sym from .db.QX where (not null sym)&((sectype<>`FUT)|settledate>=.z.D)&((null status)&(not ex in `SEHK`SEHKNTL`SEHKSZSE))),exec sym from `status xdesc select from .db.QX where (status>0)&ex=`SEHK;if[(0<n:.conf.tws.rtsubmax-count .ctrl.BarReqMap)&count sl:sl1 except sl0;subtwsbars each sublist[n&.conf.tws.rtbarbatchcnt] sl;.ctrl.tws.rtbarsubtime:.z.P];1b}; /10min订阅不超过60,每10秒订阅1个
 
+//----ChangeLog----
+//2024.05.17:修订dosubscribe订阅规则,由{{{status为空的非港A股代码自动订阅}}}变更为{{{status为空的指定交易所(.conf.tws.autosubex)代码+status>0逆序排列的代码}}}
+//2018.05.04:初始版本
 
 \
 

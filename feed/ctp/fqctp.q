@@ -1,4 +1,4 @@
-.module.fqctp:2018.03.30;
+.module.fqctp:2024.11.02;
 
 txload "core/fqbase";
 txload "feed/ctp/ctpbase";
@@ -26,11 +26,13 @@ ctpqlogin:{[]if[(not 1b~.ctrl.ctp`ConnectQ)|(1b~.ctrl.ctp`LoginQ);:()];ctpcall[`
 
 .timer.fqctp:{[x]ctpqlogin[];if[any .z.T within/:.conf.ctp.openrange;dosubscribe[]];batchpub[];};
 
-dosubscribe:{[]if[(1b~.ctrl.ctp`SubscribeQ)|(not 1b~.ctrl.ctp`LoginQ)|(0=count .db.QX);:()];d:select from $[count sl:.conf`ctpsublist;select from .db.QX where product in sl;.db.QX] where ((opendate<=.z.D)&(settledate>=.z.D))|null settledate;if[.conf`skipspsyms;d:delete from d where 3<=count each string product];sl:$[count ssl:.conf`ctpsymlist;fs2s each ssl;exec fs2s each sym from d];{.temp.MDSub[x]:0b} each sl;if[.conf.ctp.debug;.temp.mdsl:sl];{[sl]sm:`$"," sv string sl;subscribe[sm;0i];} each 0N 100#sl;sl:$[count ssl:.conf`ctpsymlist;ssl;exec fs2s each sym from $[count sl:.conf`ctpsublist;select from .db.QX where product in sl;.db.QX] where assetclass=`Option,opendate<=.z.D,settledate>=.z.D];{.temp.QTSub[x]:0b} each sl;if[.conf.ctp.debug;.temp.qtsl:sl];{[sl]sm:`$"," sv string sl;subscribe[sm;1i];} each 0N 100#sl;.ctrl.ctp[`SubscribeQ`SubscribeTimeQ]:(1b;.z.P);};
+dosubscribex:{[x;y]if[((1b~.ctrl.ctp`SubscribeQ)&not x)|(not 1b~.ctrl.ctp`LoginQ)|(0=count .db.QX);:()];d:select from $[count sl:.conf`ctpsublist;select from .db.QX where product in sl;.db.QX] where ((opendate<=.z.D)&(settledate>=.z.D));if[.conf`skipspsyms;d:delete from d where 3<=count each string product];sl:$[count ssl:.conf`ctpsymlist;fs2s each ssl;exec fs2s each sym from d] except key .temp.MDSub;{.temp.MDSub[x]:0b} each sl;.temp[$[x;`mdapp;`mdsl]]:sl;lwarn[`ctpqsubmd;(.z.P;x;count sl)];{[sl]sm:`$"," sv string sl;subscribe[sm;0i];} each 0N 100#sl;sl:$[count ssl:.conf`ctpsymlist;ssl;exec fs2s each sym from $[count sl:.conf`ctpsublist;select from .db.QX where product in sl;.db.QX] where assetclass=`Option,opendate<=.z.D,settledate>=.z.D] except key .temp.MDSub;{.temp.QTSub[x]:0b} each sl;.temp[$[x;`qtapp;`qtsl]]:sl;lwarn[`ctpqsubqt;(.z.P;x;count sl)];{[sl]sm:`$"," sv string sl;subscribe[sm;1i];} each 0N 100#sl;.ctrl.ctp[$[x;`AppendSubQ`AppendSubSubTimeQ;`SubscribeQ`SubscribeTimeQ]]:(1b;.z.P);};
 
-.upd.FrontConnectQ:{[x].ctrl.ctp[`ConnectQ`ConntimeQ]:(1b;.z.P);};
+dosubscribe:dosubscribex[0b];appendsub:dosubscribex[1b];
 
-.upd.FrontDisconnectQ:{[x].ctrl.ctp[`ConnectQ`LoginQ`SubscribeQ`DiscReasonQ`DisctimeQ]:(0b;0b;0b;x[0];.z.P);};
+.upd.FrontConnectQ:{[x].ctrl.ctp[`ConnectQ`ConntimeQ]:(1b;.z.P);lwarn[`ctpqconn;(.z.P;.ctrl.ctp`DisctimeQ)];};
+
+.upd.FrontDisconnectQ:{[x].ctrl.ctp[`ConnectQ`LoginQ`SubscribeQ`DiscReasonQ`DisctimeQ]:(0b;0b;0b;x[0];.z.P);.temp.MDSub:.temp.QTSub:()!();lwarn[`ctpqdisc;(.z.P;.ctrl.ctp`ConntimeQ;x[0])];};
 
 .upd.UserLoginQ:{[x]y:x[2];if[0=count y;:()];.ctrl.ctp[`LoginQ`LoginTimeQ`FrontID_Q`QSessionID_Q`QMaxOrderRef_Q]:(1b;.z.P),y;}; 
 
@@ -42,11 +44,15 @@ batchpub:{[]if[(not 1b~.conf.batchpub)|(0=count .temp.QUEUE);:()];pub[`quote;.te
 
 fix0w:{[x]?[1e300<abs[x];0n;x]};
 
-.upd.RDUpdate:{[x]if[`ctp<>x`ref;:()];.db.QX:.db.QX uj get `$x`msg;dosubscribe[];};
+.upd.RDUpdate:{[x]if[`ctp<>x`ref;:()];.db.QX:.db.QX uj get `$x`msg;appendsub[];};
 
 .upd.DepthMD:{[x]y:.enum.CTPMDKey!x;if[.conf.ctp.debug;.temp.L11,:enlist y];if[not `fqopendate in key .db;.db.fqopendate:0Nd];if[.db.fqopendate<d0:"D"$ds:y`TradingDay;pubm[`ALL;`MarketOpen;.conf.me;ds];.db.fqopendate:d0];d:update upd_serial:"I"${(string x) except ".:"}each sys_recv_time from select contract_id:insu2cont each `$InstrumentID,upd_serial:0n,sys_recv_time:UpdateTime {"T"$x,".",string y}' UpdateMillisec,exchCode:insu2exch each `$InstrumentID,varity_code:`$InstrumentID,deliv_date:`,openPrice:OpenPrice,lastPrice:LastPrice,highestPrice:HighestPrice,lowestPrice:LowestPrice,doneVolume:`float$Volume,chgPrice:0n,upperLimitPrice:UpperLimitPrice,lowerLimitPrice:LowerLimitPrice,hisHighestPrice:0w,hisLowestPrice:-0w,openInterest:OpenInterest,preSettlePrice:PreSettlementPrice,preClosePrice:PreClosePrice,settlePrice:SettlementPrice,turnover:Turnover,preOpenInterest:PreOpenInterest,closePrice:ClosePrice,preDelta:PreDelta,currDelta:CurrDelta,bidPrice1:BidPrice1,bidVolume1:`float$BidVolume1,bidPrice2:BidPrice2,bidVolume2:`float$BidVolume2,bidPrice3:BidPrice3,bidVolume3:`float$BidVolume3,bidPrice4:BidPrice4,bidVolume4:`float$BidVolume4,bidPrice5:BidPrice5,bidVolume5:`float$BidVolume5,askPrice1:AskPrice1,askVolume1:`float$AskVolume1,askPrice2:AskPrice2,askVolume2:`float$AskVolume2,askPrice3:AskPrice3,askVolume3:`float$AskVolume3,askPrice4:AskPrice4,askVolume4:`float$AskVolume4,askPrice5:AskPrice5,askVolume5:`float$AskVolume5 from enlist y;d:update virtualtime:0Np,isnormalsession:time within 08:00 16:00 from select sym:{[x;y;z]`$(string x),'(string y),'".",/:(string z)}[varity_code;deliv_date;exchCode],time:sys_recv_time,price:fix0w lastPrice,cumqty:fix0w doneVolume,vwap:fix0w turnover%doneVolume,high:fix0w highestPrice,low:fix0w lowestPrice,o5px:fix0w askPrice5,o5sz:fix0w askVolume5,o4px:fix0w askPrice4,o4sz:fix0w askVolume4,o3px:fix0w askPrice3,o3sz:fix0w askVolume3,o2px:fix0w askPrice2,o2sz:fix0w askVolume2,ask:fix0w askPrice1,asize:fix0w askVolume1,bid:fix0w bidPrice1,bsize:fix0w bidVolume1,b2px:fix0w bidPrice2,b2sz:fix0w bidVolume2,b3px:fix0w bidPrice3,b3sz:fix0w bidVolume3,b4px:fix0w bidPrice4,b4sz:fix0w bidVolume4,b5px:fix0w bidPrice5,b5sz:fix0w bidVolume5,openint:fix0w openInterest,settlepx:fix0w settlePrice,open:fix0w openPrice,pc:fix0w preClosePrice,sup:fix0w upperLimitPrice,inf:fix0w lowerLimitPrice,recvtime:.z.P,exlocaltime:.z.P from d;d:delete from d where (0>cumqty);if[count d;if[.conf.ctp.debug;.temp.L12,:d];d1:select sym,pc,open,sup,inf from d;if[n:count d2:d1 except .temp.QREF;pub[`quoteref;update refopt:n#enlist"" from d2];.temp.QREF,:d2];d:delete open,pc,sup,inf from d;n:count d;d2:select sym,bid,ask,bsize,asize,price,high,low,vwap,cumqty,openint,settlepx,mode:`,extime:`timestamp$d0+time,bidQ:n#enlist `float$(),askQ:n#enlist `float$(),bsizeQ:n#enlist `float$(),asizeQ:n#enlist `float$(),quoopt:n#enlist "" from d;$[1b~.conf.batchpub;enqueue[d2];pub[`quote;d2]]];};
 
 .upd.QuoteReq:{[x]d:select sym:{[x]` sv x,exec first ex from .db.QX where esym=x} each `$InstrumentID,reqid:`$ForQuoteSysID,reqtime:`timestamp$("D"$TradingDay)+("T"$ForQuoteTime),actiondate:"D"$ActionDay from z:enlist y:.enum.CTPQRKey!x;.temp.L13,:z;pub[`quotereq;d];}
 
-
-
+//----ChangeLog----
+//2024.11.02:.upd.FrontDisconnectQ增加初始化.temp.MDSub/QTSub;dosubscribex增加日志记录
+//2024.10.31:.upd.FrontConnectQ/FrontDisconnectQ增加日志记录
+//2024.07.30:将dosubscribe拓展为dosubscribex以支持追加订阅appendsub,对应修改.upd.RDUpdate
+//2024.07.02:dosubscribe去掉订阅SP单|null settledate
+//2018.03.30:初始版本

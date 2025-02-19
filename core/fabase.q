@@ -1,16 +1,17 @@
-.module.fabase:2017.08.17;
+.module.fabase:2024.12.24;
 
-.fa.tblist:`symbol$();
+if[not `fa in key .conf;.conf.fa:.enum.nulldict];if[not `tblist in key .conf.fa;.conf.fa.tblist:`symbol$()];
 
-saveatbl:{set [sv[`].fa.dbdir,x;.adb[x]]};
-loadatbl:{.adb[x]:get sv[`].fa.dbdir,x;};
+saveatbl:{set [sv[`].conf.fa[`dbdir],x;.adb[x]]};
+loadatbl:{.adb[x]:get sv[`].conf.fa[`dbdir],x;};
 
-saveadb:{[]if[not 1b~.fa.db;:()];saveatbl each .fa.tblist;};
-loadadb:{[]if[not 1b~.fa.db;:()];loadatbl each .fa.tblist;};
+saveadb:{[]if[not 1b~.conf.fa`db;:()];saveatbl each .conf.fa.tblist;};
+loadadb:{[]if[not 1b~.conf.fa`db;:()];.adb:.enum.nulldict;loadatbl each .conf.fa.tblist;};
 
 .exit.fa:{[x]saveadb[];};
 .init.fa:{[x]loadadb[];};
 
+.roll.fa:{[x]saveadb[];};
 
 ccfx_rank:{[x;y]z:"http://www.cffex.com.cn/sj/ccpm/",((string `month$y) except "."),"/",(-2#string y),"/",(string x),".xml";s:wget[z];d:xmlparse[s];t:flip `instrumentId`tradingDay`dataTypeId`rank`shortname`volume`varVolume`partyid`productid!"SDJJSFFSS"$'flip {x where 9=count each x} d[0;1;;1;;1];t} /[product;date]{dataTypeId|0->成交量;1->持买单量;2->持卖单量}
 
@@ -21,7 +22,14 @@ rankupd:{[x;y].db.T,:@[ccfx_rank[`IH];;()] .z.D;.temp.S:update s:?[lc>0;?[sc<0;1
 
 jsl_div:{[]r:.j.k wget "https://www.jisilu.cn/data/stock/dividend_rate_list_hk/";select sym:`$(,\:)[(string "I"$stock_id);".XHKG"],mv:"F"$total_value,"F"$price,cumqty:"F"$volume,"F"$pe,"F"$pb,roe:1e-2*"F"$(-1_) each roe_ttm,div1:1e-2*"F"$(-1_) each dividend_rate,div2:1e-2*"F"$(-1_) each dividend_rate2,div3:1e-2*"F"$(-1_) each dividend_rate3,div4:1e-2*"F"$(-1_) each dividend_rate4,epsg:1e-2*"F"${[x]y:(2+0^ss[x;"\">"][0])_ x;ss[y;"%"]#y} each eps_growth_ttm,divt:"F"$accu_dividend,shares:"F"$total_shares from r[`rows;`cell]};
 
+md2htm:{[x]x1:.conf.pubdir,"/",x,".htm";system .temp.cmd:"echo '<meta charset=\"UTF-8\">\\n<meta name=\"referrer\" content=\"never\">\\n\\n' > ",x1," && /usr/local/bin/marked  /tmp/",x,".md >> ",x1," &";};
 
+//----ChangeLog----
+//2024.12.24:md2htm函数增加meta信息输出以支持微信公众号图片正常显示
+//2024.11.13:新增md2htm增加对.conf.pubdir配置项支持
+//2024.10.17:新增.roll.fa函数.
+//2024.08.22:saveadb/loadadb增加对配置项fa.db不存在的保护
+//2017.08.17:初始版本
 \
 .db.TASK[`RANKUPD;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+16:00:00;1D;0;4;`rankupd);
 

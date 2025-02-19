@@ -1,4 +1,4 @@
-.module.feato:2023.08.06;
+.module.feato:2024.09.29;
 
 txload "core/febase";
 
@@ -23,10 +23,10 @@ TradeKey:`operatorNo`accountUser`accountId`productId`unitId`algoTypeId`brokerOrd
 InstructionKey:`operatorNo`productId`unitId`accountId`accountUser`algoTypeId`symbol`marketType`effectiveTime`expireTime`securityType`assetType`basketId`sysQuoteBatchId`sysQuoteId`tradeDate`transacTime`algoParam`taskQty`cumQty1`cumQty2`outstandingQty1`outstandingQty2`leavesQty1`leavesQty2`taskAmt`cumAmt1`cumAmt2`algoStatus`orderCancelQty`orderFailQty`rspAlgoInfo`externalId;
 FundChgKey:`productId`accountId`unitId`accountUser`currencyType`initAmt`orderEnableAmt`algoEnableAmt;
 PositionChgKey:`productId`accountId`unitId`accountUser`marketType`symbol`stkAcctCode`positionType`costAmt`initQty`currentQty`orderEnableQty`algoEnableQty`currencyType`securityType;
-OrderQryKey:`orderBatchId`sysOrderId`sysQuoteBatchId`sysQuoteId`operatorNo`tradeDate`tradeTime`organId`productId`unitId`accountId`accountUser`stkAcctCode`marketType`symbol`securityType`assetType`reportDate`reportTime`brokerOrderId`side`pxType`orderPx`orderQty`orderAmt`orderStatus`cancelQty`dealAmt`dealQty`allFee`dealBondAccrInterest`basketId`rspOrderInfo`positionStr`externalId;
+OrderQryKey:`orderBatchId`sysOrderId`sysQuoteBatchId`sysQuoteId`operatorNo`tradeDate`tradeTime`organId`productId`unitId`accountId`accountUser`stkAcctCode`marketType`symbol`securityType`assetType`reportDate`reportTime`brokerOrderId`side`pxType`orderPx`orderQty`orderAmt`orderStatus`cancelQty`dealAmt`dealQty`allFee`dealBondAccrInterest`basketId`rspOrderInfo`positionStr`externalId`algoTypeId;
 DealQryKey:`operatorNo`sysDealId`dealId`accountUser`accountId`productId`unitId`algoTypeId`brokerOrderId`sysQuoteId`sysOrderId`marketType`symbol`side`securityType`dealQty`dealPx`dealDate`dealTime`dealAmt`stkAcctCode`assetType`allFee`dealBondAccrInterest`positionStr`externalId;
-OrderCreateKey:`errCode`errMsg`createDate`createTime`orderBatchId`sysOrderId`riskBusinId`riskWarnFlag`warnOperation;
-OrderCancelKey:`errCode`errMsg`sysOrderId`cancelId`riskBusinId`riskWarnFlag`warnOperation;
+OrderCreateKey:`errCode`errMsg`createDate`createTime`orderBatchId`sysOrderId`riskBusinId`riskWarnFlag`warnOperation`externalId`basketId`minEntustRatio;
+OrderCancelKey:`errCode`errMsg`sysOrderId`cancelId`riskBusinId`riskWarnFlag`warnOperation`externalId;
 InstructionQryKey:`sysQuoteBatchId`sysQuoteId`operatorNo`organId`productId`unitId`accountId`accountUser`tradeDate`algoTypeId`algoTypeName`marketType`symbol`basketId`algoParam`effectiveTime`expireTime`securityType`assetType`transacTime`taskQty`taskAmt`cumQty1`cumQty2`outstandingQty1`outstandingQty2`leavesQty1`leavesQty2`cumAmt1`cumAmt2`algoStatus`orderCancelQty`orderFailQty`cancelQty`rspAlgoInfo`positionStr`externalId;
 InstructionCreateKey:`errCode`errMsg`externalId`basketId`sysQuoteBatchId`sysQuoteId`riskBusinId`riskWarnFlag`warnOperation;
 InstructionControlKey:InstructionReplaceKey:`errCode`errMsg`updateDate`updateTime`sysQuoteId;
@@ -51,7 +51,8 @@ RiskWarnKey:`riskWarnId`riskBusinId`riskRuleId`riskTypeId`organId`riskWarnLevel`
 .enum.atostatusmap:.enum[`ORDER_STATUS_PENDINGNEW`ORDER_STATUS_NEW`ORDER_STATUS_PARTFILLED`ORDER_STATUS_FILLED`ORDER_STATUS_CANCELED`ORDER_STATUS_PENDINGCANCEL`ORDER_STATUS_STOPPED`ORDER_STATUS_PARTCANCELED`ORDER_STATUS_INSIDE_STOPPED`ORDER_STATUS_INSIDE_CANCELED`ORDER_STATUS_WAITNEW`ORDER_STATUS_IN_PROGRESS]!.enum`PENDING_NEW`NEW`PARTIALLY_FILLED`FILLED`CANCELED`PENDING_CANCEL`REJECTED`CANCELED`REJECTED`CANCELED`PENDING_NEW`PENDING_NEW;
 .enum.atoalgostatusmap:.enum[`ALGO_STATUS_PENDINGNEW`ALGO_STATUS_NEW`ALGO_STATUS_PARTFILLED`ALGO_STATUS_FILLED`ALGO_STATUS_CANCELED`ALGO_STATUS_PENDINGCANCEL`ALGO_STATUS_STOPPED`ALGO_STATUS_REJECTED`ALGO_STATUS_SUSPENDED`ALGO_STATUS_EXPIRED`ALGO_STATUS_PARTCANCELED`ALGO_STATUS_FORCECANCELED`ALGO_STATUS_FORCEPARTCANCELED`ALGO_STATUS_PENDINGSUSPEND`ALGO_STATUS_PENDINGSTART`ALGO_STATUS_PENDINGNOOPEN`ALGO_STATUS_NOOPENED`ALGO_STATUS_PENDINGMODIFY`ALGO_STATUS_PENDINGNEWSUB`ALGO_STATUS_NOSEND`ALGO_STATUS_PENDINGEXPIRED]!.enum`PENDING_NEW`NEW`PARTIALLY_FILLED`FILLED`CANCELED`PENDING_CANCEL`REJECTED`REJECTED`SUSPENDED`EXPIRED`CANCELED`CANCELED`CANCELED`NULL`NULL`NULL`NULL`PENDING_REPLACE`PENDING_NEW`PENDING_NEW`PENDING_NEW;
 
-.enum.atoside:mirror .enum.atosidemap:.enum[`SIDE_BUY`SIDE_SELL]!.enum`BUY`SELL;
+//.enum.atoside:mirror .enum.atosidemap:.enum[`SIDE_BUY`SIDE_SELL]!.enum`BUY`SELL;
+atoside:{[x].enum $[x[1]=.enum`MARGIN_OPEN;`SIDE_SHORT_SELL;x[1]=.enum`MARGIN_CLOSE;`SIDE_CLOSE_BUY;x[1]=.enum`MARGIN_REPAY;`SIDE_DIRECT_CLOSE_BUY;x[0]=.enum`BUY;`SIDE_BUY;`SIDE_SELL]}; /[side,posefct]
 
 sectype:{[x;y]$[y in .enum`MARKET_TYPE_CFE`MARKET_TYPE_SHF`MARKET_TYPE_DCE`MARKET_TYPE_ZCE`MARKET_TYPE_INE;$[(x like "IO*")|(x like "*-*")|(x like "*[0-9]C[0-9]*")|(x like "*[0-9]P[0-9]*");`OPT;x like "SP*";`FUTSP;`FUT];y in `1`2;$[8=count string x;`OPT;`STK];y in `G`S;`STKHK;`STK]}; /[sym;hsex]
 
@@ -92,31 +93,33 @@ DelayedCancel:(`symbol$())!`float$();
 
 .upd.OnRspInstructionReplace:.upd.OnRspInstructionControl:{[x].temp.x3:x;y:.enum.InstructionControlKey!first x[1];z:x[0];if[not null k:exec first id from .db.O where j1=z;$[0<>w:y`errCode;.db.O[k;`cstatus`reason`msg]:(.enum`REJECTED;w;utf82gbk y`errMsg);[]];execrpt[k]];};
 
-.upd.OnRtnOrderReport:{[x].temp.x10:x;y:.enum.OrderKey!x;.temp.L10,:enlist y;z:atoid2oid y`sysOrderId;r:.db[.ctrl.O;z];if[null r`sym;:()];cq:`float$y`cumQty;if[cq<r`cumqty;:()];s:.enum.atostatusmap y`orderStatus;.db[.ctrl.O;z;`msg`exchid`s3`rtime]:(y`remark;`$y`brokerOrderId;`$y`clOrderId;.z.P);if[s in .enum`NEW`CANCELED`REJECTED;.db[.ctrl.O;z;`status]:s];if[s=.enum`CANCELED;.db[.ctrl.O;z;`cstatus]:s];if[not .db[.ctrl.O;z;`status] in .enum`PARTIALLY_FILLED`FILLED;execrpt[z]];};
+.upd.OnRtnOrderReport:{[x].temp.x10:x;y:.enum.OrderKey!x;.temp.L10,:enlist y;z:atoid2oid y`sysOrderId;r:.db[.ctrl.O;z];if[null r`sym;:()];cq:`float$y`cumQty;if[cq<r`cumqty;:()];s:.enum.atostatusmap y`orderStatus;.db[.ctrl.O;z;`msg`exchid`s3`rtime]:(utf82gbk y`remark;`$y`brokerOrderId;`$y`clOrderId;.z.P);if[s in .enum`NEW`CANCELED`REJECTED;.db[.ctrl.O;z;`status]:s];if[s=.enum`CANCELED;.db[.ctrl.O;z;`cstatus]:s];if[not .db[.ctrl.O;z;`status] in .enum`PARTIALLY_FILLED`FILLED;execrpt[z]];};
 
 .upd.OnRtnTradeReport:{[x].temp.x11:x;y:.enum.TradeKey!x;.temp.L11,:enlist y;z:atoid2oid y`sysOrderId;r:.db[.ctrl.O;z];if[null r`sym;:()];lp:y`dealPx;lq:`float$y`dealQty;cq:lq+q0:0f^r`cumqty;ap:((lp*lq)+q0*p0:0f^r`avgpx)%cq;.db[.ctrl.O;z;`cumqty`avgpx`lastqty`lastpx]:cq,ap,lq,lp;if[not r[`status]=.enum`CANCELED;.db[.ctrl.O;z;`status]:.enum $[cq=r`qty;`FILLED;`PARTIALLY_FILLED]];execrpt[z];};
 
-.upd.OnRtnInstructionReport:{[x].temp.x12:x;y:.enum.InstructionKey!x;.temp.L12,:enlist y;z:atoid2oid y`sysQuoteId;r:.db[.ctrl.O;z];if[null r`sym;:()];cq:`float$y`cumQty1;if[cq<r`cumqty;:()];s:.enum.atoalgostatusmap y`algoStatus;.db[.ctrl.O;z;`msg`rtime`rptopt]:(y`rspAlgoInfo;.z.P;.j.j `cumQty2`cumAmt2`outstandingQty1`outstandingQty2`leavesQty1`leavesQty2`taskAmt`cumAmt1`cumAmt2`algoStatus#y);if[0<cq;ca:y`cumAmt1;lq:cq-q0:0f^r`cumqty;ap:ca%cq;lp:(ca-q0*p0:0f^r`avgpx)%lq;.db[.ctrl.O;z;`cumqty`avgpx`lastqty`lastpx]:cq,ap,lq,lp;if[not s=.enum`CANCELED;s:.enum $[cq=r`qty;`FILLED;`PARTIALLY_FILLED]]];.db[.ctrl.O;z;`status]:s;if[s=.enum`CANCELED;.db[.ctrl.O;z;`cstatus]:s];execrpt[z];};
+.upd.OnRtnInstructionReport:{[x].temp.x12:x;y:.enum.InstructionKey!x;.temp.L12,:enlist y;z:atoid2oid y`sysQuoteId;r:.db[.ctrl.O;z];if[null r`sym;:()];cq:`float$y`cumQty1;if[cq<r`cumqty;:()];s:.enum.atoalgostatusmap y`algoStatus;.db[.ctrl.O;z;`msg`rtime`rptopt]:(utf82gbk y`rspAlgoInfo;.z.P;.j.j `cumQty2`cumAmt2`outstandingQty1`outstandingQty2`leavesQty1`leavesQty2`taskAmt`cumAmt1`cumAmt2`algoStatus#y);if[0<cq;ca:y`cumAmt1;lq:cq-q0:0f^r`cumqty;ap:ca%cq;lp:(ca-q0*p0:0f^r`avgpx)%lq;.db[.ctrl.O;z;`cumqty`avgpx`lastqty`lastpx]:cq,ap,lq,lp;if[not s=.enum`CANCELED;s:.enum $[cq=r`qty;`FILLED;`PARTIALLY_FILLED]]];.db[.ctrl.O;z;`status]:s;if[s=.enum`CANCELED;.db[.ctrl.O;z;`cstatus]:s];execrpt[z];};
 
 .upd.OnRtnFundReport:{[x].temp.x8:x;y:.enum.FundChgKey!x;.ctrl.ato.FUND,:5!enlist y;};
-.upd.OnRtnPositionReport:{[x].temp.x9:x;y:.enum.PositionChgKey!x;.ctrl.ato.POS,:6!enlist y;};
+.upd.OnRtnPositionReport:{[x].temp.x99:x;y:.enum.PositionChgKey!x;.ctrl.ato.POS,:6!enlist y;};
 
-.upd.OnRspQueryOrderActual:{[x].temp.x13:x;y:.enum.OrderQryKey!first x[1];.temp.L13,:enlist y;z:atoid2oid y`sysOrderId;r:.db[.ctrl.O;z];if[null r`sym;:()];cq:`float$y`dealQty;if[cq<r`cumqty;:()];s:.enum.atostatusmap y`orderStatus;.db[.ctrl.O;z;`msg`exchid`rtime]:(y`remark;`$y`brokerOrderId;.z.P);if[s in .enum`NEW`CANCELED`REJECTED;.db[.ctrl.O;z;`status]:s];if[s=.enum`CANCELED;.db[.ctrl.O;z;`cstatus]:s];if[cq>q0:0f^r`cumqty;ap:(ca:y`dealAmt)%cq;lq:cq-q0;lp:(ca-q0*0f^r`avgpx)%lq;.db[.ctrl.O;z;`cumqty`avgpx`lastqty`lastpx]:cq,ap,lq,lp;if[not r[`status]=.enum`CANCELED;.db[.ctrl.O;z;`status]:.enum $[cq=r`qty;`FILLED;`PARTIALLY_FILLED]]];execrpt[z];};
+.upd.OnRspQueryOrderActual:{[x].temp.x13:x;y:.enum.OrderQryKey!first x[1];.temp.L13,:enlist y;z:atoid2oid y`sysOrderId;r:.db[.ctrl.O;z];if[null r`sym;:()];cq:`float$y`dealQty;if[cq<r`cumqty;:()];s:.enum.atostatusmap y`orderStatus;.db[.ctrl.O;z;`msg`exchid`rtime]:(utf82gbk y`remark;`$y`brokerOrderId;.z.P);if[s in .enum`NEW`CANCELED`REJECTED;.db[.ctrl.O;z;`status]:s];if[s=.enum`CANCELED;.db[.ctrl.O;z;`cstatus]:s];if[cq>q0:0f^r`cumqty;ap:(ca:y`dealAmt)%cq;lq:cq-q0;lp:(ca-q0*0f^r`avgpx)%lq;.db[.ctrl.O;z;`cumqty`avgpx`lastqty`lastpx]:cq,ap,lq,lp;if[not r[`status]=.enum`CANCELED;.db[.ctrl.O;z;`status]:.enum $[cq=r`qty;`FILLED;`PARTIALLY_FILLED]]];execrpt[z];};
 
 .upd.OnRspQueryOrderInstruction:{[x].temp.x14:x;y:.enum.InstructionQryKey!first x[1];.temp.L14,:enlist y;.upd.OnRtnInstructionReport value .enum.InstructionKey#y;};
 
 /Tx msg
-.upd.ordnew:.fe.ordnew:{[x].temp.x9:x;if[x[`sym]<>.conf.me;:.ha.ordnew[x]];k:x`oid;h:$[count opt:x`ordopt;strdict opt;(`symbol$())!()];if[not null .db[.ctrl.O;k;`sym];:()];k1:newidl[];.db[.ctrl.O;k;`feoid`ntime`status`x0`ft`ts`acc`fe`acc1`ref`sym`side`posefct`tif`typ`qty`price`ordopt]:(k1;.z.P;.enum`PENDING_NEW;enlist .enum.nulldict),x`ft`ts`acc`sym`acc1`ref`osym`side`posefct`tif`typ`qty`price`ordopt;if[not (1b~.ctrl.ato`Login)&(.conf.ato.ordmax>count .db[.ctrl.O]);rejectord[k;1i;"ATO_Not_Ready_Or_Toomany_Orders"];:()];esym:fs2s x`osym;ex:fs2e x`osym;pua:"IJI"$'string vs[`]x`acc1;ae:.enum.atoex ex;as:.enum.atoside x`side;ac:.ctrl.ato[`ACMap] pua[2];k2:sv[`;x`ft`ts`oid];$[1b~h`algo;[.db[.ctrl.O;k;`special]:`algo;y:`int$h`algotype;z:`side`task_qty`account_id`limit_action`after_action!(as;x`qty;pua[2];0;0),$[0<p:x`price;enlist `price!rnlist p;()];tl:"J"$except[;":.T"] each string `datetime$vtd[]+"T"$string h[`algopara]`start_time`end_time;r:atocall[`reqInstructionCreate;enlist (y;pua[0];pua[1];pua[2];k1;k2;esym;ae;ac;tl 0;tl 1;`$.j.j z)]];[r:atocall[`reqCreateOrderActual;enlist (k1;k2;0;0i;pua[0];pua[1];pua[2];ac;ae;esym;as;`long$x`qty;x`price;$[(0<x[`price])|(esym like "SP*");.enum`PRICE_TYPE_LIMIT;.enum`PRICE_TYPE_REVERSE_BEST_LIMIT])]]];.db[.ctrl.O;k;`j0]:r[1];}'; 
+.upd.ordnew:.fe.ordnew:{[x].temp.x9:x;if[x[`sym]<>.conf.me;:.ha.ordnew[x]];k:x`oid;h:$[count opt:x`ordopt;strdict opt;(`symbol$())!()];if[not null .db[.ctrl.O;k;`sym];:()];k1:newidl[];.db[.ctrl.O;k;`feoid`ntime`status`x0`ft`ts`acc`fe`acc1`ref`sym`side`posefct`tif`typ`qty`price`ordopt]:(k1;.z.P;.enum`PENDING_NEW;enlist .enum.nulldict),x`ft`ts`acc`sym`acc1`ref`osym`side`posefct`tif`typ`qty`price`ordopt;if[not (1b~.ctrl.ato`Login)&(.conf.ato.ordmax>count .db[.ctrl.O]);rejectord[k;1i;"ATO_Not_Ready_Or_Toomany_Orders"];:()];esym:fs2s x`osym;ex:fs2e x`osym;pua:"IJI"$'string vs[`]x`acc1;ae:.enum.atoex ex;as:atoside x`side`posefct;ac:.ctrl.ato[`ACMap] pua[2],ae;k2:sv[`;x`ft`ts`oid];$[1b~h`algo;[.db[.ctrl.O;k;`special]:`algo;y:`int$h`algotype;z:`side`task_qty`account_id`limit_action`after_action!(as;x`qty;pua[2];0;0);z1:$[0<p:x`price;enlist[`price]!enlist p;()];z2:`start_time`end_time _h`algopara;z:z,z1,z2;tl:"J"$except[;":.T"] each string `datetime$vtd[]+"T"$string h[`algopara]`start_time`end_time;r:atocall[`reqInstructionCreate;enlist (y;pua[0];pua[1];pua[2];k1;k2;esym;ae;ac;tl 0;tl 1;`$.j.j z)]];[r:atocall[`reqCreateOrderActual;enlist (k1;k2;0;0i;pua[0];pua[1];pua[2];ac;ae;esym;as;`long$x`qty;x`price;$[(0<x[`price])|(esym like "SP*");.enum`PRICE_TYPE_LIMIT;.enum`PRICE_TYPE_REVERSE_BEST_LIMIT])]]];.db[.ctrl.O;k;`j0]:r[1];}'; 
 
 .upd.ordcxl:.fe.ordcxl:{[x]if[x[`sym]<>.conf.me;:.ha.ordcxl[x]];k:x`oid;r:.db[.ctrl.O;k];if[null r`sym;:()];.db[.ctrl.O;k;`cid`cstatus]:(x`cid;.enum`PENDING_CANCEL);h:$[count r[`x0];r[`x0;0];strdict r`rptopt];r:$[`algo=r`special;atocall[`reqInstructionControl;enlist ("J"$string r`ordid;.enum`OPER_TYPE_CANCELED)];atocall[`reqCancelOrderActual;enlist ("J"$string r`ordid;.conf.ato`info)]];.db[.ctrl.O;k;`j1]:r[1];}'; 
 
 .upd.ordqry:.fe.ordqry:{[x]r:.db[.ctrl.O;x`oid];z:"J"$string r`ordid;atocall[$[`algo=r`special;`reqQueryInstruction;`reqQueryOrderActual];(`;1;`;`;`;`;`;`;`;`;`;z)];}';
 
-.upd.QueryFund:{[x].temp.x11:x;.temp[`FundDst`FundAcc]:x`ref`msg;.temp.L2:();atocall[`reqQueryAsset;(`;2000i;1i;`;`)];};
+.upd.QueryFund:{[x].temp.x11:x;.temp[`FundDst`FundAcc]:x`ref`msg;.temp.L2:();pua:vs[`] -9!x`vbin;atocall[`reqQueryAsset;(`;2000i;1i;pua[0];pua[1])];};
 
 .upd.QueryPos:{[x].temp.x12:x;.temp[`PosDst`PosAcc]:x`ref`msg;.temp.L3:();atocall[i;`reqQryHold;2#`];};
 
-.upd.QueryOrdAcc:{[x].temp.x13:x;.temp[`OrdDst`OrdAcc]:x`ref`msg;.temp.L4:();if[null i:.ctrl.ato.usermap u:-9!x`vbin;:()];atocall[i;`reqQryOrder;(0i;`;0i;`;0)];};
+.upd.QueryOrdAcc:{[x].temp.x13:x;.temp[`OrdDst`OrdAcc]:x`ref`msg;.temp.L4:();atocall[i;`reqQryOrder;(0i;`;0i;`;0)];};
 
-.upd.QueryMatAcc:{[x].temp.x14:x;.temp[`MatDst`MatAcc]:x`ref`msg;.temp.L5:();if[null i:.ctrl.ato.usermap u:-9!x`vbin;:()];atocall[i;`reqQryTrade;(0i;`;0i;`;0)];};
+.upd.QueryMatAcc:{[x].temp.x14:x;.temp[`MatDst`MatAcc]:x`ref`msg;.temp.L5:();if[null i:.ctrl.ato.usermap ;;atocall[`reqQryTrade;(0i;`;0i;`;0)];};
 
+//2024.09.29:.upd.ordnew用vtd[]替换.z.D以支持周末测试
+//2023.12.18:.enum.OrderQryKey新增algoTypeId字段(extfeato.cpp的OnRspQueryOrderActual对应修改);.enum.OrderCreateKey新增externalId/basketId/minEntustRatio(C接口修改OnRspCreateOrderActual);.enum.OrderCancelKey新增externalId(C接口修改OnRspCancelOrderActual)

@@ -1,4 +1,4 @@
-.module.febase:2023.04.27;
+.module.febase:2023.11.28;
 
 \d .db
 feclosedate:feopendate:0Np;
@@ -24,13 +24,15 @@ execrpt:{[k]r:.db.O[k];if[null x:r`ft;:()];riskstatexe[k];pub[`exerpt;enlist `sy
 ackquote:{[k]r:.db.QT[k];if[null r`sym;:()];pub[`quoteack;enlist `sym`typ`qid`status`bcumqty`acumqty`bavgpx`aavgpx`feqid`quoteid`cid`cstatus`cfeqid`cquoteid`reason`msg`rptopt!(r`ft;.enum`NEW;k),r[`status`bcumqty`acumqty`bavgpx`aavgpx`feqid`quoteid`cid`cstatus`cfeqid`cquoteid`reason],(cfill r`msg;cfill r`rptopt)];};
 
 
-rejcxl:{[k;r;m]h:.db.O[k];rejectcxl[h`ft;k;h`cid;r;m];};
-rejcrpt:{[k]h:.db.O[k];rejcxl[k;h`reason;h`msg];};
+rejcxl:{[k;r;m]h:.db.O[k];rejectcxl[h`ft;k;h`cid;r;m];};rejcrpt:{[k]h:.db.O[k];rejcxl[k;h`reason;h`msg];};
+rejrpl:{[k;r;m]h:.db.O[k];rejectrpl[h`ft;k;h`cid;r;m];};rejrrpt:{[k]h:.db.O[k];rejrpl[k;h`reason;h`msg];};
+
 riskassert:{[x]0b}; /风控检查委托请求默认处理函数
 riskassertcxl:{[x]0b}; /风控检查撤单请求默认处理函数
 riskstatrej:{[x];}; /风控检查委托拒绝默认处理函数
 riskstatexe:{[x];}; /风控检查委托回报默认处理函数
 
 //----ChangeLog----
+//2023.11.28:新增rejrpl/rejrrpt函数
 //2023.04.27:rejordnew/rejectord和execrpt增加对exchid和cexchid的支持
 //2022.10.13:在.roll.fe函数增加savedb操作

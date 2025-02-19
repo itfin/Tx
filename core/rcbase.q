@@ -40,7 +40,14 @@ riskassert:riskassertx[0b];riskassertcxl:riskassertx[1b];
 riskstatrej:{[k]r:.db.O[k];{[x].db.RN[x;`nrej]:1+0^.db.RN[x;`nrej]} each (r`ts`acc`sym;``,r`sym;```);}; /[oid]委托拒绝统计
 riskstatexe:{[k]if[.db.O[k;`status]<>.enum`REJECTED;:()];riskstatrej[k];}; /[oid]委托回报统计
 
+rlupdate:{[x;y]r:`rootdir`riskfile!(`:/kdb/upload;`$"risklimit_",string .conf.me);fl:key r[`rootdir];if[0<count rl:fl where like[fl;string[r`riskfile],"_*.csv"];v:max {"J"$last vs["_"] -4_ string x} each rl;if[v>jfill .db[`riskver];.db[`riskver]:v;.db.RL:3!((3#"S"),(14#"F"),11#"J";enlist ",") 0: sv[`] r[`rootdir],`$string[r`riskfile],"_",string[v],".csv"]];1b};
+
+//----ChangeLog----
+//2024.07.17:新增rlupdate任务支持自动加载更新风控限额csv文件
+//2022.06.23:初始版本
+
 \
+.db.TASK[`RLUPDATE;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+08:30:00;1D00:00:01;0;4;`rlupdate);
 
 \d .db
 RR:([rid:`symbol$()]valid:`boolean$();cxlchk:`boolean$();class:`symbol$();func:`symbol$();text:`symbol$()); /风控规则

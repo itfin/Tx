@@ -74,7 +74,7 @@ ZV RecvData(THANDLE hTdf, TDF_MSG* pMsgHead){
 	const TDF_ORDER_QUEUE &p=p1[i];
 	I n1=p.nABItems;
 	K ql=ktn(KI,n1);
-	for(int j=0;j<n1;j++)kJ(ql)[j]=p.nABVolume[j];
+	for(int j=0;j<n1;j++)kI(ql)[j]=p.nABVolume[j];
 	jk(&L,knk(9,kp((S)p.szWindCode),kp((S)p.szCode),ki(p.nActionDay),ki(p.nTime),ki(p.nSide),kj(p.nPrice),ki(p.nOrders),ki(n1),ql));
       }
       mpub(knk(2,ks("DATA_ORDERQUEUE"),L));	        
@@ -192,10 +192,7 @@ extern "C"{
     TDF_ERR nErr = TDF_ERR_SUCCESS;
       
     if(run) R ki(-10001);
-    r=kqinit();
-    O("kqinit()=%d!\n",r);
-    if (r!=0) R ki(r);
-    
+    if (r=kqinit()) R ki(r);    
     run++;
 
     TDF_SetLogPath(kK(y)[5]->s);

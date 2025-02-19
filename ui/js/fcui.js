@@ -1,5 +1,7 @@
 //Tx主控台管理界面
-//version:2013.06.27
+//version:2024.08.02
+//https://ipesek.github.io/jsxgraphbook/ 
+JXG.Options.axis.ticks.useUnicodeMinus=false;
 
 Functional.install();
 
@@ -15,7 +17,8 @@ mkmenu=function(x){
 	    {text:'系统消息',attributes:{func:'sysmsgreq(x)'}}, 
 	    {text:'系统告警',attributes:{func:'logreq(x)'}}, 
 	]}, 
-	{text:'各ft模块',attributes:{func:'ftlistreq(x)'}}, 
+	{text:'各ft模块',attributes:{func:'ftlistreq(x)'}},
+	{text:'沙盒测试',attributes:{func:'sandbox(x)'}}, 
     ],onClick:function(x){eval(x.attributes.func);}});
 };
 
@@ -23,12 +26,12 @@ var ALERTLIST=[];
 
 go=function(x){$('#ctrl').html('');$('#plot').html('');$('#grid').html('<iframe style="width:100%;height:100%;frameborder:0;border:0;;" src="'+x.attributes.url+'">');};
 
-popup=function(x){window.open('http://'+host+':'+x+'/=.h.txhome%5b%5d','_blank');}
+popup=function(x){window.open('http://'+x+'/=.h.txhome%5b%5d','_blank');}
 
-ftlistreq=function(x){wscall('flip value flip select id,port from .ctrl.MOD where mtyp=`ft,h>0',ftlistres,{node:x});}
+ftlistreq=function(x){wscall(['{[x]flip value flip select id,{[h;x;y]string[$[x=`0.0.0.0;h;x]],":",string [y]}[x]\'[ip;port] from .ctrl.MOD where mtyp=`ft,h>0}',"`"+host],ftlistres,{node:x});}
 
 ftlistres=function(x,y){
-    var data=map("{text:x[0],attributes:{func:'popup('+x[1]+')'}}",y);
+    var data=map("{text:x[0],attributes:{func:'popup(\"'+x[1]+'\")'}}",y);
     //    alert($.toJSON(data[0]));
     if(x.node.children == undefined)$('#menu').tree('append',{parent:x.node.target,data:data,});
 };
@@ -61,10 +64,10 @@ logres=function(x,y){
 };
 
 //节点状态
-nodereq=function(){wscall('select id,backup,ip,portoffset,cpufreq,cpucores,mem,swap,diskdev,disk,string uptime,cpuuse*1e2,memuse*1e2,swapuse*1e2,diskuse*1e2,{sv[" "] except[;" "] each .Q.fmt[6;2] each desc x} each coreuse*1e2 from .ctrl.NOD',noderes,{target:'grid'});}
+nodereq=function(){wscall('select id,ip,portoffset,cpufreq,cpucores,mem,swap,diskdev,disk,string uptime,cpuuse*1e2,memuse*1e2,swapuse*1e2,diskuse*1e2,{sv[" "] except[;" "] each .Q.fmt[6;2] each desc x} each coreuse*1e2 from .ctrl.NOD',noderes,{target:'grid'});}
 noderes=function(x,y){
     $('#'+x.target).html('<div id=nodelst>');
-    $('#nodelst').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'id',title:'节点ID',width:80,sortable:true},{field:'backup',title:'备份节点',width:60,sortable:true},{field:'ip',title:'节点IP',width:100,sortable:true},{field:'portoffset',title:'端口偏移',width:60,sortable:true},{field:'cpufreq',title:'CPU主频(GHz)',width:80,sortable:true,formatter:function(x){return x.toFixed(1);}},{field:'cpucores',title:'CPU核数',width:60,sortable:true},{field:'mem',title:'物理内存(G)',width:90,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'swap',title:'交换文件(G)',width:90,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'diskdev',title:'数据盘设备',width:100,sortable:true},{field:'disk',title:'数据盘容量(T)',width:90,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'uptime',title:'启动时间',width:150,sortable:true},{field:'cpuuse',title:'CPU使用(%)',width:90,sortable:true,formatter:function(x){return x.toFixed(1);}},{field:'memuse',title:'内存使用(%)',width:90,sortable:true,formatter:function(x){return x.toFixed(1);}},{field:'swapuse',title:'SWAP使用(%)',width:90,sortable:true,formatter:function(x){return x.toFixed(1);}},{field:'diskuse',title:'磁盘使用(%)',width:90,sortable:true,formatter:function(x){return x.toFixed(1);}},{field:'coreuse',title:'各核使用(%)',width:400,sortable:true}]]});
+    $('#nodelst').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'id',title:'节点ID',width:80,sortable:true},{field:'ip',title:'节点IP',width:100,sortable:true},{field:'portoffset',title:'端口偏移',width:60,sortable:true},{field:'cpufreq',title:'CPU主频(GHz)',width:80,sortable:true,formatter:function(x){return x.toFixed(1);}},{field:'cpucores',title:'CPU核数',width:60,sortable:true},{field:'mem',title:'物理内存(G)',width:90,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'swap',title:'交换文件(G)',width:90,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'diskdev',title:'数据盘设备',width:100,sortable:true},{field:'disk',title:'数据盘容量(T)',width:90,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'uptime',title:'启动时间',width:150,sortable:true},{field:'cpuuse',title:'CPU使用(%)',width:90,sortable:true,formatter:function(x){return x.toFixed(1);}},{field:'memuse',title:'内存使用(%)',width:90,sortable:true,formatter:function(x){return x.toFixed(1);}},{field:'swapuse',title:'SWAP使用(%)',width:90,sortable:true,formatter:function(x){return x.toFixed(1);}},{field:'diskuse',title:'磁盘使用(%)',width:90,sortable:true,formatter:function(x){return x.toFixed(1);}},{field:'coreuse',title:'各核使用(%)',width:400,sortable:true}]]});
     $('#nodelst').datagrid('loadData',{total:y.length,rows:y});
 };
 
@@ -87,8 +90,9 @@ dispreq=function(x){wscall(['{[x]h:`_ .ctrl.H[x] (`display;());flip `k`v!(key h;
 
 dispres=function(x,y){
     $('#'+x.target).html('<div id=disp></div>');
-    $('#disp').datagrid({fit:true,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'k',title:'摘要项',width:160,sortable:true},{field:'v',title:'摘要值',width:1000,sortable:true}]]});
+    $('#disp').datagrid({fit:false,singleSelect:true,remoteSort:false,pagination:false,columns:[[{field:'k',title:'摘要项',width:160,sortable:true},{field:'v',title:'摘要值',width:1000,sortable:true}]]});
     $('#disp').datagrid('loadData',{total:y.length,rows:y});
+    $('#disp').datagrid('scrollTo',y.length-1);    
 };
 
 //行情信息
@@ -115,3 +119,44 @@ sysmsgres=function(x,y){
     $('#msglst').datagrid('loadData',{total:y.length,rows:y});
 };
 
+sandbox=function(){
+    $('#grid').html('<div id=jsxbox style="width:1600px;height:1600px">');
+    var board = JXG.JSXGraph.initBoard('jsxbox', {boundingbox: [-8, 8, 8, -8],keepaspectratio: false, axis: true, showCopyright:false, showNavigation:false});
+    var view = board.create('view3d',[[-6, -3], [8, 8],[[-5, 5], [-5, 5], [-5, 5]]],{xPlaneRear: {visible: false},yPlaneRear: {visible: false},zPlaneRear: {visible: false}});
+
+    var point_attr ={ withLabel: false, fixed: true, label: { offset: [5, 5] } },
+	p = [], // Vertices of the cube
+	faces = [],
+	i, j,
+	phi = (1 + Math.sqrt(5)) * 0.5,
+	pol_attr = { borders: { strokeWidth: 0.5 }, fillColor: JXG.palette.red },
+	q = [],
+	f = [];
+    
+    if (true) {
+	// Cube
+	i = phi;
+	p.push(view.create('point3d', [-i, -i, -i], point_attr));
+	p.push(view.create('point3d', [-i, i, -i], point_attr));
+	p.push(view.create('point3d', [i, i, -i], point_attr));
+	p.push(view.create('point3d', [i, -i, -i], point_attr));
+
+	p.push(view.create('point3d', [-i, -i, i], point_attr));
+	p.push(view.create('point3d', [-i, i, i], point_attr));
+	p.push(view.create('point3d', [i, i, i], point_attr));
+	p.push(view.create('point3d', [i, -i, i], point_attr));
+
+	faces.push(view.create('polygon3d', [p[0], p[1], p[2], p[3]]));
+	faces.push(view.create('polygon3d', [p[4], p[5], p[6], p[7]]));
+	faces.push(view.create('polygon3d', [p[0], p[1], p[5], p[4]]));
+	faces.push(view.create('polygon3d', [p[2], p[3], p[7], p[6]]));
+
+	faces.push(view.create('polygon3d', [p[0], p[3], p[7], p[4]]));
+	faces.push(view.create('polygon3d', [p[1], p[2], p[6], p[5]]));
+    }
+}
+
+//----ChangeLog----
+//2024.08.02:增加沙盒测试菜单用于调试临时代码
+//2024.05.31:nodereq/noderes表格去掉backup字段,moduleres因增加节点后显示不全改为滚动条方式
+//2013.06.27:初始版本

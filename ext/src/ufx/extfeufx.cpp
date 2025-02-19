@@ -312,7 +312,7 @@ extern "C"{
 	case KF:pack->AddDouble(kF(Lv)[i]);break;
 	case KC:pack->AddChar(kC(Lv)[i]);break;
 	case KS:pack->AddStr(kS(Lv)[i]);break;
-	default:pack->AddRaw(kG(kK(Lv)[i]),kv->n);break;  	  
+	default:pack->AddRaw(kG(kK(Lv)[i]),kK(Lv)[i]->n);break;  	  
 	}	
       }
     }else{	  

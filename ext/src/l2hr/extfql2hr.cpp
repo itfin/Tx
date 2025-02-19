@@ -93,7 +93,7 @@ public:
       K pa=ktn(KJ,10),qa=ktn(KJ,10),pb=ktn(KJ,10),qb=ktn(KJ,10);
       DO(10,kJ(pa)[i]=p->offer_price[i];kJ(qa)[i]=p->offer_volume[i];kJ(pb)[i]=p->bid_price[i];kJ(qb)[i]=p->bid_volume[i]);
 	  
-      jk(&L,knk(57,ki(p->market_type),kp(p->security_code),kj(p->orig_time),kp(p->trading_phase_code),kj(p->pre_close_price),kj(p->open_price),kj(p->high_price),kj(p->low_price),kj(p->last_price),kj(p->close_price),pb,qb,pa,qa,kj(p->num_trades),kj(p->total_volume_trade),kj(p->total_value_trade),kj(p->total_bid_volume),kj(p->total_offer_volume),kj(p->weighted_avg_bid_price),kj(p->weighted_avg_offer_price),kj(p->IOPV),kj(p->yield_to_maturity),kj(p->high_limited),kj(p->low_limited),kj(p->price_earning_ratio1),kj(p->price_earning_ratio2),kj(p->change1),kj(p->change2),ki(p->channel_no),kp(p->md_stream_id),kp(p->instrument_status),kj(p->pre_close_iopv),kj(p->alt_weighted_avg_bid_price),kj(p->alt_weighted_avg_offer_price),kj(p->etf_buy_number),kj(p->etf_buy_amount),kj(p->etf_buy_money),kj(p->etf_sell_number),kj(p->etf_sell_amount),kj(p->etf_sell_money),kj(p->total_warrant_exec_volume),kj(p->war_lower_price),kj(p->war_upper_price),kj(p->withdraw_buy_number),kj(p->withdraw_buy_amount),kj(p->withdraw_buy_money),kj(p->withdraw_sell_number),kj(p->withdraw_sell_amount),kj(p->withdraw_sell_money),kj(p->total_bid_number),kj(p->total_offer_number),ki(p->bid_trade_max_duration),ki(p->offer_trade_max_duration),ki(p->num_bid_orders),ki(p->num_offer_orders),kj(p->last_trade_time)));
+      jk(&L,knk(58,ki(p->market_type),kp(p->security_code),kj(p->orig_time),kp(p->trading_phase_code),kj(p->pre_close_price),kj(p->open_price),kj(p->high_price),kj(p->low_price),kj(p->last_price),kj(p->close_price),pb,qb,pa,qa,kj(p->num_trades),kj(p->total_volume_trade),kj(p->total_value_trade),kj(p->total_bid_volume),kj(p->total_offer_volume),kj(p->weighted_avg_bid_price),kj(p->weighted_avg_offer_price),kj(p->IOPV),kj(p->yield_to_maturity),kj(p->high_limited),kj(p->low_limited),kj(p->price_earning_ratio1),kj(p->price_earning_ratio2),kj(p->change1),kj(p->change2),ki(p->channel_no),kp(p->md_stream_id),kp(p->instrument_status),kj(p->pre_close_iopv),kj(p->alt_weighted_avg_bid_price),kj(p->alt_weighted_avg_offer_price),kj(p->etf_buy_number),kj(p->etf_buy_amount),kj(p->etf_buy_money),kj(p->etf_sell_number),kj(p->etf_sell_amount),kj(p->etf_sell_money),kj(p->total_warrant_exec_volume),kj(p->war_lower_price),kj(p->war_upper_price),kj(p->withdraw_buy_number),kj(p->withdraw_buy_amount),kj(p->withdraw_buy_money),kj(p->withdraw_sell_number),kj(p->withdraw_sell_amount),kj(p->withdraw_sell_money),kj(p->total_bid_number),kj(p->total_offer_number),ki(p->bid_trade_max_duration),ki(p->offer_trade_max_duration),ki(p->num_bid_orders),ki(p->num_offer_orders),kj(p->last_trade_time),kc(p->variety_category)));
       p++;
     }
     mpub(knk(2,ks("MDSnapshot"),L));
@@ -106,7 +106,7 @@ public:
     K L=knk(0);    
 
     for (uint32_t _i = 0; _i < cnt; ++_i){
-      jk(&L,knk(14,ki(p->market_type),kp(p->security_code),kj(p->orig_time),kp(p->trading_phase_code),kj(p->pre_close_index),kj(p->open_index),kj(p->high_index),kj(p->low_index),kj(p->last_index),kj(p->close_index),kj(p->total_volume_trade),kj(p->total_value_trade),ki(p->channel_no),kp(p->md_stream_id)));
+      jk(&L,knk(15,ki(p->market_type),kp(p->security_code),kj(p->orig_time),kp(p->trading_phase_code),kj(p->pre_close_index),kj(p->open_index),kj(p->high_index),kj(p->low_index),kj(p->last_index),kj(p->close_index),kj(p->total_volume_trade),kj(p->total_value_trade),ki(p->channel_no),kp(p->md_stream_id),kc(p->variety_category)));
       p++;
     }
     
@@ -120,7 +120,7 @@ public:
     K L=knk(0);    
 
     for (uint32_t _i = 0; _i < cnt; ++_i){
-      jk(&L,knk(14,ki(p->market_type),kp(p->security_code),kj(p->exec_time),ki(p->channel_no),kj(p->appl_seq_num),kj(p->exec_price),kj(p->exec_volume),kj(p->value_trade),kj(p->bid_appl_seq_num),kj(p->offer_appl_seq_num),kc(p->side),kc(p->exec_type),kp(p->md_stream_id),kj(p->biz_index)));	  
+      jk(&L,knk(15,ki(p->market_type),kp(p->security_code),kj(p->exec_time),ki(p->channel_no),kj(p->appl_seq_num),kj(p->exec_price),kj(p->exec_volume),kj(p->value_trade),kj(p->bid_appl_seq_num),kj(p->offer_appl_seq_num),kc(p->side),kc(p->exec_type),kp(p->md_stream_id),kj(p->biz_index),kc(p->variety_category)));	  
       p++;
     }
     mpub(knk(2,ks("MDTickExecution"),L));
@@ -134,7 +134,7 @@ public:
     K L=knk(0);    
 
     for (uint32_t _i = 0; _i < cnt; ++_i){
-      jk(&L,knk(12,ki(p->market_type),kp(p->security_code),ki(p->channel_no),kj(p->appl_seq_num),kj(p->order_time),kj(p->order_price),kj(p->order_volume),kc(p->side),kc(p->order_type),kp(p->md_stream_id),kj(p->orig_order_no),kj(p->biz_index)));
+      jk(&L,knk(14,ki(p->market_type),kp(p->security_code),ki(p->channel_no),kj(p->appl_seq_num),kj(p->order_time),kj(p->order_price),kj(p->order_volume),kc(p->side),kc(p->order_type),kp(p->md_stream_id),kj(p->orig_order_no),kj(p->biz_index),kc(p->variety_category),kj(p->traded_order_volume)));
       p++;
     }
 
@@ -149,7 +149,7 @@ public:
     for (uint32_t _i = 0; _i < cnt; ++_i){
       K v=ktn(KJ,50);
       DO(50,kJ(v)[i]=p->volume[i]);
-      jk(&L,knk(11,ki(p->market_type),kp(p->security_code),kj(p->order_time),kc(p->side),kj(p->order_price),kj(p->order_volume),ki(p->num_of_orders),ki(p->items),v,ki(p->channel_no),kp(p->md_stream_id)));
+      jk(&L,knk(12,ki(p->market_type),kp(p->security_code),kj(p->order_time),kc(p->side),kj(p->order_price),kj(p->order_volume),ki(p->num_of_orders),ki(p->items),v,ki(p->channel_no),kp(p->md_stream_id),kc(p->variety_category)));
       p++;
     }
     mpub(knk(2,ks("MDOrderQueue"),L));
@@ -164,7 +164,7 @@ public:
       K pa=ktn(KJ,5),qa=ktn(KJ,5),pb=ktn(KJ,5),qb=ktn(KJ,5);
       DO(5,kJ(pa)[i]=p->offer_price[i];kJ(qa)[i]=p->offer_volume[i];kJ(pb)[i]=p->bid_price[i];kJ(qb)[i]=p->bid_volume[i]);
 	  
-      jk(&L,knk(27,ki(p->market_type),kp(p->security_code),kj(p->orig_time),kj(p->pre_settle_price),kj(p->pre_close_price),kj(p->open_price),kj(p->auction_price),kj(p->auction_volume),kj(p->high_price),kj(p->low_price),kj(p->last_price),kj(p->close_price),kj(p->high_limited),kj(p->low_limited),pb,qb,pa,qa,kj(p->settle_price),kj(p->total_long_position),kj(p->total_volume_trade),kj(p->total_value_trade),kp(p->trading_phase_code),ki(p->channel_no),kp(p->md_stream_id),kj(p->last_trade_time),kj(p->ref_price)));
+      jk(&L,knk(32,ki(p->market_type),kp(p->security_code),kj(p->orig_time),kj(p->pre_settle_price),kj(p->pre_close_price),kj(p->open_price),kj(p->auction_price),kj(p->auction_volume),kj(p->high_price),kj(p->low_price),kj(p->last_price),kj(p->close_price),kj(p->high_limited),kj(p->low_limited),pb,qb,pa,qa,kj(p->settle_price),kj(p->total_long_position),kj(p->total_volume_trade),kj(p->total_value_trade),kp(p->trading_phase_code),ki(p->channel_no),kp(p->md_stream_id),kj(p->last_trade_time),kj(p->ref_price),kc(p->variety_category),kc(p->contract_type),ki(p->expire_date),kp(p->underlying_security_code),kj(p->exercise_price)));
       p++;
     }
 
@@ -180,7 +180,7 @@ public:
       K pa=ktn(KJ,5),qa=ktn(KJ,5),pb=ktn(KJ,5),qb=ktn(KJ,5);
       DO(5,kJ(pa)[i]=p->offer_price[i];kJ(qa)[i]=p->offer_volume[i];kJ(pb)[i]=p->bid_price[i];kJ(qb)[i]=p->bid_volume[i]);
 	  
-      jk(&L,knk(27,ki(p->market_type),kp(p->security_code),ki(p->action_day),kj(p->orig_time),kp(p->exchange_inst_id),kj(p->last_price),kj(p->pre_settle_price),kj(p->pre_close_price),kj(p->pre_open_interest),kj(p->open_price),kj(p->high_price),kj(p->low_price),kj(p->total_volume_trade),kj(p->total_value_trade),kj(p->open_interest),kj(p->close_price),kj(p->settle_price),kj(p->high_limited),kj(p->low_limited),kj(p->pre_delta),kj(p->curr_delta),pb,qb,pa,qa,kj(p->average_price),ki(p->trading_day)));
+      jk(&L,knk(42,ki(p->market_type),kp(p->security_code),ki(p->action_day),kj(p->orig_time),kp(p->exchange_inst_id),kj(p->last_price),kj(p->pre_settle_price),kj(p->pre_close_price),kj(p->pre_open_interest),kj(p->open_price),kj(p->high_price),kj(p->low_price),kj(p->total_volume_trade),kj(p->total_value_trade),kj(p->open_interest),kj(p->close_price),kj(p->settle_price),kj(p->high_limited),kj(p->low_limited),kj(p->pre_delta),kj(p->curr_delta),pb,qb,pa,qa,kj(p->average_price),ki(p->trading_day),kc(p->variety_category),kp(p->exchange_inst_groupid),kj(p->his_high_price),kj(p->his_low_price),kj(p->latest_volume_trade),kj(p->init_volume_trade),kj(p->change_volume_trade),kj(p->bid_imply_volume),kj(p->offer_imply_volume),kc(p->arbi_type),kp(p->instrument_id_1),kp(p->instrument_id_2),kp(p->instrument_name),kj(p->total_bid_volume_trade),kj(p->total_ask_volume_trade)));
 
       p++;
     }
@@ -198,7 +198,7 @@ public:
       K pa=ktn(KJ,5),qa=ktn(KJ,5),pb=ktn(KJ,5),qb=ktn(KJ,5);
       DO(5,kJ(pa)[i]=p->offer_price[i];kJ(qa)[i]=p->offer_volume[i];kJ(pb)[i]=p->bid_price[i];kJ(qb)[i]=p->bid_volume[i]);
 	  
-      jk(&L,knk(24,ki(p->market_type),kp(p->security_code),kj(p->orig_time),kj(p->pre_close_price),kj(p->nominal_price),kj(p->high_price),kj(p->low_price),kj(p->last_price),pb,qb,pa,qa,kj(p->total_volume_trade),kj(p->total_value_trade),kp(p->trading_phase_code),ki(p->channel_no),kp(p->md_stream_id),kj(p->ref_price),kj(p->high_limited),kj(p->low_limited),kj(p->bid_price_limit_up),kj(p->bid_price_limit_down),kj(p->offer_price_limit_up),kj(p->offer_price_limit_down)));
+      jk(&L,knk(25,ki(p->market_type),kp(p->security_code),kj(p->orig_time),kj(p->pre_close_price),kj(p->nominal_price),kj(p->high_price),kj(p->low_price),kj(p->last_price),pb,qb,pa,qa,kj(p->total_volume_trade),kj(p->total_value_trade),kp(p->trading_phase_code),ki(p->channel_no),kp(p->md_stream_id),kj(p->ref_price),kj(p->high_limited),kj(p->low_limited),kj(p->bid_price_limit_up),kj(p->bid_price_limit_down),kj(p->offer_price_limit_up),kj(p->offer_price_limit_down),kc(p->variety_category)));
       p++;
     }
 

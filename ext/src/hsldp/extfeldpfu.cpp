@@ -1,60 +1,14 @@
-#include "kcomm.h"
-#include <queue>
+#include "kqueue.h"
+
 #include "HSTradeApi.h"
 #include "HsFutuSystemInfo.h"
 #include "DataCollect.h"
 
 #define APIPOOL_SIZE 256
-#define PIPE_CAPACITY 65536
-#define b9 
-#define d9 
 
-ZI run=0,p[2];ZC b[2*PIPE_CAPACITY];
+ZI run=0,c;
 
-#if defined(WIN32)||defined(WIN64)
-#include <process.h>
-ZI pipe(I*p){R !CreatePipe((PHANDLE)p+0,(PHANDLE)p+1,0,0);}
-ZI dwBytes;
-#define read(x,y,z) ReadFile((HANDLE)x,y,z,(LPDWORD)&dwBytes,NULL) 
-#define write(x,y,z) WriteFile((HANDLE)x,y,z,(LPDWORD)&dwBytes,NULL); 
-#define close(x) CloseHandle((HANDLE)x)
-Z CRITICAL_SECTION g_CS;
-#define INITLOCK InitializeCriticalSection(&g_CS)
-#define FREELOCK DeleteCriticalSection(&g_CS)
-#define LOCK EnterCriticalSection(&g_CS)
-#define UNLOCK LeaveCriticalSection(&g_CS)
-#else
-Z pthread_mutex_t g_mutex=PTHREAD_MUTEX_INITIALIZER;
-#define INITLOCK 
-#define FREELOCK 
-#define LOCK pthread_mutex_lock(&g_mutex)
-#define UNLOCK pthread_mutex_unlock(&g_mutex)
-#endif
-
-Z std::queue<K> mq;
-Z std::queue<K> fq;
-
-Z int c;
-
-ZK onmq(I i){
-  K L=knk(0);
-  read(i,&b,PIPE_CAPACITY);
-  LOCK;
-  while (!mq.empty()){
-    jk(&L,d9(mq.front()));
-    mq.pop();
-  }
-  UNLOCK;    
-  k(0,"onldp",L,(K)0);
-  R ki(0);
-}
-
-Z V mpub(K x){
-  LOCK;
-  mq.push(b9(1,x));
-  UNLOCK;    
-  write(p[1],&b,1);
-};
+ONMQ("onldp")
 
 Z  CHSTradeApi *pTradeApi,*ApiPool[APIPOOL_SIZE];ZI nAPI=0;   
 
@@ -103,7 +57,7 @@ public:
 
   /// Description:报单撤单
   virtual void OnRspOrderAction(CHSRspOrderActionField *p, CHSRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
-    RETURNONLDPERR("OrderAction");
+    RETURNONLDPERR("RspOrderAction");
     LPUB("RspOrderAction",knk(8,kp(p->AccountID),kp(p->OrderSysID),kp(p->ExchangeID),ki(p->SessionID),kp(p->OrderRef),kc(p->OrderStatus),ki(p->InsertTime),kp(p->OrderActionRef)));
   };
 
@@ -135,12 +89,14 @@ public:
   /// Description:主推-报单回报
   virtual void OnRtnOrder(CHSOrderField *p) {
     MPUB("RtnOrder",knk(31,kp(p->AccountID),kp(p->OrderSysID),kp(p->BrokerOrderID),ki(p->SessionID),kp(p->OrderRef),kp(p->ExchangeID),kp(p->InstrumentID),ki(p->Direction),kc(p->OffsetFlag),kc(p->HedgeType),kf(p->OrderPrice),kf(p->OrderVolume),kc(p->OrderStatus),kf(p->TradeVolume),kf(p->CancelVolume),kf(p->TradePrice),ki(p->TradingDay),ki(p->InsertDate),ki(p->InsertTime),ki(p->ReportTime),ki(p->OrderCommand),kf(p->MinVolume),kf(p->SpringPrice),kc(p->SwapOrderFlag),kc(p->ForceCloseReason),kp(p->ErrorMsg),kp(p->UnderlyingInstrID),kc(p->OrderSource),kp(p->CombPositionID),kp(p->ExchangeAccountID),ki(p->SeatIndex)));
+    DBG("[RtnOrder](%i,%s,%s,%s,%s,%i,%c,%c,%f,%f,%c,%i,%i,%s,%f,%f,%f)\n",p->TradingDay,p->BrokerOrderID,p->OrderRef,p->ExchangeID,p->InstrumentID,p->Direction,p->OffsetFlag,p->HedgeType,p->OrderPrice,p->OrderVolume,p->OrderStatus,p->OrderCommand,p->ReportTime,p->ErrorMsg,p->TradeVolume,p->CancelVolume,p->TradePrice);
   };
 
   /// Description:主推-成交回报
   virtual void OnRtnTrade(CHSTradeField *p) {
     MPUB("RtnTrade",knk(19,kp(p->AccountID),kp(p->TradeID),kp(p->OrderSysID),kp(p->BrokerOrderID),ki(p->SessionID),kp(p->OrderRef),kp(p->ExchangeID),kp(p->InstrumentID),ki(p->Direction),kc(p->OffsetFlag),kc(p->HedgeType),kf(p->TradeVolume),kf(p->TradePrice),ki(p->TradingDay),ki(p->TradeTime),kp(p->UnderlyingInstrID),kp(p->CombPositionID),kf(p->TradeCommission),kp(p->ExchangeAccountID)));
-  };
+    DBG("[RtnTrade](%i,%s,%s,%s,%s,%i,%c,%c,%i,%f,%f)\n",p->TradingDay,p->BrokerOrderID,p->OrderRef,p->ExchangeID,p->InstrumentID,p->Direction,p->OffsetFlag,p->HedgeType,p->TradeTime,p->TradeVolume,p->TradePrice);
+ };
 
 };
 
@@ -149,6 +105,14 @@ Z CTradeHandler * pTradeSpi,*SpiPool[APIPOOL_SIZE];;
 extern "C"{
   K1(ldpapiver){
     R kp((S)GetTradeApiVersion());
+  }
+  
+  K1(ldplockfree){
+#if defined(_USE_LOCKFREE_QUEUE)
+    R ki(1);
+#else
+    R ki(0);    
+#endif    
   }
   
   K1(ldperrmsg){
@@ -167,20 +131,8 @@ extern "C"{
     
       
     if(run) R ki(-10001);
-
-    if(pipe(p)) R ki(-10009);
-
-#if defined(WIN32)||defined(WIN64)
-#else
-    if(-1==(f = fcntl(p[0],F_GETFL,0)))R ki(-10002);
-    f |= O_NONBLOCK;
-    if (fcntl(p[0],F_SETFL,f)==-1) R ki(-10003);
-#endif
-
+    if (r=kqinit()) R ki(r);    
     run++;
-    INITLOCK;
-    setm(1);
-    sd1(p[0],onmq);
 
     cfg.APICheckVersion=API_STRUCT_CHECK_VERSION;
     strcpy(cfg.CommLicense,kK(x)[4]->s);
@@ -208,13 +160,9 @@ extern "C"{
 
     MPUB("freeldp",knk(0));
 
-    /*
-      sd0(p[0]);
-    close(p[0]);close(p[1]);
-    FREELOCK;
-    */
+    kqfree();    
     run--;
-    R ki(run);
+   R ki(run);
   }
 
   K1(ldprun){

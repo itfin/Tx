@@ -1,18 +1,19 @@
-.module.twsbase:2017.07.08;
+.module.twsbase:2024.09.26;
+//cf ibapi:EClient.h(MsgOut)/EClient.cpp/EDecoder.h(MsgIn)/EDecoder.cpp,https://www.interactivebrokers.com/campus/ibkr-api-page/twsapi-doc/,https://ibkrcampus.com/ibkr-api-page/twsapi-doc/,https://ibkrguides.com/releasenotes/api/tws/prod-2022(2024).htm
 
 txload "feed/socket";
 
 \d .enum
-(MsgOut:`REQ_MKT_DATA`CANCEL_MKT_DATA`PLACE_ORDER`CANCEL_ORDER`REQ_OPEN_ORDERS`REQ_ACCT_DATA`REQ_EXECUTIONS`REQ_IDS`REQ_CONTRACT_DATA`REQ_MKT_DEPTH`CANCEL_MKT_DEPTH`REQ_NEWS_BULLETINS`CANCEL_NEWS_BULLETINS`SET_SERVER_LOGLEVEL`REQ_AUTO_OPEN_ODERS`REQ_ALL_OPEN_ORDERS`REQ_MANAGED_ACCTS`REQ_FA`REPLACE_FA`REQ_HISTORICAL_DATA`EXERCISE_OPTIONS`REQ_SCANNER_SUBSCRIPTION`CANCEL_SCANNER_SUBSCRIPTION`REQ_SCANNER_PARAMETERS`CANCEL_HISTORICAL_DATA`REQ_CURRENT_TIME`REQ_REAL_TIME_BARS`CANCEL_REAL_TIME_BARS`REQ_FUNDAMENTAL_DATA`CANCEL_FUNDAMENTAL_DATA`REQ_CALC_IMPLIED_VOLAT`REQ_CALC_OPTION_PRICE`CANCEL_CALC_IMPLIED_VOLAT`CANCEL_CALC_OPTION_PRICE`REQ_GLOBAL_CANCEL`REQ_MARKET_DATA_TYPE`REQ_POSITIONS`REQ_ACCOUNT_SUMMARY`CANCEL_ACCOUNT_SUMMARY`CANCEL_POSITIONS`VERIFY_REQUEST`VERIFY_MESSAGE`QUERY_DISPLAY_GROUPS`SUBSCRIBE_TO_GROUP_EVENTS`UPDATE_DISPLAY_GROUP`UNSUBSCRIBE_FROM_GROUP_EVENTS`START_API) set' (1+til 25),(49+til 11),61+til 11; /tws_outgoing_ids
+(MsgOut:`REQ_MKT_DATA`CANCEL_MKT_DATA`PLACE_ORDER`CANCEL_ORDER`REQ_OPEN_ORDERS`REQ_ACCT_DATA`REQ_EXECUTIONS`REQ_IDS`REQ_CONTRACT_DATA`REQ_MKT_DEPTH`CANCEL_MKT_DEPTH`REQ_NEWS_BULLETINS`CANCEL_NEWS_BULLETINS`SET_SERVER_LOGLEVEL`REQ_AUTO_OPEN_ODERS`REQ_ALL_OPEN_ORDERS`REQ_MANAGED_ACCTS`REQ_FA`REPLACE_FA`REQ_HISTORICAL_DATA`EXERCISE_OPTIONS`REQ_SCANNER_SUBSCRIPTION`CANCEL_SCANNER_SUBSCRIPTION`REQ_SCANNER_PARAMETERS`CANCEL_HISTORICAL_DATA`REQ_CURRENT_TIME`REQ_REAL_TIME_BARS`CANCEL_REAL_TIME_BARS`REQ_FUNDAMENTAL_DATA`CANCEL_FUNDAMENTAL_DATA`REQ_CALC_IMPLIED_VOLAT`REQ_CALC_OPTION_PRICE`CANCEL_CALC_IMPLIED_VOLAT`CANCEL_CALC_OPTION_PRICE`REQ_GLOBAL_CANCEL`REQ_MARKET_DATA_TYPE`REQ_POSITIONS`REQ_ACCOUNT_SUMMARY`CANCEL_ACCOUNT_SUMMARY`CANCEL_POSITIONS`VERIFY_REQUEST`VERIFY_MESSAGE`QUERY_DISPLAY_GROUPS`SUBSCRIBE_TO_GROUP_EVENTS`UPDATE_DISPLAY_GROUP`UNSUBSCRIBE_FROM_GROUP_EVENTS`START_API`VERIFY_AND_AUTH_REQUEST`VERIFY_AND_AUTH_MESSAGE`REQ_POSITIONS_MULTI`CANCEL_POSITIONS_MULTI`REQ_ACCOUNT_UPDATES_MULTI`CANCEL_ACCOUNT_UPDATES_MULTI`REQ_SEC_DEF_OPT_PARAMS`REQ_SOFT_DOLLAR_TIERS`REQ_FAMILY_CODES`REQ_MATCHING_SYMBOLS`REQ_MKT_DEPTH_EXCHANGES`REQ_SMART_COMPONENTS`REQ_NEWS_ARTICLE`REQ_NEWS_PROVIDERS`REQ_HISTORICAL_NEWS`REQ_HEAD_TIMESTAMP`REQ_HISTOGRAM_DATA`CANCEL_HISTOGRAM_DATA`CANCEL_HEAD_TIMESTAMP`REQ_MARKET_RULE`REQ_PNL`CANCEL_PNL`REQ_PNL_SINGLE`CANCEL_PNL_SINGLE`REQ_HISTORICAL_TICKS`REQ_TICK_BY_TICK_DATA`CANCEL_TICK_BY_TICK_DATA`REQ_COMPLETED_ORDERS`REQ_WSH_META_DATA`CANCEL_WSH_META_DATA`REQ_WSH_EVENT_DATA`CANCEL_WSH_EVENT_DATA`REQ_USER_INFO) set' (1+til 25),(49+til 11),61+til 44; /tws_outgoing_ids
 
 
-(MsgIn:`TWS_LOGON`TICK_PRICE`TICK_SIZE`ORDER_STATUS`ERR_MSG`OPEN_ORDER`ACCT_VALUE`PORTFOLIO_VALUE`ACCT_UPDATE_TIME`NEXT_VALID_ID`CONTRACT_DATA`EXECUTION_DATA`MARKET_DEPTH`MARKET_DEPTH_L2`NEWS_BULLETINS`MANAGED_ACCTS`RECEIVE_FA`HISTORICAL_DATA`BOND_CONTRACT_DATA`SCANNER_PARAMETERS`SCANNER_DATA`TICK_OPTION_COMPUTATION`TICK_GENERIC`TICK_STRING`TICK_EFP`CURRENT_TIME`REAL_TIME_BARS`FUNDAMENTAL_DATA`CONTRACT_DATA_END`OPEN_ORDER_END`ACCT_DOWNLOAD_END`EXECUTION_DATA_END`DELTA_NEUTRAL_VALIDATION`TICK_SNAPSHOT_END`MARKET_DATA_TYPE`COMMISSION_REPORT`POSITION_DATA`POSITION_END`ACCOUNT_SUMMARY`ACCOUNT_SUMMARY_END`VERIFY_MESSAGE_API`VERIFY_COMPLETED`DISPLAY_GROUP_LIST`DISPLAY_GROUP_UPDATED`VERIFY_AND_AUTH_MESSAGE_API`VERIFY_AND_AUTH_COMPLETED) set' 0,(1+til 21),(45+til 3),(49+til 11),61+til 10; /tws_incoming_ids
+(MsgIn:`TWS_LOGON`TICK_PRICE`TICK_SIZE`ORDER_STATUS`ERR_MSG`OPEN_ORDER`ACCT_VALUE`PORTFOLIO_VALUE`ACCT_UPDATE_TIME`NEXT_VALID_ID`CONTRACT_DATA`EXECUTION_DATA`MARKET_DEPTH`MARKET_DEPTH_L2`NEWS_BULLETINS`MANAGED_ACCTS`RECEIVE_FA`HISTORICAL_DATA`BOND_CONTRACT_DATA`SCANNER_PARAMETERS`SCANNER_DATA`TICK_OPTION_COMPUTATION`TICK_GENERIC`TICK_STRING`TICK_EFP`CURRENT_TIME`REAL_TIME_BARS`FUNDAMENTAL_DATA`CONTRACT_DATA_END`OPEN_ORDER_END`ACCT_DOWNLOAD_END`EXECUTION_DATA_END`DELTA_NEUTRAL_VALIDATION`TICK_SNAPSHOT_END`MARKET_DATA_TYPE`COMMISSION_REPORT`POSITION_DATA`POSITION_END`ACCOUNT_SUMMARY`ACCOUNT_SUMMARY_END`VERIFY_MESSAGE_API`VERIFY_COMPLETED`DISPLAY_GROUP_LIST`DISPLAY_GROUP_UPDATED`VERIFY_AND_AUTH_MESSAGE_API`VERIFY_AND_AUTH_COMPLETED`POSITION_MULTI`POSITION_MULTI_END`ACCOUNT_UPDATE_MULTI`ACCOUNT_UPDATE_MULTI_END`SECURITY_DEFINITION_OPTION_PARAMETER`SECURITY_DEFINITION_OPTION_PARAMETER_END`SOFT_DOLLAR_TIERS`FAMILY_CODES`SYMBOL_SAMPLES`MKT_DEPTH_EXCHANGES`TICK_REQ_PARAMS`SMART_COMPONENTS`NEWS_ARTICLE`TICK_NEWS`NEWS_PROVIDERS`HISTORICAL_NEWS`HISTORICAL_NEWS_END`HEAD_TIMESTAMP`HISTOGRAM_DATA`HISTORICAL_DATA_UPDATE`REROUTE_MKT_DATA_REQ`REROUTE_MKT_DEPTH_REQ`MARKET_RULE`PNL`PNL_SINGLE`HISTORICAL_TICKS`HISTORICAL_TICKS_BID_ASK`HISTORICAL_TICKS_LAST`TICK_BY_TICK`ORDER_BOUND`COMPLETED_ORDER`COMPLETED_ORDERS_END`REPLACE_FA_END`WSH_META_DATA`WSH_EVENT_DATA`HISTORICAL_SCHEDULE`USER_INFO) set' 0,(1+til 21),(45+til 3),(49+til 11),61+til 47; /tws_incoming_ids
 
 (TickType:`BID_SIZE`BID`ASK`ASK_SIZE`LAST`LAST_SIZE`HIGH`LOW`VOLUME`CLOSE`BID_OPTION_COMPUTATION`ASK_OPTION_COMPUTATION`LAST_OPTION_COMPUTATION`MODEL_OPTION`OPEN`LOW_13_WEEK`HIGH_13_WEEK`LOW_26_WEEK`HIGH_26_WEEK`LOW_52_WEEK`HIGH_52_WEEK`AVG_VOLUME`OPEN_INTEREST`OPTION_HISTORICAL_VOL`OPTION_IMPLIED_VOL`OPTION_BID_EXCH`OPTION_ASK_EXCH`OPTION_CALL_OPEN_INTEREST`OPTION_PUT_OPEN_INTEREST`OPTION_CALL_VOLUME`OPTION_PUT_VOLUME`INDEX_FUTURE_PREMIUM`BID_EXCH`ASK_EXCH`AUCTION_VOLUME`AUCTION_PRICE`AUCTION_IMBALANCE`MARK_PRICE`BID_EFP_COMPUTATION`ASK_EFP_COMPUTATION`LAST_EFP_COMPUTATION`OPEN_EFP_COMPUTATION`HIGH_EFP_COMPUTATION`LOW_EFP_COMPUTATION`CLOSE_EFP_COMPUTATION`LAST_TIMESTAMP`SHORTABLE`FUNDAMENTAL_RATIOS`RT_VOLUME`HALTED`BID_YIELD`ASK_YIELD`LAST_YIELD`CUST_OPTION_COMPUTATION`TRADE_COUNT`TRADE_RATE`VOLUME_RATE`LAST_RTH_TRADE`NOT_SET) set' til 59; /TickType Enum
 
 `NEWS_MSG`EXCHANGE_AVAIL_MSG`EXCHANGE_UNAVAIL_MSG set' 1 2 3; /TWS New Bulletins constants
 
-MsgInLen:(value each MsgIn)!0 5 3 10 3 62 4 18 1 1 30 28 6 7 4 1 2 4 30 1 2 10 3 3 9 1 9 2 1 0 1 1 4 1 2 6 14 0 5 1 1 2 2 2 0 0; /接收消息至少字段数(不含版本号)
+MsgInLen:(value each MsgIn)!(1+0 5 3 10 3 62 4 18 1 1 30 28 6 7 4 1 2 4 30 1 2 10 3 3 9 1 9 2 1 0 1 1 4 1 2 6 14 0 5 1 1 2 2 2 0 0),37#0; /接收消息至少字段数(含版本号)
 MsgInMap:(value each MsgIn)!MsgIn;TickTypeMap:(value each TickType)!TickType;
 
 //secType:`STK`OPT`FUT`IND`FOP`CASH`BAG`WAR /STK - stocks, FUT - futures, FOP - options on futures, OPT - options, IND - indexes, CASH -cash (ideal FX) WAR- warrant
@@ -43,18 +44,19 @@ tws_logon:{[]x:.conf.tws.id;if[not x in key .ctrl.tcpconn;:()];r:.ctrl.tcpconn[x
 
 smtws:{[y;x;z]smtcp[x] m:(.enum.NUL sv {$[10h=type x;x;string x]} each y,raze over z),.enum.NUL;if[.conf.tws.debug;.temp.C,:enlist (.z.P;m);.temp.CMD,:m];}; /[msgid(int);twsid;fields]
 
-twsmsg:{[x]if[1>=n:count y:where x=.enum.NUL;:0];mid:$[`LogonHalf~.ctrl.tws[`status];.enum`TWS_LOGON;"I"$y[0]#x];if[not mid in key .enum.MsgInLen;:-1];if[n<n1:2+.enum.MsgInLen[mid];:0];if[0>n2:.tws[.enum.MsgInMap mid][z:.enum.NUL vs y[n-1]#x];:0];if[.conf.tws.debug;.temp.L,:enlist (.z.P;.enum.MsgInMap mid;(n1+n2)#z)];1+y[n1+n2-1]}; /[msgbuf]尝试读取一条完整tws消息,如成功返回该消息字节数,如果消息不完整返回0,出现解码错误则返回-1
+//n1:含消息头最小字段数(老版本消息头为mid,version,...新版本version非必须),n2:附加字段数
+twsmsg:{[x]if[1>=n:count y:where x=.enum.NUL;:0];mid:$[`LogonHalf~.ctrl.tws[`status];.enum`TWS_LOGON;"I"$y[0]#x];if[not mid in key .enum.MsgInLen;:-1];if[n<n1:1+.enum.MsgInLen[mid];:0];if[0>n2:.tws[.enum.MsgInMap mid][z:.enum.NUL vs y[n-1]#x];:0];if[.conf.tws.debug;.temp.L,:enlist (.z.P;.enum.MsgInMap mid;(n1+n2)#z)];1+y[n1+n2-1]}; /[msgbuf]尝试读取一条完整tws消息,如成功返回该消息字节数,如果消息不完整返回0,出现解码错误则返回-1
 
 /logon_callback
 tws_afterlogon:{req_current_time[1];};
 /quote_callback
 tws_tick_price:tws_tick_size:tws_market_depth:tws_tick_generic:tws_tick_string:tws_tick_option_computation:tws_real_time_bars:tws_historical_data:{};
 /order_callback
-tws_err_msg:tws_order_status:tws_open_order:tws_open_order_end:tws_execution_data:tws_execution_data_end:tws_commission_report:tws_acct_value:tws_acct_update_time:tws_acct_download_end:tws_contract_data:tws_contract_data_end:tws_position_data:tws_position_end:tws_portfolio_value:tws_scanner_parameters:tws_scanner_data:tws_fundamental_data:{};
+tws_err_msg:tws_order_status:tws_open_order:tws_open_order_end:tws_execution_data:tws_execution_data_end:tws_commission_report:tws_acct_value:tws_acct_update_time:tws_acct_download_end:tws_contract_data:tws_contract_data_end:tws_position_data:tws_position_end:tws_portfolio_value:tws_scanner_parameters:tws_scanner_data:tws_fundamental_data:tws_completed_order:tws_completed_orders_end:{};
 
-/消息入参为(msgid;ver;field0,field1,...)
+/消息入参为(msgid;(ver);field0,field1,...)
 
-.tws.TWS_LOGON:{[x].ctrl.tws[`status`logontime`versionS`idiom`acct`port]:(`Logon;.z.P;`$x[0];`$x[1];.enum.nulldict;.enum.nulldict);start_api[(1;.conf.tws.cltid)];tws_afterlogon[];$[`9=`$x[1];2;0]}; /登陆消息(为收到的第一条虚消息,无消息号)[ver=76](conntime),向TWS发送API实例号
+.tws.TWS_LOGON:{[x].ctrl.tws[`status`logontime`versionS`logontimeS`acct`port]:(`Logon;.z.P;`$x[0];x[1];.enum.nulldict;.enum.nulldict);start_api[(1;.conf.tws.cltid)];tws_afterlogon[];$[`9=`$x[1];2;0]}; /登陆消息(为收到的第一条虚消息,无消息号)[ver=76](conntime),向TWS发送API实例号
 
 .tws.TICK_PRICE:{[x]@[tws_tick_price;y:`tickerid`ticktype`price`size`canautoexecute!5#2_x;()];0}; /{1}行情委托价量更新[Ver=6](tickerId;tickTypeInt;price;size;canAutoExecute)
 
@@ -64,7 +66,8 @@ tws_err_msg:tws_order_status:tws_open_order:tws_open_order_end:tws_execution_dat
 
 .tws.ERR_MSG:{[x]id:`$x[2];ec:`$x[3];txt:`$x[4];lwarn[`TWSError;(id;ec;txt)];if[0<"I"$string id;tws_err_msg[`id`reason`text!3#2_x]];0}; /{4}错误或通知消息(为收到的第三条消息)[Ver=2](委托ID/请求ID;错误号;错误信息)
 
-.tws.OPEN_ORDER:{[x]n:count x;dnt:not null `$x[62];if[n<1+k:62+1+n1:$[dnt;8;0]+8;:-1];clc:0^"I"$x[k];if[n<1+k1:1+k+8*clc;:-1];oclc:0^"I"$x[k1];if[n<1+k2:1+k1+oclc;:-1];srp:0^"I"$x[k2];if[n<1+k3:k2+(2*srp)+3;:-1];spi:0^"I"$x[k3];if[n<1+k4:1+k3+7*spi;:-1];ht:not null `$x[k4];if[n<1+k5:k4+ht+5;:-1];ucp:0^"I"$x[k5];if[n<1+k6:1+k5+3*ucp;:-1];as:not null `$x[k6];$[as;[if[n<1+k7:1+k6;:-1];apc:0^"I"$x[k7];if[n<1+k8:k7+2*apc;:-1]];k8:k6];if[n<1+k9:k8+10;:-1];@[tws_open_order;.temp.Y::`orderid`conid`symbol`sectype`expiry`strike`right`multiplier`exchange`currency`localsymbol`tradingclass`action`totalquantity`ordertype`lmtprice`auxprice`tif`ocagroup`account`openclose`orderoriginin`orderref`clientid`permid`outsiderth`hidden`discretionaryamt`goodaftertime`sharesallocation`fagroup`famethod`fapercentage`faprofile`goodtilldate`rule80a`percentoffset`settlingfirm`shortsaleslot`designatedlocation`exemptcode`auctionstrategy`startingprice`stockrefprice`delta`stockrangelower`stockrangeupper`displaysize`blockorder`sweeptofill`allornone`minqty`ocatype`etradeonly`firmquoteonly`nbbopricecap`parentid`triggermethod`volatility`volatilitytype`deltaneutralordertype`deltaneutralauxprice`deltaneutralconid`deltaneutralsettlingfirm`deltaneutralclearingaccount`deltaneutralclearingintent`deltaneutralopenclose`deltaneutralshortsale`deltaneutralshortsaleslot`deltaneutraldesignatedlocation`continuousupdate`referencepricetype`trailstopprice`trailingpercent`basispoints`basispointstype`combolegsdescrip`combolegscount`ordercombolegscount`smartcomboroutingparamscount`scaleinitlevelsize`scalesubslevelsize`scalepriceincrement`hedgetype`optoutsmartrouting`clearingaccount`clearingintent`notheld`undercomppresent`algostrategy`whatif`status`initmargin`maintmargin`equitywithloan`commission`mincommission`maxcommission`commissioncurrency`warningtext!100#2_x;()];k9-63}; /{5}委托确认消息[Ver=32](orderId;conId;symbol;secType;expiry;strike;right;multiplier;exchange;currency;localSymbol;tradingClass;action;totalQuantity;orderType;lmtPrice;auxPrice;tif;ocaGroup;account;openClose;orderOriginIn;orderRef;clientId;permId;outsideRth;hidden;discretionaryAmt;goodAfterTime;sharesAllocation;faGroup;faMethod;faPercentage;faProfile;goodTillDate;rule80A;percentOffset;settlingFirm;shortSaleSlot;designatedLocation;exemptCode;auctionStrategy;startingPrice;stockRefPrice;delta;stockRangeLower;stockRangeUpper;displaySize;blockOrder;sweepToFill;allOrNone;minQty;ocaType;eTradeOnly;firmQuoteOnly;nbboPriceCap;parentId;triggerMethod;volatility;volatilityType;deltaNeutralOrderType;deltaNeutralAuxPrice{;(deltaNeutralConId;deltaNeutralSettlingFirm;deltaNeutralClearingAccount;deltaNeutralClearingIntent;deltaNeutralOpenClose;deltaNeutralShortSale;deltaNeutralShortSaleSlot;deltaNeutralDesignatedLocation)};continuousUpdate;referencePriceType;trailStopPrice;trailingPercent;basisPoints;basisPointsType;comboLegsDescrip;comboLegsCount{;comboLegsCount*(conId;ratio;action;exchange;openClose;shortSaleSlot;designatedLocation;exemptCode)};orderComboLegsCount;{orderComboLegsCount*(price)};smartComboRoutingParamsCount{;smartComboRoutingParamsCount*(tag;value)};scaleInitLevelSize;scaleSubsLevelSize;scalePriceIncrement{;scalePriceAdjustValue;scalePriceAdjustInterval;scaleProfitOffset;scaleAutoReset;scaleInitPosition;scaleInitFillQty;scaleRandomPercent};hedgeType{;hedgeParam};optOutSmartRouting;clearingAccount;clearingIntent;notHeld;underCompPresent{;conId;delta;price};algoStrategy{;algoParamsCount;algoParamsCount*(tag;value)};whatIf;status;initMargin;maintMargin;equityWithLoan;commission;minCommission;maxCommission;commissionCurrency;warningText)
+//dnt:deltaneutralordertype(62);clc:comboLegsCount(k);oclc:orderComboLegsCount(k1);srp:smartComboRoutingParamsCount(k2);spi:scalePriceIncrement(k3);ht:hedgeType(k4);ucp:underCompPresent(k5);as:algoStrategy(k6/k8);acp:algoParamsCount(k7);
+.tws.OPEN_ORDER:{[x].temp.x8:x;n:count x;dnt:not null `$x[62];if[n<1+k:62+1+n1:$[dnt;8;0]+8;:-1];clc:0^"I"$x[k];if[n<1+k1:1+k+8*clc;:-1];oclc:0^"I"$x[k1];if[n<1+k2:1+k1+oclc;:-1];srp:0^"I"$x[k2];if[n<1+k3:k2+(2*srp)+3;:-1];spi:0^"I"$x[k3];if[n<1+k4:1+k3+7*spi;:-1];ht:not null `$x[k4];if[n<1+k5:k4+ht+5;:-1];ucp:0^"I"$x[k5];if[n<1+k6:1+k5+3*ucp;:-1];as:not null `$x[k6];$[as;[if[n<1+k7:1+k6;:-1];apc:0^"I"$x[k7];if[n<1+k8:k7+2*apc;:-1]];k8:k6];if[n<1+k9:k8+13;:-1];@[tws_open_order;.temp.Y:`orderid`conid`symbol`sectype`expiry`strike`right`multiplier`exchange`currency`localsymbol`tradingclass`action`totalquantity`ordertype`lmtprice`auxprice`tif`ocagroup`account`openclose`orderorigin`orderref`clientid`permid`outsiderth`hidden`discretionaryamt`goodaftertime`sharesallocation`fagroup`famethod`fapercentage`faprofile`goodtilldate`rule80a`percentoffset`settlingfirm`shortsaleslot`designatedlocation`exemptcode`auctionstrategy`startingprice`stockrefprice`delta`stockrangelower`stockrangeupper`displaysize`blockorder`sweeptofill`allornone`minqty`ocatype`etradeonly`firmquoteonly`nbbopricecap`parentid`triggermethod`volatility`volatilitytype`deltaneutralordertype`deltaneutralauxprice`deltaneutralconid`deltaneutralsettlingfirm`deltaneutralclearingaccount`deltaneutralclearingintent`deltaneutralopenclose`deltaneutralshortsale`deltaneutralshortsaleslot`deltaneutraldesignatedlocation`continuousupdate`referencepricetype`trailstopprice`trailingpercent`basispoints`basispointstype`combolegsdescrip`combolegscount`ordercombolegscount`smartcomboroutingparamscount`scaleinitlevelsize`scalesubslevelsize`scalepriceincrement`hedgetype`optoutsmartrouting`clearingaccount`clearingintent`notheld`deltaneutralcontractpresent`algostrategy`solicited`whatif`status`initmargin`maintmargin`equitywithloan`commission`mincommission`maxcommission`commissioncurrency`warningtext`randomizesize`randomizeprice!103#2_x;()];k9-63}; /{5}委托确认消息[Ver=34](orderId;{conId;symbol;secType;expiry;strike;right;multiplier;exchange;currency;localSymbol;tradingClass};action;totalQuantity;orderType;lmtPrice;auxPrice;tif;ocaGroup;account;openClose;orderOrigin;orderRef;clientId;permId;outsideRth;hidden;discretionaryAmt;goodAfterTime;sharesAllocation;{faGroup;faMethod;faPercentage;faProfile};goodTillDate;rule80A;percentOffset;settlingFirm;{shortSaleSlot;designatedLocation;exemptCode};auctionStrategy;{startingPrice;stockRefPrice;delta};{stockRangeLower;stockRangeUpper};displaySize;blockOrder;sweepToFill;allOrNone;minQty;ocaType;eTradeOnly;firmQuoteOnly;nbboPriceCap;parentId;triggerMethod;{volatility;volatilityType;deltaNeutralOrderType;deltaNeutralAuxPrice;(deltaNeutralConId;deltaNeutralSettlingFirm;deltaNeutralClearingAccount;deltaNeutralClearingIntent;deltaNeutralOpenClose;deltaNeutralShortSale;deltaNeutralShortSaleSlot;deltaNeutralDesignatedLocation);continuousUpdate;referencePriceType};{trailStopPrice;trailingPercent};{basisPoints;basisPointsType};{comboLegsDescrip;comboLegsCount;comboLegsCount*(conId;ratio;action;exchange;openClose;shortSaleSlot;designatedLocation;exemptCode);orderComboLegsCount;orderComboLegsCount*(price)};{smartComboRoutingParamsCount;smartComboRoutingParamsCount*(tag;value)};{scaleInitLevelSize;scaleSubsLevelSize;scalePriceIncrement;(scalePriceAdjustValue;scalePriceAdjustInterval;scaleProfitOffset;scaleAutoReset;scaleInitPosition;scaleInitFillQty;scaleRandomPercent)};{hedgeType;(hedgeParam)};optOutSmartRouting;{clearingAccount;clearingIntent};notHeld;{deltaNeutralContractPresent;(conId;delta;price)};{algoStrategy;(algoParamsCount;algoParamsCount*(tag;value))};solicited;{whatIf;status;initMarginAfter;maintMarginAfter;equityWithLoanAfter;commission;minCommission;maxCommission;commissionCurrency;warningText};{randomizeSize;randomizePrice})
 
 .tws.ACCT_VALUE:{[x]@[tws_acct_value;`key`val`cur`acc!4#2_x;()];0}; /{6}[Ver=2](key;val;cur;accountName)
 
@@ -130,9 +133,9 @@ tws_err_msg:tws_order_status:tws_open_order:tws_open_order_end:tws_execution_dat
 
 .tws.POSITION_END:{[x]@[tws_position_end;();()];0}; /{62}[Ver=1]()
 
-.tws.ACCOUNT_SUMMARY:{[x];0}; /{63}[Ver=?](reqId;account;tag;value;curency)
+.tws.ACCOUNT_SUMMARY:{[x]@[tws_account_summary;`reqId`account`tag`value`curency!5#2_x;()];0}; /{63}[Ver=?](reqId;account;tag;value;curency)
 
-.tws.ACCOUNT_SUMMARY_END:{[x];0}; /{64}[Ver=?](reqId)
+.tws.ACCOUNT_SUMMARY_END:{[x]@[tws_account_summary_end;();()];0}; /{64}[Ver=?](reqId)
 
 .tws.VERIFY_MESSAGE_API:{[x];0}; /{65}[Ver=?](apiData)
 
@@ -146,7 +149,84 @@ tws_err_msg:tws_order_status:tws_open_order:tws_open_order_end:tws_execution_dat
 
 .tws.VERIFY_AND_AUTH_COMPLETED:{[x];0}; /{70}[Ver=?]()
 
-onsockmsg:{[x;y]w:x`w;if[.conf.tws.debug;.temp.BUF,:y];.temp.B:b:$[null w;"";.ctrl.tcpconn[w;`rbuf]],y;while[0<n:twsmsg[b];b:n _b];if[not null w;.ctrl.tcpconn[w;`rbuf]:$[0=n;b;""]];}; /b(待处理字节流)
+.tws.POSITION_MULTI:{[x];0}; /{71}[Ver=?]()
+
+.tws.POSITION_MULTI_END:{[x];0}; /{72}[Ver=?]()
+
+.tws.ACCOUNT_UPDATE_MULTI:{[x];0}; /{73}[Ver=?]()
+
+.tws.ACCOUNT_UPDATE_MULTI_END:{[x];0}; /{74}[Ver=?]()
+
+.tws.SECURITY_DEFINITION_OPTION_PARAMETER:{[x];0}; /{75}[Ver=?]()
+
+.tws.SECURITY_DEFINITION_OPTION_PARAMETER_END:{[x];0}; /{76}[Ver=?]()
+
+.tws.SOFT_DOLLAR_TIERS:{[x];0}; /{77}[Ver=?]()
+
+.tws.FAMILY_CODES:{[x];0}; /{78}[Ver=?]()
+
+.tws.SYMBOL_SAMPLES:{[x];0}; /{79}[Ver=?]()
+
+.tws.MKT_DEPTH_EXCHANGES:{[x];0}; /{80}[Ver=?]()
+
+.tws.TICK_REQ_PARAMS:{[x];0}; /{81}[Ver=?]()
+
+.tws.SMART_COMPONENTS:{[x];0}; /{82}[Ver=?]()
+
+.tws.NEWS_ARTICLE:{[x];0}; /{83}[Ver=?]()
+
+.tws.TICK_NEWS:{[x];0}; /{84}[Ver=?]()
+
+.tws.NEWS_PROVIDERS:{[x];0}; /{85}[Ver=?]()
+
+.tws.HISTORICAL_NEWS:{[x];0}; /{86}[Ver=?]()
+
+.tws.HISTORICAL_NEWS_END:{[x];0}; /{87}[Ver=?]()
+
+.tws.HEAD_TIMESTAMP:{[x];0}; /{88}[Ver=?]()
+
+.tws.HISTOGRAM_DATA:{[x];0}; /{89}[Ver=?]()
+
+.tws.HISTORICAL_DATA_UPDATE:{[x];0}; /{90}[Ver=?]()
+
+.tws.REROUTE_MKT_DATA_REQ:{[x];0}; /{91}[Ver=?]()
+
+.tws.REROUTE_MKT_DEPTH_REQ:{[x];0}; /{92}[Ver=?]()
+
+.tws.MARKET_RULE:{[x];0}; /{93}[Ver=?]()
+
+.tws.PNL:{[x];0}; /{94}[Ver=?]()
+
+.tws.PNL_SINGLE:{[x];0}; /{95}[Ver=?]()
+
+.tws.HISTORICAL_TICKS:{[x];0}; /{96}[Ver=?]()
+
+.tws.HISTORICAL_TICKS_BID_ASK:{[x];0}; /{97}[Ver=?]()
+
+.tws.HISTORICAL_TICKS_LAST:{[x];0}; /{98}[Ver=?]()
+
+.tws.TICK_BY_TICK:{[x];0}; /{99}[Ver=?]()
+
+.tws.ORDER_BOUND:{[x];0}; /{100}[Ver=?]()
+
+//dnt:deltaneutralordertype(53);clc:comboLegsCount(k);oclc:orderComboLegsCount(k1);srp:smartComboRoutingParamsCount(k2);spi:scalePriceIncrement(k3);ht:hedgeType(k4);ucp:underCompPresent(k5);as:algoStrategy(k6/k8);acp:algoParamsCount(k7);
+.tws.COMPLETED_ORDER:{[x];.temp.x18:x;n:count x;dnt:not null `$x[52];if[n<1+k:52+1+n1:$[dnt;4;0]+6;:-1];clc:0^"I"$x[k];if[n<1+k1:1+k+8*clc;:-1];oclc:0^"I"$x[k1];if[n<1+k2:1+k1+oclc;:-1];srp:0^"I"$x[k2];if[n<1+k3:k2+(2*srp)+3;:-1];spi:0^"I"$x[k3];if[n<1+k4:1+k3+7*spi;:-1];ht:not null `$x[k4];if[n<1+k5:k4+ht+4;:-1];ucp:0^"I"$x[k5];if[n<1+k6:1+k5+3*ucp;:-1];as:not null `$x[k6];$[as;[if[n<1+k7:1+k6;:-1];apc:0^"I"$x[k7];if[n<1+k8:k7+2*apc;:-1]];k8:k6];if[n<1+k9:k8+4;:-1];@[tws_open_order;.temp.Y18:`conid`symbol`sectype`expiry`strike`right`multiplier`exchange`currency`localsymbol`tradingclass`action`totalquantity`ordertype`lmtprice`auxprice`tif`ocagroup`account`openclose`orderoriginin`orderref`permid`outsiderth`hidden`discretionaryamt`goodaftertime`fagroup`famethod`fapercentage`faprofile`goodtilldate`rule80a`percentoffset`settlingfirm`shortsaleslot`designatedlocation`exemptcode`startingprice`stockrefprice`delta`stockrangelower`stockrangeupper`displaysize`sweeptofill`allornone`minqty`ocatype`triggermethod`volatility`volatilitytype`deltaneutralordertype`deltaneutralauxprice`deltaneutralconid`deltaneutralshortsale`deltaneutralshortsaleslot`deltaneutraldesignatedlocation`continuousupdate`referencepricetype`trailstopprice`trailingpercent`combolegsdescrip`combolegscount`ordercombolegscount`smartcomboroutingparamscount`scaleinitlevelsize`scalesubslevelsize`scalepriceincrement`hedgetype`clearingaccount`clearingintent`notheld`undercomppresent`algostrategy`solicited`status`randomizeSize`randomizePrice!78#1_x;()];k9}; /{101}[Ver=NULL]({conId;symbol;secType;lastTradeDateOrContractMonth;strike;right;multiplier;exchange;currency;localSymbol;tradingClass};action;totalQuantity;orderType;lmtPrice;auxPrice;tif;ocaGroup;account;openClose;orderOriginIn;orderRef;permId;outsideRth;hidden;discretionaryAmt;goodAfterTime;{faGroup;faMethod;faPercentage;faProfile};goodTillDate;rule80A;percentOffset;settlingFirm;{shortSaleSlot;designatedLocation;exemptCode};{startingPrice;stockRefPrice;delta};{stockRangeLower;stockRangeUpper};displaySize;sweepToFill;allOrNone;minQty;ocaType;triggerMethod;{volatility;volatilityType;deltaNeutralOrderType;deltaNeutralAuxPrice;(deltaNeutralConId;deltaNeutralShortSale;deltaNeutralShortSaleSlot;deltaNeutralDesignatedLocation);continuousUpdate;referencePriceType};{trailStopPrice;trailingPercent};{comboLegsDescrip;comboLegsCount;comboLegsCount*(conId;ratio;action;exchange;openClose;shortSaleSlot;designatedLocation;exemptCode);orderComboLegsCount;orderComboLegsCount*(price)};{smartComboRoutingParamsCount;smartComboRoutingParamsCount*(tag;value)};{scaleInitLevelSize;scaleSubsLevelSize;scalePriceIncrement;(scalePriceAdjustValue;scalePriceAdjustInterval;scaleProfitOffset;scaleAutoReset;scaleInitPosition;scaleInitFillQty;scaleRandomPercent)};{hedgeType;(hedgeParam)};{clearingAccount;clearingIntent};notHeld;{underCompPresent;(conId;delta;price)};{algoStrategy;(algoParamsCount;algoParamsCount*(tag;value))};solicited;status;randomizeSize;randomizePrice)
+
+.tws.COMPLETED_ORDERS_END:{[x]@[tws_completed_orders_end;();()];0}; /{102}[Ver=?]()
+
+.tws.REPLACE_FA_END:{[x];0}; /{103}[Ver=?]()
+
+.tws.WSH_META_DATA:{[x];0}; /{104}[Ver=?]()
+
+.tws.WSH_EVENT_DATA:{[x];0}; /{105}[Ver=?]()
+
+.tws.HISTORICAL_SCHEDULE:{[x];0}; /{106}[Ver=?]()
+
+.tws.USER_INFO:{[x];0}; /{107}[Ver=?]()
+
+
+
+onsockmsg:{[x;y]w:x`w;if[.conf.tws.debug;.temp.BUF,:y];.temp.B:b:$[null w;"";.ctrl.tcpconn[w;`rbuf]],y;while[0<n:twsmsg[b];b:n _b];if[n<0;.temp.BErr:b];if[not null w;.ctrl.tcpconn[w;`rbuf]:$[0=n;b;""]];}; /b(待处理字节流)
 
 {set[lower x;smtws[.enum[x];.conf.tws.id]];} each .enum.MsgOut; 
 
@@ -164,7 +244,7 @@ tws_req_historical_data:{[x;y]z:`conid`symbol`sectype`expiry`strike`right`multip
 tws_cancel_historical_data:{[x]cancel_historical_data[1,x];}; /[tickerId]
 
 /order_req
-tws_place_order:{[x;y]z:`conid`symbol`sectype`expiry`strike`right`multiplier`exchange`primaryexchange`currency`localsymbol`tradingclass`secidtype`secid`action`totalquantity`ordertype`lmtprice`auxprice`tif`ocagroup`account`openclose`orderoriginin`orderref`transmit`parentid`blockorder`sweeptofill`displaysize`triggermethod`outsiderth`hidden`sharesallocation`discretionaryamt`goodaftertime`goodtilldate`fagroup`famethod`fapercentage`faprofile`shortsaleslot`designatedlocation`exemptcode`ocatype`rule80a`settlingfirm`allornone`minqty`percentoffset`etradeonly`firmquoteonly`nbbopricecap`auctionstrategy`startingprice`stockrefprice`delta`stockrangelower`stockrangeupper`overridepercentageconstraints`volatility`volatilitytype`deltaneutralordertype`deltaneutralauxprice`continuousupdate`referencepricetype`trailstopprice`trailingpercent`scaleinitlevelsize`scalesubslevelsize`scalepriceincrement`scaletable`activestarttime`activestoptime`hedgetype`optoutsmartrouting`clearingaccount`clearingintent`notheld`undercomppresent`algostrategy`algoid`whatif`miscoptionsstr!0,````0``````````````0`````0``1`0`0`0`0`0`0`0``0```````0`,(`$"-1"),`0```0```1`1``0``````0`````0```````````0```0`0```0`;z,:((key z)inter key y)#y;place_order[42,x,value z];}; /[orderid;orderhash] tws_place_order[newseq[];`symbol`secType`expiry`exchange`currency`action`totalQuantity`orderType`lmtPrice`openClose!`XINA50`FUT`201510];
+tws_place_order:{[x;y]z:`conid`symbol`sectype`expiry`strike`right`multiplier`exchange`primaryexchange`currency`localsymbol`tradingclass`secidtype`secid`action`totalquantity`ordertype`lmtprice`auxprice`tif`ocagroup`account`openclose`orderoriginin`orderref`transmit`parentid`blockorder`sweeptofill`displaysize`triggermethod`outsiderth`hidden`sharesallocation`discretionaryamt`goodaftertime`goodtilldate`fagroup`famethod`fapercentage`faprofile`shortsaleslot`designatedlocation`exemptcode`ocatype`rule80a`settlingfirm`allornone`minqty`percentoffset`etradeonly`firmquoteonly`nbbopricecap`auctionstrategy`startingprice`stockrefprice`delta`stockrangelower`stockrangeupper`overridepercentageconstraints`volatility`volatilitytype`deltaneutralordertype`deltaneutralauxprice`continuousupdate`referencepricetype`trailstopprice`trailingpercent`scaleinitlevelsize`scalesubslevelsize`scalepriceincrement`scaletable`activestarttime`activestoptime`hedgetype`optoutsmartrouting`clearingaccount`clearingintent`notheld`undercomppresent`algostrategy`algoid`whatif`miscoptionsstr`solicited`randomizeSize`randomizePrice!0,````0``````````````0`````0``1`0`0`0`0`0`0`0``0```````0`,(`$"-1"),`0```0```0`0``0``````0`````0```````````0```0`0```0``0`0`0;z,:((key z)inter key y)#y;place_order[45,x,value z];}; /[orderid;orderhash] tws_place_order[newseq[];`symbol`secType`expiry`exchange`currency`action`totalQuantity`orderType`lmtPrice`openClose!`XINA50`FUT`201510];
 tws_cancel_order:{cancel_order[1,x];}; /[orderid]
 
 tws_req_contract_data:{[x;y]z:`conid`symbol`sectype`expiry`strike`right`multiplier`exchange`currency`localsymbol`tradingclass`includeexpired`secidtype`secid!`0````0````USD```0``;z,:((key z)inter key y)#y;req_contract_data[7,x,value z];}; /[tickerid;contracthash]
@@ -180,8 +260,23 @@ tws_cancel_scanner_subscription:{[x]cancel_scanner_subscription[1,x];};
 
 tws_req_fundamental_data:{[x;y]z:`conid`symbol`sectype`exchange`primaryexchange`currency`localsymbol`reporttype!````````ReportsFinSummary;z,:((key z)inter key y)#y;req_fundamental_data[2,x,value z];}; /[tickerid;reqhash]
 
+tws_req_account_summary:{[x]req_account_summary[1,x,`All,`$"AccountType,NetLiquidation,TotalCashValue,SettledCash,AccruedCash,BuyingPower,EquityWithLoanValue,PreviousEquityWithLoanValue,GrossPositionValue,RegTEquity,RegTMargin,SMA,InitMarginReq,MaintMarginReq,AvailableFunds,ExcessLiquidity,Cushion,FullInitMarginReq,FullMaintMarginReq,FullAvailableFunds,FullExcessLiquidity,LookAheadNextChange,LookAheadInitMarginReq,LookAheadMaintMarginReq,LookAheadAvailableFunds,LookAheadExcessLiquidity,HighestSeverity,DayTradesRemaining,Leverage"];} /[reqid]
+tws_cancel_account_summary:{[x]cancel_account_summary[1,x];} /[reqId]
+tws_cancel_positions:{[x]cancel_positions[1,x];} /[reqId]
 
+tws_req_open_orders:{[x]req_open_orders[1];}; /[]
+tws_req_all_open_orders:{[x]req_all_open_orders[1];}; /[]
 
+tws_req_completed_orders:req_completed_orders; /[apionly]without version field 
+
+//----ChangeLog----
+//2024.09.26:更新.tws.OPEN_ORDER以支持尾部增加的`randomizeSize`randomizePrice字段
+//2024.09.25:更新MsgOut,封装tws_req_completed_orders(version字段不再是必备),更新MsgIn并调整MsgInLen为含版本号最小字段数(因版本号不再是必须字段),封装.tws.COMPLETED_ORDER/.tws.COMPLETED_ORDERS_END/tws_completed_order/tws_completed_orders_end;.tws.TWS_LOGON更改服务端时间戳字段名
+//2024.04.26:封装tws_req_open_orders/tws_req_all_open_orders
+//2024.04.25:封装tws_req_acctount_summary/tws_cancel_acctount_summary/tws_cancel_positions/.tws.ACCOUNT_SUMMARY/.tws.ACCOUNT_SUMMARY_END
+//2023.10.17:.tws.OPEN_ORDER版本32->34,新增`solicited字段
+//2023.10.16:客户端版本号66,tws_place_order版本42->45,新增`solicited`randomizeSize`randomizePrice字段,并更新`etradeonly`firmquoteonly默认值为`0
+//2017.07.08:初始版本,对应客户端版本号63
 
 \
 req_mkt_data[(11;newseq[];(`0`XINA50`FUT`201703`0```SGX``USD```0``0`))]; /{1}[ver=11](reqid;contract:(conid;symbol;sectype;expiry;strike;right;multiplier;exchange;primary_exch;currency;local_symbol;tradingclass{;num_combolegs;num_combolegs*(co_conid;co_ratio;co_action;co_exchange)};underComp{;(conId;delta;price)};genericTicks;snapshot;mktDataOptionsStr))-->req_mkt_data[(11;newseq[];(`0`IBM`STK``0```SMART``USD```0,(`$"100,101,104,105,106,107,165,221,225,233,236,258,293,294,295,318"),`0`))];
@@ -192,7 +287,7 @@ req_open_orders[1]; /{5}[ver=1]
 AV:();req_acct_data[(2;1;`)]; /{6}[ver=2](subscribe;acctCode)
 req_executions[(3;newseq[];```````)]; /{7}[ver=3](reqId;clientId;acctCode;time;symbol;secType;exchange;side)
 req_ids[(1;2)]; /{8}[ver=1](numIds)
-req_contract_data[(7;newseq[];`0`XINA50`FUT`201510`0```SGX`USD```0``)]; /{9}[ver=7](reqid[];(conid;symbol;sectype;expiry;strike;right;multiplier;exchange;currency;local_symbol;tradingclass;includeExpired;secIdType;secId)) -->req_contract_data[(7;newseq[];`0`IBM`STK``0```SMART``USD````)];
+req_contract_data[(7;newseq[];`0`XINA50`FUT`202410`0```SGX`USD```0``)]; /{9}[ver=7](reqid[];(conid;symbol;sectype;expiry;strike;right;multiplier;exchange;currency;local_symbol;tradingclass;includeExpired;secIdType;secId)) -->req_contract_data[(7;newseq[];`0`IBM`STK``0```SMART``USD````)];
 req_mkt_depth[(5;newseq[];`0`XINA50`FUT`201510`0```SGX`USD```100`)]; /{10}[ver=5](tickerId;conId;symbol;secType;expiry;strike;right;multiplier;exchange;currency;localSymbol;tradingClass;numRows;mktDepthOptionsStr)-->req_mkt_depth[(5;newseq[];``EUR`CASH``0```IDEALPRO`USD```20`)]; 
 cancel_mkt_depth[(1;`10006)]; /{11}[ver=1](tickerId)
 req_news_bulletins[(1;1)]; /{12}[ver=1](ifallMsgs)

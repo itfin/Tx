@@ -1,4 +1,4 @@
-.module.tsalgolib:2019.08.21;
+.module.tsalgolib:2024.10.16;
 
 //\l qml.q
 
@@ -38,12 +38,12 @@ execplan:{[x]
  if[0=n:count .db.O1[x;`plan][0];:()]; /无计划可供执行,退出
  t:`time$now[];ag:.db.O1[x;`algo];
  i:.db.O1[x;`snap][0]; /当前计划待处理bin下标
- if[(nf:i<count .db.O1[x;`plan][0])&(.db.O1[x;`plan][0;i]>t);:()]; /未到拆单时刻,退出 if[(0<i&.db.Ts[.conf.algots]`GOAHEAD)&(ag<>`VOLPCT);goahead[x;i]];
+ if[(nf:i<n)&(.db.O1[x;`plan][0;i]>t);:()]; /未到拆单时刻,退出 if[(0<i&.db.Ts[.conf.algots]`GOAHEAD)&(ag<>`VOLPCT);goahead[x;i]];
  if[(i=0)&(0<getgoahead[x])&(ag<>`VOLPCT);goahead[x;1]];
- s:.db.O1[x;`sym];sd:.db.O1[x;`side];lp:.db.O1[x;`price];if[0=0f^p:getordpx[s;sd;$[.db.O1[x;`plan][3;i] in 0N 0 0W;`MOSTAGGRESSIVE;$[ag~`VOLPCT;`LEASTAGGRESSIVE;.db.O1[x;`style]]^`$cfill .db.O1[x;`para][0;`ChildStyle]]];if[not 1b~.db.Ax[x;`AlerNulltPrice];alertoa[x;.enum`INFO;.enum`USERATTENTIONREQ;`PriceNotAvail];.db.Ax[x;`AlerNulltPrice]:1b];:()]; /取不到行情价格,告警后退出
+ s:.db.O1[x;`sym];sd:.db.O1[x;`side];qmin:getqtymin[.db.O1[x;`sym`side]];lp:.db.O1[x;`price];if[0=0f^p:getordpx[s;sd;$[.db.O1[x;`plan][3;i] in 0N 0 0W;`MOSTAGGRESSIVE;$[ag~`VOLPCT;`LEASTAGGRESSIVE;.db.O1[x;`style]]^`$cfill .db.O1[x;`para][0;`ChildStyle]]];if[not 1b~.db.Ax[x;`AlerNulltPrice];alertoa[x;.enum`INFO;.enum`USERATTENTIONREQ;`PriceNotAvail];.db.Ax[x;`AlerNulltPrice]:1b];:()]; /取不到行情价格,告警后退出
  qtyadjust[x;p];planadjust[x];
  psp:getordpx[s;sd;`LEASTPASSIVE];if[(0<lp)&(0>=pxcmp[sd;lp;psp])&(not ag in `VOLPCT);limitadjust[x]]; /2011.09.22增加限价单超限调整 
- if[.db.O1[x;`cumqty]>.db.O1[x;`qty]-$[sd=.enum`SELL;1f;getqtymin[.db.O1[x;`sym`side]]];.db.O1[x;`end]:1b;:()];  /无单可拆,退出
+ if[.db.O1[x;`cumqty]>.db.O1[x;`qty]-$[sd=.enum`SELL;1f;qmin];.db.O1[x;`end]:1b;:()];  /无单可拆,退出
  /imadjust[x]; /add AIM/PIM adjusting enhencement to gaming VWAP benchmark(20110701)
  sq:0f^.db.O1[x;`sentqty]; /母单总共已发委托
  cq:sq-.db.O1[x;`snap][1]; /母单在当前计划已发委托(.db.O1[x;`snap][1]为改单原始发单量)
@@ -64,7 +64,7 @@ execplan:{[x]
  if[(0<lp)&(0>=pxcmp[sd;lp;psp]);v&:0|("F"$string `$cfill .db.O1[x;`para][0;`MaxShow])-(.db.O1[x;`sentqty]-.db.O1[x;`cumqty])];
  if[0<cpr:"F"$string `$cfill .db.O1[x;`para][0;`MaxChildVolPct];rv:`$cfill .db.O1[x;`para][0;`RefChildVol];v&:1e-2*cpr*bookrefsize[s;sd;rv]];
  if[not null bid:.db.O1[x;`upid];if[0<ma:0f^"F"$cfill .db.O1[bid;`para][0;$[sd=.enum`BUY;`MaxBuy;`MaxSell]];v&:0f|(ma-0f^$[sd=.enum`BUY;1;-1]*.db.O1[bid;`cumamt])%p]]; /2013.05.02
- v:$[(sd=.enum`SELL)&(((-/).db.O1[x;`qty`cumqty])<getqtymin[(s;sd)]);{floor x+1e-2};roundqty[(s;sd)]] v;
+ v:$[(sd=.enum`SELL)&(((-/).db.O1[x;`qty`cumqty])<qmin);{floor x+1e-2};roundqty[(s;sd)]] v;
 
  if[(v>0)&(not violateoddlotrule[x;v])&(not violateminamtrule[x;v;p]);newsox[x;(`$(string x),"_",(string i),"_",(string newid[]));v;p;i;(getqtymax[s,sd])&{$[x>0;x;0w]} 0f^"F"$string `$cfill .db.O1[x;`para][0;`MaxChildVol]]]; /下单,零股卖出除尾单外不下单(20120312)
  if[nf;.db.O1[x;`snap]:((i+1),1_.db.O1[x;`snap])]; /推进到下一计划bin
@@ -73,7 +73,7 @@ execplan:{[x]
 
 
 /取有效时间桶列表[id;ignore_auction_flag;vpmodel]
-getbuckets:{[x;y;z]ap:`$cfill x[`para][0;`ExcludeAuctions];st:"Z"$cfill x[`para][0;`StartTime];et:"Z"$cfill x[`para][0;`EndTime];s:x[`sym];if[y&0=exec count i from .temp.HSVP where sym=s;ex:fs2e s;s:$[`XSHG~ex;`600000.XSHG;`XSHE~ex;`000001.XSHE;`000300.XSHG^exec first sym from .temp.HSVP where (fs2e each sym)=ex]];m:.db.Ts[.conf.algots][`SLICEFREQ]^"I"$cfill x[`para][0;`SliceFreq];api:$[(x[`algo] in ``IS)|ap=`$"1 4";();ap=`1;enlist 0W;ap=`4;enlist 0;0 0W];$[`ls=z;[d:select first bucketstart,last bucketstop,tr:sum trls by seq:1+m xbar i from select from .temp.HSVP where sym=s,bucket>0,bucket<0W;d,:select seq:bucket,bucketstart,bucketstop,tr:trls from .temp.HSVP where sym=s,bucket in api];`arma=z;[d:select first bucketstart,last bucketstop,tr:sum trarma by seq:1+m xbar i from select from .temp.HSVP where sym=s,bucket>0,bucket<0W;d,:select seq:bucket,bucketstart,bucketstop,tr:trarma from .temp.HSVP where sym=s,bucket in api];[d:select first bucketstart,last bucketstop,sum tr by seq:1+m xbar i from select from .temp.HSVP where sym=s,bucket>0,bucket<0W;d,:select seq:bucket,bucketstart,bucketstop,tr from .temp.HSVP where sym=s,bucket in api]];st:$[null st;-0Wt;`time$st]|`time$x[`ntime];et:$[null et;0Wt;`time$et];d:value exec truestart,tr,truestop,seq,br from update tr:tr*br from update br:(truestop-truestart)%(bucketstop-bucketstart) from update truestart:st|bucketstart,truestop:et&bucketstop from select from `bucketstart xasc d where bucketstop>st,bucketstart<et}; /[.db.O1记录;TWAP类型标志;模型]如为上市首日新股，对TWAP/VOLPCT单历史交易分布用本市场其它股票代替(20110613)
+getbuckets:{[x;y;z]ap:`$cfill x[`para][0;`ExcludeAuctions];st:"Z"$cfill x[`para][0;`StartTime];et:"Z"$cfill x[`para][0;`EndTime];s:x[`sym];if[y&0=exec count i from .temp.HSVP where sym=s;ex:fs2e s;s:$[`XSHG~ex;`600000.XSHG;`XSHE~ex;`000001.XSHE;(exec first sym from .temp.HSVP where (fs2e each sym)=`XSGE^sfill .conf[`defaultex])^exec first sym from .temp.HSVP where (fs2e each sym)=ex]];m:.db.Ts[.conf.algots][`SLICEFREQ]^"I"$cfill x[`para][0;`SliceFreq];api:$[(x[`algo] in ``IS)|ap=`$"1 4";();ap=`1;enlist 0W;ap=`4;enlist 0;0 0W];$[`ls=z;[d:select first bucketstart,last bucketstop,tr:sum trls by seq:1+m xbar i from select from .temp.HSVP where sym=s,bucket>0,bucket<0W;d,:select seq:bucket,bucketstart,bucketstop,tr:trls from .temp.HSVP where sym=s,bucket in api];`arma=z;[d:select first bucketstart,last bucketstop,tr:sum trarma by seq:1+m xbar i from select from .temp.HSVP where sym=s,bucket>0,bucket<0W;d,:select seq:bucket,bucketstart,bucketstop,tr:trarma from .temp.HSVP where sym=s,bucket in api];[d:select first bucketstart,last bucketstop,sum tr by seq:1+m xbar i from select from .temp.HSVP where sym=s,bucket>0,bucket<0W;d,:select seq:bucket,bucketstart,bucketstop,tr from .temp.HSVP where sym=s,bucket in api]];st:$[null st;-0Wt;`time$st]|`time$x[`ntime];et:$[null et;0Wt;`time$et];d:value exec truestart,tr,truestop,seq,br from update tr:tr*br from update br:(truestop-truestart)%(bucketstop-bucketstart) from update truestart:st|bucketstart,truestop:et&bucketstop from select from `bucketstart xasc d where bucketstop>st,bucketstart<et}; /[.db.O1记录;TWAP类型标志;模型]如为上市首日新股，对TWAP/VOLPCT单历史交易分布用本市场其它股票代替(20110613)
 
 /将1个大bucket(分钟级)打散为若干小bin(秒级)
 randsymm:{$[x>0;(rand 2*x)-x;0]};
@@ -113,7 +113,7 @@ HUNTER:{[x]t:`time$now[];if[t<`time$"Z"$cfill .db.O1[x;`para][0;`StartTime];:()]
 
 coverlegs:{[x;y]if[0<sum (-/) each .db.O1[;`sentqty`cumqty] each x;cxloachildren each x;:0b];l1:x[0];l2:x[1];if[(0=q:.db.O1[l1;`cumqty]-.db.O1[l2;`cumqty])|not y;:1b];i:0;k:$[q<0;l1;l2];fss:.db.O1[k;`sym`side];newsoxfixl[k;(`$(string k),"_",(string i),"_",(string newid[]));abs q;getordpx[fss[0];fss[1];`MOSTAGGRESSIVE];i;getqtymax[fss]];0b};
 
-keepxqty:{[x;px;qty;cy;delay]if[0>=px:`float$px;:()];if[(0>pxcmp[.db.O1[x;`side];pl;px])&(0<pl:lastsubordpx[x]);cxloachildren[x];:()];if[(not cy)&(0<wq:.db.O1[x;`sentqty]-.db.O1[x;`cumqty]);:()];if[(`time$now[])<lastsubordtime[x]+delay;:()];if[0<dq:qty-wq;i:0;newsoxfixl[x;(`$(string x),"_",(string i),"_",(string newid[]));dq;px;i;getqtymax[.db.O1[x;`sym`side]]]];}; /[upid;px;qty]保证upid在px排队子单量为qty
+keepxqty:{[x;px;qty;cy;delay]if[0>=px:`float$px;:()];if[(0>pxcmp[.db.O1[x;`side];pl;px])&(0<pl:lastsubordpx[x]);cxloachildren[x];:()];if[(not cy)&(0<wq:.db.O1[x;`sentqty]-.db.O1[x;`cumqty]);:()];if[(`time$now[])<lastsubordtime[x]+delay;:()];if[0<dq:qty-wq;i:0;newsoxfixl[x;(`$(string x),"_",(string i),"_",(string newid[]));dq;px;i;getqtymax[.db.O1[x;`sym`side]]]];}; /[upid;px;qty;是否保留1档已有挂单;2次子单委托最低时间间隔]保证upid在px排队子单量为qty
 
 PAIRICE:{[x]if[not .db.Ax[x;`full];:()];sids:.db.Ax[x;`sids];if[not .db.Ax[x;`init];{.db.O1[x;`para]:y;}[;.db.O1[x;`para]] each sids;.db.Ax[x;`llag`slag`init]:(sids[0];sids[1];1b)];ll:.db.Ax[x;`llag];sl:.db.Ax[x;`slag];fs:.db.O1[ll;`sym];ds:0f^"F"$string `$cfill .db.O1[x;`para][0;`DisplaySize];cy:"B"$string `$cfill .db.O1[x;`para][0;`CycleOrder];dq:$["B"$string `$cfill .db.O1[x;`para][0;`DynHedge];.db.O1[sl;`sentqty]-.db.O1[ll;`sentqty];0f];mnp:0w^"F"$string `$cfill .db.O1[x;`para][0;`MaxNetPos];np:.db.O1[ll;`cumqty]-.db.O1[sl;`cumqty];delay:"T"$string `$cfill .db.O1[x;`para][0;`OrderDelay];$[14:58:00>=t:`time$now[];[keepxqty[ll;$[np>=mnp;first 1_.db.QX[fs;`bidQ];.db.QX[fs;`bid]];ds|dq;cy;delay];keepxqty[sl;$[(neg np)>=mnp;first 1_.db.QX[fs;`askQ];.db.QX[fs;`ask]];ds|neg dq;cy;delay]];if[coverlegs[sids;"B"$string `$cfill .db.O1[x;`para][0;`DayendCover]];.db.O1[x;`end]:1b]];}; /
 
@@ -138,6 +138,14 @@ LISTTWAP:list2port[;`PORTTWAP];LISTVWAP:list2port[;`PORTVWAP];LISTIS:list2port[;
 //PORTIS:{[x]if[not Ax[x;`full];:()];y:Ax[x;`sids];if[0=count y:y where not .db.O1[;`end] each y;lsetk[`.db.O1;(x;`end);1b];:()];if[Ax[x;`init];:execplan each y];{lsetk[`.db.O1;(x;`para);y];}[;.db.O1[x;`para]] each y;vL:flip .db.O1[;`sym`qty] each y;vFS:vL[0];vX:vL[1];lambda:1e-6^(`0`1`2!1e-7 1e-6 1e-5)[`$cfill .db.O1[x;`para][0;`TradingStyle]];k:(HCOV`syms)?vFS;reta:1e-2*(%/)flip HSD[;`amt`spread] each vFS;vA:lambda*reta*(HCOV`covm)[k;k];vE:.qml.mev vA;kappa:sqrt vE[0];vRU:inv vU:flip vE[1];vY:vRU$flip enlist vX;d:(')[getbuckets[;0b;`ma];.db.O1] y i:first idesc `XSHE=vEX:fs2e each vFS;ve:vEX[i];n:count tl:d[0];tau:(vtimex[ve;tl[1]]-vtimex[ve;tl[0]])%04:00:00.000;vT:n*tau;t:vT*steps[1 0f;n];vQ:(.db.O1[;`sym`side]each y) roundv' {nonneg neg 1_ deltas raze x} each flip vU$/:(sinh[kappa*/:vT*steps[1 0f;n]]%\:sinh kappa*vT)*\:vY;y {[d;x;y]lsetk[`.db.O1;(x;`plan`snap);(diceplan[.db.O1[x;`sym`side];y;d;`EQU];(0;0f))];}[d]' vQ;lsetk[`Ax;(x;`init);1b];}; 
 
 TESTALGO:{[x]fs:.db.O1[x;`sym];si:.db.O1[x;`side];q:.db.QX[fs];h:(!/)2 0N#raze q[$[si=.enum`BUY;`askQ`asizeQ;`bidQ`bsizeQ]];k:where h>=100f;if[0=count k;:()];pm:max k;cq:sum k#h;};
+
+ 
+
+//----ChangeLog----
+//2024.10.16:execplan增加对科创板最后一期子单量不足最小买入单位则提前合并至倒数第二期买入的处理逻辑$[(sd=.enum.BUY)&(i=n-2)&qmin>.db.O1[x;`plan;1;n-1];1;0]+
+//2024.10.14:新增CPF3L多腿组策略
+//2024.10.11:新增ICEHEDGE算法用于期现套利
+//2019.08.21:初始版本
 
 /
 SLICE:{[x]if[0=0f^p:getordpx[.db.O1[x;`sym];.db.O1[x;`side];.db.O1[x;`style]];:()];thre:(getqtymax[.db.O1[x;`sym`side]])&{$[x>0;x;0w]} 0f^"F"$string `$cfill .db.O1[x;`para][0;`MaxChildVol];$[()~.db.O1[x;`plan];[bq:.db.O1[x;`qty]-0f^.db.O1[x;`sentqty];n:1|ceiling bq%thre;vl:roundv n#bq%n;v0:first vl;.db.O1[x;`plan`snap]:((enlist vl);(0;v0));newsox[x;`$(string x),"_0","_",(string newid[]);v0;p;0;thre]];[j:.db.O1[x;`snap][0];v:.db.O1[x;`snap][1];if[0f=exec sum cancelqty from O where upid=x,slot=j;$[j=-1+count .db.O1[x;`plan][0];.db.O1[x;`end]:1b;[j:j+1;v:.db.O1[x;`plan][0][j];.db.O1[x;`snap]:(j;v);newsox[x;`$(string x),"_",(string j),"_",(string newid[]);v;p;j;thre]]]]]];}; //[upid]para:(MaxChildVol[7412]->单笔委托最大限量),小量拆单,一笔单成交后报下一笔单

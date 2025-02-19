@@ -1,3 +1,4 @@
+/2024.01.02 @wbc add addex
 /2008.09.09 .k -> .q
 /2006.05.08 add
 
@@ -15,3 +16,5 @@ add:{$[(count w x)>i:w[x;;0]?.z.w;.[`.u.w;(x;i;1);union;y];w[x],:enlist(.z.w;y)]
 sub:{if[x~`;:sub[;y]each t];if[not x in t;'x];del[x].z.w;add[x;y]}
 
 end:{(neg union/[w[;;0]])@\:(`.u.end;x)}
+
+addex:{[x;y] if[(not x in t)|(x~`)|-11h<>type x;'x];if[11h<>abs type y;'y];if[` in y;y:raze[y] except `];if[(0=count y)|(count w x)>i:w[x;;0]?.z.w;if[`~w[x;i;1];:()]];add[x;y]};

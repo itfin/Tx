@@ -1,6 +1,6 @@
 /runq Tx/core/base.q -conf cffc0 -code "txload \"core/fcbase\"" -p 5000
 
-.module.fcbase:2023.02.02;
+.module.fcbase:2024.11.11;
 
 \d .temp
 NS:([]stime:`timestamp$();id:`symbol$();cpu:`float$();mem:`float$();swap:`float$();disk:`float$();cores:());
@@ -14,22 +14,22 @@ poweroff:0b;
 poweroffbegin:0Np;
 shutdowntime:0Np;
 sysstart:sysstop:0Np;
-NOD:([id:`symbol$()]backup:`symbol$();ip:`symbol$();portoffset:`long$();cpufreq:`float$();cpucores:`long$();mem:`float$();swap:`float$();diskdev:`symbol$();disk:`float$();uptime:`timestamp$();cpuuse:`float$();memuse:`float$();swapuse:`float$();diskuse:`float$();coreuse:());
+NOD:([id:`symbol$()]ip:`symbol$();portoffset:`long$();cpufreq:`float$();cpucores:`long$();mem:`float$();swap:`float$();diskdev:`symbol$();disk:`float$();uptime:`timestamp$();cpuuse:`float$();memuse:`float$();swapuse:`float$();diskuse:`float$();coreuse:());
 MOD:([id:`symbol$()]mtyp:`symbol$();node:`symbol$();ip:`symbol$();port:`long$();cores:();h:`long$();pid:`long$();starttime:`timestamp$();stoptime:`timestamp$();hbsent:`timestamp$();hbpeer:`timestamp$();hbrecv:`timestamp$();mem:`float$());
 \d .
 
 .init.fc:{[]initnod[];initmod[];conntx[];}; /
 
-nod_init:{[x].ctrl.NOD[x;`ip`portoffset`backup]:.conf.ha[x;`ip`portoffset`backup];s:nodecmd[x;"lscpu"];t:update `$k from flip `k`v!flip (2#) each vs[":"] each except[;" ()"] each s;.ctrl.NOD[x;`cpufreq`cpucores]:(1e-3*exec "F"$first v from t where k like "CPU*MHz";exec "J"$first v from t where k=`CPUs);s:nodecmd[x;"free"];.ctrl.NOD[x;`mem`swap]:(1%1024 xexp 2)*{"F"$@[;1] vs[" ";x] except enlist ""} each s[1 2];s:nodecmd[x;"sudo df -l --output=source,size"];r:(!/)"SF"$flip {vs[" ";x] except enlist ""} each 1_s;.ctrl.NOD[x;`diskdev`disk]:(first where r=max r;(1%1024 xexp 3)*max r);s:nodecmd[x;"uptime -s"];.ctrl.NOD[x;`uptime]:"P"$first s;}; /-t ext4
+nod_init:{[x].ctrl.NOD[x;`ip`portoffset]:.conf.ha[x;`ip`portoffset];s:nodecmd[x;"lscpu"];t:update `$k from flip `k`v!flip (2#) each vs[":"] each except[;" ()"] each s;.ctrl.NOD[x;`cpufreq`cpucores]:(1e-3*exec "F"$first v from t where k like "CPU*MHz";exec "J"$first v from t where k=`CPUs);s:nodecmd[x;"free"];.ctrl.NOD[x;`mem`swap]:(1%1024 xexp 2)*{"F"$@[;1] vs[" ";x] except enlist ""} each s[1 2];s:nodecmd[x;"sudo df -l --output=source,size"];r:(!/)"SF"$flip {vs[" ";x] except enlist ""} each 1_s;.ctrl.NOD[x;`diskdev`disk]:(first where r=max r;(1%1024 xexp 3)*max r);s:nodecmd[x;"uptime -s"];.ctrl.NOD[x;`uptime]:"P"$first s;}; /-t ext4
 
 initnod:{[]@[nod_init;;()] each .conf.ha.nodelist;};
 
-mod_init:{[x] .ctrl.MOD[x;`mtyp`node`cores`ip`port]:($[x in .conf.module_tick;$[x like "tp*";`tp;x like "rdb*";`rdb;`hdb];$[x in .conf.module_ft;`ft;x in .conf.module_ft;`ft;x in .conf.module_fq;`fq;x in .conf.module_fe;`fe;x in .conf.module_fu;`fu;x in .conf.module_fa;`fa;`fp]];exec first id from .ctrl.NOD where ip=.conf[x;`ip];{$[0>type x;enlist x;x]} .conf[x;`cpu]),.conf[x;`ip`port]}; 
+mod_init:{[x] .ctrl.MOD[x;`mtyp`node`cores`ip`port]:($[x in .conf.module_tick;$[x like "tp*";`tp;x like "rdb*";`rdb;`hdb];$[x in .conf.module_ft;`ft;x in .conf.module_fq;`fq;x in .conf.module_fe;`fe;x in .conf.module_fu;`fu;x in .conf.module_fa;`fa;`fp]];$[null n:.conf[x;`node];exec first id from .ctrl.NOD where ip=.conf[x;`ip];n];{$[0>type x;enlist x;x]} .conf[x;`cpu]),.conf[x;`ip`port]}; 
 
 initmod:{[]@[mod_init;;()] each .conf.modules;};
 
-starttx:{[].db.txstart:.z.P;startmod each .conf.modules;};
-stoptx:{[]stopmod each reverse .conf.modules;.db.txstop:.z.P;};
+starttx:{[].db.txstart:.z.P;startmod each .conf.modules except .conf`modskip;.conf.disabletask:0b;};
+stoptx:{[].conf.disabletask:1b;stopmod each reverse .conf.modules except .conf`modskip;.db.txstop:.z.P;};
 conntx:{[]connmod each .conf.modules;};
 
 starttick:{[]startmod each .conf.module_tick;};
@@ -55,11 +55,11 @@ stopnightly:{[x;y] {if[(1b~.conf[x;`nightly])&not .z.D in .conf.holiday;stopmod 
 
 connmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];p:(y:.conf[x])`port;.ctrl.MOD[x;`h]:.ctrl.H[x]:h:@[hopen;$[(a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip];`$"::",":" sv string p,$[x like "fu*";.conf.me,.conf.fcpass;x like "*sim*";`simuser`simpass;.conf.appuser,.conf.apppass];`$":",":" sv string a,p,$[x like "fu*";.conf.me,.conf.fcpass;x like "*sim*";`simuser`simpass;.conf.appuser,.conf.apppass]];-1];if[h>0;.ctrl.MOD[x;`pid]:h `.z.i;];};
 
-stopmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"stopping ",string[x],"...";if[(0=count .ctrl.H[x])|-1~.ctrl.H[x];connmod[x]];if[0<h:.ctrl.H[x];@[h;"exit 0";()];.ctrl.H[x]:-1;.ctrl.MOD[x;`h`stoptime]:(-1;.z.P)];0N!"done.\n";};
+stopmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"<",string[.z.P],"> stopping ",string[x],"...";if[(0=count .ctrl.H[x])|-1~.ctrl.H[x];connmod[x]];if[0<h:.ctrl.H[x];@[h;"exit 0";()];.ctrl.H[x]:-1;.ctrl.MOD[x;`h`stoptime]:(-1;.z.P)];0N!"done.\n";};
 
-startmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"starting ",string[x],"...";system modstartcmd x;system "sleep ",string 1f^ffill .conf`connwait;connmod[x];if[0<h:.ctrl.H[x];.ctrl.MOD[x;`starttime]:.z.P];0N!$[0<h;"Done.";"Failed."];};
+startmod:{[x]if[not x in .conf.modules,.conf.modules1;:`err_name];0N!"<",string[.z.P],"> starting ",string[x],"...";system modstartcmd x;system "sleep ",string 1f^ffill .conf`connwait;connmod[x];if[0<h:.ctrl.H[x];.ctrl.MOD[x;`starttime]:.z.P];0N!$[0<h;"Done.";"Failed."];};
 
-modstartcmd:{[x]p:(y:.conf[x])`port;z:string x;r:not (a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip],$[(::)~b:.conf.ha[.conf.ha.node;`ipx];`symbol$();b];:.ctrl.Cmd[x]:$[r;"ssh ",string[`root^sfill .conf[`ruser]],"@",(string a)," '";""],"sh -c cd ",.conf.wd," && ",cfill[y`env],$[`bsd~.conf[`ostype];" cpuset -l ";" taskset -c "],("," sv string raze mod[;$[r;1000;.ctrl.NOD[.conf.ha.node;`cpucores]]] y`cpu)," nohup ",.conf.qbin," ",($[r;ssr[;"'";"'\"'\"'"];::] cfill y[`args]),$[1<count y`qclfull;y`qclfull;.conf.qcl,(cfill y[`qcl])]," -p ",$[1b~y`bindip;string[a],":";1b~.conf[`bindlocal];"127.0.0.1:";""],(string p)," </dev/null >>/tmp/",z,".",(string .conf.app)," 2>&1&",$[r;"'&";""]};
+modstartcmd:{[x]p:(y:.conf[x])`port;z:string x;r:not (a:y`ip) in ``127.0.0.1,.conf.ha[.conf.ha.node;`ip],$[(::)~b:.conf.ha[.conf.ha.node;`ipx];`symbol$();b];:.ctrl.Cmd[x]:$[r;"ssh ",string[`root^sfill[.conf`ruser]^sfill[y`ruser]],"@",(string a)," '";""],"sh -c cd ",.conf.wd," && ",cfill[y`env],$[`bsd~.conf[`ostype];" cpuset -l ";" taskset -c "],("," sv string raze mod[;$[r;1000;.ctrl.NOD[.conf.ha.node;`cpucores]]] y`cpu)," nohup ",.conf.qbin," ",($[r;ssr[;"'";"'\"'\"'"];::] cfill y[`args]),$[1<count y`qclfull;y`qclfull;.conf.qcl,(cfill y[`qcl])],$[null u:y`auth;.conf.auth;ssr[.conf.auth;"common";string[u]]]," -p ",$[1b~y`bindip;string[a],":";1b~.conf[`bindlocal];"127.0.0.1:";""],(string p)," </dev/null >>/tmp/",z,".",(string .conf.app)," 2>&1&",$[r;"'&";""]};
 
 nodecmd:{[x;y].temp.cmd:cmd:$[x~.conf.ha.node;y;"ssh ",string[`root^sfill .conf[`ruser]],"@",(string .conf.ha[x;`ip])," 'sh -c \"",y,"\"'"];system cmd}; /[节点id;shell 命令]
 
@@ -72,7 +72,7 @@ gcall:{[x;y]if[0=count H:{x where 0<x} .ctrl.H;:()];neg[H]@\:(`.Q.gc;());1b};
 
 hball:{[x;y]{neg[.ctrl.MOD[x;`h]] ({[x;t0]neg[.z.w] ({[x;z;t0;t1].ctrl.MOD[x;`hbsent`hbpeer`hbrecv`mem]:(t0;t1;t2:.z.P;z);d:1e-9*t2-t0;.temp.MS,:enlist (t2;x;d;z);if[d>=.conf`maxdelay;lwarn[`delaytoolong;(x;d;t0;t1;t2)]]};x;1e-6*.Q.w[]`heap;t0;.z.P)};x;.z.P)} each exec id from .ctrl.MOD where 0<h;1b}; /mod heartbeat 
 
-nhall:{[x;y]{s:nodecmd[x;"mpstat -P ALL 1 1"];cu:1-1e-2*"F"$last flip {x where 13=count each x} {vs[" ";x] except enlist ""}each 3_s;s:nodecmd[x;"df -l -t ext4 --output=source,size,avail|grep ",string .ctrl.NOD[x;`diskdev]];du:1-last ratios "F"$-2#(vs[" "] s[0]) except enlist "";s:nodecmd[x;"free"];mu:{last ratios "F"$2#(1_vs[" "] x) except enlist ""}each 1_s;.temp.NS,:enlist (.z.P;x),.ctrl.NOD[x;`cpuuse`memuse`swapuse`diskuse`coreuse]:(cu[0];mu[0];mu[1];du;1_cu);if[any all each .conf[`maxcoreuse]<= flip first value flip select [neg[.conf.corechklen]]  cores from .temp.NS where id=x;lwarn[`cputoohigh;(x;cu)]]} each exec id from .ctrl.NOD;1b}; /nodehealth
+nhall:{[x;y]{s:nodecmd[x;"mpstat -P ALL 1 1"];cu:1-1e-2*"F"$last flip {x where 13=count each x} {vs[" ";x] except enlist ""}each 3_s;s:nodecmd[x;"df -l -t ext4 --output=source,size,avail|grep ",string .ctrl.NOD[x;`diskdev]];du:1-last ratios "F"$-2#(vs[" "] s[0]) except enlist "";s:nodecmd[x;"free"];mu:{last ratios "F"$2#(1_vs[" "] x) except enlist ""}each 1_s;.temp.NS,:enlist (.z.P;x),.ctrl.NOD[x;`cpuuse`memuse`swapuse`diskuse`coreuse]:(cu[0];mu[0];mu[1];du;1_cu);if[any all each .conf[`maxcoreuse]<= flip first value flip select [neg[.conf.corechklen]]  cores from .temp.NS where id=x;cs:1_cu;im:first idesc cs;lwarn[`cputoohigh;(x;im;exec first id from .ctrl.MOD where node=x,in[im] each cores;cs)]]} each exec id from .ctrl.NOD;1b}; /nodehealth
 
 ping:{[x]y:string x;z:system "ping -c 1 ",y;raze z};
 pingok:@[ping;;()];
@@ -85,11 +85,11 @@ rmoldapifiles:{[x;y]{[x]y:"D"$-10#string x;if[y<.z.D-10^jfill .conf`keepapilogda
 
 comparedb:{[x;y]if[not (~/) .ctrl.H[`ft`ft1] @\: `.db.P;alert["system error!";"pos diff!"];:0b];1b};
 
-chkmodstatus:{[x]if[not .z.T within 08:58 15:00;:()];{[x]lerr[`modoffline;enlist x]} each exec id from .ctrl.MOD where 0>=h;}; /check modules online status
+chkmodstatus:{[x]if[not .z.T within 08:58 15:00;:()];{[x]lerr[`modoffline;enlist x]} each exec id from .ctrl.MOD where 0>=h,not (id in .conf.modskip)|(id in .conf.modules1);}; /check modules online status
 
 chkfestatus:{[x]if[not .z.T within 09:00 15:00;:()];if[0>=h:.ctrl.MOD[`feufx;`h];:()];if[not 1b~h (`.ctrl.ufx;`login);lerr[`ufxloginfail;()]];}; /check ufx login
 
-chkfqstatus:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`rdb;`h];:()];r:h ({[x](exec `time$last time by src from quote),(exec `time$last time by src from l2quote)};());{[r;t;x]if[r[x]<t-00:00:02;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each enlist `fqctp;if[t<09:30;:()];{[r;t;x]if[r[x]<t-00:00:10;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each .conf.ha.ha.fq except `fqbar,.conf`qschkskip;}; /check fqsrc quote timestamp
+chkfqstatus:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`rdb;`h];:()];r:h ({[x](exec `time$last time by src from quote),(exec `time$last time by src from l2quote)};());{[r;t;x]if[r[x]<t-00:00:02;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each enlist `fqctp;if[t<09:30;:()];{[r;t;x]if[r[x]<t-00:00:10;lwarn[`quotehalt;(x;t;r`x)]]}[r;t] each .conf.ha.ha.fq except `fqbar,.conf.modules1,.conf`modskip;}; /check fqsrc quote timestamp
 
 chktpzw:{[x]t:.z.T;if[(not t within 09:00 15:00)|t within 11:30 13:00:03;:()];if[0>=h:.ctrl.MOD[`tp;`h];:()];if[.conf.maxzwlen<n:h ({sum sum each .z.W};());lwarn[`tpzwfull;(t;n)]];};
 
@@ -113,6 +113,14 @@ restartmod:{[x]stopmod[x];startmod[x];};
 restartdaily:{[x;y] {if[1b~.conf[x;`restart];restartmod x]} each .conf.modules;1b};
 
 //----ChangeLog----
+//2024.11.11:chkfqstatus增加对.conf.modules1的过滤(对modules1和modskip做规范区分:modules1为未上线模块列表,在module列表外,不参与fc自动管理,可手动启停进行生产环境调试;modskip为试上线模块列表,在module列表内,参与定时任务启停,不参与fc监控,不参与一键启停)
+//2024.11.08:modstartcmd增加对模块配置auth项的支持
+//2024.08.22:modstartcmd增加对模块配置ruser项的支持
+//2024.08.16:修改mod_init以支持模块不在所在节点物理机器
+//2024.06.19:修改nhall以支持在告警信息中输出cpu占用最高的模块
+//2024.05.31:chkmodstatus增加对modlues1的过滤
+//2024.05.30:starttx/stoptx增加支持参数disabletask
+//2024.05.29:NOD表去掉backup字段以支持三节点以上多活,对应修改nod_init函数,同时修改mtyp字段判断逻辑
 //2023.02.02:新增restartmod函数和restartdaily函数 
 
 

@@ -1,4 +1,4 @@
-.module.base:2023.04.27;
+.module.base:2025.02.19;
 
 txload:{[x]@[system;"l Tx/",x,".q";@[system;"l Tx/",x,".q_";`$"txload_",x]];};
 cfload:{[x]txload "conf/",x;};
@@ -63,7 +63,7 @@ savehist:{[x]set[` sv .conf[`histdb],x;.temp[x]];};
 
 //chkconn:{[]if[not `conn in key `.conf;:()];{[x]b:$[not x in key .ctrl.conn;1b;0>=.ctrl.conn[x;`h];1b;0b];if[b;h:@[hopen;.conf.conn[x]`addr;-1];if[0<h;.ctrl.conn[x]:`h`conntime!(h;.z.P)]];} each tkey .conf.conn;};
 
-chkconn:{[]if[not `conn in key `.conf;:()];{[x]b:$[not x in key .ctrl.conn;1b;0>=.ctrl.conn[x;`h];1b;0b];if[b;h:@[hopen;(`${$[-7h=type x;"::",string x;string x],.conf.appconn} .conf.conn[x]`addr;(30+rand 50)^jfill .conf.conn[x]`tmout);-1];if[0<h;.ctrl.conn[x]:`h`conntime!(h;.z.P)]];} each tkey .conf.conn;};
+chkconn:{[]if[not `conn in key `.conf;:()];{[x]b:$[not x in key .ctrl.conn;1b;0>=.ctrl.conn[x;`h];1b;0b];if[b;h:@[hopen;(`${[x]y:string x;$[-7h=type x;"::",y;y],$[2<count ss[y;":"];"";.conf.appconn]} .conf.conn[x]`addr;(30+rand 50)^jfill .conf.conn[x]`tmout);-1];if[0<h;.ctrl.conn[x]:`h`conntime!(h;.z.P)]];} each tkey .conf.conn;};
 
 discconn:{[];if[not `conn in key `.ctrl;:()];{[x]if[0<h:.ctrl.conn[x]`h;hclose[h]];} each tkey .ctrl.conn;};
 
@@ -72,7 +72,25 @@ chksub:{[]if[not `sub in key `.conf;:()];{[x]if[not x in key `.ctrl.conn;:()];if
 pub:{[t;x]if[null d:.conf[`pubto];:()];h:.ctrl.conn[d;`h];$[-6h<>type h;();0>=h;();[neg[h] (".u.upd";t;value flip update src:.conf.me,srctime:.z.P,srcseq:.db.seq,dsttime:0Np from x);.db.seq+:1]];};
 pubmx:{[x;y;z;w;d]pub[`sysmsg;enlist `sym`typ`ref`msg`vbin!(x;y;z;w;d)];};pubm:pubmx[;;;;`byte$()]; /(sym;typ;ref;msg)
 
-nextworkday:{[x]y:weekday[x];z:x+$[y=4;3;y=5;2;1];w:.conf[`holidayexlist];$[z in $[11h=type w;.conf.holiday inter (inter/).conf[`exholiday] w;.conf.holiday];.z.s[z];z]};
+weekdayshift:{[d;x]y:weekday[x];x+$[d;$[y=4;3;y=5;2;1];neg $[y=0;3;y=6;2;1]]}; /[direction(>0:next;<=0:prev);.z.D]下(上)一工作日(扣除周末)
+nextweekday:weekdayshift[1b]; /[.z.D]下一工作日(扣除周末)
+prevweekday:weekdayshift[0b]; /[.z.D]上一工作日(扣除周末)
+
+workdayshift:{[d;x]z:weekdayshift[d;x];w:.conf[`holidayreglist];$[z in $[11h=type w;.conf.holiday inter (inter/).conf[`regholiday] w;.conf.holiday];.z.s[d;z];z]}; /[direction(>0:.z.D]Tx平台全局下(上)一工作日(扣除周末及假日)
+nextworkday:workdayshift[1b]; /[.z.D]下一工作日(扣除周末及假日)
+prevworkday:workdayshift[0b]; /[.z.D]上一工作日(扣除周末及假日)
+
+istrdatex:{[r;x]y:weekday[x];(y<5)&not x in .conf.regholiday[r]}; /[region;date]某交易区域当日是否为工作日
+istrdate:istrdatecn:istrdatex[`cn];istrdatehk:istrdatex[`hk];
+
+nextrdatex:{[r;x]z:nextweekday[x];$[z in .conf.regholiday[r];.z.s[r;z];z]}; /[region;date]某交易区域下一工作日
+nextrdate:nextrdatecn:nextrdatex[`cn];nextrdatehk:nextrdatex[`hk];
+
+prevtrdatex:{[r;x]z:prevweekday[x];$[z in .conf.regholiday[r];.z.s[r;z];z]}; /[region;date]某交易区域上一工作日
+prevtrdate:prevtrdatecn:prevtrdatex[`cn];prevtrdatehk:prevtrdatex[`hk];
+
+difftrdatex:{[r;x;y](1+x-y)-sum {[r;x](in [x;.conf.regholiday[r]])|5<=weekday[x]}[r] y+til [x-y]}; /[reginon;d1;d0]计算区间[d0,d1]共包含几个区域交易日
+difftrdate:difftrdatecn:difftrdatex[`cn];difftrdatehk:difftrdatex[`hk];
 
 beginofday:{[x]h:.ctrl.conn[.conf.pubto;`h];if[-6h<>type h;:()];if[x<=h[`.u.d];:()];neg[h] (`.u.beginofday;x);pubm[`ALL;`BeginOfDay;.conf.me;string x];};
 
@@ -90,7 +108,7 @@ upd:{[t;x]$[t in tables[];[if[1b~.conf[`dumpapi];insert[t;update dsttime:.z.P fr
 
 display:{(,/) `_.disp[;]};
 
-.timer.task:{[x]{[x;now]y:.db.TASK[x;`firetime];d:`date$y;t:`time$y;w:d-`week$y;w0:.db.TASK[x;`weekmin];w1:.db.TASK[x;`weekmax];d0:.db.TASK[x;`datemin];d1:.db.TASK[x;`datemax];t0:.db.TASK[x;`timemin];t1:.db.TASK[x;`timemax];ff:.db.TASK[x;`firefreq];z:.db.TASK[x;`firetime]+ff;if[z<now;z+:ff*ceiling (now-z)%ff];if[(w>=w0)&((w<=w1)|(null w1))&(d>=d0)&((d<=d1)|(null d1))&(t>=t0)&((t<=t1)|(null t1));zp:.z.P;r:.[{$[0>type x;value;::]x} .db.TASK[x;`handler];(x;now);()];.db.TASK[x;`lastfire]:(zp;.z.P;r);if[not 1b~r;lwarn[`taskrun;(x;now;r)]]];$[(null z)|(not null d1)&(d1<`date$z);.db.TASK[x;`expire]:1b;.db.TASK[x;`firetime]:z];}[;x] each exec id from .db.TASK where not expire,not null handler,firetime<=x;};
+.timer.task:{[x]if[1b~.conf`disabletask;:()];{[x;now]y:.db.TASK[x;`firetime];d:`date$y;t:`time$y;w:d-`week$y;w0:.db.TASK[x;`weekmin];w1:.db.TASK[x;`weekmax];d0:.db.TASK[x;`datemin];d1:.db.TASK[x;`datemax];t0:.db.TASK[x;`timemin];t1:.db.TASK[x;`timemax];ff:.db.TASK[x;`firefreq];z:.db.TASK[x;`firetime]+ff;if[z<now;z+:ff*ceiling (now-z)%ff];if[(w>=w0)&((w<=w1)|(null w1))&(d>=d0)&((d<=d1)|(null d1))&(t>=t0)&((t<=t1)|(null t1));zp:.z.P;r:.[{$[0>type x;value;::]x} .db.TASK[x;`handler];(x;now);()];.db.TASK[x;`lastfire]:(zp;.z.P;r);if[not 1b~r;lwarn[`taskrun;(x;now;r)]]];$[(null z)|(not null d1)&(d1<`date$z);.db.TASK[x;`expire]:1b;.db.TASK[x;`firetime]:z];}[;x] each exec id from .db.TASK where not expire,not null handler,firetime<=x;};
 
 .zpc.base:{[x]{if[x=.ctrl.conn[y;`h];.ctrl.conn[y;`h`disctime]:(-1;.z.P);if[y in key `.ctrl.sub;.ctrl.sub[y;`sub]:0b]]}[x] each tkey .ctrl.conn;};
 
@@ -99,7 +117,7 @@ display:{(,/) `_.disp[;]};
 newseq:{[]:.db.seq+:1};newidl:{[]`$string newseq[]};newid:{[]` sv .conf.id,`$string newseq[]};newseq0:{[]:.db.seq0+:1};newidl0:{[]`$string newseq0[]};newid0:{[]` sv .conf.id,`$string newseq0[]};
 fs2se:{[x]`$"." vs string x};se2fs:{[x]`$"." sv string x};fs2e:{last fs2se x};fs2s:{first fs2se x};
 now:{.z.P};ntd:{.z.D};vtd:{.db.sysdate};
-clearapi:{[]{delete from x;@[x;`sym;`g#];} each tables[]};
+clearapi:{[]{delete from x;@[x;`sym;`g#];} each {x where 98h=type each value each x} tables[]};
 cleartemp:{[]{[x]if[0<=type y:.temp[x];.temp[x]:0#y]} each key `.temp;};
 
 setstate:{[x;y]if[(null y)|(y~y0:.ctrl.StateMap[x]);:()];t0:.ctrl.StateEnter[x];t:now[];$[y~`OK;if[not null y0;lwarn[`ExitAlarm;(x;y0;t0;t;t-t0)];sysalarm[`Leave;x]];[lwarn[`EnterAlarm;(x;y;t)];sysalarm[`Enter;x]]];.ctrl.StateMap[x]:y;.ctrl.StateEnter[x]:t;}; /[ID;State]
@@ -109,9 +127,23 @@ updstate:{[x;y;z]m:.conf.me;t0:.db.S[m,x,y;`entertime];t:now[];z0:.db.S[m,x,y;`a
 loadhdbtask:{[x;y]loadhdb[];1b};
 unloadhdbtask:{[x;y]unloadhdb[];.Q.gc[];1b};
 cleartemptask:{[x;y]cleartemp[];.Q.gc[];1b};
+savedbtask:{[x;y]savedb[];1b};
+fixrolldatetask:{[x;y]z:.z.D;$[.z.T<=.conf.dayendtime;if[.db.sysdate<z;.db.sysdate:z];if[.db.sysdate<=z;.db.sysdate:nextworkday[z]]];1b};
 
 if[not `boot in key `.ctrl;.base.boot[]];
 
 //----ChangeLog----
+//2025.02.19:新增定义weekdayshift和workdayshift,并依此重新定义nextweekday/prevweekday/nextworkday/prevworkday
+//2024.09.23:chkconn增加对addr已包含用户名的密码的兼容处理
+//2024.05.30:.timer.task增加支持参数disabletask
+//2024.05.15:修改nextworkday,将.conf[`holidayexlist`exholiday]替换为.conf[`holidayreglist`regholiday]并相应修改相关配置文件,新增nextweekday/prevweekday/nextrdatex/prevtrdatex/difftrdatex/istrdatex/并修改nextworkday/difftrdate函数
+//2024.03.18:新增fixrolldatetask以支持dayroll处理失败的情形通过定时任务修复.db.sysdate
+//2024.02.20:新增savedbtask函数以支持通过TASK任务盘中定时存盘降低因为进程崩溃丢失数据的风险
+//2023.12.22:clearapi增加对key表过滤
 //2023.04.27:O表新增exchid和cexchid两列
 //2022.10.11:{nextworkday} add support for multiple exchanges. should add .conf.holidayexlist to cfbase.q  
+
+\
+.db.TASK[`SAVEDB;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+16:15;1D;0;4;`savedbtask);
+.db.TASK[`SAVEDBNS;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+02:35;1D;1;5;`savedbtask);
+.db.TASK[`FIXROLLDATE;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+20:56;1D;1;5;`fixrolldatetask);

@@ -1,7 +1,12 @@
 #include "kcomm.h"
 #include <queue>
-#include "DataCollect.h"
 #include "ThostFtdcTraderApi.h"
+
+#ifdef __CTPTEST
+#include "DataCollectTest.h"
+#else
+#include "DataCollect.h"
+#endif
 
 #define PIPE_CAPACITY 65536
 #define b9 
@@ -132,7 +137,7 @@ public:
   virtual void OnRspQryInstrument(CThostFtdcInstrumentField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryInstrument:%d\n",p); 
     RETURNONERR;
-    CTPPUB("QryInstrument",knk(25,kp(p->InstrumentID),kp(p->ExchangeID),kp(p->InstrumentName),kp(p->ExchangeInstID),kp(p->ProductID),kc(p->ProductClass),ki(p->DeliveryYear),ki(p->DeliveryMonth),ki(p->MaxMarketOrderVolume),ki(p->MinMarketOrderVolume),ki(p->MaxLimitOrderVolume),ki(p->MinLimitOrderVolume),ki(p->VolumeMultiple),kf(p->PriceTick),kp(p->CreateDate),kp(p->OpenDate),kp(p->ExpireDate),kp(p->StartDelivDate),kp(p->EndDelivDate),kc(p->InstLifePhase),ki(p->IsTrading),kc(p->PositionType),kc(p->PositionDateType),kf(p->LongMarginRatio),kf(p->ShortMarginRatio)));
+    CTPPUB("QryInstrument",knk(35,kp(p->InstrumentID),kp(p->ExchangeID),kp(p->InstrumentName),kp(p->ExchangeInstID),kp(p->ProductID),kc(p->ProductClass),ki(p->DeliveryYear),ki(p->DeliveryMonth),ki(p->MaxMarketOrderVolume),ki(p->MinMarketOrderVolume),ki(p->MaxLimitOrderVolume),ki(p->MinLimitOrderVolume),ki(p->VolumeMultiple),kf(p->PriceTick),kp(p->CreateDate),kp(p->OpenDate),kp(p->ExpireDate),kp(p->StartDelivDate),kp(p->EndDelivDate),kc(p->InstLifePhase),ki(p->IsTrading),kc(p->PositionType),kc(p->PositionDateType),kf(p->LongMarginRatio),kf(p->ShortMarginRatio),kc(p->MaxMarginSideAlgorithm),kp(p->reserve4),kf(p->StrikePrice),kc(p->OptionsType),kf(p->UnderlyingMultiple),kc(p->CombinationType),kp(p->InstrumentID),kp(p->ExchangeInstID),kp(p->ProductID),kp(p->UnderlyingInstrID)));
   };
 
   virtual void OnRspOrderInsert(CThostFtdcInputOrderField *p, CThostFtdcRspInfoField *pe, int nRequestID, bool bIsLast) {
@@ -309,7 +314,7 @@ public:
   virtual void OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQrySettlementInfo:%d\n",p); 
     RETURNONERR;
-    CTPPUB("QrySettlementInfo",knk(6,kp(p->TradingDay),ki(p->SettlementID),kp(p->BrokerID),kp(p->InvestorID),ki(p->SequenceNo),kp(p->Content)));
+    CTPPUB("QrySettlementInfo",knk(8,kp(p->TradingDay),ki(p->SettlementID),kp(p->BrokerID),kp(p->InvestorID),ki(p->SequenceNo),kp(p->Content),kp(p->AccountID),kp(p->CurrencyID)));
   };
 
   ///请求查询投资者持仓明细响应
@@ -341,10 +346,16 @@ public:
   };
 
   ///请求查询期权交易成本响应
-  virtual void OnRspQryOptionInstrTradeCost(CThostFtdcOptionInstrTradeCostField *pOptionInstrTradeCost, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+  virtual void OnRspQryOptionInstrTradeCost(CThostFtdcOptionInstrTradeCostField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+    RETURNONERR;
+    CTPPUB("QryOptionInstrTradeCost",knk(12,kp(p->BrokerID),kp(p->InvestorID),kp(p->reserve1),kc(p->HedgeFlag),kf(p->FixedMargin),kf(p->MiniMargin),kf(p->Royalty),kf(p->ExchFixedMargin),kf(p->ExchMiniMargin),kp(p->ExchangeID),kp(p->InvestUnitID),kp(p->InstrumentID)));
+  };
 
   ///请求查询期权合约手续费响应
-  virtual void OnRspQryOptionInstrCommRate(CThostFtdcOptionInstrCommRateField *pOptionInstrCommRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+  virtual void OnRspQryOptionInstrCommRate(CThostFtdcOptionInstrCommRateField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+    RETURNONERR;
+    CTPPUB("QryOptionInstrCommRate",knk(15,kp(p->reserve1),kc(p->InvestorRange),kp(p->BrokerID),kp(p->InvestorID),kf(p->OpenRatioByMoney),kf(p->OpenRatioByVolume),kf(p->CloseRatioByMoney),kf(p->CloseRatioByVolume),kf(p->CloseTodayRatioByMoney),kf(p->CloseTodayRatioByVolume),kf(p->StrikeRatioByMoney),kf(p->StrikeRatioByVolume),kp(p->ExchangeID),kp(p->InvestUnitID),kp(p->InstrumentID)));
+  };
 
   ///请求查询执行宣告响应
   virtual void OnRspQryExecOrder(CThostFtdcExecOrderField *pExecOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
@@ -399,7 +410,7 @@ public:
   virtual void OnRspQryBrokerTradingParams(CThostFtdcBrokerTradingParamsField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     //O("OnRspQryBrokerTradingParams:%d\n",p); 
     RETURNONERR;
-    CTPPUB("QryBrokerTradingParams",knk(5,kp(p->BrokerID),kp(p->InvestorID),kc(p->MarginPriceType),kc(p->Algorithm),kc(p->AvailIncludeCloseProfit)));
+    CTPPUB("QryBrokerTradingParams",knk(8,kp(p->BrokerID),kp(p->InvestorID),kc(p->MarginPriceType),kc(p->Algorithm),kc(p->AvailIncludeCloseProfit),kp(p->CurrencyID),kc(p->OptionRoyaltyPriceType),kp(p->AccountID)));
   };
 
   ///请求查询经纪公司交易算法响应
@@ -437,6 +448,12 @@ public:
     CTPPUB("QryCombAction",knk(25,kp(p->BrokerID),kp(p->InvestorID),kp(p->InstrumentID),kp(p->CombActionRef),kp(p->UserID),kc(p->Direction),ki(p->Volume),kc(p->CombDirection),kc(p->HedgeFlag),kp(p->ActionLocalID),kp(p->ExchangeID),kp(p->ParticipantID),kp(p->ClientID),kp(p->ExchangeInstID),kp(p->TraderID),ki(p->InstallID),kc(p->ActionStatus),ki(p->NotifySequence),kp(p->TradingDay),ki(p->SettlementID),ki(p->SequenceNo),ki(p->FrontID),ki(p->SessionID),kp(p->UserProductInfo),kp(p->StatusMsg)));
   };
 
+  ///请求查询报单手续费响应
+  virtual void OnRspQryInstrumentOrderCommRate(CThostFtdcInstrumentOrderCommRateField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+    RETURNONERR;
+    CTPPUB("QryInstrumentOrderCommRate",knk(12,kp(p->reserve1),kc(p->InvestorRange),kp(p->BrokerID),kp(p->InvestorID),kc(p->HedgeFlag),kf(p->OrderCommByVolume),kf(p->OrderActionCommByVolume),kp(p->ExchangeID),kp(p->InvestUnitID),kp(p->InstrumentID),kf(p->OrderCommByTrade),kf(p->OrderActionCommByTrade)));
+  };
+
 private: 
   CThostFtdcTraderApi *m_pUserApi;
 };
@@ -464,6 +481,7 @@ extern "C"{
 
     run++;
     INITLOCK; 
+    setm(1);
     sd1(p[0],onmq);
 
     sprintf(buf,"/tmp/CTPT_%s",y->s);
@@ -500,6 +518,10 @@ extern "C"{
 
   K1(ctptrun){
     R ki(run);
+  } 
+
+  K1(ctpver){
+    R kp((S)pTradeApi->GetApiVersion());
   } 
 
   K2(ctpsysinfo){
@@ -948,6 +970,46 @@ extern "C"{
     strcpy(req.ExchangeID,kK(y)[3]->s);
 
     R ki(pTradeApi->ReqQryCombAction(&req,xi));
+  }
+
+  K2(qryOptionInstrCommRate){
+    if(!run) R ki(-1);
+
+    CThostFtdcQryOptionInstrCommRateField req;
+    memset(&req,0,sizeof(req));
+    strcpy(req.BrokerID,kK(y)[0]->s);
+    strcpy(req.InvestorID,kK(y)[1]->s);
+    strcpy(req.InstrumentID,kK(y)[2]->s);
+
+    R ki(pTradeApi->ReqQryOptionInstrCommRate(&req,xi));
+  }
+
+  K2(qryOptionInstrTradeCost){
+    if(!run) R ki(-1);
+
+    CThostFtdcQryOptionInstrTradeCostField req;
+    memset(&req,0,sizeof(req));
+    strcpy(req.BrokerID,kK(y)[0]->s);
+    strcpy(req.InvestorID,kK(y)[1]->s);
+    strcpy(req.InstrumentID,kK(y)[2]->s);
+    strcpy(req.ExchangeID,kK(y)[3]->s);
+    req.HedgeFlag=kK(y)[4]->g;
+    req.InputPrice=kK(y)[5]->f;
+    req.UnderlyingPrice=kK(y)[6]->f;
+
+    R ki(pTradeApi->ReqQryOptionInstrTradeCost(&req,xi));
+  }
+
+  K2(qryInstrumentOrderCommRate){
+    if(!run) R ki(-1);
+
+    CThostFtdcQryInstrumentOrderCommRateField req;
+    memset(&req,0,sizeof(req));
+    strcpy(req.BrokerID,kK(y)[0]->s);
+    strcpy(req.InvestorID,kK(y)[1]->s);
+    strcpy(req.InstrumentID,kK(y)[2]->s);
+
+    R ki(pTradeApi->ReqQryInstrumentOrderCommRate(&req,xi));
   }
 
 }

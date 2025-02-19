@@ -3,7 +3,7 @@
 #include "X2AtoTradeApi.h"
 #include "X2AtoTradeSpi.h"
 
-#define ORD_POOL_SIZE 8192
+#define ORD_POOL_SIZE 10
 #define PIPE_CAPACITY 65536
 #define b9 
 #define d9 
@@ -120,7 +120,7 @@ public:
   virtual void OnRspQueryOrderActual(const AtoSDKQueryOrderRsp* p, int n, const X2RspInfoField& rspInfo, int nRequestID){
     RETURNONATOERR("OnRspQueryOrderActual");
     K L=knk(0),v;
-    DO(n,v=knk(35,kj(p->orderBatchId),kj(p->sysOrderId),kj(p->sysQuoteBatchId),kj(p->sysQuoteId),ki(p->operatorNo),ki(p->tradeDate),ki(p->tradeTime),ki(p->organId),ki(p->productId),kj(p->unitId),ki(p->accountId),kp((S)p->accountUser),kp((S)p->stkAcctCode),ki(p->marketType),kp((S)p->symbol),ki(p->securityType),ki(p->assetType),ki(p->reportDate),ki(p->reportTime),kp((S)p->brokerOrderId),ki(p->side),ki(p->pxType),kf(p->orderPx),ki(p->orderQty),kf(p->orderAmt),ki(p->orderStatus),ki(p->cancelQty),kf(p->dealAmt),ki(p->dealQty),kf(p->allFee),kf(p->dealBondAccrInterest),kp((S)p->basketId),kp((S)p->rspOrderInfo),kp((S)p->positionStr),kp((S)p->externalId));jk(&L,v);p++);
+    DO(n,v=knk(36,kj(p->orderBatchId),kj(p->sysOrderId),kj(p->sysQuoteBatchId),kj(p->sysQuoteId),ki(p->operatorNo),ki(p->tradeDate),ki(p->tradeTime),ki(p->organId),ki(p->productId),kj(p->unitId),ki(p->accountId),kp((S)p->accountUser),kp((S)p->stkAcctCode),ki(p->marketType),kp((S)p->symbol),ki(p->securityType),ki(p->assetType),ki(p->reportDate),ki(p->reportTime),kp((S)p->brokerOrderId),ki(p->side),ki(p->pxType),kf(p->orderPx),ki(p->orderQty),kf(p->orderAmt),ki(p->orderStatus),ki(p->cancelQty),kf(p->dealAmt),ki(p->dealQty),kf(p->allFee),kf(p->dealBondAccrInterest),kp((S)p->basketId),kp((S)p->rspOrderInfo),kp((S)p->positionStr),kp((S)p->externalId),ki(p->algoTypeId));jk(&L,v);p++);
     LPUB("OnRspQueryOrderActual",L);    
   }
 
@@ -134,14 +134,14 @@ public:
   virtual void OnRspCreateOrderActual(const AtoSDKOrderCreateRsp* p, int n, const X2RspInfoField& rspInfo, int nRequestID){
     RETURNONATOERR("OnRspCreateOrderActual");
     K L=knk(0),v;
-    DO(n,v=knk(9,ki(p->errCode),kp((S)p->errMsg),ki(p->createDate),ki(p->createTime),kj(p->orderBatchId),kj(p->sysOrderId),kj(p->riskBusinId),ki(p->riskWarnFlag),ki(p->warnOperation));jk(&L,v);p++);
+    DO(n,v=knk(12,ki(p->errCode),kp((S)p->errMsg),ki(p->createDate),ki(p->createTime),kj(p->orderBatchId),kj(p->sysOrderId),kj(p->riskBusinId),ki(p->riskWarnFlag),ki(p->warnOperation),kp((S)p->externalId),kp((S)p->basketId),ki(p->minEntustRatio));jk(&L,v);p++);
     LPUB("OnRspCreateOrderActual",L);    
   }
 
   virtual void OnRspCancelOrderActual(const AtoSDKOrderCancelRsp* p, int n, const X2RspInfoField& rspInfo, int nRequestID){
     RETURNONATOERR("OnRspCancelOrderActual");
     K L=knk(0),v;
-    DO(n,v=knk(7,ki(p->errCode),kp((S)p->errMsg),kj(p->sysOrderId),kj(p->cancelId),kj(p->riskBusinId),ki(p->riskWarnFlag),ki(p->warnOperation));jk(&L,v);p++);
+    DO(n,v=knk(8,ki(p->errCode),kp((S)p->errMsg),kj(p->sysOrderId),kj(p->cancelId),kj(p->riskBusinId),ki(p->riskWarnFlag),ki(p->warnOperation),kp((S)p->externalId));jk(&L,v);p++);
     LPUB("OnRspCancelOrderActual",L);    
   }
 
@@ -179,6 +179,21 @@ public:
     DO(n,v=knk(33,kj(p->riskWarnId),kj(p->riskBusinId),ki(p->riskRuleId),ki(p->riskTypeId),ki(p->organId),ki(p->riskWarnLevel),ki(p->productId),kj(p->unitId),ki(p->accountId),kp((S)p->symbol),ki(p->marketType),ki(p->side),ki(p->currencyType),ki(p->riskControlBiz),ki(p->compareDirection),ki(p->symbolCollect),ki(p->layerCollect),ki(p->warnLevel),ki(p->warnOperation),kf(p->setValue),kf(p->calcValue),kj(p->numeratorValue),kj(p->denominatorValue),ki(p->riskGroupId),kj(p->commandId),kj(p->sysQuoteId),kj(p->sysOrderId),ki(p->operatorNo),kp((S)p->remark),kp((S)p->ruleRemark),kp((S)p->setRuleInfo),ki(p->createTime),ki(p->displayUnit));jk(&L,v);p++);
     LPUB("OnRspRiskWarn",L);    
   }
+
+  virtual void OnRtnFutuFundReport(const AtoSDKFutuChangeFundPush& futuFundReport){}
+  virtual void OnRtnFutuPositionReport(const AtoSDKFutuChangePositionPush& futuPosReport){}  
+  virtual void OnRtnFutuTradeReport(const AtoSDKFutuDealPush& futuTradeReport){}
+  virtual void OnRtnFutuOrderReport(const AtoSDKFutuOrderPush& futuOrderReport){}
+  virtual void OnRspQuerySysArg(const AtoSDKQuerySysArgRsp& sysArgRsp, const X2RspInfoField& rspInfo, int nRequestID){}  
+  virtual void OnRspFutuOrderCreate(const AtoSDKFutuOrderCreateRsp* pRspFutuOrderCreateList, int nCount, const X2RspInfoField& rspInfo, int nRequestID){}
+  virtual void OnRspFutuOrderCancel(const AtoSDKFutuOrderCancelRsp* pRspFutuOrderCancelList, int nCount, const X2RspInfoField& rspInfo, int nRequestID){}
+  virtual void OnRspFutuQueryOrder(const AtoSDKFutuQueryOrderRsp* pRspFutuQueryOrderList, int nCount, const X2RspInfoField& rspInfo, int nRequestID){}
+  virtual void OnRspFutuQueryPosition(const AtoSDKFutuQueryPositionRsp* pRspFutuQueryPositionList, int nCount, const X2RspInfoField& rspInfo, int nRequestID){}
+  virtual void OnRspFutuQueryPosDetail(const AtoSDKFutuQueryPosDetailRsp* pRspFutuQueryPosDetailList, int nCount, const X2RspInfoField& rspInfo, int nRequestID){}
+  virtual void OnRspFutuQueryDeal(const AtoSDKFutuQueryDealRsp* pRspFutuQueryDealList, int nCount, const X2RspInfoField& rspInfo, int nRequestID){}
+  virtual void OnRspRiskQueryStaticWarn(const AtoSDKRiskQueryStaticWarnRsp* pRspRiskStaticWarnList, int nCount, const X2RspInfoField& rspInfo, int nRequestID){}
+  virtual void OnRtnRiskWarnPush(const AtoSDKRiskWarnPush& riskWarnPush){}
+  virtual void OnRspQueryOrderCount(const AtoSDKQueryOrderCountRsp* pRspOrderCountList, int nCount, const X2RspInfoField& rspInfo, int nRequestID){}
 };
 
 Z CTradeHandler * pTradeSpi;;
@@ -394,6 +409,29 @@ extern "C"{
     R ki(pTradeApi->ReqQueryInstruction(req,xi));
   } 
 
+   K2(reqInstructionCreat){
+    if(!run) R ki(-1);
+
+    int n=MIN(y->n,ORD_POOL_SIZE);
+    K z;
+    AtoSDKAlgoCreate req[ORD_POOL_SIZE];
+    DO(n,z=kK(y)[i];
+       req[i].algoTypeId=kK(z)[0]->i;
+       req[i].productId=kK(z)[1]->i;
+       req[i].unitId=kK(z)[2]->j;
+       req[i].accountId=kK(z)[3]->i;
+       strcpy(req[i].basketId,kK(z)[4]->s);
+       strcpy(req[i].externalId,kK(z)[5]->s);
+       strcpy(req[i].symbol,kK(z)[6]->s);
+       req[i].marketType=kK(z)[7]->i;
+       strcpy(req[i].stkAcctCode,kK(z)[8]->s);
+       req[i].effectiveTime=kK(z)[9]->j;
+       req[i].expireTime=kK(z)[10]->j;
+       strcpy(req[i].algoParam,kK(z)[11]->s);
+       ); 
+    R ki(pTradeApi->ReqInstructionCreate(req,n,xi));
+  } 
+ 
   K2(reqInstructionCreate){
     if(!run) R ki(-1);
     int n=MIN(y->n,ORD_POOL_SIZE);

@@ -1,4 +1,5 @@
 #include "kqueue.h"
+#include "kcomm.h"
 
 #include <HSNsqApi.h>
 
@@ -277,10 +278,7 @@ extern "C"{
 
     if(run) R ki(-1);
 
-    r=kqinit();
-    O("kqinit()=%d!\n",r);
-    if (r!=0) R ki(r);
-
+    if (r=kqinit()) R ki(r);    
     run++;
     sd1(p[0],onmq);
     pQuoteApi = NewNsqApiExt(kK(y)[0]->s,kK(y)[1]->s);
@@ -368,9 +366,27 @@ extern "C"{
     if(!run) R ki(-1);
     CHSNsqReqSecuDepthMarketDataField req[10000];
     I n=kK(y)[0]->i;
+    if(n>10000) n=10000;
     strcpy(req[0].ExchangeID,kK(y)[1]->s); 
     R ki(pQuoteApi->ReqSecuDepthMarketDataSubscribe(req,n,xi));
   }
+
+
+  K2(substkex){
+    if(!run) R ki(-1);
+    CHSNsqReqSecuDepthMarketDataField req[10000];
+    I n=kK(y)[0]->i;
+    S *s=kS(kK(y)[1]);
+    S *e=kS(kK(y)[2]);
+    if(n>10000) n=10000;
+    for(int i=0;i<n;i++)
+    {
+      strcpy(req[i].InstrumentID, s[i]);   
+      strcpy(req[i].ExchangeID, e[i]);      
+    }
+    R ki(pQuoteApi->ReqSecuDepthMarketDataSubscribe(req,n,xi));
+  }
+
 
   K2(cxlstk){ 
     if(!run) R ki(-1);
@@ -388,6 +404,23 @@ extern "C"{
     strcpy(req[0].ExchangeID,kK(y)[2]->s); 
     R ki(pQuoteApi->ReqSecuTransactionSubscribe(kK(y)[0]->g,req,n,xi));
   }
+
+
+  K2(substkordex){ 
+    if(!run) R ki(-1);
+    CHSNsqReqSecuDepthMarketDataField req[10000];
+    I n=kK(y)[1]->i;
+    S *s=kS(kK(y)[2]);
+    S *e=kS(kK(y)[3]);
+    if(n>10000) n=10000;
+    for(int i=0;i<n;i++)
+    {
+      strcpy(req[i].InstrumentID, s[i]);   
+      strcpy(req[i].ExchangeID, e[i]);      
+    }
+    R ki(pQuoteApi->ReqSecuTransactionSubscribe(kK(y)[0]->g,req,n,xi));
+  }
+
 
   K2(cxlstkord){ 
     if(!run) R ki(-1);

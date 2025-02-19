@@ -54,7 +54,7 @@ sendalert:{[x]if[(not ()~key `:/q/sh/sendalert)&(.z.o in `l32`l64);@[system;"/q/
 sendmsg:{[x]if[(not ()~key `:/q/sh/sendmsg)&(.z.o in `l32`l64);@[system;"/q/sh/sendmsg '",x,"'&";()]];};
 md5s:{2_-3!-15!x};
 
-emailx:{[s;xu;xp;f;t;u;m] system "/usr/bin/sendemail -q -l /tmp/sendemail.log",(" -s ",s),(" -xu ",xu),(" -xp ",xp),(" -f ",f),(" -t ",t),(" -u ",u),(" -m ",m);};
+emailx:{[s;xu;xp;f;t;u;m] system "/usr/bin/sendemail -q -o tls=no -l /tmp/sendemail.log",(" -s ",s),(" -xu ",xu),(" -xp ",xp),(" -f ",f),(" -t ",t),(" -u ",u),(" -m ",m);};
 
 inline:{[x;y;z;c]u:md5s raze z;v:(string x),"_",(string y),"_",u;w:` sv `:/q/l64,`$v,".so";if[()~key w;s:` sv `:/tmp,`$v,".c";s 0: (enlist "#include\"kcomm.h\""),$[0<count hdrs:c`h;"#include ",/: hdrs;""],(enlist "K",(string y),"(",(string x),"){"),$[0=type z;z;enlist z],enlist enlist "}";system "/usr/bin/gcc -m64 -fPIC -shared -DJ64 -DKXVER=3 -I/q/c -lpthread ",$[0<count libs:c`l;" " sv "-l",/: string libs;""]," ",(1_string s)," -o ",(1_string w);];(`$v) 2: (x;y)}; /[fun;argc;fundef;`h`l!(headers;libs)]
 osiconv:inline[`osiconv;4;"size_t n,n0=z->n,n1=w->n;S s1=z->G0,s2=w->G0;iconv_t cd=iconv_open(xs,y->s);n=iconv(cd,&s1,&n0,&s2,&n1);iconv_close(cd);R ki(n1);";`h`l!(enlist "<iconv.h>";())];

@@ -33,10 +33,7 @@ K1(udpsend){
 
 K2(udpsendto){
    int n=0;
-   struct sockaddr_in si_other;
-   int slen=sizeof(si_other);
-   
-   n=sendto(xi,kC(y), y->n, 0, (struct sockaddr*)&si_other, slen);
+   n=sendto(xi,kC(y), y->n, 0, NULL, 0);
    R ki(n);
 }
 
@@ -155,7 +152,7 @@ K sockcallback(I s){
     if(slen)strncpy(addr,inet_ntoa(sin.sin_addr),sizeof(addr));
     if(r<0)r=-ERRNO;
     r0(k(0,"sockcbrecv",ki(s),kp(addr),ki(slen?ntohs(sin.sin_port):0),ki(r),((r>0)?kpn(buf,r):kp("")),(K)0));
-    if(0==r) {sd0(s);closesock(s);} 
+    if(0==r) {sd0(s);closesock(s);R ki(-2);} 
     }
   R ki(r);
 }
@@ -213,7 +210,7 @@ I opensock(S ip,I port,I mode,I blen,S lip){
   struct hostent *group;
   struct ip_mreq mreq;
   int s, flags, slen=sizeof(si_other),r;
-  int sockmode=mode; /*0:UDP,1:TCP client async,2:TCP server async,3:TCP client sync,4:TCP server sync*/
+  int sockmode=mode; /*0:UDP(port>0:server;port<0:client),1:TCP client async,2:TCP server async,3:TCP client sync,4:TCP server sync*/
 #if defined(WIN32)||defined(WIN64)
   u_long iMode = 1;
 #endif
@@ -249,7 +246,7 @@ I opensock(S ip,I port,I mode,I blen,S lip){
 
   memset((char *) &si_other, 0, slen);
   si_other.sin_family = AF_INET;
-  si_other.sin_port = htons(port);
+  si_other.sin_port = htons(abs(port));
   if(0==strcmp(ip,"")){
     si_other.sin_addr.s_addr=htonl(INADDR_ANY);
   }else{
@@ -259,7 +256,7 @@ I opensock(S ip,I port,I mode,I blen,S lip){
       if(inet_aton(ip, &si_other.sin_addr)==0) R (-ERRNO);
 #endif
   }
-  if((1==sockmode)||(3==sockmode)){
+  if((1==sockmode)||(3==sockmode)||((0==sockmode)&&(port<0))){
     r=connect(s,(struct sockaddr *)&si_other,slen);
 #if defined(WIN32)||defined(WIN64)
     if ((0>r)&&WSAEWOULDBLOCK!=(e=ERRNO)) R (-e);
@@ -268,7 +265,7 @@ I opensock(S ip,I port,I mode,I blen,S lip){
 #endif
   }else{
     if(0>setsockopt(s,SOL_SOCKET,SO_REUSEADDR,(char *)&flag,sizeof(flag)))R (-ERRNO);
-    if(0>bind(s, (struct sockaddr *)&si_other, slen)) R (-ERRNO);
+    if((0==sockmode)&&(0<port)){if(0>bind(s, (struct sockaddr *)&si_other, slen)) R (-ERRNO);}
     if(0<sockmode){
       if(0>listen(s,100))R (-ERRNO);
     }

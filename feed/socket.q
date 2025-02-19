@@ -1,14 +1,15 @@
-.module.socket:2019.09.04;
+.module.socket:2024.08.29;
 
 `udpsend`sockopen`sockclose`sockopt`sockcheck`tcpsend`udpsendto`tcprecv`udprecvfrom`getsockbuf`setsockbuf`errmsg {x set `extsocket 2:(x;y);}' (5#1),2 2,5#1;
 
 udplisten:{[x]sockopen[x,enlist 0i]};tcpconnasync:{[x]sockopen[x,enlist 1i]};tcplistenasync:{[x]sockopen[x,enlist 2i]};tcpconn:{[x]sockopen[x,enlist 3i]};tcplisten:{[x]sockopen[x,enlist 4i]};
 
-.ctrl.tcpconn:.enum`nulldict;
+.ctrl.tcpconn:enlist[`]!enlist[::];
 .ctrl.tcpin:()!();
+.ctrl.tcpbuf:()!();
 .temp.sockrecv:()!();
 .temp.socksend:()!();
-.tcppc:.enum`nulldict;
+.tcppc:enlist[`]!enlist[::];
 
 .timer.socket:{[x]chktcpconn[];chktcpasync[];};
 .exit.socket:{[x]disctcpconn[];};
@@ -19,13 +20,13 @@ chktcpasync:{[]{[x]r:.ctrl.tcpconn[x];if[not (0<h:r[`h])& not r`c;:()];$[.z.P<r[
 
 disctcpconn:{[]if[not `tcpconn in key `.ctrl;:()];{[x]if[0<h:.ctrl.tcpconn[x]`h;sockclose[h]];} each tkey .ctrl.tcpconn;};
 
-sockcberr:{[s;r]lwarn[`TCPSelectErr;(s;r)];};
+sockcberr:{[s;r].temp.sE:(s;r);lwarn[`TCPSelectErr;(s;r)];};
 
-listencb:{[s;r;ip;port]linfo[`TCPAccept;(s;r;ip;port)];.ctrl.tcpin[r]:(ip;port);};
+listencb:{[s;r;ip;port]linfo[`TCPAccept;(s;r;ip;port)];.ctrl.tcpin[r]:(ip;port);.ctrl.tcpbuf[r]:"";};
 
 sockcbsend:{[s]ldebug[`sockcbsend;s];x:.ctrl.tcpconn[;`h]?s;if[(0>=s)|(null x);:()];if[not .ctrl.tcpconn[x;`c];.ctrl.tcpconn[x;`connected`c`e]:(.z.P;1b;0b);linfo[`TCPConnected;(x;s)];onsockconn[x]];};
 
-sockcbrecv:{[s;ip;port;r;buf]ldebug[`sockcbrecv;(s;ip;port;r;buf)];if[1b~.conf[`sockdebug];.temp.sockrecv[s],:buf];if[(port=0)&(2=count sa:.ctrl.tcpin[s]);ip:sa[0];port:sa[1]];x:.ctrl.tcpconn[;`h]?s;$[0>r;lwarn[`SockErr;(r;x;.conf[x;`addr];.ctrl.tcpin[s])];0=r;[lwarn[`TCPRecvClose;s];.tcppc[;s];if[not null x;.ctrl.tcpconn[x;`disctime`h`c]:(.z.P;-1;0b);onsockdisc[x]]];onsockmsg[`w`h`a!(x;s;`$":" sv (ip;string port));buf]];};
+sockcbrecv:{[s;ip;port;r;buf].temp.sX:(s;ip;port;r;buf);ldebug[`sockcbrecv;(s;ip;port;r;buf)];if[1b~.conf[`sockdebug];.temp.sockrecv[s],:buf];if[(port=0)&(2=count sa:.ctrl.tcpin[s]);ip:sa[0];port:sa[1]];x:.ctrl.tcpconn[;`h]?s;$[0>r;lwarn[`SockErr;(r;x;.conf[x;`addr];.ctrl.tcpin[s])];0=r;[lwarn[`TCPRecvClose;s];.tcppc[;s];if[not null x;.ctrl.tcpconn[x;`disctime`h`c]:(.z.P;-1;0b);onsockdisc[x]]];onsockmsg[`w`h`a!(x;s;`$":" sv (ip;string port));buf]];};
 
 sendtcpblk:{[x;y]s:.ctrl.tcpconn[x;`h];if[(s<0)|not .ctrl.tcpconn[x;`c];lerr[`TCPSendNoLink];:-1];n:0;z:(0N,131072^jfill .conf[`tcpwinsize])#y;i:0;do[count z;pn:count z[i];r:tcpsend[s;z[i]];if[1b~.conf[`sockdebug];.temp.socksend[s],:(r|0)#z[i]];if[r<0;lwarn[`TCPSendErr;(x;r)];if[not r in -11 -10035 -10057;lerr[`TCPSendClose;s];sockclose[s];.tcppc[;s];.ctrl.tcpconn[x;`disctime`h`c]:(.z.P;-1;1b)];onsockdisc[x];:n];n+:r;if[r<pn;lwarn[`TCPSendPart;(x;r;pn)];:n];i+:1];n};
 
@@ -34,3 +35,8 @@ smtcp:{[x;y]y:$[()~y;"";10h<>type y;string y;y];y:{$[()~x;"";x]} (.ctrl.tcpconn[
 onsockmsg:{[x;y]};
 onsockconn:{[x]}; /if[(.ctrl.tcpconn[x;`c])&(0<count .ctrl.tcpconn[x;`sbuf]);smtcp[x;""]];
 onsockdisc:{[x]};
+
+
+//----ChangeLog----
+//2024.08.29:新增.ctrl.tcpbuf并对应修改listencb
+//2019.09.04:初始版本.异步连接方式h>0并不代表连接成功,还需要c=1b

@@ -184,6 +184,7 @@ extern "C"{
 
     run++;
     INITLOCK;
+    setm(1);
     sd1(p[0],onmq);
     sprintf(buf,"/tmp/CTPQ_%s",y->s);
     pQuoteApi = CThostFtdcMdApi::CreateFtdcMdApi(buf,false);

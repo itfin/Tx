@@ -1,5 +1,6 @@
 #pragma once
-#define _USE_LOCKFREE_QUEUE 1
+
+//#define _USE_LOCKFREE_QUEUE 1
 
 #if defined(_USE_LOCKFREE_QUEUE)
 #include "concurrentqueue.h"
@@ -70,6 +71,7 @@ ZI kqinit(){
   if (fcntl(p[0],F_SETFL,f)==-1) R -10003;
 #endif
   INITLOCK;
+  setm(1);
   sd1(p[0],onmq);
 
   R 0;    

@@ -1,18 +1,21 @@
 \d .conf
-ex.XSHG.session:(09:15 09:25;09:30 11:30;13:00 15:00);        /上交所
-ex.XSHE.session:(09:15 09:25;09:30 11:30;13:00 15:00);        /深交所
-ex.XHKG.session:(09:00 09:25;09:30 12:00;13:00 16:00);        /沪港通
-ex.XHKE.session:(09:00 09:25;09:30 12:00;13:00 16:00);        /深港通
-ex.CCFX.session:(09:28 09:29;09:30 11:30;13:00 15:15);        /中金所
-ex.XSGE.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /上期所
-ex.XINE.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /能源所
-ex.SGEX.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /上金所
-ex.XCFE.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /外汇中心
-ex.XDCE.session:(00:00 02:30;08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 24:00);        /大商所
-ex.XZCE.session:(08:58 08:59;09:00 10:15;10:30 11:30;13:30 15:00;20:58 20:59;21:00 23:30);          /郑商所
-ex.XSES.session:(00:00 04:45;09:00 16:30;17:00 24:00);        /新加坡A50 
+ex.XSHG.session:(09:15 09:24;09:30 11:29;13:00 14:59);        /上交所
+ex.XSHE.session:(09:15 09:24;09:30 11:29;13:00 14:59);        /深交所
+ex.XHKG.session:(09:00 09:24;09:30 11:59;13:00 16:09);        /沪港通
+ex.XHKE.session:(09:00 09:24;09:30 11:59;13:00 16:09);        /深港通
+ex.CCFX.session:(09:28 09:29;09:30 11:29;13:00 15:14);        /中金所
+ex.XSGE.session:(00:00 02:29;08:55 08:58;09:00 10:14;10:30 11:29;13:30 14:59;20:55 20:58;21:00 24:00);        /上期所
+ex.XINE.session:(00:00 02:29;08:55 08:58;09:00 10:14;10:30 11:29;13:30 14:59;20:55 20:58;21:00 24:00);        /能源所
+ex.SGEX.session:(00:00 02:29;08:55 08:58;09:00 10:14;10:30 11:29;13:30 14:59;20:55 20:58;21:00 24:00);        /上金所
+ex.XCFE.session:(00:00 02:29;08:55 08:58;09:00 10:14;10:30 11:29;13:30 14:59;20:55 20:58;21:00 24:00);        /外汇中心
+ex.XDCE.session:(00:00 02:29;08:55 08:58;09:00 10:14;10:30 11:29;13:30 14:59;20:55 20:58;21:00 24:00);        /大商所
+ex.XZCE.session:(08:55 08:58;09:00 10:14;10:30 11:29;13:30 14:59;20:55 20:58;21:00 23:29);          /郑商所
+ex.GFEX.session:(08:55 08:58;09:00 10:14;10:30 11:29;13:00 14:59);        /广期所
+ex.XSES.session:(00:00 04:44;09:00 16:29;17:00 24:00);        /新加坡A50 
 ex.FX.session:(00:00 05:00;05:15 24:00);                      /外汇
 ex.METAL.session:(00:00 05:10;06:00 24:00);                   /现货贵金属
+ex.US.session:(00:00 05:00;05:15 24:00);                      /美股
+ex.XHKF.session:(00:00 02:59;09:15 11:59;13:00 16:29;17:15 23:59); /港交所衍生品
 
 
 ex.XSHG[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`shanghai;`$"上交所";09:30:00.000;11:30:00.000;13:00:00.000;15:00:00.000;09:15:00.000;09:25:00.000;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt;0Nt);
@@ -26,6 +29,7 @@ ex.XSGE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`cl
 ex.XINE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`shfu;`$"能源所";09:00:00.000;11:30:00.000;13:30:00.000;15:00:00.000;08:55:00.000;08:59:00.000;0Nt;10:15:00.000;10:30:00.000;21:00:00.000;02:30:00.000;0Nt;0Nt);
 ex.XDCE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`dalian;`$"大商所";09:00:00.000;11:30:00.000;13:30:00.000;15:00:00.000;08:55:00.000;08:59:00.000;0Nt;10:15:00.000;10:30:00.000;21:00:00.000;02:30:00.000;0Nt;0Nt);
 ex.XZCE[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`zhengzhou;`$"郑商所";09:00:00.000;11:30:00.000;13:30:00.000;15:00:00.000;08:55:00.000;08:59:00.000;0Nt;10:15:00.000;10:30:00.000;21:00:00.000;23:30:00.000;0Nt;0Nt);
+ex.GFEX[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`zhengzhou;`$"广期所";09:00:00.000;11:30:00.000;13:30:00.000;15:00:00.000;08:55:00.000;08:59:00.000;0Nt;10:15:00.000;10:30:00.000;0Nt;0Nt;0Nt;0Nt);
 ex.XSES[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`sgx;`$"新交所";09:00:00.000;12:30:00.000;12:30:00.000;16:35:00.000;08:45:00.000;08:58:00.000;16:30:00.000;0Nt;0Nt;17:15:00.000;02:00:00.000;0Nt;0Nt);
 ex.FX[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`forex;`$"Forex";05:15:00.000;12:30:00.000;12:30:00.000;16:44:59.999;0Nt;0Nt;0Nt;0Nt;0Nt;16:45:00.001;05:00:00.000;0Nt;0Nt);
 ex.METAL[`name`altname`openAM`closeAM`openPM`closePM`moo`mooend`moc`openAMrest`closeAMrest`openNT`closeNT`openPMrest`closePMrest]:(`metal;`London_Metal;06:00:00.000;12:30:00.000;12:30:00.000;16:44:59.999;0Nt;0Nt;0Nt;0Nt;0Nt;16:45:00.001;05:10:00.000;0Nt;0Nt);

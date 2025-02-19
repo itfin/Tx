@@ -1,9 +1,10 @@
-.module.fqhsnsq:2023.08.11;
+.module.fqhsnsq:2023.07.31;
 
 txload "core/fqbase";
 txload "lib/handy";
 
-`nsqver`nsqerr`initnsq`freensq`nsqrun`userLoginQ`subfut`cxlfut`reqfutref`reqfutsnap`substk`cxlstk`substkord`cxlstkord`reqstkref`reqstksnap`subopt`cxlopt`reqoptref`reqoptsnap`substkplus`cxlstkplus`reqstkrebuild`reqhktref {x set `extfqhsnsq 2:(x;y);}' 1 1 2 1 1,19#2;
+//`nsqver`nsqerr`initnsq`freensq`nsqrun`userLoginQ`subfut`cxlfut`reqfutref`reqfutsnap`substk`cxlstk`substkord`cxlstkord`reqstkref`reqstksnap`subopt`cxlopt`reqoptref`reqoptsnap`substkplus`cxlstkplus`reqstkrebuild`reqhktref {x set `extfqhsnsq 2:(x;y);}' 1 1 2 1 1,19#2;
+`nsqver`nsqerr`initnsq`freensq`nsqrun`userLoginQ`subfut`cxlfut`reqfutref`reqfutsnap`substk`substkex`cxlstk`substkord`substkordex`cxlstkord`reqstkref`reqstksnap`subopt`cxlopt`reqoptref`reqoptsnap`substkplus`cxlstkplus`reqstkrebuild`reqhktref {x set `extfqhsnsq 2:(x;y);}' 1 1 2 1 1,21#2;
 
 \d .enum
 `HS_TRANS_All`HS_TRANS_Trade`HS_TRANS_Entrust set' "012"; /HSTransType
@@ -43,7 +44,10 @@ nsqcall:{[x;y]k:newseq[];.temp.C,:enlist (.z.P;k;x;y);((value x)[k;y,$[0=type y;
 .upd.FrontConnectQ:{[x].ctrl.nsq.ConnectTime:.z.P;.ctrl.nsq.LoginQ:first nsqcall[`userLoginQ;.conf.hsnsq`user`pass];};
 .upd.FrontDisconnectQ:{[x].ctrl.nsq[`DiscTime`DiscReason]:(.z.P;x[0]);.ctrl.nsq.LoginQ:-1;};
 
-.upd.UserLoginQ:{[x].ctrl.nsq.LoginTime:.z.P;m:.conf.hsnsq.mkt;r:nsqcall[`substk;(0;m)];.ctrl.nsq[`SubQ]:r[0];.temp.MDSub[m]:r[1];r:nsqcall[`substkord;(.enum`HS_TRANS_All;0;m)];.ctrl.nsq.SubO:r[0];.temp.TKSub[m]:r[1];};
+//.upd.UserLoginQ:{[x].ctrl.nsq.LoginTime:.z.P;m:.conf.hsnsq.mkt;r:nsqcall[`substk;(0;m)];.ctrl.nsq[`SubQ]:r[0];.temp.MDSub[m]:r[1];r:nsqcall[`substkord;(.enum`HS_TRANS_All;0;m)];.ctrl.nsq.SubO:r[0];.temp.TKSub[m]:r[1];};
+//.upd.UserLoginQ:{[x].ctrl.nsq.LoginTime:.z.P;m:.conf.hsnsq.mkt;substk:`substk;substkarg:(0;m);substkord:`substkord;substkordarg:(.enum`HS_TRANS_All;0;m);if[(0<count sl:distinct raze .conf.hsnsq.subsymlist)&(`subsymlist in key .conf.hsnsq)&m=`1;sl:sl where (fs2e each sl)=`XSHG;sl:(10000&count sl)#sl;if[0<count sl;s:fs2s each sl;e:(count sl)#`1;substk:`substkex;substkarg:(count sl;s;e);substkord:`substkordex;substkordarg:(.enum`HS_TRANS_All;count sl;s;e)];];if[(0<count sl:distinct raze .conf.hsnsq.subsymlist)&(`subsymlist in key .conf.hsnsq)&m=`2;sl:sl where (fs2e each sl)=`XSHE;sl:(10000&count sl)#sl;if[0<count sl;s:fs2s each sl;e:(count sl)#`2;substk:`substkex;substkarg:(count sl;s;e);substkord:`substkordex;substkordarg:(.enum`HS_TRANS_All;count sl;s;e)];];r:nsqcall[substk;substkarg];.ctrl.nsq[`SubQ]:r[0];.temp.MDSub[m]:r[1];r:nsqcall[substkord;substkordarg];.ctrl.nsq.SubO:r[0];.temp.TKSub[m]:r[1];};
+//.upd.UserLoginQ:{[x] .ctrl.nsq.LoginTime:.z.P;m:.conf.hsnsq.mkt;substk:`substk;substkarg:(0;m);substkord:`substkord;substkordarg:(.enum`HS_TRANS_All;0;m);if[(not `~.conf.hsnsq.subsymlist)&m=`1;sl:sl where (fs2e each sl:distinct raze .conf.hsnsq.subsymlist)=`XSHG;sl:(10000&count sl)#sl;if[0<n:count sl;s:fs2s each sl;e:n#`1;substk:`substkex;substkarg:(n;s;e);substkord:`substkordex;substkordarg:(.enum`HS_TRANS_All;n;s;e)];];if[(not `~.conf.hsnsq.subsymlist)&m=`2;sl:sl where (fs2e each sl:distinct raze .conf.hsnsq.subsymlist)=`XSHE;sl:(10000&count sl)#sl;if[0<n:count sl;s:fs2s each sl;e:n#`2;substk:`substkex;substkarg:(n;s;e);substkord:`substkordex;substkordarg:(.enum`HS_TRANS_All;n;s;e)];];r:nsqcall[substk;substkarg];.ctrl.nsq[`SubQ]:r[0];.temp.MDSub[m]:r[1];r:nsqcall[substkord;substkordarg];.ctrl.nsq.SubO:r[0];.temp.TKSub[m]:r[1];};
+.upd.UserLoginQ:{[x].ctrl.nsq.LoginTime:.z.P;m:.conf.hsnsq.mkt;sl:.conf.hsnsq.subsymlist;substk:`substk;substkarg:(0;m);substkord:`substkord;substkordarg:(.enum`HS_TRANS_All;0;m);if[(not `~sl)&m=`1;sl:raze sl;sl:sl where (fs2e each sl)=`XSHG;if[0<n:count sl;s:fs2s each sl;e:n#`1;substk:`substkex;substkarg:(n;s;e);substkord:`substkordex;substkordarg:(.enum`HS_TRANS_All;n;s;e)];];if[(not `~sl)&m=`2;sl:raze sl;sl:sl where (fs2e each sl)=`XSHE;if[0<n:count sl;s:fs2s each sl;e:n#`2;substk:`substkex;substkarg:(n;s;e);substkord:`substkordex;substkordarg:(.enum`HS_TRANS_All;n;s;e)];];r:nsqcall[substk;substkarg];.ctrl.nsq[`SubQ]:r[0];.temp.MDSub[m]:r[1];r:nsqcall[substkord;substkordarg];.ctrl.nsq.SubO:r[0];.temp.TKSub[m]:r[1];}
 
 .upd.RspSecuTransactionSubscribe:.upd.RspSecuDepthMarketDataSubscribe:{[x].temp.BKSub[x[0]]:1b;};
 .upd.RspSecuTransactionCancel:.upd.RspSecuDepthMarketDataCancel:{[x].temp.BKSub[x[0]]:0b;};
@@ -69,8 +73,8 @@ nsqmatch:{[t;z]select sym:{[x;y]`$x,'".",/:string y}[InstrumentID;.enum.exnsq `$
 
 .upd.RspQrySecuInstruments:{[x].temp.x7:x;z:enlist y:.enum[`RefKey]!x;.temp.d7:d:select sym:{[x;y]`$x,'".",/:string y}[InstrumentID;.enum.exnsq `$ExchangeID],name:`$InstrumentName,sectype:`$string SecurityType,pc:PreClosePrice,inf:LowerLimitPrice,sup:UpperLimitPrice,pxunit:PriceTick,qtyminl:`float$BuyVolumeUnit,qtymins:`float$SellVolumeUnit,date:"D"$string TradeDate from z;.db.QX:.db.QX uj 1!d;};
 
+
 //----ChangeLog----
-//2023.08.11:增加.conf.hsnsq.ngroup和.conf.hsnsq.igroup以支持单市场多实例按通道号余数水平分拆
 //2023.07.31:.upd.TransactionEntrust分成.upd.TransactionEntrust_sz和.upd.TransactionEntrust_sz以统一和逐笔成交关联
 //2023.06.26:.upd.DepthMD增加对.conf.hsnsq`pushref的判断以兼容上海行情涨跌停价为0的问题
 //2023.06.14:初始版本

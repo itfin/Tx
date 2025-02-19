@@ -1,58 +1,11 @@
-#include "kcomm.h"
-#include <queue>
+#include "kqueue.h"
 #include "HSSecuTradeApi.h"
 
 #define APIPOOL_SIZE 256
-#define PIPE_CAPACITY 65536
-#define b9 
-#define d9 
 
-ZI run=0,p[2];ZC b[2*PIPE_CAPACITY];
+ZI run=0,c;
 
-#if defined(WIN32)||defined(WIN64)
-#include <process.h>
-ZI pipe(I*p){R !CreatePipe((PHANDLE)p+0,(PHANDLE)p+1,0,0);}
-ZI dwBytes;
-#define read(x,y,z) ReadFile((HANDLE)x,y,z,(LPDWORD)&dwBytes,NULL) 
-#define write(x,y,z) WriteFile((HANDLE)x,y,z,(LPDWORD)&dwBytes,NULL); 
-#define close(x) CloseHandle((HANDLE)x)
-Z CRITICAL_SECTION g_CS;
-#define INITLOCK InitializeCriticalSection(&g_CS)
-#define FREELOCK DeleteCriticalSection(&g_CS)
-#define LOCK EnterCriticalSection(&g_CS)
-#define UNLOCK LeaveCriticalSection(&g_CS)
-#else
-Z pthread_mutex_t g_mutex=PTHREAD_MUTEX_INITIALIZER;
-#define INITLOCK 
-#define FREELOCK 
-#define LOCK pthread_mutex_lock(&g_mutex)
-#define UNLOCK pthread_mutex_unlock(&g_mutex)
-#endif
-
-Z std::queue<K> mq;
-Z std::queue<K> fq;
-
-Z int c;
-
-ZK onmq(I i){
-  K L=knk(0);
-  read(i,&b,PIPE_CAPACITY);
-  LOCK;
-  while (!mq.empty()){
-    jk(&L,d9(mq.front()));
-    mq.pop();
-  }
-  UNLOCK;    
-  k(0,"onldp",L,(K)0);
-  R ki(0);
-}
-
-Z V mpub(K x){
-  LOCK;
-  mq.push(b9(1,x));
-  UNLOCK;    
-  write(p[1],&b,1);
-};
+ONMQ("onldp")
 
 Z  CHSSecuTradeApi *pTradeApi,*ApiPool[APIPOOL_SIZE];ZI nAPI=0;   
 
@@ -60,7 +13,7 @@ Z  CHSSecuTradeApi *pTradeApi,*ApiPool[APIPOOL_SIZE];ZI nAPI=0;
 
 #define LPUB(x,y) mpub(knk(3,ks(x),kj(poolidx),knk(3,ki(nRequestID),kb(bIsLast),(NULL==p)?knk(0):y)));
 
-#define RETURNONLDPERR(x) if((NULL!=pRspInfo)&&(0!=(pRspInfo->ErrorID))){O("ErrorCode=[%d], ErrorMsg=[%s]\n",pRspInfo->ErrorID,pRspInfo->ErrorMsg);MPUB("LdpError",knk(3,ki(nRequestID),kb(bIsLast),knk(3,kp(x),ki(pRspInfo->ErrorID),kp((S)pRspInfo->ErrorMsg))));R;}
+#define RETURNONLDPERR(x) if((NULL!=pRspInfo)&&(0!=(pRspInfo->ErrorID))){DBG("[LdpError]ErrorCode=[%d], ErrorMsg=[%s]\n",pRspInfo->ErrorID,pRspInfo->ErrorMsg);MPUB("LdpError",knk(3,ki(nRequestID),kb(bIsLast),knk(3,kp(x),ki(pRspInfo->ErrorID),kp((S)pRspInfo->ErrorMsg))));R;}
 
 class CTradeHandler : public CHSSecuTradeSpi{
 public: 
@@ -68,11 +21,11 @@ public:
   CTradeHandler(J i){poolidx=i;} 
   ~CTradeHandler(){}
 
-  virtual void OnFrontConnected(){O("OnFrontConnected\n");MPUB("FrontConnected",knk(0));};
+  virtual void OnFrontConnected(){MPUB("FrontConnected",knk(0));};
 
   /// Description:当客户端与交易后台通信连接异常时，该方法被调用。
   /// Others     :通过GetApiErrorMsg(nResult)获取详细错误信息。
-  virtual void OnFrontDisconnected(int nResult){O("OnFrontDisconnected\n");MPUB("FrontDisconnected",ki(nResult));};
+  virtual void OnFrontDisconnected(int nResult){MPUB("FrontDisconnected",ki(nResult));};
 
   /// Description:接入认证
   virtual void OnRspAuthenticate(CHSSecuRspAuthenticateField *p, CHSSecuRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
@@ -125,17 +78,19 @@ public:
   /// Description:成交查询
   virtual void OnRspQryTrade(CHSSecuTradeField *p, CHSSecuRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
     RETURNONLDPERR("RspQryTrade");
-    LPUB("RspQryTrade",knk(38,ki(p->TradingDay),kp(p->AccountID),ki(p->OrderPartition),kp(p->BrokerOrderID),ki(p->SessionID),kp(p->OrderRef),kp(p->ExchangeID),kp(p->StockAccount),kp(p->StockCode),ki(p->Direction),ki(p->OrderCommand),kc(p->TradeStatus),kp(p->TradeID),kf(p->TradeVolume),kf(p->TradePrice),ki(p->TradeTime),kp(p->ErrorMsg),ki(p->BatchNo),kp(p->BrokerWithdrawOrderID),kf(p->BusinessBalance),ki(p->BranchID),kc(p->OrderStatus),ki(p->OccurTime),kj(p->ClientOrderID),kp(p->StockName),kf(p->OrderPrice),kp(p->OrderID),kp(p->ExtOrderRef),kf(p->TotalBusinessFare),ki(p->SequenceNumber),kf(p->RealBuyAmount),kf(p->RealBuyBalance),kf(p->RealSellAmount),kf(p->RealSellBalance),kc(p->UserApplicationType),kc(p->RenewFlag),ki(p->StrategyId),ki(p->SystemNo)));
+    LPUB("RspQryTrade",knk(40,ki(p->TradingDay),kp(p->AccountID),ki(p->OrderPartition),kp(p->BrokerOrderID),ki(p->SessionID),kp(p->OrderRef),kp(p->ExchangeID),kp(p->StockAccount),kp(p->StockCode),ki(p->Direction),ki(p->OrderCommand),kc(p->TradeStatus),kp(p->TradeID),kf(p->TradeVolume),kf(p->TradePrice),ki(p->TradeTime),kp(p->ErrorMsg),ki(p->BatchNo),kp(p->BrokerWithdrawOrderID),kf(p->BusinessBalance),ki(p->BranchID),kc(p->OrderStatus),ki(p->OccurTime),kj(p->ClientOrderID),kp(p->StockName),kf(p->OrderPrice),kp(p->OrderID),kp(p->ExtOrderRef),kf(p->TotalBusinessFare),ki(p->SequenceNumber),kf(p->RealBuyAmount),kf(p->RealBuyBalance),kf(p->RealSellAmount),kf(p->RealSellBalance),kc(p->UserApplicationType),kc(p->RenewFlag),ki(p->StrategyId),ki(p->SystemNo),kf(p->SumCashBalance),kp(p->CompactID)));
   };
 
   /// Description:主推-报单回报
   virtual void OnRtnOrder(CHSSecuOrderField *p) {
     MPUB("RtnOrder",knk(44,ki(p->TradingDay),kp(p->AccountID),ki(p->OrderPartition),kp(p->BrokerOrderID),ki(p->SessionID),kp(p->OrderRef),kp(p->ExchangeID),kp(p->StockAccount),kp(p->StockCode),ki(p->Direction),kf(p->OrderPrice),kf(p->OrderVolume),kc(p->OrderStatus),ki(p->OrderCommand),ki(p->ReportTime),kp(p->ErrorMsg),kf(p->TradeVolume),ki(p->BatchNo),kf(p->WithdrawVolume),ki(p->OrderTime),kp(p->BrokerWithdrawOrderID),kf(p->FrozenBalance),kf(p->FrozenFare),ki(p->BranchID),kc(p->OrderAssStatus),kc(p->WithdrawOrderStatus),ki(p->OccurTime),kj(p->ClientOrderID),kp(p->StockName),kf(p->TradePrice),kf(p->BusinessBalance),kp(p->StockType),kp(p->OrderID),kc(p->CashgroupProp),kp(p->ExtOrderRef),kf(p->TotalBusinessFare),ki(p->SequenceNumber),kc(p->UserApplicationType),kc(p->RenewFlag),ki(p->StrategyId),kf(p->TotalRealBuyBalance),kf(p->TotalRealSellBalance),ki(p->SystemNo),ki(p->ErrorNo)));
+    DBG("[RtnOrder](%i,%s,%s,%s,%s,%i,%f,%f,%c,%c,%i,%i,%s,%f,%f,%f,%f)\n",p->TradingDay,p->BrokerOrderID,p->OrderRef,p->ExchangeID,p->StockCode,p->Direction,p->OrderPrice,p->OrderVolume,p->OrderStatus,p->OrderAssStatus,p->OrderCommand,p->ReportTime,p->ErrorMsg,p->TradeVolume,p->WithdrawVolume,p->TradePrice,p->BusinessBalance);
   };
 
   /// Description:主推-成交回报
   virtual void OnRtnTrade(CHSSecuTradeField *p) {
-    MPUB("RtnTrade",knk(38,ki(p->TradingDay),kp(p->AccountID),ki(p->OrderPartition),kp(p->BrokerOrderID),ki(p->SessionID),kp(p->OrderRef),kp(p->ExchangeID),kp(p->StockAccount),kp(p->StockCode),ki(p->Direction),ki(p->OrderCommand),kc(p->TradeStatus),kp(p->TradeID),kf(p->TradeVolume),kf(p->TradePrice),ki(p->TradeTime),kp(p->ErrorMsg),ki(p->BatchNo),kp(p->BrokerWithdrawOrderID),kf(p->BusinessBalance),ki(p->BranchID),kc(p->OrderStatus),ki(p->OccurTime),kj(p->ClientOrderID),kp(p->StockName),kf(p->OrderPrice),kp(p->OrderID),kp(p->ExtOrderRef),kf(p->TotalBusinessFare),ki(p->SequenceNumber),kf(p->RealBuyAmount),kf(p->RealBuyBalance),kf(p->RealSellAmount),kf(p->RealSellBalance),kc(p->UserApplicationType),kc(p->RenewFlag),ki(p->StrategyId),ki(p->SystemNo)));
+    MPUB("RtnTrade",knk(40,ki(p->TradingDay),kp(p->AccountID),ki(p->OrderPartition),kp(p->BrokerOrderID),ki(p->SessionID),kp(p->OrderRef),kp(p->ExchangeID),kp(p->StockAccount),kp(p->StockCode),ki(p->Direction),ki(p->OrderCommand),kc(p->TradeStatus),kp(p->TradeID),kf(p->TradeVolume),kf(p->TradePrice),ki(p->TradeTime),kp(p->ErrorMsg),ki(p->BatchNo),kp(p->BrokerWithdrawOrderID),kf(p->BusinessBalance),ki(p->BranchID),kc(p->OrderStatus),ki(p->OccurTime),kj(p->ClientOrderID),kp(p->StockName),kf(p->OrderPrice),kp(p->OrderID),kp(p->ExtOrderRef),kf(p->TotalBusinessFare),ki(p->SequenceNumber),kf(p->RealBuyAmount),kf(p->RealBuyBalance),kf(p->RealSellAmount),kf(p->RealSellBalance),kc(p->UserApplicationType),kc(p->RenewFlag),ki(p->StrategyId),ki(p->SystemNo),kf(p->SumCashBalance),kp(p->CompactID)));
+    DBG("[RtnTrade](%i,%s,%s,%s,%s,%i,%i,%c,%c,%i,%s,%f,%f,%f)\n",p->TradingDay,p->BrokerOrderID,p->OrderRef,p->ExchangeID,p->StockCode,p->Direction,p->OrderCommand,p->OrderStatus,p->TradeStatus,p->TradeTime,p->ErrorMsg,p->TradeVolume,p->TradePrice,p->BusinessBalance);
   };
 
   /// Description:快速交易多中心之间资金调拨
@@ -148,7 +103,54 @@ public:
     RETURNONLDPERR("RspQryFundPeer");
     LPUB("RspQryFundPeer",knk(3,kf(p->CurrentBalance),kf(p->AvailableBalance),kc(p->CurrencyID)));
   };
-  
+
+  /// Description:锁券申请
+  virtual void OnRspLockStockApply(CHSSecuRspLockStockApplyField *p, CHSSecuRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+    RETURNONLDPERR("RspLockStockApply");
+    K L=knk(0);
+    CHSSecuRspLockStockField *p1;
+    DO(p->LockStockApplyRsp.size(),p1=&(p->LockStockApplyRsp[i]);jk(&L,knk(4,ki(p1->BatchNo),kp(p1->CompactID),ki(p1->ErrorNo),kp(p1->CompactRef))));
+    LPUB("RspLockStockApply",L);
+  };
+
+  /// Description:锁券合约直接还券
+  virtual void OnRspCompactDirectRepay(CHSSecuRspCompactDirectRepayField *p, CHSSecuRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
+    RETURNONLDPERR("RspCompactDirectRepay");
+    K L=knk(0);
+    CHSSecuRspDirectRepayField *p1;
+    DO(p->CompactDirectRepayRsp.size(),p1=&(p->CompactDirectRepayRsp[i]);jk(&L,knk(3,kp(p1->CompactID),kf(p1->OccurVolume),kf(p1->PostVolume))));    
+    LPUB("RspCompactDirectRepay",L);
+  };
+
+  /// Description:锁券合约了结申请
+  virtual void OnRspLockCompactSettle(CHSSecuRspLockCompactSettleField *p, CHSSecuRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+    RETURNONLDPERR("RspLockCompactSettle");
+    LPUB("RspLockCompactSettle",knk(2,kp(p->CompactID),kj(0)));
+  };
+
+  /// Description:可锁证券实时行情查询
+  virtual void OnRspQryLockStockQuote(CHSSecuRspQryLockStockQuoteField*p, CHSSecuRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+    RETURNONLDPERR("RspQryLockStockQuote");
+    LPUB("RspQryLockStockQuote",knk(11,kj(p->PositionSn),kp(p->ExchangeID),kp(p->StockCode),kp(p->StockName),kp(p->LockStockQuoteID),kf(p->AvailableVolume),ki(p->LimitDays),kf(p->LockYearRate),kf(p->BorrowYearRate),ki(p->MinInterestDays),kc(p->EarlyRecallMode)));
+  };
+
+  /// Description:锁券合约查询
+  virtual void OnRspQryLockCompact(CHSSecuRspQryLockCompactField *p, CHSSecuRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+    RETURNONLDPERR("RspQryLockCompact");
+    LPUB("RspQryLockCompact",knk(28,kj(p->PositionSn),kp(p->ExchangeID),kp(p->StockCode),kp(p->CompactID),kp(p->StockName),kc(p->LockCompactStatus),ki(p->RetEndDate),kf(p->LockYearRate),kf(p->BorrowYearRate),ki(p->MinInterestDays),kf(p->LockedVolume),kf(p->BorrowedVolume),kf(p->RepaidVolume),kf(p->EnableBorrowVolume),kf(p->EnableRepayVolume),kf(p->EnableBuyVolume),kf(p->LockCompactProfitLoss),kf(p->TodayBorrowStockInterest),kf(p->OccuredBorrowStockInterest),kf(p->TodayLockStockInterest),kf(p->OccuredLockStockInterest),kf(p->EnableDirectRepayVolume),kf(p->TodayTotalBuyVolume),kf(p->InitialPositionVolume),ki(p->CreateDate),ki(p->BatchNo),kp(p->CompactRef),kp(p->ErrorMsg)));
+  };
+
+  /// Description:保证金查询
+  virtual void OnRspQryMargin(CHSSecuRspQryMarginField *p, CHSSecuRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+    RETURNONLDPERR("RspMargin");
+    LPUB("RspQryMargin",knk(10,kf(p->EnableBalance),kf(p->BorrowSellSurplusBalance),kf(p->EnableRepayBalance),kf(p->EnableLockMargin),kf(p->EnableBorrowMargin),kf(p->OccuredBorrowStockInterest),kf(p->OccuredLockStockInterest),kf(p->TodayBorrowStockInterest),kf(p->TodayLockStockInterest),kf(p->LockCompactProfitLoss)));
+  };
+
+  /// Description:主推-锁券合约状态变更
+  virtual void OnRtnLockCompact(CHSSecuLockCompactField *p) {
+    MPUB("RtnLockCompact",knk(27,kp(p->ExchangeID),kp(p->StockCode),kp(p->CompactID),kp(p->StockName),kc(p->LockCompactStatus),ki(p->RetEndDate),kf(p->LockYearRate),kf(p->BorrowYearRate),ki(p->MinInterestDays),kf(p->LockedVolume),kf(p->BorrowedVolume),kf(p->RepaidVolume),kf(p->EnableBorrowVolume),kf(p->EnableRepayVolume),kf(p->EnableBuyVolume),kf(p->LockCompactProfitLoss),kf(p->TodayBorrowStockInterest),kf(p->OccuredBorrowStockInterest),kf(p->TodayLockStockInterest),kf(p->OccuredLockStockInterest),kf(p->EnableDirectRepayVolume),kf(p->TodayTotalBuyVolume),kf(p->InitialPositionVolume),ki(p->CreateDate),ki(p->BatchNo),kp(p->CompactRef),kp(p->ErrorMsg)));
+  };
+ 
 };
 
 Z CTradeHandler * pTradeSpi,*SpiPool[APIPOOL_SIZE];;
@@ -156,6 +158,14 @@ Z CTradeHandler * pTradeSpi,*SpiPool[APIPOOL_SIZE];;
 extern "C"{
   K1(ldpapiver){
     R kp((S)GetSecuTradeApiVersion());
+  }
+  
+  K1(ldplockfree){
+#if defined(_USE_LOCKFREE_QUEUE)
+    R ki(1);
+#else
+    R ki(0);    
+#endif    
   }
   
   K1(ldperrmsg){
@@ -185,23 +195,11 @@ extern "C"{
     char buf[1024];
     
     if(run) R ki(-10001);
-
-    if(pipe(p)) R ki(-10009);
-
-#if defined(WIN32)||defined(WIN64)
-#else
-    if(-1==(f = fcntl(p[0],F_GETFL,0)))R ki(-10002);
-    f |= O_NONBLOCK;
-    if (fcntl(p[0],F_SETFL,f)==-1) R ki(-10003);
-#endif
-
+    if (r=kqinit()) R ki(r);    
     run++;
-    INITLOCK;
-    setm(1);
-    sd1(p[0],onmq);
 
     nAPI=kK(x)[0]->n;
-    DO(nAPI,ApiPool[i]=pTradeApi=NewSecuTradeApi(kS(kK(x)[0])[i]);if(NULL==pTradeApi) R ki(-10004);SpiPool[i]=pTradeSpi = new CTradeHandler(i);pTradeApi->RegisterSpi(pTradeSpi);r=pTradeApi->RegisterFensServer(kS(kK(x)[1])[i],kS(y)[i]);if(r)R ki(-abs(r));r=pTradeApi->RegisterSubModel((SUB_TERT_TYPE)kK(x)[2]->i);if(r)R ki(-abs(r));if(r=pTradeApi->Init("")) R ki(-abs(r)););
+    DO(nAPI,ApiPool[i]=pTradeApi=NewSecuTradeApi(kS(kK(x)[0])[i]);if(NULL==pTradeApi) R ki(-10004);SpiPool[i]=pTradeSpi = new CTradeHandler(i);pTradeApi->RegisterSpi(pTradeSpi);r=(!strncmp("fens",kS(kK(x)[1])[i],4))?pTradeApi->RegisterFensServer(kS(kK(x)[1])[i],kS(y)[i]):pTradeApi->RegisterFront(kS(kK(x)[1])[i]);if(r)R ki(-abs(r));r=pTradeApi->RegisterSubModel((SUB_TERT_TYPE)kK(x)[2]->i);if(r)R ki(-abs(r));if(r=pTradeApi->Init("")) R ki(-abs(r)););
     R ki(run);
   }
 
@@ -211,10 +209,7 @@ extern "C"{
     DO(nAPI,pTradeApi=ApiPool[i];pTradeApi->RegisterSpi(NULL);pTradeApi->ReleaseApi();ApiPool[i]=NULL;delete SpiPool[i];SpiPool[i]=NULL;);
     pTradeApi=NULL;pTradeSpi=NULL;
 
-    sd0(p[0]);
-    close(p[0]);close(p[1]);
-    FREELOCK;
-
+    kqfree();    
     run--;
     R ki(run);
   }
@@ -275,8 +270,8 @@ extern "C"{
     strcpy(req.UserStationInfo,kK(y)[9]->s); 
     strcpy(req.ExtOrderRef,kK(y)[10]->s); 
     req.StrategyId=kK(y)[11]->i;
+    req.DTgwIndex=0;
     r=ApiPool[kI(x)[1]]->ReqOrderInsert(&req,kI(x)[0]);
-    O("reqOrderInsert:(%d)!{%s,%s,%d}\n",r,kK(y)[0]->s,kK(y)[1]->s,kK(y)[2]->i);
     R ki(r);
   }
 
@@ -361,5 +356,71 @@ extern "C"{
     req.CurrencyID=kK(y)[1]->g;
 
     R ki(ApiPool[kI(x)[1]]->ReqQryFundPeer(&req,kI(x)[0]));
-  }   
-}
+  }
+  
+  K2(reqLockStockApply){
+    if(!run) R ki(-1);
+    K L;
+    CHSSecuReqLockStockApplyField req;
+    DO(y->n,CHSSecuReqLockStockField r;L=kK(y)[i];r.BatchNo=kK(L)[0]->i;r.OrderVolume=kK(L)[1]->f;strcpy(r.LockStockQuoteID,kK(L)[2]->s);r.MinVolume=kK(L)[3]->f;strcpy(r.CompactRef,kK(L)[4]->s);req.LockStockApplyReq.push_back(r));
+
+    R ki(ApiPool[kI(x)[1]]->ReqLockStockApply(&req,kI(x)[0]));
+  }
+  
+  K2(reqCompactDirectRepay){
+    if(!run) R ki(-1);
+    
+    CHSSecuReqCompactDirectRepayField req;
+    strcpy(req.ExchangeID,kK(y)[0]->s);
+    strcpy(req.StockCode,kK(y)[1]->s);
+    strcpy(req.CompactID,kK(y)[2]->s); 
+    req.OrderVolume=kK(y)[3]->f;
+
+    R ki(ApiPool[kI(x)[1]]->ReqCompactDirectRepay(&req,kI(x)[0]));
+  }
+  
+  K2(reqLockCompactSettle){
+    if(!run) R ki(-1);
+    
+    CHSSecuReqLockCompactSettleField req;
+    strcpy(req.CompactID,kK(y)[0]->s);    
+
+    R ki(ApiPool[kI(x)[1]]->ReqLockCompactSettle(&req,kI(x)[0]));
+  }
+  
+  K2(reqQryLockStockQuote){
+    if(!run) R ki(-1);
+    
+    CHSSecuReqQryLockStockQuoteField req;
+    req.PositionSn=kK(y)[0]->j;    
+    req.RequestNumber=kK(y)[1]->i;
+    strcpy(req.ExchangeID,kK(y)[2]->s); 
+    strcpy(req.StockCode,kK(y)[3]->s); 
+
+    R ki(ApiPool[kI(x)[1]]->ReqQryLockStockQuote(&req,kI(x)[0]));
+  }
+  
+ K2(reqQryLockCompact){
+    if(!run) R ki(-1);
+    
+    CHSSecuReqQryLockCompactField req;
+    req.PositionSn=kK(y)[0]->j;    
+    req.RequestNumber=kK(y)[1]->i;
+    strcpy(req.ExchangeID,kK(y)[2]->s); 
+    strcpy(req.StockCode,kK(y)[3]->s); 
+    strcpy(req.CompactID,kK(y)[4]->s); 
+    req.CreateDate=kK(y)[5]->i;
+    strcpy(req.CompactRef,kK(y)[6]->s); 
+    
+    R ki(ApiPool[kI(x)[1]]->ReqQryLockCompact(&req,kI(x)[0]));
+  }
+  
+  K2(reqQryMargin){
+    if(!run) R ki(-1);
+    
+    CHSSecuReqQryMarginField req;
+
+    R ki(ApiPool[kI(x)[1]]->ReqQryMargin(&req,kI(x)[0]));
+  }
+  
+ }

@@ -1,5 +1,8 @@
-
 //version:2019.01.10
+
+//----ChangeLog----
+//2024.10.16:oalist返回表格增加upid列和slot列以支持篮子算法
+//2019.01.10:初始版本
 
 //sw,sh分别为屏幕的宽和高(显示器物理分辨率),首先要估计浏览器的可用尺寸再分配页面body的layout:[bw,bh]
 //body=top(north,25px)+left(west,200px)+bot(south,25px)+main(center,自动fit,[bw-200,bh-50])
@@ -37,9 +40,9 @@ mkmenu=function(x,y){
 	    {text:'告警日志',attributes:{func:'logreq(x)'}},
 	    {text:'异常委托',attributes:{func:'errordreq(x)'}}, 
 	    {text:'行情信息',attributes:{func:'quotereq(x)'}},
-	    {text:'数据上传',attributes:{func:'go(x)',url:'http://'+host+':7020/q/perl/upload.pl'}},
-	    {text:'上传目录',attributes:{func:'go(x)',url:'http://'+host+':7020/upload/'}},
-	    {text:'下载目录',attributes:{func:'go(x)',url:'http://'+host+':7020/download/'}},
+	    {text:'数据上传',attributes:{func:'go(x)',url:'http://'+host+':8020/q/perl/upload.pl'}},
+	    {text:'上传目录',attributes:{func:'go(x)',url:'http://'+host+':8020/upload/'}},
+	    {text:'下载目录',attributes:{func:'go(x)',url:'http://'+host+':8020/download/'}},
 	    {text:'NOE复核',attributes:{func:'noereq(x)'}},
 	    {text:'NOE强推日志',attributes:{func:'noefreq(x)'}},	    
 	    {text:'组合加载',attributes:{func:'pfloadreq(x)'}},
@@ -47,7 +50,17 @@ mkmenu=function(x,y){
 	    {text:'基差监控',attributes:{func:'basismonreq(x)'}},		
 	    {text:'对冲监控',attributes:{func:'hedgesnapreq(x)'}},
 	]}, 
-	(true || app=='comgj')?{text:'做市监控',children:[ 
+	((app=='comgj') &&(me=='ftalgo')||(me=='ftpool')||(me=='ftdc3')||(me=='ft'))?{text:'自营风控参数',children:[ 
+	    {text:'自营O32风控限额',attributes:{func:'sto3rlreq(x)'}},
+	    {text:'自营i2(期货)风控限额',attributes:{func:'sti2rlreq(x)'}},
+	]}:{text:''},
+	((app=='comgj')&&(me=='ftcl5')||(me=='ft'))?{text:'做市风控参数',children:[ 
+	    {text:'做市O32(期货)风控限额',attributes:{func:'mmo3rlreq(x)'}},
+	    {text:'做市i2上海(现货)风控限额',attributes:{func:'mmshrlreq(x)'}},
+	    {text:'自营i2深圳(现货)风控限额',attributes:{func:'mmszrlreq(x)'}},
+//	    {text:'限额更新',attributes:{func:'rlupdatereq(x)'}},
+	]}:{text:''},
+	(false && app=='comgj'&&(me=='ftcl5'))?{text:'做市监控',children:[ 
 	    {text:'做市策略',attributes:{func:'etfmonmmreq(x)'}},
 	    {text:'做市指标',attributes:{func:'etfmonsumreq(x)'}},
 	    {text:'对冲策略',attributes:{func:'etfmonfureq(x)'}},
@@ -62,11 +75,12 @@ mkmenu=function(x,y){
 	{text:'行情分析',children:[ 
 	    {text:'行情浏览',attributes:{func:'mktbrowsereq(x)'}},	    
 	]},
-	    (app=='usr')?{text:'期货研究',children:[ 
+	    (app=='usr')?{text:'衍生品研究',children:[ 
 	    {text:'成交金额按品种分布',attributes:{func:'futamtreq(x)'}},
 	    {text:'合约历史查询',attributes:{func:'futexreq(x)'}},
 	    {text:'基差历史查询',attributes:{func:'futbasisreq(x)'}},
 	    {text:'期货标的池',attributes:{func:'ngxreq(x)'}},
+	    {text:'期货期权监控',attributes:{func:'foptreq(x)'}},
 	    ]}:{text:'其它'},
     ],onClick:function(x){eval(x.attributes.func);}});
     autolayout();
@@ -108,7 +122,7 @@ tslistres=function(x,y){
     var data=map("{text:x,children:[{text:'委托查询',attributes:{func:'ordreqfun('+'\"`'+x+'\"'+',0)'}},{text:'成交查询',attributes:{func:'matreqfun('+'\"`'+x+'\"'+',0)'}},{text:'持仓查询',attributes:{func:'posreqfun('+'\"`'+x+'\"'+',0)'}},{text:'历史委托',attributes:{func:'ordhisreqfun('+'\"`'+x+'\"'+',0)'}},{text:'历史成交',attributes:{func:'mathisreqfun('+'\"`'+x+'\"'+',0)'}},{text:'策略参数',attributes:{func:'tsparareq('+'\"`'+x+'\"'+',0)'}},{text:'数据加载',attributes:{func:'csvloadreq('+'\"`'+x+'\"'+',0)'}},{text:'数据查询',attributes:{func:'csvviewreq('+'\"`'+x+'\"'+',0)'}},{text:'对冲误差',attributes:{func:'otchedgereq('+'\"`'+x+'\"'+',0)'}},{text:'JUMP计算',attributes:{func:'otcjumpreq('+'\"`'+x+'\"'+',0)'}},{text:'股指基差',attributes:{func:'otctermstrureq('+'\"`'+x+'\"'+',0)'}},{text:'资产曲线',attributes:{func:'txpnlreq('+'\"`'+x+'\"'+',0)'}},{text:'交易分布',attributes:{func:'txtransreq('+'\"`'+x+'\"'+',0)'}},{text:'交易列表',attributes:{func:'txtradesreq('+'\"`'+x+'\"'+',0)'}},{text:'成交细节',attributes:{func:'txdetailreq('+'\"`'+x+'\"'+',0)'}},{text:'走势轮廓',attributes:{func:'rsplotreq('+'\"`'+x+'\"'+',0)'}},{text:'网格监控',attributes:{func:'gridmonreq('+'\"`'+x+'\"'+',0)'}},{text:'文件单列表',attributes:{func:'fordlstreq('+'\"`'+x+'\"'+',0)'}}]}",y[1]);
     var z=map('"`"+x',y[1]);
     ordqry=ordreqfun.curry(z);matqry=matreqfun.curry(z);posqry=posreqfun.curry(z);ordhisqry=ordhisreqfun.curry(z);mathisqry=mathisreqfun.curry(z);
-    data.unshift({text:'全部策略',children:[{text:'委托查询',attributes:{func:'ordqry(x)'}},{text:'成交查询',attributes:{func:'matqry(x)'}},{text:'持仓查询',attributes:{func:'posqry(x)'}},{text:'历史委托',attributes:{func:'ordhisqry(x)'}},{text:'历史成交',attributes:{func:'mathisqry(x)'}}]});
+    data.unshift({text:'全部策略',children:[{text:'委托查询',attributes:{func:'ordqry(x)'}},{text:'成交查询',attributes:{func:'matqry(x)'}},{text:'持仓查询',attributes:{func:'posqry(x)'}},{text:'历史委托',attributes:{func:'ordhisqry(x)'}},{text:'历史成交',attributes:{func:'mathisqry(x)'}},{text:'一键加载',attributes:{func:'csvloadallreq(x)'}},{text:'ETF乘数加载',attributes:{func:'loadetfmultireq(x)'}}]});
     //    alert($.toJSON(data[0]));
     if(x.node.children == undefined)$('#menu').tree('append',{parent:x.node.target,data:data,});
 };
@@ -262,7 +276,7 @@ mathisres=function(x,y){
 
 //策略参数
 
-tsparareq=function(x,y){wscall(['{[x]k:(key .db.Ts[x]) except ``HedgeMap`ValTS`MU`SIGMA`HedgeMapList; flip `k`v!(k;(-3!) each .db.Ts[x;k])}',x],tsparares,{'target':'grid'});}
+tsparareq=function(x,y){wscall(['{[x]k:(key .db.Ts[x]) except ``HedgeMap`ValTS`MU`SIGMA`HedgeMapList`OptHedgeMap`OptHedgeMapList;z:` _.conf.acc[.db.Ts[x;`acc]]; flip `k`v!(k,key[z];(-3!) each .db.Ts[x;k],value[z])}',x],tsparares,{'target':'grid'});}
 
 tsparares=function(x,y){
     $('#'+x.target).html('<div id=tspara style="align:center;width:'+dw+'px;height:'+dh+'px"></div>');
@@ -272,6 +286,10 @@ tsparares=function(x,y){
 
 //对冲策略orderbook加载
 csvloadreq=function(x,y){var t=now();if((t>='10:25:00')&&(t<='15:05:00')){if(!confirm('现在已经超过10：25,确认重新加载吗?')) return;};wscall(['loadcsv',x,'`'],csvloadres,{'target':'ctrl'});}
+//全部对冲策略orderbook加载
+csvloadallreq=function(x,y){var t=now();if((t>='10:25:00')&&(t<='15:05:00')){if(!confirm('现在已经超过10：25,确认重新加载吗?')) return;};wscall(['loadotccsv','`','`'],csvloadres,{'target':'ctrl'});}
+loadetfmultireq=function(x,y){wscall(['loadetfmulti','`','`'],csvloadres,{'target':'ctrl'});}
+
 csvloadres=function(x,y){$('#'+x.target).html('数据加载'+(y?'成功':'失败')+'!');};
 
 //对冲策略orderbook数据查询
@@ -284,11 +302,15 @@ csvviewres=function(x,y){
 };
 
 //对冲误差
-otchedgereq=function(x,y){wscall(['{[x]y:.db.Ts[x;`UDL];z:otc_hedgemap[x];g:(1_ key z)!1_ (deltas value z)*(key z)%(deltas key z)*100;traderlst:x;q:$[1b~.db.Ts[x;`BasketUDL];otc_hedgepospf[x];0f^exec sum ((0f^lqty)+0f^sqty) from .db.P where ts in traderlst,sym=y];p:otc_hedgepx[x];m:1f^.db.QX[y;`multiplier];fq:exec sum ((0f^lqty)+0f^sqty) from .db.P where ts in traderlst,sym<>y;bias:q-z[p];e:0.01*til 11;md:0<count z1:.db.Ts[x;`HedgeMapList];if[md;z0:map_hedgeoffset[x];z1:{`s#(x+key y)!value y}[z0] z1];`p`t`ON`X`Y`Y0`fardelta`delta`gamma`ddelta`pos`bias`udl`active`neggamma`mode`md`dL`warn`data!(p;z[p];exec sum cumqty from .db.O where sym like ((2#string y),"*"),posefct=.enum`OPEN;.math.r2 1e-4*abs bias*m*p;.math.r2 1e-4*1e6|abs[0.1*(q+fq)*m*p]|abs g[p]*p*2*m;`q`fq`m`p`g!(q;fq;m;p;g[p]);fq;flip (key z;value z);flip (key g;value g);flip (1e2*e;{p:key x;avg (p where (p<=y*1+0.5*z)&(p>=y*1-0.5*z))#x}[z;p] each e);enlist (`float$$[0>=p;.db.QX[y;`pc];p];0f)^p,q;.math.r2 bias;y;.db.Ts[x;`active];isneggamma[x];.db.Ts[x;`mode];md;$[md;(key z1),\'/:flip value z1;()];$[1b~.db.Ts[x;`BasketUDL];`$"Basket,STOP@",sv[","] string exec sym from ((select from .db.ETFPF where etfsym=y) lj select last price by sym from .db.QX) where price<=0;`];flip `price`pos`gamma!(key g;1_value z;value g))}',x],otchedgeres,{'target':'plot'});} //r2 (`float$$[0>=p:QX[y;`price];QX[y;`pc];p])^P[(x;T[x;`account];y);`price]
+otchedgereq=function(x,y){wscall(['{[x]y:.db.Ts[x;`UDL]^sfill .db.Ts[x;`HedgeUDL];z:otc_hedgemap[x];g:(1_ key z)!1_ (deltas value z)*(key z)%(deltas key z)*100;traderlst:x;q:$[1b~.db.Ts[x;`BasketUDL];otc_hedgepospf[x];0f^exec sum ((0f^lqty)+0f^sqty) from .db.P where ts in traderlst,sym=y];p:otc_hedgepx[x];m:1f^.db.QX[y;`multiplier];fq:exec sum ((0f^lqty)+0f^sqty) from .db.P where ts in traderlst,sym<>y;bias:q-z[p];e:0.01*til 11;md:(0<count z1:.db.Ts[x;`HedgeMapList])&not 1b~.db.Ts[x;`UseOpt];if[md;z0:map_hedgeoffset[x];z1:{`s#(x+key y)!value y}[z0] z1];`p`t`ON`X`Y`Y0`fardelta`delta`gamma`ddelta`pos`bias`udl`active`neggamma`mode`md`dL`warn`data`optdelta!(p;z[p];exec sum cumqty from .db.O where sym like ((2#string y),"*"),posefct=.enum`OPEN;.math.r2 1e-4*abs bias*m*p;.math.r2 1e-4*1e6|abs[0.1*(q+fq)*m*p]|abs g[p]*p*2*m;`q`fq`m`p`g!(q;fq;m;p;g[p]);fq;flip (key z;value z);flip (key g;value g);flip (1e2*e;{p:key x;avg (p where (p<=y*1+0.5*z)&(p>=y*1-0.5*z))#x}[z;p] each e);enlist (`float$$[0>=p;.db.QX[y;`pc];p];0f)^p,q;.math.r2 bias;y;.db.Ts[x;`active];isneggamma[x];.db.Ts[x;`mode];md;$[md;(key z1),\'/:flip value z1;()];$[1b~.db.Ts[x;`BasketUDL];`$"Basket,STOP@",sv[","] string exec sym from ((select from .db.ETFPF where etfsym=y) lj select last price by sym from .db.QX) where price<=0;`];flip `price`pos`gamma!(key g;1_value z;value g);$[1b~.db.Ts[x;`UseOpt];otc_optmap[x] p;0f])}',x],otchedgeres,{'target':'plot'});} //r2 (`float$$[0>=p:QX[y;`price];QX[y;`pc];p])^P[(x;T[x;`account];y);`price]
+
+otchedgereq=function(x,y){wscall(['{[x]y:.db.Ts[x;`UDL]^sfill .db.Ts[x;`HedgeUDL];z:otc_hedgemap[x];g:(1_ key z)!1_ (deltas value z)*(key z)%(deltas key z)*100;traderlst:x;q:$[1b~.db.Ts[x;`BasketUDL];otc_hedgepospf[x];0f^exec sum ((0f^lqty)+0f^sqty) from .db.P where ts in traderlst,sym=y];p:otc_hedgepx[x];m:1f^.db.QX[y;`multiplier];fq:exec sum ((0f^lqty)+0f^sqty) from .db.P where ts in traderlst,sym<>y;bias:q-z[p];e:0.01*til 11;md:0<count z1:.db.Ts[x;`HedgeMapList];if[md;z0:map_hedgeoffset[x];z1:`s#({`s#(x+key y)!value y}[z0] z1)+$[1b~.db.Ts[x;`UseOpt];`s#exec sum nqty*{[x;y]`s#{where[not null[x[;0]]]#x} {(last flip key x)!value[x]} (y,/:key[.db.Ts[x;`HedgeMapList]])#.db.Ts[x;`OptHedgeMapList]}[x] each sym from (select sym,nqty:(0f^lqty)+0f^sqty from .db.P where ts=x,isopt each sym) where 0<abs nqty;0f]];`p`t`ON`X`Y`Y0`fardelta`delta`gamma`ddelta`pos`bias`udl`active`neggamma`mode`md`dL`warn`data`optdelta!(p;z[p];exec sum cumqty from .db.O where sym like ((2#string y),"*"),posefct=.enum`OPEN;.math.r2 1e-4*abs bias*m*p;.math.r2 1e-4*1e6|abs[0.1*(q+fq)*m*p]|abs g[p]*p*2*m;`q`fq`m`p`g!(q;fq;m;p;g[p]);fq;flip (key z;value z);flip (key g;value g);flip (1e2*e;{p:key x;avg (p where (p<=y*1+0.5*z)&(p>=y*1-0.5*z))#x}[z;p] each e);enlist (`float$$[0>=p;.db.QX[y;`pc];p];0f)^p,q;.math.r2 bias;y;.db.Ts[x;`active];isneggamma[x];.db.Ts[x;`mode];md;$[md;(key z1),\'/:flip value z1;()];$[1b~.db.Ts[x;`BasketUDL];`$"Basket,STOP@",sv[","] string exec sym from ((select from .db.ETFPF where etfsym=y) lj select last price by sym from .db.QX) where price<=0;`];flip `price`pos`gamma!(key g;1_value z;value g);$[1b~.db.Ts[x;`UseOpt];otc_optmap[x] p;0f])}',x],otchedgeres,{'target':'plot'});} //r2 (`float$$[0>=p:QX[y;`price];QX[y;`pc];p])^P[(x;T[x;`account];y);`price]
+
+otchedgereq=function(x,y){wscall(['{[x]y:.db.Ts[x;`UDL]^sfill .db.Ts[x;`HedgeUDL];z:otc_hedgemap[x];g:(1_ key z)!1_ (deltas value z)*(key z)%(deltas key z)*100;traderlst:x;q:otc_hedgepos[x];p:otc_hedgepx[x];m:1f^.db.QX[y;`multiplier];fq:exec sum ((0f^lqty)+0f^sqty) from .db.P where ts in traderlst,sym<>y;bias:q-z[p];e:0.01*til 11;md:0<count z1:.db.Ts[x;`HedgeMapList];if[md;z0:map_hedgeoffset[x];d0:select from (select sym,nqty:(0f^lqty)+0f^sqty from .db.P where ts=x,isopt each sym) where 0<abs nqty;z1:`s#({`s#(x+key y)!value y}[z0] z1)+$[(1b~.db.Ts[x;`UseOpt])&count d0;`s#exec sum nqty*{[x;y]`s#{where[not null[x[;0]]]#x} {(last flip key x)!value[x]} (y,/:key[.db.Ts[x;`HedgeMapList]])#.db.Ts[x;`OptHedgeMapList]}[x] each sym from d0;0f]];`p`t`ON`X`Y`Y0`fardelta`delta`gamma`ddelta`pos`bias`udl`active`neggamma`mode`md`dL`warn`data`optdelta!(p;z[p];exec sum cumqty from .db.O where sym like ((2#string y),"*"),posefct=.enum`OPEN;.math.r2 1e-4*abs bias*m*p;.math.r2 1e-4*1e6|abs[0.1*(q+fq)*m*p]|abs g[p]*p*2*m;`q`fq`m`p`g!(q;fq;m;p;g[p]);fq;flip (key z;value z);flip (key g;value g);flip (1e2*e;{p:key x;avg (p where (p<=y*1+0.5*z)&(p>=y*1-0.5*z))#x}[z;p] each e);enlist (`float$$[0>=p;.db.QX[y;`pc];p];0f)^p,q;.math.r2 bias;y;.db.Ts[x;`active];isneggamma[x];.db.Ts[x;`mode];md;$[md;(key z1),\'/:flip value z1;()];$[1b~.db.Ts[x;`BasketUDL];`$"Basket,STOP@",sv[","] string exec sym from ((select from .db.ETFPF where etfsym=y) lj select last price by sym from .db.QX) where price<=0;`];flip `price`pos`gamma!(key g;1_value z;value g);$[1b~.db.Ts[x;`UseOpt];otc_optmap[x] p;0f])}',x],otchedgeres,{'target':'plot'});} //r2 (`float$$[0>=p:QX[y;`price];QX[y;`pc];p])^P[(x;T[x;`account];y);`price]
 
 otchedgeres=function(x,y){
     $('#'+x.target).html('<div id=otcinfo></div><br><table><tr><td><div id=flotarea style="width:600px;height:300px"></div></td><td><div id=flotarea1 style="width:400px;height:300px"></div></td></tr></table>');
-    $('#otcinfo').html('非主力合约持仓合计:'+y.fardelta+',主力合约动态持仓:'+y.pos[0][1]+',超缺避金额限额:'+y.Y+'万,目前金额:'+y.X+'万,本日同品种累计开仓:'+y.ON+'.'+'<br>'+'UDL:'+y.udl+'('+(y.active?'Enable':'Disable')+',Gamma<=0:'+(y.neggamma?'True':'False')+',Mode:'+y.mode+',Price:'+y.p+',Target:'+y.t+'),提示：'+y.warn); //(q='+y.Y0.q+',fq='+y.Y0.fq+',m='+y.Y0.m+',p='+y.Y0.p+',g='+y.Y0.g+')
+    $('#otcinfo').html('非主力合约持仓合计:'+y.fardelta+',主力合约动态持仓:'+y.pos[0][1]+',期权持仓汇总delta:'+y.optdelta+',超缺避金额限额:'+y.Y+'万,目前金额:'+y.X+'万,本日同品种累计开仓:'+y.ON+'.'+'<br>'+'UDL:'+y.udl+'('+(y.active?'Enable':'Disable')+',Gamma<=0:'+(y.neggamma?'True':'False')+',Mode:'+y.mode+',Price:'+y.p+',Target:'+y.t+'),提示：'+y.warn); //(q='+y.Y0.q+',fq='+y.Y0.fq+',m='+y.Y0.m+',p='+y.Y0.p+',g='+y.Y0.g+')
     if(y.md){
 	$.plot("#flotarea",[{data:y.dL[0],lines:{show:true,lineWidth:1}},{data:y.dL[0],lines:{show:true,lineWidth:1},label:'0915'},{data:y.dL[1],lines:{show:true,lineWidth:1},label:'1030'},{data:y.dL[2],lines:{show:true,lineWidth:1},label:'1300'},{data:y.dL[3],lines:{show:true,lineWidth:1},label:'1400'},{data:y.dL[4],lines:{show:true,lineWidth:1},label:'1500'},{data:y.gamma,yaxis:2,lines:{show:true,lineWidth:1},label:'Gamma'},{data:y.delta,lines:{show:true,lineWidth:2},label:'Delta'},{data:y.pos,points:{show:true,fill:true,fillColor:'green',radius:3},label:'bias:'+y.bias}],{legend:{position:'nw',noColumns:8},yaxes:[{},{ position:'right'}]});
     }else{
@@ -850,7 +872,7 @@ qryoalist=function(x){
 
 oalist=function(x,y){
     $('#'+x.target).html('<div id=oagrid style="align:center;width:'+dw+'px;height:'+dh+'px">');
-    $('#oagrid').datagrid({fit:false,rowStyler:function(x,y){t=y.cstag;return (t>0)?('background:'+(((t==1)||(t==3))?'red':'green')):'';},singleSelect:true,remoteSort:false,pagination:false,idField:'id',columns:[[{field:'id',title:'母单ID',width:100,sortable:true},{field:'hsid',title:'恒生序号',width:60,sortable:true},{field:'sym',title:'证券代码',width:100,sortable:true},{field:'algo',title:'算法',width:60,sortable:true},{field:'status',title:'状态',width:60,sortable:true,formatter:function(x){return (x==0)?'新建':((x==1)?'部分成交':((x==2)?'全部成交':((x==4)?'撤单完成':((x==6)?'撤单已报':((x==8)?'拒绝':((x==3)?'当日完成':((x=='C')?'过期':x)))))));}},{field:'cstag',title:'挂起',width:50,sortable:true,formatter:function(x){return (x==3)?'暂停待撤':((x==2)?'待撤':((x==1)?'暂停':'无'));}},{field:'side',title:'方向',width:40,sortable:true,formatter:function(x){return (x==1)?'买入':'卖出';}},{field:'qty',title:'委托数量',width:80,sortable:true},{field:'price',title:'母单限价',width:60,sortable:true},{field:'sentqty',title:'发单数量',width:80,sortable:true},{field:'cumqty',title:'完成数量',width:80,sortable:true},{field:'avgpx',title:'成交均价',width:60,sortable:true,formatter:function(x){return x.toFixed(3);}},{field:'leavesqty',title:'剩余数量',width:80,sortable:true},{field:'ntime',title:'创建时间',width:160,sortable:true},{field:'pct',title:'完成比例',width:60,sortable:true,formatter:function(x){return (100*x).toFixed(2)+'%';}},{field:'vwap',title:'市场均价',width:60,sortable:true,formatter:function(x){return x.toFixed(3);}},{field:'mktqty',title:'市场成交',width:60,sortable:true,formatter:function(x){return x.toFixed(0);}},{field:'bias',title:'执行差损',width:60,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'mno',title:'成交笔数',width:80,sortable:true},{field:'ctime',title:'撤单时间',width:60,sortable:true},{field:'ftime',title:'最后成交',width:60,sortable:true}]],onClickRow:function(x,y){z=$('input[name=gtype]:checked').val();((z==4)?qryoapara:((z==3)?qrysublst:((z==2)?qrysubrej:((z==1)?qrydetail:qryexec))))(y.id,$('input[name=gfreq]:checked').val());}});
+    $('#oagrid').datagrid({fit:false,rowStyler:function(x,y){t=y.cstag;return (t>0)?('background:'+(((t==1)||(t==3))?'red':'green')):'';},singleSelect:true,remoteSort:false,pagination:false,idField:'id',columns:[[{field:'upid',title:'篮子ID',width:100,sortable:true},{field:'slot',title:'篮子腿号',width:100,sortable:true},{field:'id',title:'母单ID',width:100,sortable:true},{field:'hsid',title:'恒生序号',width:60,sortable:true},{field:'sym',title:'证券代码',width:200,sortable:true},{field:'algo',title:'算法',width:120,sortable:true},{field:'status',title:'状态',width:60,sortable:true,formatter:function(x){return (x==0)?'新建':((x==1)?'部分成交':((x==2)?'全部成交':((x==4)?'撤单完成':((x==6)?'撤单已报':((x==8)?'拒绝':((x==3)?'当日完成':((x=='C')?'过期':x)))))));}},{field:'cstag',title:'挂起',width:50,sortable:true,formatter:function(x){return (x==3)?'暂停待撤':((x==2)?'待撤':((x==1)?'暂停':'无'));}},{field:'side',title:'方向',width:40,sortable:true,formatter:function(x){return (x==1)?'买入':'卖出';}},{field:'qty',title:'委托数量',width:80,sortable:true},{field:'price',title:'母单限价',width:60,sortable:true},{field:'sentqty',title:'发单数量',width:80,sortable:true},{field:'cumqty',title:'完成数量',width:80,sortable:true},{field:'avgpx',title:'成交均价',width:60,sortable:true,formatter:function(x){return x.toFixed(3);}},{field:'leavesqty',title:'剩余数量',width:80,sortable:true},{field:'ntime',title:'创建时间',width:160,sortable:true},{field:'pct',title:'完成比例',width:60,sortable:true,formatter:function(x){return (100*x).toFixed(2)+'%';}},{field:'vwap',title:'市场均价',width:60,sortable:true,formatter:function(x){return x.toFixed(3);}},{field:'mktqty',title:'市场成交',width:60,sortable:true,formatter:function(x){return x.toFixed(0);}},{field:'bias',title:'执行差损',width:60,sortable:true,formatter:function(x){return x.toFixed(2);}},{field:'mno',title:'成交笔数',width:80,sortable:true},{field:'ctime',title:'撤单时间',width:60,sortable:true},{field:'ftime',title:'最后成交',width:60,sortable:true}]],onClickRow:function(x,y){z=$('input[name=gtype]:checked').val();((z==4)?qryoapara:((z==3)?qrysublst:((z==2)?qrysubrej:((z==1)?qrydetail:qryexec))))(y.id,$('input[name=gfreq]:checked').val());}});
     $('#oagrid').datagrid('loadData',{total:y.length,rows:y});
     $('#updtime').val(now());
 };
@@ -1181,13 +1203,16 @@ quoteviewres=function(x,y){
     var option1={title:{text:y.sym+'('+y.name+')'},legend:{},tooltip:{trigger:'axis',axisPointer:{type:'cross'},backgroundColor:'rgba(245,245,245,0.8)',borderWidth:1,borderColor:'#ccc',padding:10,textStyle:{color:'#000'}},axisPointer:{link:{xAxisIndex:'all'},label:{backgroundColor:'#777'}},grid:[{left:'3%',right:'5%',height:'65%'},{left:'3%',right:'5%',top:'74%',height:'20%'}],xAxis:[{type:'category',data:y.seq},{type:'category',gridIndex:1,data:y.seq,axisLabel:{show: false}}],yAxis:[{scale:true},{scale:true,gridIndex:1,axisLine:{onZero:false},axisTick:{show:false},splitLine:{show:false},axisLabel:{show:true}}],dataZoom:[{show:true,xAxisIndex:[0,1],type:'slider',top:'96%',start:0,end:100},{type:'inside',xAxisIndex:[0,1]}],series:[{type:'k',data:y.data,markPoint:{data:y.mark.map(function(x){return {coord:[x[0],x[1]],name:(x[2]<0)?'buy':'sell',symbol:(x[2]>0)?'emptytriangle':'triangle',symbolSize:10*Math.abs(x[2]),symbolRotate:(x[2]>0)?180:0,symbolOffset:[0,(x[2]>0)?'-50%':'50%'],itemStyle:{normal:{color:(x[2]<0)?'blue':'green'}}}}),tooltip:{formatter:function(param){return param.name+'<br>'+param.data.coord[0]+'<br>'+param.data.coord[1];}}}},{name:'amt',type:'bar',xAxisIndex:1,yAxisIndex:1,data:y.amt}]}; //,{name:'lb',type:'line',data:y.lb,smooth:true,lineStyle:{normal:{color:'rgb(0,0,255)',opacity:1}}},{name:'lr',type:'line',data:y.lr,smooth:true,lineStyle:{normal:{color:'rgb(255,0,0)',opacity:1}}},{name:'lg',type:'line',data:y.lg,smooth:true,lineStyle:{normal:{color:'rgb(0,255,0)',opacity:1}}}
     chart1.setOption(option1);
 }
+//
+riskrlreq=function(x,y){wscall(['{[x]`rl`rs`rn!x({(0!{![x;();0b;{x!{(^;0f;x)} each x} cols value x]}.db.RL;0!.db.RS;0!-1^.db.RN)};())}',x],etfmonrlres,{});}
+sto3rlreq=riskrlreq.curry('`:192.168.84.41:9030:swhy:swhy');sti2rlreq=riskrlreq.curry('`:192.168.84.41:9120:swhy:swhy');mmo3rlreq=riskrlreq.curry('`:192.168.84.41:9010:swhy:swhy');mmshrlreq=riskrlreq.curry('`:192.168.84.41:9020:swhy:swhy');mmszrlreq=riskrlreq.curry('`:192.168.84.41:9040:swhy:swhy');
 
 //做市监控
 etfmonmmreq=function(x,y){wscall(['{[x]`UDL`s`D!(update string settleday,string extime from 0!.db.Ts[x;`UDL];update string time from 0!.db.Ts[x;`s];{flip `k`v!(key x;(-3!) each value x)} `lastont`active`STOP`ERRSTOP`openauct_pxhigh`openauct_pxlow`BULK`POSMAX`POSMIN#.db.Ts[x])}','`8508_femm_518880'],etfmonmmres,{target:'grid'});}
 etfmonfureq=function(x,y){wscall(['{[x]update string askpx,string asksz,string bidpx,string bidsz,0^POSMAX,0^POSMIN,0^BULK,0^POS from 0!.db.Ts[x;`t]}','`8508_fehg_au'],etfmonfures,{target:'grid'});}
 etfmontsreq=function(x,y){wscall(['{[x]update string tm,tdvalrt:(tdmktval%sum tdmktval where (not null tm)&tdmktval>0),ydvalrt:(ydmktval%sum ydmktval where (not null tm)&ydmktval>0) from delete trd from 0!stat_now[`;x;`]}','`dc2'],etfmontsres,{target:'grid'});}
 etfmonsumreq=function(x,y){wscall(['{[x]y:0!.db.Ts[x;`DETAIL];`S`t`b`v1`v2`lag`cumqty1s`xiopv!({flip `k`v!(key x;(-3!) each value x)} .db.Ts[x;`Stat];string y`tm;y`ob;y`spread;y`mktsp;`float$y`lag;y`cumqty1s;y`xiopv)}','`8508_femm_518880'],etfmonsumres,{});}
-etfmonrlreq=function(x,y){wscall(['{[x]`rl`rs`rn!(0!.db.RL;0!.db.RS;0!-1^.db.RN)}',''],etfmonrlres,{});}
+etfmonrlreq=function(x,y){wscall(['{[x]`rl`rs`rn!(0!{![x;();0b;{x!{(^;0f;x)} each x} cols value x]}.db.RL;0!.db.RS;0!-1^.db.RN)}',''],etfmonrlres,{});}
 
 //`sym`divid`movpos`settleday`n`sup`inf`ask`bid`px`extime`d`d0`djump   `n`m`px`realpx`qty`leavesqty`id`time
 
@@ -1314,6 +1339,105 @@ ngxsymres=function(x,y){
     var chart1=echarts.init($('#kline')[0]);
     var option1=(x.ptyp=='K')?{title:{text:x.sym+':'+y.tr},legend:{},tooltip:{trigger:'axis',axisPointer:{type: 'cross'}},xAxis:{data:y.date},yAxis:{scale:true},dataZoom:[{show:true,xAxisIndex:[0],type:'slider',top:'90%',start:0,end:100},{type:'inside'}],series:[{type:'k',data:y.data,markPoint:(x.strd=='T')?{symbolSize:15,data:y.trade.map(function(x){return {coord:[x[0],x[1]],name:(x[2]=='1')?'buy':'sell',symbol:(x[2]=='2')?'emptytriangle':'triangle',symbolRotate:(x[2]=='2')?180:0,symbolOffset:[0,(x[2]=='2')?'50%':'-50%'],itemStyle:{normal:{color:(x[2]=='1')?'blue':'green'}}}}),tooltip:{formatter:function(param){return param.name+'<br>'+param.data.coord[0]+'<br>'+param.data.coord[1];}}}:{},markLine:{symbol:['none', 'none'],data:y.cline.map(function(x){return [{coord:[x[0],x[1]]},{coord:[x[2],x[3]]}]})}}]}:{title:{text:x.sym+':'+y.tr},legend:{},tooltip:{trigger:'axis',axisPointer:{type: 'cross'}},xAxis:{type:'category',data:y.seq},yAxis:{scale:true},dataZoom:[{show:true,xAxisIndex:[0],type:'slider',top:'90%',start:0,end:100},{type:'inside'}],series:[{type:'k',data:y.tbr,markPoint:{data:y.mark.map(function(x){return {coord:[x[0],x[1]],name:(x[2]<0)?'buy':'sell',symbol:(x[2]>0)?'emptytriangle':'triangle',symbolSize:10*Math.abs(x[2]),symbolRotate:(x[2]>0)?180:0,symbolOffset:[0,(x[2]>0)?'-50%':'50%'],itemStyle:{normal:{color:(x[2]<0)?'blue':'green'}}}}),tooltip:{formatter:function(param){return param.name+'<br>'+param.data.coord[0]+'<br>'+param.data.coord[1];}}},markLine:{symbol:['none', 'none'],data:y.line.map(function(x){return [{coord:[x[0],x[1]]},{coord:[x[2],x[3]]}]})}}]}; //,symbol:'triangle'
     chart1.setOption(option1);
+}
+
+//期权监控
+fudlreq=function(x){wscall(["{[x]nudl:$[1<>count x;0;1];.temp.OA:t:$[nudl;::;{update n:`$({-2#string first vs[`] x} each udl)(,)' \"/\"(,)/:string[n] from x}] update lev:d*up%op from update v1:sqrt v,s:1e2*s0,d:s0 {[x;y]r:.db.OPT[y];@[;`delta]bscalc[x;y;r]}' id from select from (select id:sym,udl,pc,n:`$string[pc](,)'string[sp],v:1e-4*fcumamt each sym,s0:{bsivx[x;.db.OPT[x];fprice[x]]} each sym,y:1e2*fyield each sym,op:fprice each sym,up:fprice each udl,mul:.db.QX[;`multiplier] each sym,q:fcumqty each sym from .db.OPT where udl in x) where v>0,q>0;r:`nudl`udl`ct`pt!(nudl;x;delete pc from select from t where pc=`C;delete pc from select from t where pc=`P);if[1=nudl;n:count p:$[beforetrading[x];.ctrl.conn.hdb.h ({value exec last price by 10000000000 xbar srctime from select from quote where date=last date,sym=x,cumqty>0};x);.ctrl.conn.rdb.h ({value exec last price by 10000000000 xbar srctime from quote where sym=x,cumqty>0};x)];r,:`pc`rt`his!((0,n-1),\\:.db.QX[x;`pc];til[n],'p;{til[count[x]],'x}.ctrl.conn.hdb.h ({exec price from select last price by date from quote where date>=first -60#date,sym=x,cumqty>0};x))];r}",x],optudlres,{ct:'csvg',pt:'psvg'});} //期权标的查询
+
+foptreq=function(){wscall(['{[]t:0!select pd:{(`$2#string x)^.db.QX[x;`product]} first udl,v:1e-8*sum {[x]r:.db.QX[x];$[(.z.D<.db.sysdate)&.z.T<21:00;r[`pc]*r[`multiplier]*r`pq;r[`vwap]*r`cumqty]} each sym by udl from .db.OPT;.temp.PA:m:(0!update v1:sqrt v from select sum v by pd from t) lj update y:1e2*.db.QX[;`y60] each udl,s:1e2*.db.QX[;`s60] each udl from 1!`pd xcols select from t where v=(max;v) fby pd;`pd`pdamt!(select id:pd,text:pd from `v xdesc m;m)}','`'],foptres,{target:'ctrl',t1:'plot',t2:'grid'});} //期权汇总查询 
+
+var color = d3.scaleLinear([-100,-20, 0, 20,100], ["#00FF00","#00AA00", "#F0F0FF","#AA0000","#FF0000"]);
+var color1 = d3.scaleLinear([-5, 0, 5], ["green", "#F0F0FF","red"]);
+
+udlstres=function(x,y){ //单品种各期货树图
+    $("#cbudl").combobox({required:false,valueField:'id',textField:'text',onSelect: function(x){fudlreq('`'+x.id)}});$("#cbudl").combobox("loadData",y);
+    //$("#cbudl").combobox('select',y[0].id);
+    fudlreq(map('"`"+x.id',y));
+
+    const f2 = d3.format(".2f");
+    
+    var svg=d3.select("#udlsvg");const data = y;const width = dw/12;const height = dh;
+    const root = d3.stratify().path(d => d.n)(data);root.sum(d => d?.v1);
+    const leaves = root.leaves();root.sort((a, b) => d3.descending(a.v, b.v));
+    d3.treemap().tile(d3.treemapSquarify).size([width, height]).paddingInner(1).round(true)(root);
+
+    //const color = d3.scaleLinear().domain([0, data.length / 3, data.length / 3, data.length]).range(["orange", "limegreen", "skyblue", "#DE2910"]);
+    //var color = d3.scaleLinear([-30, 0, 30], ["green", "#F0F0F0","red"]);
+    svg.attr("width", width).attr("height", height).attr("font-size", 10);
+    const node = svg.selectAll("g").data(leaves).join("g").attr("transform", d => `translate(${d.x0},${d.y0})`).on('click',(event, d) => {$("#cbudl").combobox('select',d.data.id)});
+    node.append("rect").attr("fill", (d, i) => color1(d.data.y0)).attr("width", d => d.x1 - d.x0).attr("height", d => d.y1 - d.y0);
+    const text = node.append("text").attr("x", 3);
+    text.append("tspan").text(d => d.data.id).attr("x", 5).attr("y", "1.2em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d =>f2(d.data.v)+'亿').attr("x", 5).attr("y", "2.7em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d =>'y60:'+d.data.y.toFixed(2)+'%').attr("x", 5).attr("y", "4.2em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d =>'hv:'+f2(d.data.s)+"%").attr("x", 3).attr("y", "5.7em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d =>'y:'+d.data.y0.toFixed(2)+'%').attr("x", 5).attr("y", "7.2em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d =>'px:'+d.data.up.toFixed(2)).attr("x", 5).attr("y", "8.7em").attr("font-size", "1.5em").attr("font-weight", "bold");
+}
+
+optrtres=function(x,y){$.plot("#plot2",[{data:y.px,label:y.id,lines:{show:true,lineWidth:1},clickable:true,hoverable:true},{data:y.pc,lines:{show:true,lineWidth:1},clickable:true,hoverable:true}]);$.plot("#plot3",[{data:y.his,label:y.id+'(D)',lines:{show:true,lineWidth:1},clickable:true,hoverable:true}]);}; //单期权行情更新
+optrtreq=function(x){wscall(["{[x]x:`$x;n:count p:$[beforetrading[x];.ctrl.conn.hdb.h ({value exec last price by 10000000000 xbar srctime from select from quote where date=last date,sym=x,cumqty>0};x);.ctrl.conn.rdb.h ({value exec last price by 10000000000 xbar srctime from quote where sym=x,cumqty>0};x)];`id`pc`px`his!(x;(0,n-1),\\:.db.QX[x;`pc];til[n],'p;{til[count[x]],'x}.ctrl.conn.hdb.h ({exec price from select last price by date from quote where date>=first -60#date,sym=x,cumqty>0};x))}",x],optrtres,{target:'plot2'});}; //单期权行情查询
+
+optudlres=function(x,y){//期权标的选择结果
+    //var color = d3.scaleThreshold().domain([-10,-1,1,10]).range(["#1CA41C","#064D15","#F0F0F0","#600A0A","#BB0000"]);
+
+    var csvg=d3.select("#csvg");var data = y.ct;var width = dw/2;var height = dh;
+    var root = d3.stratify().path(d => d.n)(data);root.sum(d => d?.v1);
+    var leaves = root.leaves(); root.sort((a, b) => d3.descending(a.v, b.v));
+    d3.treemap().tile(d3.treemapSquarify).size([width, height]).paddingInner(1).round(true)(root);
+    csvg.attr("width", width).attr("height", height).attr("font-size", 10);
+    var node = csvg.selectAll("g").data(leaves).join("g").attr("transform", d => `translate(${d.x0},${d.y0})`).on('click',(event, d) => {optrtreq(d.data.id);});
+    node.append("rect").attr("fill",d=>color(d.data.y)).attr("width", d => d.x1 - d.x0).attr("height", d => d.y1 - d.y0);
+    var text = node.append("text").attr("x", 3);
+    text.append("tspan").text(d => d.data.n).attr("x", 3).attr("y", "1em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d => d.data.v.toFixed(0)+'万('+d.data.q+')').attr("x", 3).attr("y", "2.5em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d => 'px:'+d.data.op+'('+d.data.mul+')').attr("x", 3).attr("y", "4em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d => 'y:'+d.data.y.toFixed(2)+"%").attr("x", 3).attr("y", "5.5em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d => 'iv:'+d.data.s.toFixed(2)+"%").attr("x", 3).attr("y", "7em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d => 'lev:'+d.data.lev.toFixed(2)).attr("x", 3).attr("y", "8.5em").attr("font-size", "1.5em").attr("font-weight", "bold");
+
+    var psvg=d3.select("#psvg");var data = y.pt;var width = dw/2;var height = dh;
+    var root = d3.stratify().path(d => d.n)(data);root.sum(d => d?.v1);
+    var leaves = root.leaves(); root.sort((a, b) => d3.descending(a.v, b.v));
+    d3.treemap().tile(d3.treemapSquarify).size([width, height]).paddingInner(1).round(true)(root);
+    psvg.attr("width", width).attr("height", height).attr("font-size", 10);
+    var node = psvg.selectAll("g").data(leaves).join("g").attr("transform", d => `translate(${d.x0},${d.y0})`).on('click',(event, d) => {optrtreq(d.data.id);});
+    node.append("rect").attr("fill",d=>color(d.data.y)).attr("width", d => d.x1 - d.x0).attr("height", d => d.y1 - d.y0);
+    var text = node.append("text").attr("x", 3);
+    text.append("tspan").text(d => d.data.n).attr("x", 3).attr("y", "1em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d => d.data.v.toFixed(0)+'万('+d.data.q+')').attr("x", 3).attr("y", "2.5em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d => 'px:'+d.data.op+'('+d.data.mul+')').attr("x", 3).attr("y", "4em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d => 'y:'+d.data.y.toFixed(2)+"%").attr("x", 3).attr("y", "5.5em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d => 'iv:'+d.data.s.toFixed(2)+"%(s)").attr("x", 3).attr("y", "7em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    text.append("tspan").text(d => 'lev:'+d.data.lev.toFixed(2)).attr("x", 3).attr("y", "8.5em").attr("font-size", "1.5em").attr("font-weight", "bold");
+    
+    if(1==y.nudl){
+	$.plot("#plot0",[{data:y.rt,label:y.udl,lines:{show:true,lineWidth:1},clickable:true,hoverable:true},{data:y.pc,lines:{show:true,lineWidth:1},clickable:true,hoverable:true}]);
+	$.plot("#plot1",[{data:y.his,label:y.udl+'(D)',lines:{show:true,lineWidth:1},clickable:true,hoverable:true}]);
+    }
+}
+
+foptres=function(x,y){ //期权监控汇总
+    $('#'+x.target).html('品种:<input id="cbproduct" style="width:200px">udl代码:<input id="cbudl" style="width:500px">');
+    $("#cbproduct").combobox({required:true,valueField:'id',textField:'text',onSelect: function(x){wscall(['{[x]0!update v1:sqrt v,s:1e2*.db.QX[;`s60] each id,y:1e2*.db.QX[;`y60] each id,y0:1e2*fyield each id,up:fprice each id from select text:last udl,v:1e-8*sum fcumamt each sym by id:udl from .db.OPT where x={(`$2#string x)^.db.QX[x;`product]} each udl}','`'+x.id],udlstres,{target:'cbudl',t2:'grid'});}});
+    $("#cbproduct").combobox("loadData", y.pd);$("#cbproduct").combobox('select',y.pd[0].id);
+    $('#'+x.t1).html('<table><tr><td><svg id=pdsvg style="width:'+(5*dw/12)+'px;height:'+dh+'px;"></td><td><svg id=udlsvg style="width:'+dw/12+'px;height:'+dh+'px;"></td><td><table><tr><td><div id=plot2 style="width:'+dw/4+'px;height:'+dh/2+'px;"></td><td><div id=plot3 style="width:'+dw/4+'px;height:'+dh/2+'px;"></td></tr><tr><td><div id=plot0 style="width:'+dw/4+'px;height:'+dh/2+'px;"></td><td><div id=plot1 style="width:'+dw/4+'px;height:'+dh/2+'px;"></td></tr></table></td></tr></table>');
+    $('#'+x.t2).html('<table><tr><td><svg id=csvg style="width:'+dw/2+'px;height:'+dh+'px;"></td><td><svg id=psvg style="width:'+dw/2+'px;height:'+dh+'px;"></td></tr></table>');
+    var svg=d3.select("#pdsvg");const data = y.pdamt;const width = 5*dw/12;const height = dh;
+    const root = d3.stratify().path(d => d.pd)(data);root.sum(d => d?.v1);
+    const leaves = root.leaves();root.sort((a, b) => d3.descending(a.v, b.v));
+    d3.treemap().tile(d3.treemapSquarify).size([width, height]).paddingInner(1).round(true)(root);
+
+    //const color = d3.scaleLinear().domain([0, data.length / 3, data.length / 3, data.length]).range(["orange", "limegreen", "skyblue", "#DE2910"]);
+    //var color = d3.scaleLinear([-30, 0, 30], ["green", "#F0F0F0","red"]);
+    svg.attr("width", width).attr("height", height).attr("font-size", 10);
+    const node = svg.selectAll("g").data(leaves).join("g").attr("transform", d => `translate(${d.x0},${d.y0})`).on('click',(event, d) => {$("#cbproduct").combobox('select',d.data.pd)});
+    node.append("rect").attr("fill", (d, i) => color(d.data.y)).attr("width", d => d.x1 - d.x0).attr("height", d => d.y1 - d.y0);
+    const text = node.append("text").attr("x", 3);
+    text.append("tspan").text(d => d.data.pd).attr("x", 5).attr("y", "1.2em").attr("font-size", "1.8em").attr("font-weight", "bold");
+    text.append("tspan").text(d =>d.data.v.toFixed(2)+'亿').attr("x", 5).attr("y", "3em").attr("font-size", "1.4em").attr("font-weight", "bold");
+    text.append("tspan").text(d =>'y:'+d.data.y.toFixed(2)+'%').attr("x", 5).attr("y", "4.4em").attr("font-size", "1.4em").attr("font-weight", "bold");
+    text.append("tspan").text(d =>'v:'+d.data.s.toFixed(2)+'%').attr("x", 5).attr("y", "5.8em").attr("font-size", "1.4em").attr("font-weight", "bold");
 }
 
 /*		
@@ -1494,7 +1618,7 @@ tsi10aordhisreq=ordhisreqfun.curry(tsi10a);tsi10amathisreq=mathisreqfun.curry(ts
 tsi10bordreq=ordreqfun.curry(tsi10b);tsi10bmatreq=matreqfun.curry(tsi10b);tsi10bposreq=posreqfun.curry(tsi10b);
 tsi10bordhisreq=ordhisreqfun.curry(tsi10b);tsi10bmathisreq=mathisreqfun.curry(tsi10b);tsi10bparareq=tsparareq.curry(tsi10b);
 
-//i10c
+
 tsi10cordreq=ordreqfun.curry(tsi10c);tsi10cmatreq=matreqfun.curry(tsi10c);tsi10cposreq=posreqfun.curry(tsi10c);
 tsi10cordhisreq=ordhisreqfun.curry(tsi10c);tsi10cmathisreq=mathisreqfun.curry(tsi10c);tsi10cparareq=tsparareq.curry(tsi10c);
 

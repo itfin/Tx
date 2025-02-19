@@ -9,7 +9,7 @@ SnapshotKey:`WindCode`Code`ActionDay`TradingDay`Time`Status`PreClose`Open`High`L
 FutureSnapshotKey:`WindCode`Code`ActionDay`TradingDay`Time`Status`PreOpenInterest`PreClose`PreSettlePrice`Open`High`Low`Match`Volume`Turnover`OpenInterest`Close`SettlePrice`HighLimited`LowLimited`PreDelta`CurrDelta`AskPrice`AskVol`BidPrice`BidVol`AuctionPrice`AuctionQty`AvgPrice`OriginalCode;
 IndexSnapshotKey:`WindCode`Code`ActionDay`TradingDay`Time`Status`Open`High`Low`Match`Volume`Turnover`PreClose;
 `SUBSCRIPTION_SET`SUBSCRIPTION_ADD`SUBSCRIPTION_DEL`SUBSCRIPTION_FULL set' til 4;
-exmap:(`$("HK-2-0";"HKF-1-0";"SGE-1-0";"CF-2-0";"SHF-1-0";"SH-2-0";"SZ-2-0"))!$[1b~.conf.tdf`usehkex;`HKEX;`XHKG],`XHKF`XAUX`CCFXW`XSGEW`XSHG`XSHE;
+exmap:(`$("HK-2-0";"HKF-1-0";"HKF-1-3";"SGE-1-0";"CF-2-0";"SHF-1-0";"SH-2-0";"SZ-2-0"))!$[1b~.conf.tdf`usehkex;`HKEX;`XHKG],`XHKF`XHKF`SGEX`CCFXW`XSGEW`XSHG`XSHE;
 
 \d .
 
