@@ -1,4 +1,4 @@
-.module.fixbase:2024.11.18;
+.module.fixbase:2025.02.20;
 
 txload "feed/socket";
 
@@ -40,6 +40,7 @@ initmaps:{[]
 .init.fix:{[x]system "d .fix";system"l ",1_"/" sv string .conf.fix[`fixdb`idiom];system "d .";
 	map2vars[`.fix] .fix.FieldMap:(!/)value exec name,id from .fix.Fields;        //字段逆映射
 	map2vars[`.fix] .fix.MessageMap:(!/)value exec name,id from .fix.Messages;    //消息类型逆映射
+	.fix.HeadStr:"8=",string .fix.FixOpt`FixVersion;.fix.HeadLen:count .fix.HeadStr;
 	initmaps[];
 	initfixdict[];if[.fix.FixOpt`UseFast;initfastdict[]];
 	.fix.RouterFieldMap:(.fix`OnBehalfOfCompID`DeliverToCompID`SenderSubID`TargetSubID`OnBehalfOfSubID`DeliverToSubID`SenderLocationID`TargetLocationID`OnBehalfOfLocationID`DeliverToLocationID)!.fix`DeliverToCompID`OnBehalfOfCompID`TargetSubID`SenderSubID`DeliverToSubID`OnBehalfOfSubID`TargetLocationID`SenderLocationID`DeliverToLocationID`OnBehalfOfLocationID;
@@ -73,13 +74,13 @@ fixclose:{[x]if[0<h:.ctrl.tcpconn[x;`h];lwarn[`TCPCloseSockFixDisc;(x;h)];sockcl
 fixdisc:{[x;y]smfix[x;`5;(enlist .fix`Text)!(enlist y)];lwarn[`FixDisc;(x;y)];.ctrl.tcpconn[x;`status`logouttime]:(`LogoutHalf;now[]);}; /logout&disconnect tcp
 onsockconn:{[x]if[not x in tkey .conf.fix.session;:()];.ctrl.tcpconn[x;`status`selftime`peertime`logontime]:(`Connected;0Np;0Np;0Np);};
 
-onsockmsg:{[x;y].temp.X0:(x;y);w:x`w;if[(9<=n:count b:.ctrl.tcpconn[w;`rbuf])&(y like "8=FIX.4.2*");lwarn[`FixBufferClear;(w;n;b)];.ctrl.tcpconn[w;`rbuf]:""];b:$[null w;"";.ctrl.tcpconn[w;`rbuf]],y;r:decodefix b;$[-6h~type n:r[0];[linfo[`FixMsgErr;(x;n;r[1];count r)];b:n _ b;r:r[2]];[b:""]];if[not null w;$[(9<=count b)&(not b like "8=FIX.4.2*");fixdisc[w;`FixMsgHeadMissing];.ctrl.tcpconn[w;`rbuf]:b]];.upd.FIX[x] each r;};
+onsockmsg:{[x;y].temp.X0:(x;y);w:x`w;if[(9<=n:count b:.ctrl.tcpconn[w;`rbuf])&(y like "8=FIX.4.2*");lwarn[`FixBufferClear;(w;n;b)];.ctrl.tcpconn[w;`rbuf]:""];b:$[null w;"";.ctrl.tcpconn[w;`rbuf]],y;r:decodefix b;ldebug[`decodefix;(r;b)];$[-6h~type n:r[0];[linfo[`FixMsgErr;(x;n;r[1];count r)];b:n _ b;r:r[2]];[b:""]];if[not null w;$[(.fix.HeadLen<=count b)&(not b like .fix.HeadStr,"*");fixdisc[w;`FixMsgHeadMissing];.ctrl.tcpconn[w;`rbuf]:b]];.upd.FIX[x] each r;};
 
 doseqreset:{[x]{[x;he]if[(not .ctrl.tcpconn[he;`status]~`Logon)|(`server~.conf.fix.session[he;`mode]);:()];if[(`date$.ctrl.tcpconn[he;`selftime])>=.z.D;:()];.ctrl.tcpconn[he;`status`selfseq`selftime]:(`LogonHalf;0j;0Np);smfix[he;`A;(.fix`EncryptMethod`HeartBtInt`ResetSeqNumFlag)!(0;.conf.fix.hbint;`Y)]}[x] each (tkey .conf.fix.session) inter (tkey .ctrl.tcpconn);};
 
 dofixhb:{[x]{[x;he]if[not .ctrl.tcpconn[he;`status]~`Logon;:()];if[(`second$x)<(`second$.ctrl.tcpconn[he;`selftime])+00:00:01*.conf.fix.hbint;:()];smfix[he;`0;()!()]}[x] each (tkey .conf.fix.session) inter (tkey .ctrl.tcpconn);};
 
-dologon:{[x]{[x;he]if[(`client<>.conf.fix.session[he;`mode])|(not .ctrl.tcpconn[he;`status]~`Connected);:()];.ctrl.tcpconn[he;`status]:`LogonHalf;$[((`date$x)<>`date$.ctrl.tcpconn[he;`peertime])|((`date$x)<>`date$.ctrl.tcpconn[he;`logontime]);[.ctrl.tcpconn[he;`selfseq`selftime]:(0j;0Np);smfix[he;`A;(.fix`EncryptMethod`HeartBtInt`ResetSeqNumFlag)!(0;.conf.fix.hbint;`Y)]];smfix[he;.fix`Logon;(.fix`EncryptMethod`HeartBtInt)!(0;.conf.fix.hbint)]]}[x] each (tkey .conf.fix.session) inter (tkey .ctrl.tcpconn);}; 
+dologon:{[x]{[x;he]if[(`client<>.conf.fix.session[he;`mode])|(not .ctrl.tcpconn[he;`status]~`Connected);:()];.ctrl.tcpconn[he;`status]:`LogonHalf;m:((.fix`EncryptMethod`HeartBtInt)!(0i;.conf.fix.hbint)),$[((`date$x)<>`date$.ctrl.tcpconn[he;`peertime])|((`date$x)<>`date$.ctrl.tcpconn[he;`logontime]);[.ctrl.tcpconn[he;`selfseq`selftime]:(0j;0Np);enlist[.fix`ResetSeqNumFlag]!enlist `Y];()];smfix[he;.fix`Logon;m,$[1b~.fix.FixOpt`UseFixT;enlist[.fix`DefaultApplVerID]!enlist[.fix.FixOpt`AppVerID];()]];}[x] each (tkey .conf.fix.session) inter (tkey .ctrl.tcpconn);}; 
 
 //
 .exit.fix:{[x]fixfree[];linfo[`FixExit;(.conf.me;now[])];};
@@ -88,7 +89,7 @@ dologon:{[x]{[x;he]if[(`client<>.conf.fix.session[he;`mode])|(not .ctrl.tcpconn[
 //
 onfix:{[x;y;z;u].temp.X:(x;y;z;u);r:.[{.fix.FIX[x][y;z]};(x;y;z);`trap];($[`trap~r;lerr;ldebug])[`fix;(x;y;u;z)];};
 
-.upd.FIX:{[s;m].temp.X1:(s;m);t0:.z.P;t:`$m[.fix`MsgType];sid:`$m[.fix`SenderCompID];tid:`$m[.fix`TargetCompID];u:{$[10h=type x;"J"$x;`long$x]} m[.fix`MsgSeqNum];pdf:1b~m[.fix`PossDupFlag];r:backroute[m];if[null sess:.ctrl.sessionmap tid,sid;lwarn[`UnknownFixSession;(s;m)];:()];sc:.conf.fix.session[sess];ct:.ctrl.tcpconn[sess];if[0>;ct`h;.ctrl.tcpconn[sess;`h`status`conntime`ipaddr]:(s`h;`Connected;.z.P;s`a)];lmfix[t0;sid;tid;u;t;m];v:0j^ct`peerseq;if[(not ct[`status] in `Logon`LogoutHalf)&(t<>.fix`Logon);lwarn[`RecvNonLogonWhenLogout;(sess;ct`status;t;u;pdf)];:()];$[u<>1j+v;$[((t=.fix`Logon)&((1b~m[.fix`ResetSeqNumFlag])|(v=0j)|((u<1j+v)&(cs[`custom]=`hs))))|((t=.fix`SequenceReset)&(not pdf)|((t=.fix`Logout)&(cs[`custom]=`hs)));();[if[not ct`isgap;.ctrl.tcpconn[sess;`isgap]:1b;lwarn[`FixSeqError;(sess;t;`LastSeq;v;`MsgSeq;u;`PossDupFlag;pdf;$[u<1+v;$[pdf;`MsgResend;`SeqTooLow];`SeqGapMsgLost])]];if[(u<1+v)&not pdf;fixdisc[sess;`SeqTooLow];.ctrl.tcpconn[sess;`peertime]:0Np;:()];if[u>1+v;if[t in `A`2;onfix[t;sess;m;u]];if[not (null .ct[`peerseq])&(cs[`custom]=`hs);smfixr[sess;r;.fix`ResendRequest;(.fix`BeginSeqNo`EndSeqNo)!(1+v;0j)]]];:()]];if[1b~ct`isgap;.ctrl.tcpconn[sess;`isgap]:0b;linfo[`FixSeqSync;(sess;u;v)]]];.ctrl.tcpconn[sess;`peerseq`peertime`pmsgtime]:(u;.z.P;("n"$08:00)+"p"$"Z"$m[.fix`SendingTime]);if[pdf&t in .fix.SESSCTRLMSG except `4;lwarn[`FixDupAdminMsg;(sess;t;m)]:()];$[(tid<>`$dtc)&(count dtc:m[.fix`DeliverToCompID]);[lwarn[`UnSupportRouterMsg;(sess;t;m)];smfixr[sess;r;.fix`Reject;(.fix`RefSeqNum`SessionRejectReason`Text)!(m[.fix`MsgSeqNum];.fix`VALUE_IS_INCORRECT;"Unsupported 3rd Routered Message!")]];not t in key .fix.Messages;[lwarn[`ErrorMsgType;(sess;t;m)];smfixr[sess;r;.fix`Reject;(.fix`RefSeqNum`SessionRejectReason`Text)!(m[.fix`MsgSeqNum];.fix`InvalidMsgType;"Error Message Type!")]];not t in key .fix.FIX;[lwarn[`UnSupportMsg;(sess;t;m)];smfixr[sess;r;.fix`BusinessMessageReject;(.fix`BusinessRejectReason`RefMsgType`Text`RefSeqNum)!(.fix`UNSUPPORTED_MESSAGE_TYPE;t;"Unsupported Message Type:",string t;m[.fix`MsgSeqNum])]];onfix[t;sess;m;u]];};
+.upd.FIX:{[s;m].temp.X1:(s;m);t0:.z.P;t:`$m[.fix`MsgType];sid:`$m[.fix`SenderCompID];tid:`$m[.fix`TargetCompID];u:{$[10h=type x;"J"$x;`long$x]} m[.fix`MsgSeqNum];pdf:1b~m[.fix`PossDupFlag];r:backroute[m];if[null sess:.ctrl.sessionmap tid,sid;lwarn[`UnknownFixSession;(s;m)];:()];sc:.conf.fix.session[sess];ct:.ctrl.tcpconn[sess];if[0>ct`h;.ctrl.tcpconn[sess;`h`status`conntime`ipaddr]:(s`h;`Connected;.z.P;s`a)];lmfix[t0;sid;tid;u;t;m];v:0j^ct`peerseq;if[(not ct[`status] in `Logon`LogoutHalf)&(t<>.fix`Logon);lwarn[`RecvNonLogonWhenLogout;(sess;ct`status;t;u;pdf)];:()];$[u<>1j+v;$[((t=.fix`Logon)&((1b~m[.fix`ResetSeqNumFlag])|(v=0j)|((u<1j+v)&(cs[`custom]=`hs))))|((t=.fix`SequenceReset)&(not pdf)|((t=.fix`Logout)&(cs[`custom]=`hs)));();[if[not ct`isgap;.ctrl.tcpconn[sess;`isgap]:1b;lwarn[`FixSeqError;(sess;t;`LastSeq;v;`MsgSeq;u;`PossDupFlag;pdf;$[u<1+v;$[pdf;`MsgResend;`SeqTooLow];`SeqGapMsgLost])]];if[(u<1+v)&not pdf;fixdisc[sess;`SeqTooLow];.ctrl.tcpconn[sess;`peertime]:0Np;:()];if[u>1+v;if[t in `A`2;onfix[t;sess;m;u]];if[not (null .ct[`peerseq])&(cs[`custom]=`hs);smfixr[sess;r;.fix`ResendRequest;(.fix`BeginSeqNo`EndSeqNo)!(1+v;0j)]]];:()]];if[1b~ct`isgap;.ctrl.tcpconn[sess;`isgap]:0b;linfo[`FixSeqSync;(sess;u;v)]]];.ctrl.tcpconn[sess;`peerseq`peertime`pmsgtime]:(u;.z.P;("n"$08:00)+"p"$"Z"$m[.fix`SendingTime]);if[pdf&t in .fix.SESSCTRLMSG except `4;lwarn[`FixDupAdminMsg;(sess;t;m)]:()];$[(tid<>`$dtc)&(count dtc:m[.fix`DeliverToCompID]);[lwarn[`UnSupportRouterMsg;(sess;t;m)];smfixr[sess;r;.fix`Reject;(.fix`RefSeqNum`SessionRejectReason`Text)!(m[.fix`MsgSeqNum];.fix`VALUE_IS_INCORRECT;"Unsupported 3rd Routered Message!")]];not t in key .fix.Messages;[lwarn[`ErrorMsgType;(sess;t;m)];smfixr[sess;r;.fix`Reject;(.fix`RefSeqNum`SessionRejectReason`Text)!(m[.fix`MsgSeqNum];.fix`InvalidMsgType;"Error Message Type!")]];not t in key .fix.FIX;[lwarn[`UnSupportMsg;(sess;t;m)];smfixr[sess;r;.fix`BusinessMessageReject;(.fix`BusinessRejectReason`RefMsgType`Text`RefSeqNum)!(.fix`UNSUPPORTED_MESSAGE_TYPE;t;"Unsupported Message Type:",string t;m[.fix`MsgSeqNum])]];onfix[t;sess;m;u]];};
 
 .fix.FIX[`A]:{[x;y].temp.X2:(x;y);sc:.conf.fix.session[x];rsflag:(1b~y[.fix`ResetSeqNumFlag])|(((1j=`long$y[.fix`MsgSeqNum])|(ntd[]>`date$.ctrl.tcpconn[x;`logontime]))&(sc[`custom]=`hs));r:(.fix`EncryptMethod`HeartBtInt`ResetSeqNumFlag)!(0^ifill y[.fix`EncryptMethod];y[.fix`HeartBtInt];$[1b~y[.fix`ResetSeqNumFlag];`Y;`N]);if[`server~sc`mode;.ctrl.tcpconn[x;`selfseq`hbint]:($[rsflag;0j;.ctrl.tcpconn[x;`selfseq]];y[.fix`HeartBtInt]);smfixr[x;backroute[y];`A;r]];.ctrl.tcpconn[x;`status`logontime`testtime]:(`Logon;.z.P;0Np);}; /`Logon(admin) 
 
@@ -111,5 +112,10 @@ onfix:{[x;y;z;u].temp.X:(x;y;z;u);r:.[{.fix.FIX[x][y;z]};(x;y;z);`trap];($[`trap
 tracefixord:{[x]d:select mtime,src,dst,seq,mtype, first each m from .temp.MSG where mtype in `D`F`G`H`8`9,{y in {$[-11h=type x;x;`$x]} each x[0;.fix`ClOrdID`OrigClOrdID]}[;x]each m;{show "[****FIX****]",-3!x`mtype`seq`mtime`src`dst;show vm x`m;}each d;};
 
 //----ChangeLog----
+//2025.02.20:增加对FIX5.0sp2/FIXT1.1的支持,.init.fix增加定义HeadStr/HeadLen,onsockmsg消息头判断对应修改;dologon对FIXT增加送.fix`DefaultApplVerID
 //2024.11.18:.upd.FIX化简代码
 //2019.01.30:初始版本
+
+runq Tx/util/fixdict.q
+importfixxml each `:/q/xml/FIXT11_SP.xml`:/q/xml/FIX50SP2_SP.xml
+savefixdb `:/kdb/fix/SPFIX50sp2
