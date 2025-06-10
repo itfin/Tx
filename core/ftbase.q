@@ -1,4 +1,4 @@
-.module.ftbase:2024.12.11;
+.module.ftbase:2025.03.06;
 
 txload "core/rcbase";
 
@@ -138,7 +138,7 @@ limit_orderx:{[h;sd;accno;x;y;q;p;m]if[2=count x;h,:enlist[`tsexec]!enlist x[1];
 limit_order:limit_orderx[.enum`nulldict];
 xlimit_buyx:limit_orderx[;.enum`BUY];xlimit_sellx:limit_orderx[;.enum`SELL];xlimit_buy:xlimit_buyx[;0N];xlimit_sell:xlimit_sellx[;0N];
 limit_buyx:limit_order[.enum`BUY];limit_sellx:limit_order[.enum`SELL];limit_buy:limit_buyx[0N];limit_sell:limit_sellx[0N];limit_buy0:limit_buyx[0];limit_sell0:limit_sellx[0];limit_buy1:limit_buyx[1];limit_sell1:limit_sellx[1];etf_create:limit_order[.enum`ETFCreation;0N];etf_redeem:limit_order[.enum`ETFRedemption;0N];
-fak_buy:xlimit_buy[``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];fak_sell:xlimit_sell[``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];
+fak_buyx:xlimit_buyx[``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];fak_sellx:xlimit_sellx[``tif!(::;.enum.IMMEDIATE_OR_CANCEL)];fak_buy:fak_buyx[0N];fak_sell::fak_sellx[0N];
 fok_buy:xlimit_buy[``tif!(::;.enum.FILL_OR_KILL)];fok_sell:xlimit_sell[``tif!(::;.enum.FILL_OR_KILL)];
 
 limit_orderax:{[h;sd;acc;x;y;q;p;m]accno:$[acc=.db.Ts[x;`acc];0N;.db.Ts[x;`accx]?acc];limit_orderx[h;sd;accno;x;y;q;p;m]};limit_ordera:limit_orderax[.enum`nulldict];limit_buya:limit_ordera[.enum`BUY];limit_sella:limit_ordera[.enum`SELL];
@@ -307,7 +307,7 @@ dorepotask:{[x;y]s0:`204001.XSHG;s1:`131810.XSHE;h0:.db.QX[s0];h1:.db.QX[s1];amt
 
 newl2seq:{[]:.db.L2seq+:1};
 
-imptradex:{[t;x]e:fs2e y:x`sym;if[.db.Pm[y]<x`extime;.db.Pm[y]:x`extime];if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];q:x`qty;if[0<u:x`aid;u:x[`gid]+100000j*u];if[0<v:x`bid;v:x[`gid]+100000j*v];z:newl2seq[];wu:(u>0)&null .db.Vm[u];wv:(v>0)&null .db.Vm[v];if[$[`XSHG=e;wu&wv;wu|wv];if[not t;.db.Tm[z]:x;if[wu;.db.Wm[u],:z];if[wv;.db.Wm[v],:z]];:()];if[(0<u)&(0<=p:.db.Vm[u]);.db.Lm[u]-:q;if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p];if[count .db.Wm[u];.db.Wm[u]:.db.Wm[u] except z;if[0=count .db.Wm[u];.db.Wm _:u]]];if[(0<v)&(0<=p:.db.Vm[v]);.db.Lm[v]-:q;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[count .db.Wm[v];.db.Wm[v]:.db.Wm[v] except z;if[0=count .db.Wm[v];.db.Wm _:v]]];};  //逐笔成交处理.wu(成交先于卖单委托),wv(成交先于买单委托) if[(0<u)&0>=.db.Lm[u];.db.Lm _:u;.db.Vm _:u];if[(0<v)&0>=.db.Lm[v];.db.Lm _:v;.db.Vm _:v]; `$(string u),"_",(string v)
+imptradex:{[t;x]e:fs2e y:x`sym;if[.db.Pm[y]<x`extime;.db.Pm[y]:x`extime];if[not y in key .db.Am;.db.Am[y]:.db.Bm[y]:(`u#`float$())!`float$()];q:x`qty;if[0<u:x`aid;u:x[`gid]+100000j*u];if[0<v:x`bid;v:x[`gid]+100000j*v];wu:(u>0)&null .db.Vm[u];wv:(v>0)&null .db.Vm[v];if[$[`XSHG=e;wu&wv;wu|wv];if[not t;z:newl2seq[];x[`z]:z;.db.Tm[z]:x;if[wu;.db.Wm[u],:z];if[wv;.db.Wm[v],:z]];:()];if[(0<u)&(0<=p:.db.Vm[u]);.db.Lm[u]-:q;if[0>=.db.Am[y;p]-:q;.db.Am[y] _:p];if[count .db.Wm[u];.db.Wm[u]:.db.Wm[u] except x`z;if[0=count .db.Wm[u];.db.Wm _:u]]];if[(0<v)&(0<=p:.db.Vm[v]);.db.Lm[v]-:q;if[0>=.db.Bm[y;p]-:q;.db.Bm[y] _:p];if[count .db.Wm[v];.db.Wm[v]:.db.Wm[v] except x`z;if[0=count .db.Wm[v];.db.Wm _:v]]];};  //逐笔成交处理.wu(成交先于卖单委托),wv(成交先于买单委托) if[(0<u)&0>=.db.Lm[u];.db.Lm _:u;.db.Vm _:u];if[(0<v)&0>=.db.Lm[v];.db.Lm _:v;.db.Vm _:v]; `$(string u),"_",(string v)
 
 imptrade:imptradex[0b];impoldtrade:imptradex[1b];
 
@@ -354,6 +354,7 @@ nonight:{[x]y:weekday[x];(x within\:2020.02.03 2020.05.06)|((y>0)&(x-1)in\:.conf
 chkfuthis:{[d0;d1]d:trdates[d0;d1];h:.ctrl.conn.hdb.h;hs:h ({[x] select t0:min srctime,t1:max srctime,dmin:distinct `minute$time by date from quote where date within x,src=`fqctp};d0,d1);fullmin:exec `minute$bucketstart from -1_1_select from .temp.HSVP where sym=exec first sym from `amt xdesc select sum amt by sym from .temp.HSVP where sym like "au*";daymin:fullmin where fullmin within 08:00 16:00;((exec date from hs) except d;d except exec date from hs;select date,missmin from (update missmin:((01b!(fullmin;daymin)) nonight date)except'dmin from hs) where 0<count each missmin)}; /[d0;d1]期货历史数据完整性检查,返回(非交易日假数据日期列表;交易日无数据日期列表;交易日数据不齐异常表[(日期);缺失分钟数组])
 
 //----ChangeLog----
+//2025.03.06:新增fak_buyx/fak_sellx函数以支持多账户策略使用FAK委托
 //2024.12.11:cxlordex将cn次数更新提到检测cn次数超限之前,以便于业务逻辑判断是否异常
 //2024.12.04:修复roundv函数向下取整受到浮点计算误差干扰的bug
 //2024.11.19:chkpostask发送email增加结果标志位输出

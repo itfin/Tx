@@ -104,16 +104,16 @@ K1 (getsockbuf){
 }
 
 K1 (setsockbuf){
-  int s=0,n=16777216,r1=0,r2=0;
+  int s=0,n=16777216,n1=0,r1=0,r2=0;
   printf("n=%d,t=%d\n",x->n,x->t);
   if(0>x->t){
     s=x->i;
   }else{
-    s=kI(x)[0];n=kI(x)[1];
+    s=kI(x)[0];n=kI(x)[1];if(2<xn)n1=kI(x)[2];
   }
   printf("s=%d,n=%d\n",s,n);
   r1=setsockopt(s,SOL_SOCKET,SO_RCVBUF,(const char*)&n,sizeof(int));
-  r2=setsockopt(s,SOL_SOCKET,SO_SNDBUF,(const char*)&n,sizeof(int));
+  r2=setsockopt(s,SOL_SOCKET,SO_SNDBUF,(const char*)(n1>0)?(&n1):(&n),sizeof(int));
   return knk(3,ki(r1),ki(r2),ki(ERRNO));
 }
 

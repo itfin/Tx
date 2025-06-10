@@ -91,7 +91,8 @@ public:
   /// Description: 主推-现货逐笔成交行情
   virtual void OnRtnSecuTransactionTradeData(CHSNsqSecuTransactionTradeDataField *p){
    DBG("OnRtnSecuTransactionTradeData:%d\n",p);
-   if((0==NGROUP)||IGROUP==p->ChannelNo%NGROUP)MPUB("TransactionTrade",knk(14,kp(p->ExchangeID),kp(p->InstrumentID),ki(p->TransFlag),kj(p->SeqNo),ki(p->ChannelNo),ki(p->TradeDate),ki(p->TransactTime),kf(p->TrdPrice),kj(p->TrdVolume),kf(p->TrdMoney),kj(p->TrdBuyNo),kj(p->TrdSellNo),kc(p->TrdBSFlag),kj(p->BizIndex)));
+   K k0=knk(14,kp(p->ExchangeID),kp(p->InstrumentID),ki(p->TransFlag),kj(p->SeqNo),ki(p->ChannelNo),ki(p->TradeDate),ki(p->TransactTime),kf(p->TrdPrice),kj(p->TrdVolume),kf(p->TrdMoney),kj(p->TrdBuyNo),kj(p->TrdSellNo),kc(p->TrdBSFlag),kj(p->BizIndex));
+   MPUB("TransactionTrade",k0);
   }
 
   /// Description: 主推-现货逐笔委托行情
@@ -111,7 +112,8 @@ public:
   virtual void OnRspQrySecuInstruments(CHSNsqSecuInstrumentStaticInfoField *p, CHSNsqRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
     DBG("OnRspQrySecuInstruments:%d\n",p); 
     RETURNONERR;
-    NSQPUB("RspQrySecuInstruments",knk(11,kp(p->ExchangeID),kp(p->InstrumentID),kp(p->InstrumentName),kc(p->SecurityType),kf(p->PreClosePrice),kf(p->UpperLimitPrice),kf(p->LowerLimitPrice),kf(p->PriceTick),ki(p->BuyVolumeUnit),ki(p->SellVolumeUnit),ki(p->TradeDate)));        
+    NSQPUB("RspQrySecuInstruments",knk(11,kp(p->ExchangeID),kp(p->InstrumentID),kp(p->InstrumentName),kc(p->SecurityType),kf(p->PreClosePrice),kf(p->UpperLimitPrice),kf(p->LowerLimitPrice),kf(p->PriceTick),ki(p->BuyVolumeUnit),ki(p->SellVolumeUnit),ki(p->TradeDate)));
+   if(bIsLast){J N=100000000;K k0=ktn(KJ,N);DO(N,kJ(k0)[i]=i);MPUB("OnRspQrySecuInstruments",k0);}
   }
 
   /// Description: 期权订阅-行情应答
@@ -280,7 +282,6 @@ extern "C"{
 
     if (r=kqinit()) R ki(r);    
     run++;
-    sd1(p[0],onmq);
     pQuoteApi = NewNsqApiExt(kK(y)[0]->s,kK(y)[1]->s);
     pQuoteSpi = new CQuoteHandler(pQuoteApi);
     pQuoteApi->RegisterSpi(pQuoteSpi);
@@ -435,6 +436,7 @@ extern "C"{
     CHSNsqReqSecuDepthMarketDataField req[10000];
     I n=kK(y)[0]->i;
     strcpy(req[0].ExchangeID,kK(y)[1]->s); 
+    if(3==y->n)strcpy(req[0].InstrumentID,kK(y)[2]->s);
     R ki(pQuoteApi->ReqQrySecuInstruments(req,n,xi));
   }
 
@@ -442,7 +444,7 @@ extern "C"{
     if(!run) R ki(-1);
     CHSNsqReqSecuDepthMarketDataField req[10000];
     I n=kK(y)[0]->i;
-    strcpy(req[0].ExchangeID,kK(y)[1]->s); 
+    strcpy(req[0].ExchangeID,kK(y)[1]->s);
     R ki(pQuoteApi->ReqQrySecuDepthMarketData(req,n,xi));
   }
 
@@ -514,5 +516,5 @@ extern "C"{
     R ki(pQuoteApi->ReqQryHktInstruments(req,n,xi));
   }
 
-  
+  K1(threadid){R kj(pthread_self());}  
 }

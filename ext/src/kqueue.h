@@ -3,9 +3,9 @@
 //#define _USE_LOCKFREE_QUEUE 1
 
 #if defined(_USE_LOCKFREE_QUEUE)
-#include "concurrentqueue.h"
+ #include "concurrentqueue.h"
 #else
-#include <queue>
+ #include <queue>
 #endif
 
 #include "kcomm.h"
@@ -18,46 +18,47 @@
 ZK onmq(I i);
 
 ZI p[2];ZC b[2*PIPE_CAPACITY];
+ZJ lastpub=0,pubfreq=0; 
 
 #if defined(WIN32)||defined(WIN64)
-#include <process.h>
-ZI pipe(I*p){R !CreatePipe((PHANDLE)p+0,(PHANDLE)p+1,0,0);}
-ZI dwBytes;
-#define read(x,y,z) ReadFile((HANDLE)x,y,z,(LPDWORD)&dwBytes,NULL) 
-#define write(x,y,z) WriteFile((HANDLE)x,y,z,(LPDWORD)&dwBytes,NULL); 
-#define close(x) CloseHandle((HANDLE)x)
-#if defined(_USE_LOCKFREE_QUEUE)
-#define INITLOCK 
-#define FREELOCK 
+ #include <process.h>
+ ZI pipe(I*p){R !CreatePipe((PHANDLE)p+0,(PHANDLE)p+1,0,0);}
+ ZI dwBytes;
+ #define read(x,y,z) ReadFile((HANDLE)x,y,z,(LPDWORD)&dwBytes,NULL) 
+ #define write(x,y,z) WriteFile((HANDLE)x,y,z,(LPDWORD)&dwBytes,NULL); 
+ #define close(x) CloseHandle((HANDLE)x)
+ #if defined(_USE_LOCKFREE_QUEUE)
+  #define INITLOCK 
+  #define FREELOCK 
+ #else
+  Z CRITICAL_SECTION g_CS;
+  #define INITLOCK InitializeCriticalSection(&g_CS)
+  #define FREELOCK DeleteCriticalSection(&g_CS)
+  #define LOCK EnterCriticalSection(&g_CS)
+  #define UNLOCK LeaveCriticalSection(&g_CS)
+ #endif
 #else
-Z CRITICAL_SECTION g_CS;
-#define INITLOCK InitializeCriticalSection(&g_CS)
-#define FREELOCK DeleteCriticalSection(&g_CS)
-#define LOCK EnterCriticalSection(&g_CS)
-#define UNLOCK LeaveCriticalSection(&g_CS)
-#endif
-#else
-#if defined(_USE_LOCKFREE_QUEUE)
-#else
-Z pthread_mutex_t g_mutex=PTHREAD_MUTEX_INITIALIZER;
-#define LOCK pthread_mutex_lock(&g_mutex)
-#define UNLOCK pthread_mutex_unlock(&g_mutex)
-#endif
-#define INITLOCK 
-#define FREELOCK 
+ #if defined(_USE_LOCKFREE_QUEUE)
+ #else
+  Z pthread_mutex_t g_mutex=PTHREAD_MUTEX_INITIALIZER;
+  #define LOCK pthread_mutex_lock(&g_mutex)
+  #define UNLOCK pthread_mutex_unlock(&g_mutex)
+ #endif
+ #define INITLOCK 
+ #define FREELOCK 
 #endif
 
 #if defined(_USE_LOCKFREE_QUEUE)
-Z moodycamel::ConcurrentQueue<K> mq(QUEUE_SIZE);
-Z moodycamel::ProducerToken ptok(mq);
-Z moodycamel::ConsumerToken ctok(mq);
-#define ONMQ(kcb) ZK onmq(I i){K L=knk(0);read(i,&b,PIPE_CAPACITY);K x; while (mq.try_dequeue(ctok,x)){jk(&L,x);}k(0,kcb,L,(K)0);R ki(0);} ////ZK onmq(I i){K L=knk(0);read(i,&b,PIPE_CAPACITY);K x; while (mq.try_dequeue(ctok,x)){jk(&L,x);}k(0,"onkmq",L,(K)0);R ki(0);}
-Z V mpub(K x){mq.enqueue(ptok,x);write(p[1],&b,1);};
+ Z moodycamel::ConcurrentQueue<K> mq(QUEUE_SIZE);
+ Z moodycamel::ProducerToken ptok(mq);
+ Z moodycamel::ConsumerToken ctok(mq);
+#define ONMQ(kcb) ZK onmq(I i){K L=knk(0);J now;struct timespec ts;if(0<pubfreq){clock_gettime(CLOCK_REALTIME, &ts);now=ts.tv_sec*1000000000LL+ts.tv_nsec;if(now<=pubfreq+lastpub)R ki(0);else lastpub=now;}read(i,&b,PIPE_CAPACITY);K x; while (mq.try_dequeue(ctok,x)){jk(&L,x);}k(0,kcb,L,(K)0);R ki(0);} ////ZK onmq(I i){K L=knk(0);read(i,&b,PIPE_CAPACITY);K x; while (mq.try_dequeue(ctok,x)){jk(&L,x);}k(0,"onkmq",L,(K)0);R ki(0);}
+ Z V mpub(K x){mq.enqueue(ptok,x);write(p[1],&b,1);};
 #else
-Z std::queue<K> mq;
-Z std::queue<K> fq;
-#define ONMQ(kcb) ZK onmq(I i){ K L=knk(0);read(i,&b,PIPE_CAPACITY);LOCK;while (!mq.empty()){jk(&L,d9(mq.front()));mq.pop();}UNLOCK;k(0,kcb,L,(K)0);R ki(0);}
-Z V mpub(K x){LOCK;mq.push(b9(1,x));UNLOCK;write(p[1],&b,1);};
+ Z std::queue<K> mq;
+ Z std::queue<K> fq;
+ #define ONMQ(kcb) ZK onmq(I i){K L=knk(0);J now;struct timespec ts;if(0<pubfreq){clock_gettime(CLOCK_REALTIME, &ts);now=ts.tv_sec*1000000000LL+ts.tv_nsec;if(now<=pubfreq+lastpub)R ki(0);else lastpub=now;}read(i,&b,PIPE_CAPACITY);LOCK;while (!mq.empty()){jk(&L,d9(mq.front()));mq.pop();}UNLOCK;k(0,kcb,L,(K)0);R ki(0);}
+ Z V mpub(K x){LOCK;mq.push(b9(1,x));UNLOCK;write(p[1],&b,1);};
 #endif
 
 ZI kqinit(){
@@ -82,3 +83,5 @@ ZV kqfree(){
     close(p[0]);close(p[1]);
     FREELOCK;
 }
+
+extern "C"{K1(setpubfreq){pubfreq=xj;R kj(pubfreq);} K1(getpubfreq){R kj(pubfreq);}K1(getlastpub){R kj(lastpub);}}

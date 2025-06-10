@@ -42,7 +42,7 @@ ac[`RepoSZ]:ac[`BondSZ]:`pxunit`qtylot`qtymax!1e-3 10 1e5;
 ac[`BondSS]:`pxunit`qtylot`qtymax!1e-3 1 1e4;
 ac[`RepoSS]:`pxunit`qtylot`qtymax!5e-3 1e2 1e4;
 ac[`Future]:`pxunit`qtylot`qtymax!1e-2 1 1e2;
-
+ac[`Option]:`pxunit`qtylot`qtymax!1e-4 1 30;
 
 jc.hk:`s#0.01 0.25 0.5 10 20 100 200 500 1000 2000 5000 9995!0.001 0.005 0.01 0.02 0.05 .1 .2 .5 1 2 5 0;
 hkticks:`s#raze {x[0]+x[1]*til 1|`int$(x[2]-x[0])%x[1]} each flip (key;value;('[;]/)(fills;next;key))@\: jc.hk;

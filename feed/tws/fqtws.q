@@ -1,4 +1,4 @@
-.module.fqtws:2018.05.04;
+.module.fqtws:2025.04.10;
 
 txload "core/fqbase";
 txload "feed/tws/twsbase";
@@ -27,9 +27,9 @@ subtwsall:{[x]subtwsdata[x];subtwsbars[x];}; /subtwsdepth[x];
 
 unsubtws:{[x]tws_cancel_mkt_data each I:where x=.ctrl.TickerMap;.ctrl.TickerMap:I _.ctrl.TickerMap;};
 
-tws_tick_price:{[x]if[null y:.ctrl.TickerMap "J"$x`tickerid;:()];ex:fs2e y;z:"J"$x`ticktype;.db.QX[y;`time`recvtime`nticks,$[z=.enum`BID;`bid`bsize;z=.enum`ASK;`ask`asize;z=.enum`HIGH;`high`size;z=.enum`LOW;`low`size;z=.enum`LAST;`price`size;`settlepx`size]]:(`timespan$.z.T;.z.P;1+0^.db.QX[y;`nticks]),"F"$x`price`size;};
+tws_tick_price:{[x]if[null y:.ctrl.TickerMap "J"$x`tickerid;:()];ex:fs2e y;z:"J"$x`ticktype;.db.QX[y;`time`recvtime`nticks,$[z in .enum`BID`DELAYED_BID;`bid`bsize;z in .enum`ASK`DELAYED_ASK;`ask`asize;z in .enum`HIGH`DELAYED_HIGH;`high`size;z in .enum`LOW`DELAYED_LOW;`low`size;z in .enum`LAST`DELAYED_LAST;`price`size;`settlepx`size]]:(`timespan$.z.T;.z.P;1+0^.db.QX[y;`nticks]),"F"$x`price`size;};
 
-tws_tick_size:{[x]if[null y:.ctrl.TickerMap "J"$x`tickerid;:()];ex:fs2e y;z:"J"$x`ticktype;.db.QX[y;`time`recvtime`nticks,$[z=.enum`BID_SIZE;`bsize;z=.enum`ASK_SIZE;`asize;z=.enum`VOLUME;`cumqty;z=.enum`OPEN_INTEREST;`openint;`size]]:(`timespan$.z.T;.z.P;1+0^.db.QX[y;`nticks]),"F"$x`size;};
+tws_tick_size:{[x]if[null y:.ctrl.TickerMap "J"$x`tickerid;:()];ex:fs2e y;z:"J"$x`ticktype;.db.QX[y;`time`recvtime`nticks,$[z in .enum`BID_SIZE`DELAYED_BID_SIZE;`bsize;z in .enum`ASK_SIZE`DELAYED_ASK_SIZE;`asize;z in .enum`VOLUME`DELAYED_VOLUME;`cumqty;z in .enum`OPEN_INTEREST;`openint;`size]]:(`timespan$.z.T;.z.P;1+0^.db.QX[y;`nticks]),"F"$x`size;};
 
 tws_market_depth:{[x]if[null y:.ctrl.DepthMap "J"$x`reqid;:()];l:"J"$x`position;op:"J"$x`operation;sd:"J"$x`side;px:"F"$x`price;qty:"F"$x`size;pfd:$[sd=0;`askQ;`bidQ];qfd:$[sd=0;`asizeQ;`bsizeQ];$[op=0;[L:.db.QX[y;pfd];.db.QX[y;pfd]:l#L,px,l _L;L:.db.QX[y;qfd];.db.QX[y;qfd]:l#L,qty,l _L];op=1;[.db.QX[y;pfd;l]:px;.db.QX[y;qfd;l]:qty];op=2;[.db.QX[y;pfd]_:l;.db.QX[y;qfd]_:l];()];}; /l:0,1,...;op:0(insert),1(update),2(delete),sd:0(ask),1(bid)
 
@@ -83,7 +83,9 @@ tws_real_time_bars:{[x]y:.ctrl.BarReqMap "J"$x`reqid;z:unixdate["I"$x`time];d:en
 rtbarsubinit:{[x;y]tws_cancel_real_time_bars each key .ctrl.BarReqMap;.ctrl.BarReqMap:()!();1b};
 rtbarsubloop:{[x;y]if[(not `Logon~.ctrl.tws`status)|(null .ctrl.tws`peertime)|(.z.P<00:00:10+.ctrl.tws`logontime);:()];sl0:value .ctrl.BarReqMap;sl1:(exec sym from .db.QX where (not null sym)&((sectype<>`FUT)|settledate>=.z.D)&((null status)&(not ex in `SEHK`SEHKNTL`SEHKSZSE))),exec sym from `status xdesc select from .db.QX where (status>0)&ex=`SEHK;if[(0<n:.conf.tws.rtsubmax-count .ctrl.BarReqMap)&count sl:sl1 except sl0;subtwsbars each sublist[n&.conf.tws.rtbarbatchcnt] sl;.ctrl.tws.rtbarsubtime:.z.P];1b}; /10min订阅不超过60,每10秒订阅1个
 
+tws_afterlogon:{req_current_time[1];if[not null t:.conf.tws`submdtyp;tws_req_market_data_type[t]];};
 //----ChangeLog----
+//2025.04.10:重定义tws_afterlogon以支持根据.conf.tws.submdtyp设置订阅非实时行情;tws_tick_price/tws_tick_size增加对延时行情字段类型的支持
 //2024.05.17:修订dosubscribe订阅规则,由{{{status为空的非港A股代码自动订阅}}}变更为{{{status为空的指定交易所(.conf.tws.autosubex)代码+status>0逆序排列的代码}}}
 //2018.05.04:初始版本
 

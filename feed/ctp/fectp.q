@@ -1,4 +1,4 @@
-.module.fectp:2024.11.18;
+.module.fectp:2025.03.04;
 
 txload "core/febase";
 txload "feed/ctp/ctpbase";
@@ -196,7 +196,10 @@ parsettlementfile:{[x]y:(-1_) each read0 x;z:("*Account Summary*";"*Transaction 
 
 chkdayroll:{[x;y]if[.db.sysdate<z:.ctrl.conn.fqbar.h `.db.sysdate;.upd.BeginOfDay enlist[`msg]!enlist string z];1b};
 
+syncmat:{[]d:select from ((select id,ts,fe,acc,sym,side,posefct,qty,price,status,cumqty,avgpx,feoid,ntime from .db.O where not end) lj select cumqty1:`float$sum Volume,avgpx1: Volume wavg Price by feoid:`$OrderRef from .temp.L5) where (cumqty<cumqty1);.db.O:.db.O lj 1!select feoid,cumqty:cumqty1,avgpx:avgpx1 from d;execrpt each exec id from d;}; /修复成交数据丢失 
+
 //----ChangeLog----
+//2025.03.04:新增syncmat函数.当ctp交易接口异常导致丟回报时,使用通过查询接口返回的委托/成交数据进行修正后再向fe推更新后的成交回报.调用前应先在fe执行qryoda/qrymat并等待结果返回
 //2024.11.18:增加函数chkdayroll以在夜盘启动后检查dayroll是否完成(日盘收盘后的异常退出可能导致dayroll未生效).db.TASK[`CHKDROLL;`firetime`firefreq`weekmin`weekmax`handler]:(\"p\"$.z.D+20:50:00;1D;0;4;`chkdayroll);
 //2024.11.15:增加函数.upd.QueryOrdAcc并对应修改.upd.QryOrder以支持ft查询全部委托列表
 //2024.10.31:.upd.FrontConnectT/FrontDisconnectT增加日志记录

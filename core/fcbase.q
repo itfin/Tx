@@ -1,6 +1,6 @@
 /runq Tx/core/base.q -conf cffc0 -code "txload \"core/fcbase\"" -p 5000
 
-.module.fcbase:2024.11.11;
+.module.fcbase:2025.04.25;
 
 \d .temp
 NS:([]stime:`timestamp$();id:`symbol$();cpu:`float$();mem:`float$();swap:`float$();disk:`float$();cores:());
@@ -20,7 +20,7 @@ MOD:([id:`symbol$()]mtyp:`symbol$();node:`symbol$();ip:`symbol$();port:`long$();
 
 .init.fc:{[]initnod[];initmod[];conntx[];}; /
 
-nod_init:{[x].ctrl.NOD[x;`ip`portoffset]:.conf.ha[x;`ip`portoffset];s:nodecmd[x;"lscpu"];t:update `$k from flip `k`v!flip (2#) each vs[":"] each except[;" ()"] each s;.ctrl.NOD[x;`cpufreq`cpucores]:(1e-3*exec "F"$first v from t where k like "CPU*MHz";exec "J"$first v from t where k=`CPUs);s:nodecmd[x;"free"];.ctrl.NOD[x;`mem`swap]:(1%1024 xexp 2)*{"F"$@[;1] vs[" ";x] except enlist ""} each s[1 2];s:nodecmd[x;"sudo df -l --output=source,size"];r:(!/)"SF"$flip {vs[" ";x] except enlist ""} each 1_s;.ctrl.NOD[x;`diskdev`disk]:(first where r=max r;(1%1024 xexp 3)*max r);s:nodecmd[x;"uptime -s"];.ctrl.NOD[x;`uptime]:"P"$first s;}; /-t ext4
+nod_init:{[x].ctrl.NOD[x;`ip`portoffset]:.conf.ha[x;`ip`portoffset];s:nodecmd[x;"lscpu"];t:update `$k from flip `k`v!flip (2#) each vs[":"] each except[;" ()"] each s;.ctrl.NOD[x;`cpufreq`cpucores]:(1e-3*first exec "F"$first v from t where k like "CPU*MHz";exec "J"$first v from t where k=`CPUs);s:nodecmd[x;"free"];.ctrl.NOD[x;`mem`swap]:(1%1024 xexp 2)*{"F"$@[;1] vs[" ";x] except enlist ""} each s[1 2];s:nodecmd[x;"sudo df -l --output=source,size"];r:(!/)"SF"$flip {vs[" ";x] except enlist ""} each 1_s;.ctrl.NOD[x;`diskdev`disk]:(first where r=max r;(1%1024 xexp 3)*max r);s:nodecmd[x;"uptime -s"];.ctrl.NOD[x;`uptime]:"P"$first s;}; /-t ext4
 
 initnod:{[]@[nod_init;;()] each .conf.ha.nodelist;};
 
@@ -72,7 +72,7 @@ gcall:{[x;y]if[0=count H:{x where 0<x} .ctrl.H;:()];neg[H]@\:(`.Q.gc;());1b};
 
 hball:{[x;y]{neg[.ctrl.MOD[x;`h]] ({[x;t0]neg[.z.w] ({[x;z;t0;t1].ctrl.MOD[x;`hbsent`hbpeer`hbrecv`mem]:(t0;t1;t2:.z.P;z);d:1e-9*t2-t0;.temp.MS,:enlist (t2;x;d;z);if[d>=.conf`maxdelay;lwarn[`delaytoolong;(x;d;t0;t1;t2)]]};x;1e-6*.Q.w[]`heap;t0;.z.P)};x;.z.P)} each exec id from .ctrl.MOD where 0<h;1b}; /mod heartbeat 
 
-nhall:{[x;y]{s:nodecmd[x;"mpstat -P ALL 1 1"];cu:1-1e-2*"F"$last flip {x where 13=count each x} {vs[" ";x] except enlist ""}each 3_s;s:nodecmd[x;"df -l -t ext4 --output=source,size,avail|grep ",string .ctrl.NOD[x;`diskdev]];du:1-last ratios "F"$-2#(vs[" "] s[0]) except enlist "";s:nodecmd[x;"free"];mu:{last ratios "F"$2#(1_vs[" "] x) except enlist ""}each 1_s;.temp.NS,:enlist (.z.P;x),.ctrl.NOD[x;`cpuuse`memuse`swapuse`diskuse`coreuse]:(cu[0];mu[0];mu[1];du;1_cu);if[any all each .conf[`maxcoreuse]<= flip first value flip select [neg[.conf.corechklen]]  cores from .temp.NS where id=x;cs:1_cu;im:first idesc cs;lwarn[`cputoohigh;(x;im;exec first id from .ctrl.MOD where node=x,in[im] each cores;cs)]]} each exec id from .ctrl.NOD;1b}; /nodehealth
+nhall:{[x;y]{s:nodecmd[x;"mpstat -P ALL 1 1"];cu:1-1e-2*"F"$last flip {x where 13=count each x} {vs[" ";x] except enlist ""}each 3_s;s:nodecmd[x;"df -l -t ext4 --output=source,size,avail|grep ",string .ctrl.NOD[x;`diskdev]];du:1-last ratios "F"$-2#(vs[" "] s[0]) except enlist "";s:nodecmd[x;"free"];mu:{last ratios "F"$2#(1_vs[" "] x) except enlist ""}each 1_s;.temp.NS,:enlist (.z.P;x),.ctrl.NOD[x;`cpuuse`memuse`swapuse`diskuse`coreuse]:(cu[0];mu[0];mu[1];du;1_cu);if[any all each .conf[`maxcoreuse]<= flip first value flip select [neg[.conf.corechklen]]  cores from .temp.NS where id=x;cs:1_cu;im:first idesc cs;m:exec first id from .ctrl.MOD where node=x,in[im] each cores;if[not m in .conf`modskip;lwarn[`cputoohigh;(x;im;m;cs)]]]} each exec id from .ctrl.NOD;1b}; /nodehealth
 
 ping:{[x]y:string x;z:system "ping -c 1 ",y;raze z};
 pingok:@[ping;;()];
@@ -112,7 +112,25 @@ freerdb:{[x;y].ctrl.H[`rdb] ({[] {set[x;0#get x]} each tables[];.Q.gc[]};());1b}
 restartmod:{[x]stopmod[x];startmod[x];};
 restartdaily:{[x;y] {if[1b~.conf[x;`restart];restartmod x]} each .conf.modules;1b};
 
+startdaily1:{[x;y] {if[(1b~.conf[x;`daily1])&not .z.D in .conf.holiday;startmod x]} each .conf.modules;1b};
+stopdaily1:{[x;y] {if[(1b~.conf[x;`daily1])&not .z.D in .conf.holiday;stopmod x]} each reverse .conf.modules;1b};
+
+setusrmodright:{[x;y;z]f:`$":/q/Tx/conf/",string[.conf.app],"/",string[x],"_user.ini";h0:h:(!/)"S:\n" 0: `char$read1 f;$[null z;h:y _ h;h[y]:string z];if[not h0~h;f 0: sv[":"] each flip (string[key[h]];value[h])];}; /[mid;uid;pass]更新用户密码或权限.null pass代表取消访问权限 
+syncusr:{[x]r:.db.U[x];y:r`pass;z:r`mods;authmods:{x where {not null .conf[x;`auth]} each x} .conf.modules;simmods:{x where x like "*sim*"} authmods;prdmods:authmods except simmods;setusrmodright[;x;y] each z;setusrmodright[;x;`] each prdmods except z;if[null x:r`simid;:()];y:r`simpass;z:r`simods;setusrmodright[;x;y] each z;setusrmodright[;x;`] each simmods except z;};
+syncallcusr:{[]syncusr each exec id from .db.U;};
+reloadmodright:{[x]if[0>h:.ctrl.MOD[x;`h];:()];neg[h] "\\u";};
+reloadallright:{[]reloadmodright each exec id from .ctrl.MOD;};
+syncrightfiles:{[]x:"/q/Tx/conf/",string[.conf.app];{[x;y]system "rsync -avz ",x,"/*_user.ini ",}[x] each };
+
+checktpcon:{[x].temp.s:s:raze @[system;"lsof -a -i tcp -nP -p ",string[exec first pid from .ctrl.MOD where id=x],"|grep 5010";()];if[(0=count s)|not (s,"") like "*->127.0.0.1:5010 *";stopmod x;startmod x];};
+checkrdbtask:{[x;y]checktpcon `rdb;1b};
+checkudptask:{[x;y]s:system "cat /proc/net/udp";if[0<n:max distinct"J"$last each except[;enlist ""] each vs[" "] each 1_s;lwarn[`udpdrop;(n;s)]];1b};
+
 //----ChangeLog----
+//2025.04.25:增加checkudptask任务函数检测是否存在udp消息丢包情况
+//2025.04.02:增加checktpcon函数检测模块和总线的tcp连接是否丢失,增加任务函数checkrdbtask当rdb和总线的tcp连接丢失时自动重启rdb
+//2025.03.04:增加.db.U表配置用户名和访问权限,增加setusrmodright/syncuser/syncallusr/reloadmodright/reloadallright/syncrightfiles函数
+//2025.02.27:增加startdaily1/stopdaily1以支持多一组每日启停时间配置;nhall增加对.conf.modskip配置项支持
 //2024.11.11:chkfqstatus增加对.conf.modules1的过滤(对modules1和modskip做规范区分:modules1为未上线模块列表,在module列表外,不参与fc自动管理,可手动启停进行生产环境调试;modskip为试上线模块列表,在module列表内,参与定时任务启停,不参与fc监控,不参与一键启停)
 //2024.11.08:modstartcmd增加对模块配置auth项的支持
 //2024.08.22:modstartcmd增加对模块配置ruser项的支持
@@ -133,3 +151,8 @@ restartdaily:{[x;y] {if[1b~.conf[x;`restart];restartmod x]} each .conf.modules;1
 .db.TASK[`STOP_X;`firetime`firefreq`weekmin`weekmax`timemin`timemax`handler]:(`timestamp$.z.D+08:30;`timespan$00:00:15;0;4;`time$00:00;`time$24:00;`stopdailyx);
 
 .db.TASK[`RESTART;`firetime`firefreq`handler]:(`timestamp$.z.D+03:00:00;1D;`restartdaily);
+
+.db.U:([id:`symbol$()]name:`symbol$();pass:`symbol$();mods:();simid:`symbol$();simpass:`symbol$();simods:();memo:());
+
+.db.TASK[`CHKRDB;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+18:50;1D;0;4;`checkrdbtask);
+.db.TASK[`CHKUDP;`firetime`firefreq`weekmin`weekmax`handler]:(`timestamp$.z.D+09:50;1D;0;4;`checkudptask);

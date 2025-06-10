@@ -1,5 +1,5 @@
 //算法交易策略
-.module.tsalgobase:2024.12.13;
+.module.tsalgobase:2025.04.08;
 
 txload "tsl/tslib";
 
@@ -116,7 +116,7 @@ checkems:{[]if[`ERROR~.ctrl.StateMap`EMS;:()];
 
 checkqs:{[x]t:`time$x;if[not max t within/: ((.db.Ts[.conf.algots]`ALARMQUOTELAG),0) +/: 0N 2#.conf.ex[`XSHG;`moo`mooend`openAM`closeAM`openPM`closePM];:()];tm:exec max time by fs2e each sym from .db.QX where .z.D=`date$srctime;ae:(t<.conf.ex[`XSHE;`moc])&(t-.conf.ex[`XSHE;`moo]|tm`XSHE)>.db.Ts[.conf.algots]`ALARMQUOTELAG;ag:(t-.conf.ex[`XSHG;`moo]|tm`XSHG)>.db.Ts[.conf.algots]`ALARMQUOTELAG;s:$[ae&ag;`QuoteStop;ae;`QuoteSZStop;ag;`QuoteSHStop;`OK];setstate[`QS;s];};
 
-chkordexp:{[x;y]{[x]pa:.db.O1[.db.O[x;`upid];`price];p:.db.O[x;`price];sd:.db.O[x;`side];pn:getordpx[.db.O[x;`sym];sd;`AGGRESSIVE];if[((pa=p)&(0<pa))|((sd=.enum`BUY)&(pn<=p))|((sd=.enum`SELL)&(pn>=p));:()];.db.O[x;`ctime`pending`s1`s2]:(now[];1b;`peg;`AGGRESSIVE);cxlord x;} each exec id from .db.O where id in key[.temp.hO],tsexec=x,(status in .enum`PENDING_NEW`NEW`PARTIALLY_FILLED),((cstatus=.enum`NULL)&(not null expiretime)&(expiretime<y|rtime+.db.Ts[.conf.algots][`MINACKTOCXL]))|((cstatus in .enum`PENDING_CANCEL`REJECTED)&((ctime+`timespan$.db.Ts[.conf.algots]`CXLTMOUT)<y)&(cn<.db.Ts[.conf.algots]`CXLCOUNT));{[x;y]queryord x;.db.O[x;`qtime`qn]:(y;1i+0i^.db.O[x;`qn])}[;y] each exec id from .db.O where id in key[.temp.hO],tsexec=x,(((status=.enum[`PENDING_NEW])&((ntime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y))|((cstatus<>.enum[`NULL]&((ctime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y))))&((qtime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y)&(qn<.db.Ts[.conf.algots]`QRYCOUNT);}; /超时撤单处理,对限价母单且子单价格已为限价时不做撤单(20110428),对新订单未及时确认或撤单未及时拒绝且全部成交的可疑单发查询请求 
+chkordexp:{[x;y]{[x]k:.db.O[x;`upid];pa:.db.O1[k;`price];p:.db.O[x;`price];sd:.db.O[x;`side];pn:getordpx[.db.O[x;`sym];sd;`AGGRESSIVE];if[(not .db.O1[k;`pending])&((pa=p)&(0<pa))|((sd=.enum`BUY)&(pn<=p))|((sd=.enum`SELL)&(pn>=p));:()];.db.O[x;`ctime`pending`s1`s2]:(now[];1b;`peg;`AGGRESSIVE);cxlord x;} each exec id from .db.O where id in key[.temp.hO],tsexec=x,(status in .enum`PENDING_NEW`NEW`PARTIALLY_FILLED),((cstatus=.enum`NULL)&(not null expiretime)&(expiretime<y|rtime+.db.Ts[.conf.algots][`MINACKTOCXL]))|((cstatus in .enum`PENDING_CANCEL`REJECTED)&((ctime+`timespan$.db.Ts[.conf.algots]`CXLTMOUT)<y)&(cn<.db.Ts[.conf.algots]`CXLCOUNT));{[x;y]queryord x;.db.O[x;`qtime`qn]:(y;1i+0i^.db.O[x;`qn])}[;y] each exec id from .db.O where id in key[.temp.hO],tsexec=x,(((status=.enum[`PENDING_NEW])&((ntime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y))|((cstatus<>.enum[`NULL]&((ctime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y))))&((qtime+`timespan$.db.Ts[.conf.algots]`QRYTMOUT)<y)&(qn<.db.Ts[.conf.algots]`QRYCOUNT);}; /超时撤单处理,对限价母单且子单价格已为限价时不做撤单(20110428),对新订单未及时确认或撤单未及时拒绝且全部成交的可疑单发查询请求 
 
 chkoaordexp:{[x;y]if[(`time$now[])>.db.Ts[.conf.algots]`EODTIME;{.db.O1[x;`end`status`msg]:(1b;.enum`DONE_FOR_DAY;"EODTimeReached");execrptoa[x];} each exec id from .db.O1 where status in .enum`NEW`PARTIALLY_FILLED];if[`BB~.db.Ts[.conf.algots]`OMSTYPE;:()];{.db.O1[x;`end`status`msg]:(1b;.enum`EXPIRED;"EndTimeReached");execrptoa[x];} each exec id from .db.O1 where status in .enum`NEW`PARTIALLY_FILLED,cstatus=.enum`NULL,cumqty=sentqty,{[x;y]if[0>=count y;:0b];z:"Z"$cfill y[0;`EndTime];(not null z)&(x>`time$z)}[`time$y] each para;}; /[]2012.03.26增加对Bloomberg OMS不回母单过期处理
 
@@ -196,6 +196,7 @@ oadetaild:{[isrt;x;y]y:`long$y;toa:$[isrt;.db.O1;.hdb.O1];to:$[isrt;.db.O;.hdb.O
 nsuboids:{[x]exec count i from .db.O where upid=x,not end};
 
 //----ChangeLog----
+//2025.04.08:chkordexp不做撤单过滤条件要加上母单非pending状态的限制,以避免母单撤单无法完成
 //2024.12.13:ono_algo内当子单连续拒绝自动撤母单时,如果母单是篮子单中一腿的话改为撤整个篮子单
 //2024.10.28:修复lst_cxl_child_end的bug,修改.upd[`CancelOrderAlgoList]
 //2024.10.16:oatbld/oatbld1返回结果增加upid列并用篮子算法替代各腿母单的算法
