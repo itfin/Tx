@@ -7,6 +7,7 @@ app:`qtx;
 appuser:`qtxuser;
 apppass:`qtxpass;
 appconn:":",(string appuser),":",(string apppass);
+auth:"";
 
 ha.nodelist:enlist `ha;
 ha.api.fe:`ordnew`ordcxl;
